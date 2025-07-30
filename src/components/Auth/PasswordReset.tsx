@@ -21,42 +21,26 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
   const handleRequestReset = async () => {
     setError('');
     setSuccess('');
-
     if (!email) {
-      setError('Please enter your email address');
+      setError('Please enter your email address.');
       return;
     }
-
-    // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
     setIsLoading(true);
-
     try {
       const response = await fetch(API_ENDPOINTS.PASSWORD_RESET_REQUEST, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-
       const data = await response.json();
-
       if (response.ok) {
         setSuccess(data.message);
-        if (data.user_id) {
-          setUserId(data.user_id);
-          setStep('verify');
-        }
+        setUserId(data.user_id);
+        setStep('verify');
       } else {
-        setError(data.error || 'Failed to send reset code');
+        setError(data.error || 'Failed to send reset code.');
       }
-    } catch (error) {
+    } catch (err) {
       setError('Network error. Please try again.');
     } finally {
       setIsLoading(false);
@@ -66,35 +50,19 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
   const handleResetPassword = async () => {
     setError('');
     setSuccess('');
-
     if (!code || !password || !confirmPassword) {
-      setError('Please fill in all fields');
+      setError('Please fill in all fields.');
       return;
     }
-
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Passwords do not match.');
       return;
     }
-
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      return;
-    }
-
-    if (!userId) {
-      setError('Invalid reset session. Please start over.');
-      return;
-    }
-
     setIsLoading(true);
-
     try {
       const response = await fetch(API_ENDPOINTS.PASSWORD_RESET, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: userId,
           code,
@@ -102,173 +70,104 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
           confirm_password: confirmPassword,
         }),
       });
-
       const data = await response.json();
-
       if (response.ok) {
-        setSuccess('Password reset successfully! You can now login with your new password.');
-        // Auto redirect to login after 3 seconds
-        setTimeout(() => {
-          onBackToLogin();
-        }, 3000);
+        setSuccess('Password reset successfully! Redirecting to login...');
+        setTimeout(() => onBackToLogin(), 3000);
       } else {
-        setError(data.error || 'Failed to reset password');
+        setError(data.error || 'Failed to reset password.');
       }
-    } catch (error) {
+    } catch (err) {
       setError('Network error. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (step === 'email') {
-    return (
-      <div className="auth-container">
-        <div className="auth-card">
-          <div className="auth-header">
-            <h2>Reset Password</h2>
-            <p>Enter your email to receive a reset code</p>
-          </div>
+  return (
+    <div className="auth-card">
+      <div className="auth-header">
+        <h2>Reset Password</h2>
+        <p>{step === 'email' ? 'Enter your email to receive a reset code.' : `Enter the code sent to ${email}.`}</p>
+      </div>
 
-          <div className="auth-form">
-            {error && <ErrorMessage message={error} onClose={() => setError('')} />}
-            {success && (
-              <div className="success-message">
-                <p>{success}</p>
-              </div>
-            )}
-            
+      <div className="auth-form">
+        {error && <ErrorMessage message={error} onClose={() => setError('')} />}
+        {success && <div className="success-message">{success}</div>}
+        
+        {step === 'email' ? (
+          <div className="form-group">
+            <label htmlFor="email">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              disabled={isLoading}
+              onKeyPress={(e) => e.key === 'Enter' && handleRequestReset()}
+            />
+          </div>
+        ) : (
+          <>
             <div className="form-group">
-              <label htmlFor="email">Email Address</label>
+              <label htmlFor="code">Verification Code</label>
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                id="code"
+                type="text"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="000000"
+                maxLength={6}
                 disabled={isLoading}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleRequestReset();
-                  }
-                }}
               />
             </div>
-
-            <button 
-              type="button" 
-              className="auth-button" 
-              disabled={isLoading}
-              onClick={handleRequestReset}
-            >
-              {isLoading ? 'Sending...' : 'Send Reset Code'}
-            </button>
-          </div>
-
-          <div className="auth-switch">
-            <p>
-              Remember your password?{' '}
-              <button 
-                type="button" 
-                className="link-button" 
-                onClick={onBackToLogin}
-              >
-                Back to Login
-              </button>
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h2>Reset Password</h2>
-          <p>Enter the code sent to {email}</p>
-        </div>
-
-        <div className="auth-form">
-          {error && <ErrorMessage message={error} onClose={() => setError('')} />}
-          {success && (
-            <div className="success-message">
-              <p>{success}</p>
+            <div className="form-group">
+              <label htmlFor="password">New Password</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter new password"
+                disabled={isLoading}
+              />
             </div>
-          )}
-          
-          <div className="form-group">
-            <label htmlFor="code">Verification Code</label>
-            <input
-              id="code"
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="Enter 6-digit code"
-              maxLength={6}
-              disabled={isLoading}
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+                disabled={isLoading}
+                onKeyPress={(e) => e.key === 'Enter' && handleResetPassword()}
+              />
+            </div>
+          </>
+        )}
 
-          <div className="form-group">
-            <label htmlFor="password">New Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter new password"
-              disabled={isLoading}
-            />
-          </div>
+        <button 
+          type="button" 
+          className="auth-button" 
+          disabled={isLoading}
+          onClick={step === 'email' ? handleRequestReset : handleResetPassword}
+        >
+          {isLoading ? 'Processing...' : (step === 'email' ? 'Send Reset Code' : 'Reset Password')}
+        </button>
+      </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm new password"
-              disabled={isLoading}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleResetPassword();
-                }
-              }}
-            />
-          </div>
-
+      <div className="auth-switch">
+        <p>
           <button 
             type="button" 
-            className="auth-button" 
-            disabled={isLoading}
-            onClick={handleResetPassword}
+            className="link-button" 
+            onClick={onBackToLogin}
           >
-            {isLoading ? 'Resetting...' : 'Reset Password'}
+            Back to Login
           </button>
-        </div>
-
-        <div className="auth-switch">
-          <p>
-            <button 
-              type="button" 
-              className="link-button" 
-              onClick={() => setStep('email')}
-            >
-              Back to Email
-            </button>
-            {' | '}
-            <button 
-              type="button" 
-              className="link-button" 
-              onClick={onBackToLogin}
-            >
-              Back to Login
-            </button>
-          </p>
-        </div>
+        </p>
       </div>
     </div>
   );

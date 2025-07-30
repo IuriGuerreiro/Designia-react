@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import AuthLayout from './AuthLayout';
 import './Auth.css';
 
 interface EmailVerificationProps {
@@ -19,7 +20,6 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({ token }) => {
         setVerificationStatus('success');
         setMessage(result.message);
         
-        // Redirect to login after 3 seconds
         setTimeout(() => {
           window.location.href = '/login';
         }, 3000);
@@ -33,7 +33,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({ token }) => {
   }, [token, verifyEmail]);
 
   return (
-    <div className="auth-container">
+    <AuthLayout>
       <div className="auth-card">
         <div className="auth-header">
           <h2>Email Verification</h2>
@@ -49,16 +49,14 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({ token }) => {
 
           {verificationStatus === 'success' && (
             <div className="success-state">
-              <div className="success-icon">✅</div>
-              <h3>Email Verified Successfully!</h3>
+              <h3>Email Verified!</h3>
               <p>{message}</p>
-              <p>You will be redirected to login in a few seconds...</p>
+              <p>Redirecting to login...</p>
             </div>
           )}
 
           {verificationStatus === 'error' && (
             <div className="error-state">
-              <div className="error-icon">❌</div>
               <h3>Verification Failed</h3>
               <p className="error-message">{message}</p>
               <button 
@@ -71,7 +69,7 @@ const EmailVerification: React.FC<EmailVerificationProps> = ({ token }) => {
           )}
         </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 
