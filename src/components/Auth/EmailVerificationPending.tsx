@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useEmailRateLimit } from '../../hooks/useEmailRateLimit';
 import AuthLayout from './AuthLayout';
 import './Auth.css';
@@ -13,6 +14,7 @@ const EmailVerificationPending: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { canSend, timeRemaining, checkRateLimit, startCountdown } = useEmailRateLimit();
+  const { t } = useTranslation();
 
   const email = location.state?.email || new URLSearchParams(location.search).get('email') || '';
   const fromLogin = location.state?.fromLogin || false;
@@ -54,12 +56,12 @@ const EmailVerificationPending: React.FC = () => {
     <AuthLayout>
       <div className="auth-card">
         <div className="auth-header">
-          <h2>Check Your Email</h2>
-          <p>{fromLogin ? 'Verification is required to log in.' : 'Please verify your email to continue.'}</p>
+          <h2>{t('auth.check_email_title')}</h2>
+          <p>{fromLogin ? t('auth.verification_required') : t('auth.verify_email_continue')}</p>
         </div>
 
         <div className="verification-pending-content">
-          <p>We've sent a verification link to <strong>{email}</strong>. Please click the link in the email to activate your account.</p>
+          <p>{t('auth.verification_sent_message', { email })}</p>
           
           {resendMessage && (
             <div className={`message ${resendSuccess ? 'success' : 'error'}`}>
@@ -73,10 +75,10 @@ const EmailVerificationPending: React.FC = () => {
               disabled={isResending || !canSend}
               className="auth-button"
             >
-              {isResending ? 'Sending...' : !canSend ? `Resend in ${timeRemaining}s` : 'Resend Verification Email'}
+              {isResending ? t('auth.sending_button') : !canSend ? t('auth.resend_in_button', { seconds: timeRemaining }) : t('auth.resend_verification_button')}
             </button>
             <button onClick={() => navigate('/login')} className="link-button">
-              Back to Login
+              {t('auth.back_to_login_link')}
             </button>
           </div>
         </div>

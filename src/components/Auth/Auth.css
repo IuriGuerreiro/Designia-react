@@ -270,7 +270,7 @@
 }
 
 /* Responsive */
-@media (max-width: 992px) {
+ @media (max-width: 992px) {
   .auth-content-wrapper {
     grid-template-columns: 1fr;
   }
@@ -282,7 +282,7 @@
   }
 }
 
-@media (max-width: 480px) {
+ @media (max-width: 480px) {
   .auth-screen {
     padding: 0;
   }

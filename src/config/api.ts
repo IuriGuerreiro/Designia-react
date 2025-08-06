@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.3.2:8000';
+// Use relative URLs in development (Vite proxy) or full URL in production
+const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'http://192.168.3.2:8001');
 
 export const API_ENDPOINTS = {
   // Authentication endpoints (matching Django authentication/urls.py)
@@ -35,71 +36,172 @@ export const API_ENDPOINTS = {
   
   // Todo endpoints (future)
   TODOS: `${API_BASE_URL}/api/todos/`,
+
+  // Marketplace endpoints
+  // Categories
+  CATEGORIES: `${API_BASE_URL}/api/marketplace/categories/`,
+  CATEGORY_DETAIL: (slug: string) => `${API_BASE_URL}/api/marketplace/categories/${slug}/`,
+  CATEGORY_PRODUCTS: (slug: string) => `${API_BASE_URL}/api/marketplace/categories/${slug}/products/`,
+
+  // Products
+  PRODUCTS: `${API_BASE_URL}/api/marketplace/products/`,
+  PRODUCT_DETAIL: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/`,
+  PRODUCT_FAVORITE: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/favorite/`,
+  PRODUCT_CLICK: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/click/`,
+  PRODUCT_REVIEWS: (slug: string) => `${API_BASE_URL}/api/marketplace/reviews/?product_slug=${slug}`,
+  PRODUCT_ADD_REVIEW: (slug: string) => `${API_BASE_URL}/api/marketplace/reviews/`,
+  PRODUCT_REVIEW_DETAIL: (slug: string, reviewId: number) => `${API_BASE_URL}/api/marketplace/reviews/${reviewId}/`,
+  MY_PRODUCTS: `${API_BASE_URL}/api/marketplace/products/my_products/`,
+  FAVORITES: `${API_BASE_URL}/api/marketplace/products/favorites/`,
+
+  // Product Images
+  PRODUCT_IMAGES: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/images/`,
+  PRODUCT_IMAGE_DETAIL: (slug: string, id: number) => 
+    `${API_BASE_URL}/api/marketplace/products/${slug}/images/${id}/`,
+
+  // Cart
+  CART: `${API_BASE_URL}/api/marketplace/cart/`,
+  CART_ADD_ITEM: `${API_BASE_URL}/api/marketplace/cart/add_item/`,
+  CART_UPDATE_ITEM: `${API_BASE_URL}/api/marketplace/cart/update_item/`,
+  CART_REMOVE_ITEM: `${API_BASE_URL}/api/marketplace/cart/remove_item/`,
+  CART_CLEAR: `${API_BASE_URL}/api/marketplace/cart/clear/`,
+  CART_UPDATE_ITEM_STATUS: `${API_BASE_URL}/api/marketplace/cart/update_item_status/`,
+  CART_VALIDATE_STOCK: `${API_BASE_URL}/api/marketplace/cart/validate_stock/`,
+
+  // Orders
+  ORDERS: `${API_BASE_URL}/api/marketplace/orders/`,
+  ORDER_DETAIL: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/`,
+  CREATE_ORDER_FROM_CART: `${API_BASE_URL}/api/marketplace/orders/create_from_cart/`,
+  UPDATE_ORDER_STATUS: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/update_status/`,
+
+  // Metrics
+  METRICS: `${API_BASE_URL}/api/marketplace/metrics/`,
 };
 
 // API utility functions
 export const apiRequest = async (
   url: string, 
-  options: RequestInit = {}
+  options: RequestInit = {},
+  maxRetries: number = 5
 ): Promise<any> => {
-  const token = localStorage.getItem('access_token');
+  let attempt = 0;
   
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
-  };
-
-  const config: RequestInit = {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-  };
-
-  try {
-    const response = await fetch(url, config);
+  while (attempt < maxRetries) {
+    attempt++;
+    console.log(`=== API REQUEST START (Attempt ${attempt}/${maxRetries}) ===`);
+    console.log('URL:', url);
+    console.log('Method:', options.method || 'GET');
     
-    if (response.status === 401) {
-      // Token expired, try to refresh
-      const refreshToken = localStorage.getItem('refresh_token');
-      if (refreshToken) {
-        const refreshResponse = await fetch(API_ENDPOINTS.REFRESH_TOKEN, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refresh: refreshToken }),
-        });
-        
-        if (refreshResponse.ok) {
-          const data = await refreshResponse.json();
-          localStorage.setItem('access_token', data.access);
+    const token = localStorage.getItem('access_token');
+    console.log('Has token:', !!token);
+    
+    // Don't set Content-Type for FormData - let the browser set it with boundary
+    const isFormData = options.body instanceof FormData;
+    console.log('Is FormData:', isFormData);
+    
+    const defaultHeaders: Record<string, string> = {
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+      // Only set Content-Type if it's not FormData
+      ...(!isFormData && { 'Content-Type': 'application/json' }),
+    };
+
+    const config: RequestInit = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    };
+
+    console.log('Request config:', {
+      method: config.method || 'GET',
+      headers: config.headers,
+      hasBody: !!config.body
+    });
+
+    try {
+      const response = await fetch(url, config);
+      console.log('Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      if (response.status === 401) {
+        // Token expired, try to refresh
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (refreshToken) {
+          const refreshResponse = await fetch(API_ENDPOINTS.REFRESH_TOKEN, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh: refreshToken }),
+          });
           
-          // Retry original request with new token
-          config.headers = {
-            ...config.headers,
-            'Authorization': `Bearer ${data.access}`,
-          };
-          return fetch(url, config);
-        } else {
-          // Refresh failed, redirect to login
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          window.location.href = '/login';
-          return Promise.reject('Authentication failed');
+          if (refreshResponse.ok) {
+            const data = await refreshResponse.json();
+            localStorage.setItem('access_token', data.access);
+            
+            // Retry original request with new token
+            config.headers = {
+              ...config.headers,
+              'Authorization': `Bearer ${data.access}`,
+            };
+            const retryResponse = await fetch(url, config);
+            if (!retryResponse.ok) {
+              throw new Error(`HTTP error! status: ${retryResponse.status}`);
+            }
+            return retryResponse.json();
+          } else {
+            // Refresh failed, redirect to login
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            window.location.href = '/login';
+            return Promise.reject('Authentication failed');
+          }
         }
       }
+      
+      if (!response.ok) {
+        console.log('Response not OK, parsing error...');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error data:', errorData);
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+      
+      console.log('Parsing response JSON...');
+      const data = await response.json();
+      console.log('Parsed data:', {
+        hasData: !!data,
+        dataType: typeof data,
+        dataKeys: data && typeof data === 'object' ? Object.keys(data) : 'Not an object',
+        isArray: Array.isArray(data),
+        dataLength: Array.isArray(data) ? data.length : 'Not an array'
+      });
+      console.log('=== API REQUEST SUCCESS ===');
+      return data;
+    } catch (error) {
+      console.error(`=== API REQUEST FAILED (Attempt ${attempt}/${maxRetries}) ===`);
+      console.error('API request failed:', error);
+      
+      // Check if we should retry
+      const shouldRetry = attempt < maxRetries && 
+        (error instanceof TypeError || // Network errors
+         (error instanceof Error && error.message.includes('fetch')));
+      
+      if (shouldRetry) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Exponential backoff, max 5s
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        // Continue to next iteration of while loop
+      } else {
+        // Final attempt failed or non-retryable error
+        throw error;
+      }
     }
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
-    
-    return response.json();
-  } catch (error) {
-    console.error('API request failed:', error);
-    throw error;
   }
+  
+  // This should never be reached, but just in case
+  throw new Error('Max retries exceeded');
 };
 
 export default API_ENDPOINTS;

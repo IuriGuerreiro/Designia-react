@@ -1,0 +1,140 @@
+.metrics-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: var(--font-sans);
+}
+
+.metrics-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.metrics-header h2 {
+    font-size: 2.5rem;
+    color: var(--color-primary);
+}
+
+.metrics-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.metric-card {
+  background-color: var(--color-surface);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.metric-card h4 {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--color-text-light);
+  margin: 0 0 0.5rem 0;
+}
+
+.metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.sales-funnel-card, .orders-card {
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 3rem;
+}
+
+.sales-funnel-card h3, .orders-card h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 0.5rem;
+}
+
+.funnel-step {
+  margin-bottom: 1rem;
+}
+
+.funnel-label {
+  margin-bottom: 0.5rem;
+  color: var(--color-text-light);
+  font-weight: bold;
+}
+
+.funnel-bar-container {
+  background-color: var(--color-background);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.funnel-bar {
+  background-color: var(--color-accent);
+  color: white;
+  padding: 0.8rem;
+  white-space: nowrap;
+  transition: width 0.5s ease-in-out;
+  font-weight: bold;
+  text-align: right;
+  padding-right: 1rem;
+}
+
+.orders-table-container {
+    overflow-x: auto;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.orders-table th, .orders-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.orders-table th {
+    background-color: var(--color-background);
+    font-weight: bold;
+    color: var(--color-text);
+}
+
+.orders-table tbody tr:hover {
+    background-color: var(--color-background-light);
+}
+
+.status-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+}
+
+.status-pending-shipment {
+    background-color: #f0ad4e; /* Orange */
+}
+
+.status-shipped {
+    background-color: #5bc0de; /* Blue */
+}
+
+.status-delivered {
+    background-color: #5cb85c; /* Green */
+}

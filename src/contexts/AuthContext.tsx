@@ -10,6 +10,62 @@ interface User {
   is_email_verified?: boolean;
   two_factor_enabled?: boolean;
   is_oauth_only_user?: boolean;
+  is_verified_seller?: boolean;
+  seller_type?: string;
+  profile?: {
+    // Basic Profile Information
+    bio?: string;
+    location?: string;
+    birth_date?: string;
+    gender?: string;
+    pronouns?: string;
+    
+    // Contact Information
+    phone_number?: string;
+    country_code?: string;
+    website?: string;
+    
+    // Professional Information
+    job_title?: string;
+    company?: string;
+    
+    // Address Information
+    street_address?: string;
+    city?: string;
+    state_province?: string;
+    country?: string;
+    postal_code?: string;
+    
+    // Social Media Links
+    instagram_url?: string;
+    twitter_url?: string;
+    linkedin_url?: string;
+    facebook_url?: string;
+    
+    // Preferences
+    timezone?: string;
+    language_preference?: string;
+    currency_preference?: string;
+    
+    // Account Settings
+    account_type?: string;
+    profile_visibility?: string;
+    
+    // Verification & Status
+    is_verified?: boolean;
+    is_verified_seller?: boolean;
+    seller_type?: string;
+    
+    // Metadata
+    created_at?: string;
+    updated_at?: string;
+    profile_completion_percentage?: number;
+    
+    // Marketing Preferences
+    marketing_emails_enabled?: boolean;
+    newsletter_enabled?: boolean;
+    notifications_enabled?: boolean;
+  }
 }
 
 interface RateLimitStatus {
@@ -29,6 +85,7 @@ interface AuthContextType {
   resendVerification: (email: string) => Promise<{success: boolean, message: string}>;
   checkEmailRateLimit: (email: string, requestType?: string) => Promise<RateLimitStatus>;
   googleLogin: (googleUserData: any) => Promise<void>;
+  updateProfile: (userData: Partial<User>) => Promise<void>;
   refreshUserData: () => Promise<void>;
   logout: () => void;
 }
@@ -414,12 +471,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       
+      console.log('=== GOOGLE LOGIN START ===');
+      console.log('Google user data:', googleUserData);
+      
       // Unified login/register approach - single endpoint handles both scenarios
       const enrichedData = {
         ...googleUserData,
         platform: 'web',
         timestamp: new Date().toISOString(),
       };
+      
+      console.log('Sending to endpoint:', API_ENDPOINTS.GOOGLE_LOGIN);
+      console.log('Payload:', enrichedData);
       
       const response = await fetch(API_ENDPOINTS.GOOGLE_LOGIN, {
         method: 'POST',
@@ -428,6 +491,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
         body: JSON.stringify(enrichedData),
       });
+      
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
       
       
       if (response.ok) {
@@ -447,8 +513,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           throw new Error(data.error || 'Google authentication failed');
         }
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Google authentication failed');
+        console.error('Server error response status:', response.status);
+        
+        try {
+          const errorData = await response.json();
+          console.error('Server error data:', errorData);
+          
+          if (response.status === 500) {
+            throw new Error('Server error during Google authentication. Please try again or contact support.');
+          }
+          
+          throw new Error(errorData.error || errorData.detail || 'Google authentication failed');
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          
+          if (response.status === 500) {
+            throw new Error('Server error during Google authentication. Please try again later.');
+          }
+          
+          throw new Error(`Authentication failed with status ${response.status}`);
+        }
       }
       
     } catch (error) {
@@ -461,6 +545,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const updateProfile = async (userData: Partial<User>) => {
+    try {
+        const response = await apiRequest(API_ENDPOINTS.USER_PROFILE, {
+            method: 'PUT',
+            body: JSON.stringify(userData),
+        });
+        setUser(response);
+    } catch (error: any) {
+        throw new Error(error.message || 'Profile update failed.');
     }
   };
 
@@ -491,6 +587,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     resendVerification,
     checkEmailRateLimit,
     googleLogin,
+    updateProfile,
     refreshUserData,
     logout,
   };
