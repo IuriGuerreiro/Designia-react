@@ -1,109 +1,91 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import GoogleOAuth from './GoogleOAuth';
 import ErrorMessage from './ErrorMessage';
-import './Auth.css';
 
 interface RegisterProps {
   onSwitchToLogin: () => void;
 }
 
 const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    first_name: '',
-    last_name: '',
-  });
-  const [error, setError] = useState('');
+  const { t } = useTranslation();
   const { register, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [error, setError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-
-  const handleRegister = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
     setError('');
-    if (Object.values(formData).some(field => field === '')) {
-      setError('Please fill in all fields.');
-      return;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
     try {
-      const { confirmPassword, ...registerData } = formData;
-      const result = await register({ ...registerData, password_confirm: confirmPassword });
-      if (result.success) {
-        navigate('/verify-email-pending', {
-          state: { email: result.email || formData.email }
-        });
-      } else {
-        setError(result.message);
-      }
+      await register({ email, password, username, first_name: firstName, last_name: lastName });
     } catch (err) {
-      setError('An unexpected error occurred.');
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     }
   };
 
   return (
     <div className="auth-card">
       <div className="auth-header">
-        <h2>Create an Account</h2>
-        <p>Join our community of design lovers.</p>
+        <h2>{t('auth.register_title')}</h2>
+        <p>{t('auth.register_subtitle')}</p>
       </div>
 
-      <div className="auth-form">
+      <form className="auth-form" onSubmit={handleSubmit}>
         {error && <ErrorMessage message={error} onClose={() => setError('')} />}
         
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="first_name">First Name</label>
-            <input id="first_name" name="first_name" type="text" value={formData.first_name} onChange={handleChange} placeholder="John" disabled={isLoading} />
+            <label htmlFor="firstName">{t('auth.first_name_label')}</label>
+            <input id="firstName" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder={t('auth.first_name_placeholder')} disabled={isLoading} />
           </div>
           <div className="form-group">
-            <label htmlFor="last_name">Last Name</label>
-            <input id="last_name" name="last_name" type="text" value={formData.last_name} onChange={handleChange} placeholder="Doe" disabled={isLoading} />
+            <label htmlFor="lastName">{t('auth.last_name_label')}</label>
+            <input id="lastName" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder={t('auth.last_name_placeholder')} disabled={isLoading} />
           </div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="username">Username</label>
-          <input id="username" name="username" type="text" value={formData.username} onChange={handleChange} placeholder="johndoe" disabled={isLoading} />
+          <label htmlFor="username">{t('auth.username_label')}</label>
+          <input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t('auth.username_placeholder')} disabled={isLoading} />
         </div>
 
         <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="you@example.com" disabled={isLoading} />
+          <label htmlFor="email">{t('auth.email_label')}</label>
+          <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('auth.email_placeholder')} disabled={isLoading} />
         </div>
 
         <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input id="password" name="password" type="password" value={formData.password} onChange={handleChange} placeholder="••••••••" disabled={isLoading} />
+          <label htmlFor="password">{t('auth.password_label')}</label>
+          <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('auth.password_placeholder')} disabled={isLoading} />
         </div>
 
         <div className="form-group">
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input id="confirmPassword" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" disabled={isLoading} onKeyPress={(e) => e.key === 'Enter' && handleRegister()} />
+          <label htmlFor="confirmPassword">{t('auth.confirm_password_label')}</label>
+          <input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder={t('auth.confirm_password_placeholder')} disabled={isLoading} />
         </div>
 
-        <button type="button" className="auth-button" disabled={isLoading} onClick={handleRegister}>
-          {isLoading ? 'Creating Account...' : 'Create Account'}
+        <button type="submit" className="auth-button" disabled={isLoading}>
+          {isLoading ? t('auth.creating_account_button') : t('auth.register_button')}
         </button>
-      </div>
+      </form>
 
       <GoogleOAuth onError={setError} />
 
       <div className="auth-switch">
         <p>
-          Already have an account?{' '}
+          {t('auth.to_login_link').split('Sign In')[0]}
           <button type="button" className="link-button" onClick={onSwitchToLogin}>
-            Sign In
+            {t('auth.to_login_link').split('? ')[1]}
           </button>
         </p>
       </div>

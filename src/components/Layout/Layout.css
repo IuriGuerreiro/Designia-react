@@ -1,0 +1,17 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+.main-content-area {
+  flex-grow: 1;
+  width: 100%;
+  padding: 2rem;
+}
+
+.main-content-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}

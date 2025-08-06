@@ -1,0 +1,159 @@
+/* NotFound page using product listings style */
+
+/* Use the same products-page container as product listings */
+.products-page .not-found-message {
+  text-align: center;
+  padding: 4rem;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  margin-bottom: 2rem;
+}
+
+.error-illustration {
+  margin-bottom: 2rem;
+}
+
+.error-code {
+  font-size: 8rem;
+  font-weight: 900;
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: 1rem;
+  font-family: var(--font-serif);
+}
+
+.error-description p {
+  font-size: 1.125rem;
+  color: var(--color-text-light);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.not-found-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+/* Suggestions section using product grid style */
+.not-found-suggestions {
+  margin-top: 3rem;
+}
+
+.not-found-suggestions h3 {
+  font-size: 1.8rem;
+  font-family: var(--font-serif);
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.suggestions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.suggestion-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.suggestion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.suggestion-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+}
+
+.suggestion-content h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+.suggestion-content p {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Responsive design matching product listings */
+@media (max-width: 768px) {
+  .products-page .not-found-message {
+    padding: 2rem 1rem;
+  }
+
+  .error-code {
+    font-size: 6rem;
+  }
+
+  .error-description p {
+    font-size: 1rem;
+  }
+
+  .not-found-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .not-found-actions .btn {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .suggestions-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .not-found-suggestions h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .error-code {
+    font-size: 4rem;
+  }
+
+  .products-page .not-found-message {
+    padding: 1.5rem 1rem;
+  }
+
+  .suggestion-card {
+    padding: 1rem;
+  }
+
+  .suggestion-icon {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+  }
+}

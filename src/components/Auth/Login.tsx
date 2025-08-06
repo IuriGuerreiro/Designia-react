@@ -74,7 +74,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordRes
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder="you @example.com"
             disabled={isLoading}
             onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
           />

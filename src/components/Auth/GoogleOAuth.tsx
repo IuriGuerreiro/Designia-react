@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 // Utility function to decode JWT token (simplified, for Google ID tokens)
 const decodeJWTPayload = (token: string) => {
@@ -33,15 +34,17 @@ interface GoogleOAuthProps {
 const GoogleOAuth: React.FC<GoogleOAuthProps> = ({ onError }) => {
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const { googleLogin, isLoading } = useAuth();
+  const { t } = useTranslation();
 
 
   useEffect(() => {
-    // Set document policies for Google OAuth
-    if (document.featurePolicy) {
+    // Check for modern permissions policy support
+    if ('permissions' in navigator) {
       try {
-        document.featurePolicy.allowsFeature('identity-credentials-get', '*');
+        // Modern browsers should handle permissions automatically with meta tags
+        console.log('Permissions API available');
       } catch (e) {
-        // Feature policy not supported, continue
+        console.log('Permissions API not fully supported');
       }
     }
 
@@ -79,9 +82,13 @@ const GoogleOAuth: React.FC<GoogleOAuthProps> = ({ onError }) => {
   const initializeGoogleSignIn = () => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     
+    console.log('Initializing Google Sign-In with client ID:', clientId ? 'Present' : 'Missing');
     
     if (!clientId || clientId === 'undefined' || clientId === '' || clientId.trim() === '') {
-      onError('Google Client ID not configured');
+      const errorMsg = import.meta.env.DEV 
+        ? 'Google Client ID not configured. Please set VITE_GOOGLE_CLIENT_ID in your .env file.' 
+        : 'Google authentication is not available at this time.';
+      onError(errorMsg);
       return;
     }
 
@@ -92,8 +99,10 @@ const GoogleOAuth: React.FC<GoogleOAuthProps> = ({ onError }) => {
           callback: handleCredentialResponse,
           auto_select: false,
           cancel_on_tap_outside: true,
-          use_fedcm_for_prompt: true,
+          use_fedcm_for_prompt: false, // Disable FedCM to avoid CORS issues
           itp_support: true,
+          ux_mode: 'popup', // Use popup mode to avoid CORS issues
+          allowed_parent_origin: window.location.origin,
         });
       } catch (initError) {
         onError('Failed to initialize Google Sign-In');
@@ -157,7 +166,7 @@ const GoogleOAuth: React.FC<GoogleOAuthProps> = ({ onError }) => {
     return (
       <div className="google-oauth-container">
         <div className="divider">
-          <span>or</span>
+          <span>{t('auth.google_oauth_or')}</span>
         </div>
         <div className="google-oauth-loading">
           <div className="spinner"></div>
@@ -169,7 +178,7 @@ const GoogleOAuth: React.FC<GoogleOAuthProps> = ({ onError }) => {
   return (
     <div className="google-oauth-container">
       <div className="divider">
-        <span>or</span>
+        <span>{t('auth.google_oauth_or')}</span>
       </div>
       <div 
         id="google-signin-button" 

@@ -1,57 +1,48 @@
-.settings-page h2 {
-  font-size: 2.2rem;
-  margin-bottom: 1.5rem;
+.settings-page {
 }
 
-.settings-layout {
+.settings-header {
+  margin-bottom: 2rem;
+}
+
+.settings-header h2 {
+  font-size: 2.5rem;
+}
+
+.settings-tabs {
   display: flex;
-  gap: 2rem;
-  align-items: flex-start;
+  gap: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 2rem;
 }
 
-/* Settings Navigation */
-.settings-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 200px;
-  flex-shrink: 0;
-}
-
-.settings-nav button {
+.tab-button {
   background: none;
   border: none;
-  text-align: left;
-  padding: 0.8rem 1rem;
-  border-radius: var(--border-radius);
+  padding: 1rem;
   font-size: 1rem;
   font-weight: 500;
   color: var(--color-text-light);
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-  border-left: 3px solid transparent;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-bottom-color 0.2s;
 }
 
-.settings-nav button:hover {
-  background-color: var(--color-background);
-  color: var(--color-text);
-}
-
-.settings-nav button.active {
+.tab-button:hover {
   color: var(--color-primary);
-  font-weight: 600;
-  border-left: 3px solid var(--color-primary);
-  background-color: var(--color-background);
 }
 
-.settings-nav button:disabled {
+.tab-button.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.tab-button:disabled {
   color: #ccc;
   cursor: not-allowed;
 }
 
-/* Settings Content */
 .settings-content {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -79,7 +70,6 @@
   margin-bottom: 1.5rem;
 }
 
-/* Account Info */
 .account-info {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -101,82 +91,77 @@
   font-weight: 500;
 }
 
-.verified { color: var(--color-success); }
-.unverified { color: var(--color-error); }
-.oauth-only { color: #6f42c1; }
-.full-account { color: var(--color-success); }
+/* Privacy Toggle Switch */
+.privacy-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-/* General Button & Form Styles */
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: var(--border-radius);
+.privacy-option p {
+  color: var(--color-text-light);
   font-size: 0.9rem;
-  font-weight: 600;
+  margin-top: 0.25rem;
+  max-width: 80%;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-primary {
-  background-color: var(--color-primary);
-  color: white;
-}
-.btn-primary:hover:not(:disabled) {
-  background-color: var(--color-primary-light);
-}
-
-.btn-secondary {
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-}
-.btn-secondary:hover:not(:disabled) {
-  background-color: var(--color-background);
-}
-
-/* Password Setup */
-.password-setup {
-  /* Styles for password setup component can be refined here */
-}
-
-/* Two Factor Auth */
-.two-factor-auth {
-  /* Styles for 2FA component can be refined here */
-}
-
-/* Modal Styles (from Auth.css, should be centralized) */
-.modal-overlay {
-  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
+  background-color: #ccc;
+  transition: .4s;
 }
 
-.modal-content {
-  background: var(--color-surface);
-  border-radius: var(--border-radius);
-  width: 90%;
-  max-width: 480px;
-  padding: 2rem;
-  box-shadow: var(--shadow-lg);
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .settings-layout {
-    flex-direction: column;
-  }
-  .settings-nav {
-    width: 100%;
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: 1rem;
-  }
+input:checked + .slider {
+  background-color: var(--color-primary);
 }
+
+input:focus + .slider {
+  box-shadow: 0 0 1px var(--color-primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.language-selector {
+    display: flex;
+    gap: 1rem;
+}
+
