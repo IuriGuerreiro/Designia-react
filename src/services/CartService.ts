@@ -75,6 +75,8 @@ export class CartService {
         const errorData = error.response.data;
         
         switch (errorData.error) {
+          case 'CART_LOCKED':
+            throw new Error('Cart is locked for payment processing. Please wait or refresh the page.');
           case 'PRODUCT_UNAVAILABLE':
             throw new Error('This product is no longer available.');
           case 'OUT_OF_STOCK':
@@ -89,7 +91,9 @@ export class CartService {
       }
       
       // Fallback error handling
-      if (error instanceof Error && error.message.includes('401')) {
+      if (error instanceof Error && error.message.includes('423')) {
+        throw new Error('Cart is locked for payment processing. Please wait or refresh the page.');
+      } else if (error instanceof Error && error.message.includes('401')) {
         throw new Error('Authentication required. Please log in to add items to cart.');
       } else if (error instanceof Error && error.message.includes('404')) {
         throw new Error('Product not found.');
@@ -131,6 +135,8 @@ export class CartService {
         const errorData = error.response.data;
         
         switch (errorData.error) {
+          case 'CART_LOCKED':
+            throw new Error('Cart is locked for payment processing. Please wait or refresh the page.');
           case 'PRODUCT_UNAVAILABLE':
             throw new Error('This product is no longer available.');
           case 'INSUFFICIENT_STOCK':
@@ -147,7 +153,9 @@ export class CartService {
       }
       
       // Fallback error handling
-      if (error instanceof Error && error.message.includes('401')) {
+      if (error instanceof Error && error.message.includes('423')) {
+        throw new Error('Cart is locked for payment processing. Please wait or refresh the page.');
+      } else if (error instanceof Error && error.message.includes('401')) {
         throw new Error('Authentication required. Please log in to update cart.');
       } else if (error instanceof Error && error.message.includes('404')) {
         throw new Error('Cart item not found.');
@@ -176,7 +184,9 @@ export class CartService {
       console.error('=== CART SERVICE ERROR ===');
       console.error('Error removing cart item:', error);
       
-      if (error instanceof Error && error.message.includes('401')) {
+      if (error instanceof Error && error.message.includes('423')) {
+        throw new Error('Cart is locked for payment processing. Please wait or refresh the page.');
+      } else if (error instanceof Error && error.message.includes('401')) {
         throw new Error('Authentication required. Please log in to modify cart.');
       } else if (error instanceof Error && error.message.includes('404')) {
         throw new Error('Cart item not found.');
@@ -201,7 +211,9 @@ export class CartService {
       console.error('=== CART SERVICE ERROR ===');
       console.error('Error clearing cart:', error);
       
-      if (error instanceof Error && error.message.includes('401')) {
+      if (error instanceof Error && error.message.includes('423')) {
+        throw new Error('Cart is locked for payment processing. Please wait or refresh the page.');
+      } else if (error instanceof Error && error.message.includes('401')) {
         throw new Error('Authentication required. Please log in to clear cart.');
       }
       throw error;

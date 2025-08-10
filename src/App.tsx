@@ -44,24 +44,35 @@ class ErrorBoundary extends React.Component<
 import AuthScreen from './components/Auth/AuthScreen';
 import EmailVerification from './components/Auth/EmailVerification';
 import EmailVerificationPending from './components/Auth/EmailVerificationPending';
-import ProductList from './components/Products/ProductList';
-import ProductDetailPage from './components/Products/ProductDetailPage';
-import ProductForm from './components/Products/ProductForm';
-import FavoritesPage from './components/Products/FavoritesPage';
+// Marketplace Components
+import ProductList from './components/Marketplace/Products/ProductList';
+import ProductDetailPage from './components/Marketplace/Products/ProductDetailPage';
+import ProductForm from './components/Marketplace/Products/ProductForm';
+import FavoritesPage from './components/Marketplace/Products/FavoritesPage';
+import MyProductsPage from './components/Marketplace/Products/MyProductsPage';
+import CartPage from './components/Marketplace/Cart/CartPage';
+import SimpleCheckoutPage from './components/Marketplace/Checkout/SimpleCheckoutPage';
+import CheckoutSuccess from './components/Marketplace/Checkout/CheckoutSuccess';
+import PaymentPage from './components/Marketplace/Checkout/PaymentPage';
+import MyOrdersPage from './components/Marketplace/Orders/MyOrdersPage';
+import OrderSuccessPage from './components/Marketplace/Orders/OrderSuccessPage';
+import MyOrderDetailView from './components/Marketplace/Orders/MyOrderDetailView';
+import UserOrdersManagement from './components/Marketplace/Orders/UserOrdersManagement';
+import ProductMetricsPage from './components/Marketplace/Metrics/ProductMetricsPage';
+
+// Settings Components
 import Settings from './components/Settings/Settings';
-import BecomeSellerForm from './components/Forms/BecomeSellerForm';
-import EditProfile from './components/Profile/EditProfile';
-import CartPage from './components/Cart/CartPage';
-import ProductMetricsPage from './components/Metrics/ProductMetricsPage';
-import SimpleCheckoutPage from './components/Checkout/SimpleCheckoutPage';
-import MyProductsPage from './components/Products/MyProductsPage';
-import OrdersPage from './components/Orders/OrdersPage';
-import OrderSuccessPage from './components/Orders/OrderSuccessPage';
-import OrderManagementPage from './components/Orders/OrderManagementPage';
-import PaymentPage from './components/Checkout/PaymentPage';
-import SocialMediaScreen from './screens/SocialMedia/SocialMediaScreen';
-import PostDetailScreen from './screens/SocialMedia/PostDetailScreen';
-import UserProfileScreen from './screens/Profile/UserProfileScreen';
+
+// Pages Components  
+import EditProfile from './components/Pages/Profile/EditProfile';
+import UserProfileScreen from './components/Pages/UserProfileScreen';
+
+// Settings Components (moved from Pages)
+import BecomeSellerForm from './components/Settings/Forms/BecomeSellerForm';
+
+// SocialMedia Components
+import SocialMediaScreen from './components/SocialMedia/SocialMediaScreen';
+import PostDetailScreen from './components/SocialMedia/PostDetailScreen';
 import NotFound from './components/NotFound/NotFound';
 import './App.css';
 
@@ -95,28 +106,29 @@ const AppContent: React.FC = () => {
       <Routes>
         {/* Protected Routes */}
           <Route path="/logout" element={<Navigate to="/login" />} />
-          <Route path="/" element={isAuthenticated ? <ProductList /> : <Navigate to="/login" />} />
-          <Route path="/products" element={isAuthenticated ? <ProductList /> : <Navigate to="/login" />} />
-          <Route path="/products/new" element={isAuthenticated ? <ProductForm /> : <Navigate to="/login" />} />
-          <Route path="/products/:slug" element={isAuthenticated ? <ProductDetailPage /> : <Navigate to="/login" />} />
-          <Route path="/products/:slug/edit" element={isAuthenticated ? <ProductForm /> : <Navigate to="/login" />} />
-          <Route path="/my-products" element={isAuthenticated ? <MyProductsPage /> : <Navigate to="/login" />} />
-          <Route path="/favorites" element={isAuthenticated ? <FavoritesPage /> : <Navigate to="/login" />} />
-          <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
-          <Route path="/settings/become-seller" element={isAuthenticated ? <BecomeSellerForm /> : <Navigate to="/login" />} />
-          <Route path="/profile/edit" element={isAuthenticated ? <EditProfile /> : <Navigate to="/login" />} />
-          <Route path="/cart" element={isAuthenticated ? <CartPage /> : <Navigate to="/login" />} />
-          <Route path="/metrics" element={isAuthenticated ? <ProductMetricsPage /> : <Navigate to="/login" />} />
-          <Route path="/metrics/product/:productId" element={isAuthenticated ? <ProductMetricsPage /> : <Navigate to="/login" />} />
-          <Route path="/orders" element={isAuthenticated ? <OrdersPage /> : <Navigate to="/login" />} />
-          <Route path="/orders/:orderId" element={isAuthenticated ? <OrderSuccessPage /> : <Navigate to="/login" />} />
-          <Route path="/order-success/:orderId" element={isAuthenticated ? <OrderSuccessPage /> : <Navigate to="/login" />} />
-          <Route path="/order-management" element={isAuthenticated ? <OrderManagementPage /> : <Navigate to="/login" />} />
-          <Route path="/checkout" element={isAuthenticated ? <SimpleCheckoutPage /> : <Navigate to="/login" />} />
-          <Route path="/payment" element={isAuthenticated ? <PaymentPage /> : <Navigate to="/login" />} />
-          <Route path="/social-media" element={isAuthenticated ? <SocialMediaScreen /> : <Navigate to="/login" />} />
-          <Route path="/social-media/:postId" element={isAuthenticated ? <PostDetailScreen /> : <Navigate to="/login" />} />
-          <Route path="/users/:userId" element={isAuthenticated ? <UserProfileScreen /> : <Navigate to="/login" />} />
+          <Route path="/" element={<ProductList />} />
+          <Route path="/products" element={<ProductList />} />
+          <Route path="/products/new" element={<ProductForm />} />
+          <Route path="/products/:slug" element={<ProductDetailPage />} />
+          <Route path="/products/:slug/edit" element={<ProductForm />} />
+          <Route path="/my-products" element={<MyProductsPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings/become-seller" element={<BecomeSellerForm />} />
+          <Route path="/profile/edit" element={<EditProfile />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/metrics" element={<ProductMetricsPage />} />
+          <Route path="/metrics/product/:productId" element={<ProductMetricsPage />} />
+          <Route path="/my-orders" element={<MyOrdersPage />} />
+          <Route path="/my-orders/:orderId" element={<MyOrderDetailView />} />
+          <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+          <Route path="/order-management" element={<UserOrdersManagement />} />
+          <Route path="/checkout" element={<SimpleCheckoutPage />} />
+          <Route path="/checkout-success" element={<CheckoutSuccess />} />
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/social-media" element={<SocialMediaScreen />} />
+          <Route path="/social-media/:postId" element={<PostDetailScreen />} />
+          <Route path="/users/:userId" element={<UserProfileScreen />} />
           
           {/* 404 catch-all route */}
           <Route path="*" element={<NotFound />} />

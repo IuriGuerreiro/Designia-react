@@ -174,6 +174,18 @@ export interface OrderItem {
   product_image: string;
 }
 
+export interface OrderShipping {
+  id: number;
+  seller: User;
+  tracking_number: string;
+  shipping_carrier: string;
+  carrier_code: string;
+  shipped_at?: string;
+  delivered_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Order {
   id: string;
   buyer: User;
@@ -187,8 +199,17 @@ export interface Order {
   shipping_address: any;
   tracking_number: string;
   shipping_carrier: string;
+  carrier_code: string;
   items: OrderItem[];
+  shipping_info: OrderShipping[];
+  seller_shipping?: OrderShipping; // For seller-specific views
+  seller_items_count?: number; // For seller-specific views
+  seller_items_total?: number; // For seller-specific views
   buyer_notes: string;
+  cancellation_reason: string;
+  cancelled_by?: User;
+  cancelled_at?: string;
+  processed_at?: string;
   created_at: string;
   updated_at: string;
   shipped_at?: string;
