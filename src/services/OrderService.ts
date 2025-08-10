@@ -211,6 +211,59 @@ export class OrderService {
   }
 
   /**
+   * Update seller-specific tracking information (creates OrderShipping record)
+   */
+  async updateTracking(orderId: string, trackingNumber: string, shippingCarrier?: string): Promise<{
+    success: boolean;
+    message: string;
+    order: Order;
+    shipping_info?: any;
+  }> {
+    console.log('=== ORDER SERVICE - UPDATE SELLER TRACKING ===');
+    console.log('Order ID:', orderId);
+    console.log('Order ID Type:', typeof orderId);
+    console.log('Tracking Number:', trackingNumber);
+    console.log('Shipping Carrier:', shippingCarrier);
+    
+    const apiUrl = `${API_ENDPOINTS.ORDERS}${orderId}/update_tracking/`;
+    console.log('API URL:', apiUrl);
+    console.log('API_ENDPOINTS.ORDERS:', API_ENDPOINTS.ORDERS);
+    
+    try {
+      const result = await apiRequest(apiUrl, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          tracking_number: trackingNumber,
+          shipping_carrier: shippingCarrier || ''
+        }),
+      });
+      
+      console.log('Seller tracking updated:', {
+        success: result?.success,
+        orderId: result?.order?.id,
+        status: result?.order?.status,
+        hasShippingInfo: !!result?.shipping_info,
+        shippingInfoId: result?.shipping_info?.id
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('=== ORDER SERVICE ERROR ===');
+      console.error('Error updating seller tracking:', error);
+      console.error('Full error details:', error);
+      
+      if (error instanceof Error && error.message.includes('401')) {
+        throw new Error('Authentication required. Please log in to update order tracking.');
+      } else if (error instanceof Error && error.message.includes('403')) {
+        throw new Error('Permission denied. You can only update tracking for orders containing your products.');
+      } else if (error instanceof Error && error.message.includes('404')) {
+        throw new Error('Order not found. Please verify the order ID and try again.');
+      }
+      throw error;
+    }
+  }
+
+  /**
    * Get order tracking information
    */
   async getOrderTracking(orderId: string): Promise<{
@@ -231,6 +284,206 @@ export class OrderService {
       };
     } catch (error) {
       console.error('Error getting order tracking:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get seller orders (orders that the current user needs to fulfill as a seller)
+   */
+  async getSellerOrders(statusFilter?: string): Promise<Order[]> {
+    console.log('=== ORDER SERVICE - GET SELLER ORDERS ===');
+    console.log('Status filter:', statusFilter);
+    
+    try {
+      let url = `${API_ENDPOINTS.ORDERS}seller_orders/`;
+      if (statusFilter && statusFilter !== 'all') {
+        url += `?status=${statusFilter}`;
+      }
+      
+      const result = await apiRequest(url);
+      console.log('Seller orders retrieved:', {
+        count: result?.length || 0,
+        hasResults: !!result
+      });
+      return result;
+    } catch (error) {
+      console.error('=== ORDER SERVICE ERROR ===');
+      console.error('Error getting seller orders:', error);
+      
+      if (error instanceof Error && error.message.includes('401')) {
+        throw new Error('Authentication required. Please log in to view seller orders.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel an order with reason (for sellers)
+   */
+  async cancelOrderWithReason(orderId: string, cancellationReason: string): Promise<{
+    success: boolean;
+    message: string;
+    order: Order;
+  }> {
+    console.log('=== ORDER SERVICE - CANCEL ORDER WITH REASON ===');
+    console.log('Order ID:', orderId);
+    console.log('Cancellation Reason:', cancellationReason);
+    
+    try {
+      const result = await apiRequest(`${API_ENDPOINTS.ORDERS}${orderId}/cancel_order/`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          cancellation_reason: cancellationReason
+        }),
+      });
+      
+      console.log('Order cancelled:', {
+        success: result?.success,
+        orderId: result?.order?.id,
+        status: result?.order?.status
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('=== ORDER SERVICE ERROR ===');
+      console.error('Error cancelling order:', error);
+      
+      if (error instanceof Error && error.message.includes('401')) {
+        throw new Error('Authentication required. Please log in to cancel orders.');
+      } else if (error instanceof Error && error.message.includes('403')) {
+        throw new Error('Permission denied. You can only cancel your own orders.');
+      } else if (error instanceof Error && error.message.includes('404')) {
+        throw new Error('Order not found.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Process an order (move from pending to processing)
+   */
+  async processOrder(orderId: string): Promise<{
+    success: boolean;
+    message: string;
+    order: Order;
+  }> {
+    console.log('=== ORDER SERVICE - PROCESS ORDER ===');
+    console.log('Order ID:', orderId);
+    
+    try {
+      const result = await apiRequest(`${API_ENDPOINTS.ORDERS}${orderId}/process_order/`, {
+        method: 'PATCH',
+      });
+      
+      console.log('Order processed:', {
+        success: result?.success,
+        orderId: result?.order?.id,
+        status: result?.order?.status
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('=== ORDER SERVICE ERROR ===');
+      console.error('Error processing order:', error);
+      
+      if (error instanceof Error && error.message.includes('401')) {
+        throw new Error('Authentication required. Please log in to process orders.');
+      } else if (error instanceof Error && error.message.includes('403')) {
+        throw new Error('Permission denied. You can only process your own orders.');
+      } else if (error instanceof Error && error.message.includes('404')) {
+        throw new Error('Order not found.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Update carrier code for processing orders
+   */
+  async updateCarrierCode(orderId: string, carrierCode: string, shippingCarrier?: string): Promise<{
+    success: boolean;
+    message: string;
+    order: Order;
+  }> {
+    console.log('=== ORDER SERVICE - UPDATE CARRIER CODE ===');
+    console.log('Order ID:', orderId);
+    console.log('Carrier Code:', carrierCode);
+    console.log('Shipping Carrier:', shippingCarrier);
+    
+    try {
+      const result = await apiRequest(`${API_ENDPOINTS.ORDERS}${orderId}/update_carrier_code/`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          carrier_code: carrierCode,
+          shipping_carrier: shippingCarrier || ''
+        }),
+      });
+      
+      console.log('Carrier code updated:', {
+        success: result?.success,
+        orderId: result?.order?.id,
+        carrierCode: result?.order?.carrier_code
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('=== ORDER SERVICE ERROR ===');
+      console.error('Error updating carrier code:', error);
+      
+      if (error instanceof Error && error.message.includes('401')) {
+        throw new Error('Authentication required. Please log in to update carrier codes.');
+      } else if (error instanceof Error && error.message.includes('403')) {
+        throw new Error('Permission denied. You can only update your own orders.');
+      } else if (error instanceof Error && error.message.includes('404')) {
+        throw new Error('Order not found.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Get all tracking information for an order (multiple sellers)
+   */
+  async getOrderTrackingInfo(orderId: string): Promise<{
+    order_id: string;
+    order_status: string;
+    total_sellers: number;
+    tracking_information: Array<{
+      seller: {
+        id: number;
+        username: string;
+        full_name: string;
+      };
+      tracking_number: string;
+      shipping_carrier: string;
+      shipped_at?: string;
+      item_count: number;
+      items_total: number;
+    }>;
+  }> {
+    console.log('=== ORDER SERVICE - GET TRACKING INFO ===');
+    console.log('Order ID:', orderId);
+    
+    try {
+      const result = await apiRequest(`${API_ENDPOINTS.ORDERS}${orderId}/tracking_info/`);
+      console.log('Tracking info retrieved:', {
+        orderId: result?.order_id,
+        totalSellers: result?.total_sellers,
+        hasTrackingData: !!result?.tracking_information?.length
+      });
+      return result;
+    } catch (error) {
+      console.error('=== ORDER SERVICE ERROR ===');
+      console.error('Error getting tracking info:', error);
+      
+      if (error instanceof Error && error.message.includes('401')) {
+        throw new Error('Authentication required. Please log in to view tracking information.');
+      } else if (error instanceof Error && error.message.includes('403')) {
+        throw new Error('Permission denied. You can only view tracking for your orders.');
+      } else if (error instanceof Error && error.message.includes('404')) {
+        throw new Error('Order not found.');
+      }
       throw error;
     }
   }

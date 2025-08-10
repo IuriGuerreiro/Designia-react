@@ -1,5 +1,5 @@
-// Use relative URLs in development (Vite proxy) or full URL in production
-const API_BASE_URL = import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'http://192.168.3.2:8001');
+// Always use the backend server URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.3.2:8001';
 
 export const API_ENDPOINTS = {
   // Authentication endpoints (matching Django authentication/urls.py)
@@ -73,6 +73,17 @@ export const API_ENDPOINTS = {
   ORDER_DETAIL: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/`,
   CREATE_ORDER_FROM_CART: `${API_BASE_URL}/api/marketplace/orders/create_from_cart/`,
   UPDATE_ORDER_STATUS: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/update_status/`,
+
+  // Payment System
+  CREATE_CHECKOUT_SESSION: `${API_BASE_URL}/api/payments/checkout_session/`,
+  CHECKOUT_SESSION_STATUS: `${API_BASE_URL}/api/payments/session_status/`,
+  CREATE_ORDER_FROM_INTENT: `${API_BASE_URL}/api/payments/create-order-from-intent/`,
+  PROCESS_ORDER_PAYMENT: `${API_BASE_URL}/api/payments/process-order/`,
+  PAYMENT_STATUS: (paymentId: string) => `${API_BASE_URL}/api/payments/status/${paymentId}/`,
+  CREATE_STRIPE_ACCOUNT: `${API_BASE_URL}/api/payments/stripe-account/create/`,
+  STRIPE_ACCOUNT_STATUS: `${API_BASE_URL}/api/payments/stripe-account/status/`,
+  SELLER_PAYOUTS: `${API_BASE_URL}/api/payments/seller-payouts/`,
+  REQUEST_REFUND: `${API_BASE_URL}/api/payments/refund/request/`,
 
   // Metrics
   METRICS: `${API_BASE_URL}/api/marketplace/metrics/`,

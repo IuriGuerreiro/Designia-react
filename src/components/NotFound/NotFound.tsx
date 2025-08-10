@@ -64,7 +64,7 @@ const NotFound: React.FC = () => {
               </div>
             </Link>
             
-            <Link to="/orders" className="suggestion-card">
+            <Link to="/my-orders" className="suggestion-card">
               <div className="suggestion-icon">📦</div>
               <div className="suggestion-content">
                 <h4>{t('notFound.suggestions.orders', 'My Orders')}</h4>

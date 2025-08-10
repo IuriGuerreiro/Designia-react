@@ -30,6 +30,13 @@ interface CartContextType {
   clearError: () => void;
   clearItemError: (productId: number | string) => Promise<void>;
   getActiveCartItems: () => Product[];
+  // Cart locking state
+  isCartLocked: boolean;
+  canModifyCart: boolean;
+  cartStatus: string | null;
+  // Payment processing state
+  isPaymentProcessing: boolean;
+  setPaymentProcessing: (processing: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -51,6 +58,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCartLocked, setIsCartLocked] = useState(false);
+  const [canModifyCart, setCanModifyCart] = useState(true);
+  const [cartStatus, setCartStatus] = useState<string | null>(null);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
   // Check if user is authenticated and sync cart
   useEffect(() => {
@@ -94,15 +105,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Periodic cart sync to validate stock and update inactive items
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isPaymentProcessing) return;
 
     const interval = setInterval(() => {
+      // Don't sync during payment processing
+      if (isPaymentProcessing || isCartLocked) {
+        console.log('Skipping periodic cart sync - payment processing or cart locked');
+        return;
+      }
       console.log('Performing periodic cart sync for stock validation...');
       syncWithServer();
     }, 5 * 60 * 1000); // Every 5 minutes
 
     return () => clearInterval(interval);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isPaymentProcessing, isCartLocked]);
 
   // Save cart to localStorage
   const saveCartToLocalStorage = (items: Product[]) => {
@@ -177,8 +193,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       console.log('Server cart received:', {
         id: serverCart?.id,
         totalItems: serverCart?.total_items || 0,
-        itemsCount: serverCart?.items?.length || 0
+        itemsCount: serverCart?.items?.length || 0,
+        locked: serverCart?.locked,
+        canModify: serverCart?.can_be_modified
       });
+      
+      // Update cart locking state
+      setIsCartLocked(serverCart?.locked || false);
+      setCanModifyCart(serverCart?.can_be_modified !== false);
+      setCartStatus(serverCart?.locked ? 'locked' : 'active');
       
       const localItems = convertServerCartToLocal(serverCart);
       
@@ -229,6 +252,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       price: product.price,
       quantity: newQuantity
     });
+    
+    // Check if cart is locked
+    if (isCartLocked || !canModifyCart) {
+      const error = 'Cart is locked for payment processing. Please wait or refresh the page.';
+      setError(error);
+      throw new Error(error);
+    }
     
     // Check if product has stock information and validate
     if (product.availableStock !== undefined && product.availableStock <= 0) {
@@ -314,6 +344,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const removeFromCart = async (productId: number | string) => {
+    // Check if cart is locked
+    if (isCartLocked || !canModifyCart) {
+      const error = 'Cart is locked for payment processing. Please wait or refresh the page.';
+      setError(error);
+      throw new Error(error);
+    }
+
     // Optimistic update
     const updatedItems = cartItems.filter(item => item.id !== productId);
     setCartItems(updatedItems);
@@ -341,6 +378,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;
+    }
+
+    // Check if cart is locked
+    if (isCartLocked || !canModifyCart) {
+      const error = 'Cart is locked for payment processing. Please wait or refresh the page.';
+      setError(error);
+      throw new Error(error);
     }
 
     setError(null); // Clear any previous errors
@@ -394,6 +438,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const clearCart = async () => {
+    // Check if cart is locked
+    if (isCartLocked || !canModifyCart) {
+      const error = 'Cart is locked for payment processing. Please wait or refresh the page.';
+      setError(error);
+      throw new Error(error);
+    }
+
     // Optimistic update
     setCartItems([]);
     saveCartToLocalStorage([]);
@@ -503,7 +554,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       syncWithServer,
       clearError,
       clearItemError,
-      getActiveCartItems
+      getActiveCartItems,
+      isCartLocked,
+      canModifyCart,
+      cartStatus,
+      isPaymentProcessing,
+      setPaymentProcessing: setIsPaymentProcessing
     }}>
       {children}
     </CartContext.Provider>

@@ -46,8 +46,15 @@ const Navbar = () => {
             {dropdownOpen && (
               <div className="dropdown-menu">
                 <Link to="/my-products" className="dropdown-item" onClick={() => setDropdownOpen(false)}>{t('layout.my_products')}</Link>
-                <Link to="/orders" className="dropdown-item" onClick={() => setDropdownOpen(false)}>{t('layout.orders')}</Link>
-                <Link to="/order-management" className="dropdown-item" onClick={() => setDropdownOpen(false)}>Order Management</Link>
+                <div className="dropdown-divider"></div>
+                <Link to="/my-orders" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                  <span>🛒 My Orders</span>
+                  <small>Orders you placed</small>
+                </Link>
+                <Link to="/order-management" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                  <span>📦 Seller Orders</span>
+                  <small>Orders to fulfill</small>
+                </Link>
                 <Link to="/settings" className="dropdown-item" onClick={() => setDropdownOpen(false)}>{t('layout.settings')}</Link>
                 <button onClick={logout} className="dropdown-item logout">{t('layout.logout')}</button>
               </div>
