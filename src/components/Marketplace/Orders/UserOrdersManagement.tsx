@@ -88,14 +88,16 @@ const UserOrdersManagement: React.FC = () => {
   const processOrder = async (orderId: string) => {
     setUpdatingOrders(prev => new Set([...prev, orderId]));
     try {
-      const response = await orderService.processOrder(orderId);
+      console.log('awaiting_shipment order:', orderId);
+      // Use the new validated endpoint to move to awaiting_shipment status
+      const response = await orderService.updateOrderStatusValidated(orderId, 'awaiting_shipment');
       
       // Update the order in the local state
       setOrders(prev => prev.map(o => 
         o.id === orderId ? response.order : o
       ));
 
-      alert(`Order processed successfully! Status updated to ${response.order.status}`);
+      alert(`${response.message}! Status updated from ${response.previous_status} to ${response.new_status}`);
     } catch (err) {
       console.error('Failed to process order:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to process order. Please try again.';
@@ -125,9 +127,13 @@ const UserOrdersManagement: React.FC = () => {
     try {
       const response = await orderService.cancelOrderWithReason(orderId, data.reason);
       
-      // Update the order in the local state
+      // Only update cancellation metadata, not order status (will be updated by webhook)
       setOrders(prev => prev.map(o => 
-        o.id === orderId ? response.order : o
+        o.id === orderId ? {
+          ...o,
+          cancelled_at: response.order.cancelled_at,
+          cancellation_reason: response.order.cancellation_reason
+        } : o
       ));
 
       // Hide the cancel form
@@ -144,7 +150,12 @@ const UserOrdersManagement: React.FC = () => {
         return newData;
       });
 
-      alert(`Order cancelled successfully!`);
+      // Show success message with refund information
+      const successMessage = response.refund_requested 
+        ? `Cancellation request submitted! Refund of $${response.refund_amount} will be processed and appear in the customer's account. Order status will update once the refund is confirmed.`
+        : 'Order cancelled successfully!';
+      
+      alert(successMessage);
     } catch (err) {
       console.error('Failed to cancel order:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to cancel order. Please try again.';
@@ -220,14 +231,14 @@ const UserOrdersManagement: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return '#ffc107';
-      case 'confirmed': return '#17a2b8';
-      case 'processing': return '#6f42c1';
-      case 'shipped': return '#fd7e14';
-      case 'delivered': return '#28a745';
-      case 'cancelled': return '#dc3545';
-      case 'refunded': return '#6c757d';
-      default: return '#6c757d';
+      case 'pending_payment': return '#fbbf24';
+      case 'payment_confirmed': return '#06d6a0';
+      case 'awaiting_shipment': return '#8b5cf6';
+      case 'shipped': return '#f59e0b';
+      case 'delivered': return '#10b981';
+      case 'cancelled': return '#ef4444';
+      case 'refunded': return '#6b7280';
+      default: return '#6b7280';
     }
   };
 
@@ -237,9 +248,9 @@ const UserOrdersManagement: React.FC = () => {
 
   const statusCounts = {
     all: orders.length,
-    pending: orders.filter(o => o.status === 'pending').length,
-    confirmed: orders.filter(o => o.status === 'confirmed').length,
-    processing: orders.filter(o => o.status === 'processing').length,
+    pending_payment: orders.filter(o => o.status === 'pending_payment').length,
+    payment_confirmed: orders.filter(o => o.status === 'payment_confirmed').length,
+    awaiting_shipment: orders.filter(o => o.status === 'awaiting_shipment').length,
     shipped: orders.filter(o => o.status === 'shipped').length,
     delivered: orders.filter(o => o.status === 'delivered').length,
     cancelled: orders.filter(o => o.status === 'cancelled').length,
@@ -248,9 +259,10 @@ const UserOrdersManagement: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="order-management-page">
-          <div className="loading-message">
-            <p>Loading orders...</p>
+        <div className="orders-container">
+          <div className="orders-loading-state">
+            <div className="loading-spinner"></div>
+            <p className="loading-text">Loading your orders...</p>
           </div>
         </div>
       </Layout>
@@ -259,368 +271,275 @@ const UserOrdersManagement: React.FC = () => {
 
   return (
     <Layout>
-      <div className="order-management-page">
-        {/* Modern Header Section - ProductList Style */}
-        <div className="products-header">
-          <div className="header-content">
-            <h2>Order Management</h2>
-            <p className="page-subtitle">Fulfill orders and manage your seller responsibilities</p>
-          </div>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <span className="stat-number">{orders.length}</span>
-              <span className="stat-label">Total Orders</span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-number">{orders.filter(o => ['pending', 'confirmed'].includes(o.status)).length}</span>
-              <span className="stat-label">Requires Action</span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-number">{orders.filter(o => ['shipped', 'delivered'].includes(o.status)).length}</span>
-              <span className="stat-label">Completed</span>
-            </div>
-          </div>
+      <div className="orders-container">
+        {/* Header Section - Matching MyOrdersPage Style */}
+        <div className="orders-header">
+          <h1 className="orders-title">Order Management</h1>
         </div>
 
         {error && (
-          <div className="error-message">
-            <div className="error-content">
-              <h3>⚠️ Unable to Load Orders</h3>
-              <p>{error}</p>
-              <button onClick={loadOrders} className="btn btn-primary">
-                🔄 Try Again
-              </button>
-            </div>
+          <div className="orders-error-state">
+            <div className="error-icon">⚠️</div>
+            <h3 className="error-title">Unable to Load Orders</h3>
+            <p className="error-description">{error}</p>
+            <button onClick={loadOrders} className="error-retry-btn">
+              🔄 Try Again
+            </button>
           </div>
         )}
 
-        <div className="tabs">
-          {Object.entries(statusCounts).map(([status, count]) => (
-            <button
-              key={status}
-              className={`tab ${filterStatus === status ? 'active' : ''}`}
-              onClick={() => setFilterStatus(status)}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)} ({count})
-            </button>
-          ))}
-        </div>
+        {/* Status Tabs - Matching MyOrdersPage Design */}
+        {orders.length > 0 && (
+          <div className="orders-status-tabs">
+            {Object.entries(statusCounts).map(([status, count]) => (
+              <button
+                key={status}
+                className={`orders-status-tab ${filterStatus === status ? 'active-status-tab' : ''}`}
+                onClick={() => setFilterStatus(status)}
+              >
+                <span className="status-tab-text">
+                  {status === 'pending_payment' ? 'Pending Payment' :
+                   status === 'payment_confirmed' ? 'Payment Confirmed' :
+                   status === 'awaiting_shipment' ? 'Awaiting Shipment' :
+                   status.charAt(0).toUpperCase() + status.slice(1)} ({count})
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
 
-        <div className="filter-summary">
-          <p>Showing {filteredOrders.length} of {orders.length} orders</p>
-        </div>
 
         {filteredOrders.length === 0 ? (
-          <div className="no-results-message">
-            <div className="empty-state-content">
-              <div className="empty-state-icon">📋</div>
-              <h3>No Orders to Fulfill</h3>
-              <p>
-                {filterStatus === 'all' 
-                  ? "You don't have any orders to fulfill as a seller yet. Orders will appear here when customers purchase your products." 
-                  : `No orders found with status "${filterStatus}". Try a different filter to see more orders.`
-                }
-              </p>
-            </div>
+          <div className="orders-empty-state">
+            <div className="empty-state-icon">📋</div>
+            <h3 className="empty-title">No Orders to Fulfill</h3>
+            <p className="empty-description">
+              {filterStatus === 'all' 
+                ? "You don't have any orders to fulfill as a seller yet. Orders will appear here when customers purchase your products." 
+                : `No orders found with status "${filterStatus}". Try a different filter to see more orders.`
+              }
+            </p>
           </div>
         ) : (
-          <div className="orders-grid">
-            {filteredOrders.map(order => (
-              <div key={order.id} className="order-card">
-                {/* Status Badge - ProductCard Style */}
-                <div className="product-card-badges">
-                  <div 
-                    className="badge status-badge" 
-                    style={{ backgroundColor: getStatusColor(order.status) }}
-                  >
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </div>
-                </div>
-
-                {/* Order Header - ProductCard Style */}
-                <div className="order-header">
-                  <div className="order-number-section">
-                    <span className="order-prefix">Order</span>
-                    <h3 className="order-number">#{order.id.slice(-8)}</h3>
-                  </div>
-                  <div className="order-meta">
-                    <span className="order-date">
-                      {new Date(order.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </span>
-                    <span className="item-count">{order.items.length} item{order.items.length > 1 ? 's' : ''}</span>
-                  </div>
-                </div>
-
-                {/* Content Sections */}
-                <div className="order-content">
-                  
-                  {/* Customer Info */}
-                  <div className="info-section customer-info">
-                    <div className="section-header">
-                      <h4>👤 Customer</h4>
-                    </div>
-                    <div className="customer-details">
-                      <div className="customer-avatar">
-                        {order.buyer.first_name?.charAt(0)?.toUpperCase() || 'U'}
-                      </div>
-                      <div className="customer-data">
-                        <p className="customer-name">{order.buyer.first_name} {order.buyer.last_name}</p>
-                        <p className="customer-username">@{order.buyer.username}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Shipping Info */}
-                  <div className="info-section shipping-info">
-                    <div className="section-header">
-                      <h4>📍 Shipping Address</h4>
-                    </div>
-                    <div className="shipping-address">
-                      <p className="address-name">{order.shipping_address.name}</p>
-                      <p className="address-street">{order.shipping_address.street}</p>
-                      <p className="address-city">{order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}</p>
-                    </div>
+          <div className="orders-list-container">
+            <div className="orders-count">
+              <span className="count-text">Showing {filteredOrders.length} of {orders.length} orders</span>
+            </div>
+            <div className="orders-list">
+              {filteredOrders.map(order => (
+                <div key={order.id} className="order-card">
+                  <div className="order-content-row">
+                    {/* Product Images - Matching MyOrdersPage */}
+                    <div className="order-images-section">
+                      {order.items.slice(0, 3).map((item, index) => {
+                        // Enhanced image URL resolution for order items
+                        // Prioritize stored product_image but add fallback logic
+                        let imageUrl = '/placeholder-product.png';
                         
-                    {/* Tracking Information */}
-                    {order.seller_shipping && (
-                      <div className="tracking-section">
-                        <h5>📦 Your Tracking Information</h5>
-                        <div className="tracking-details">
-                          {order.seller_shipping.tracking_number && (
-                            <div className="tracking-field">
-                              <span className="field-label">Tracking Number:</span>
-                              <span className="tracking-code">{order.seller_shipping.tracking_number}</span>
-                            </div>
-                          )}
-                          {order.seller_shipping.shipping_carrier && (
-                            <div className="tracking-field">
-                              <span className="field-label">Carrier:</span>
-                              <span className="carrier-name">{order.seller_shipping.shipping_carrier}</span>
-                            </div>
-                          )}
-                          {order.seller_shipping.shipped_at && (
-                            <div className="tracking-field">
-                              <span className="field-label">Shipped:</span>
-                              <span className="date-value">{new Date(order.seller_shipping.shipped_at).toLocaleDateString()}</span>
-                            </div>
-                          )}
-                          {order.processed_at && (
-                            <div className="tracking-field">
-                              <span className="field-label">Processed:</span>
-                              <span className="date-value">{new Date(order.processed_at).toLocaleDateString()}</span>
-                            </div>
-                          )}
+                        if (item.product_image && item.product_image !== 'null' && item.product_image !== '') {
+                          imageUrl = item.product_image;
+                        }
+                        
+                        console.log('=== USER ORDERS MANAGEMENT - ORDER ITEM IMAGE DEBUG ===');
+                        console.log('Order ID:', order.id);
+                        console.log('Item:', item.product_name);
+                        console.log('Stored product_image:', item.product_image);
+                        console.log('Selected imageUrl:', imageUrl);
+                        
+                        return (
+                          <img 
+                            key={index}
+                            src={imageUrl}
+                            alt={item.product_name}
+                            className="product-thumbnail"
+                            style={{ 
+                              marginLeft: index > 0 ? '-8px' : '0',
+                              zIndex: 10 - index 
+                            }}
+                            onError={(e) => {
+                              // Fallback to placeholder on image load error
+                              const target = e.target as HTMLImageElement;
+                              if (target.src !== '/placeholder-product.png') {
+                                console.log('Image failed to load, using placeholder:', target.src);
+                                target.src = '/placeholder-product.png';
+                              }
+                            }}
+                          />
+                        );
+                      })}
+                      {order.items.length > 3 && (
+                        <div className="more-items-badge">
+                          +{order.items.length - 3}
                         </div>
-                      </div>
-                    )}
-
-                    {/* Cancellation Information */}
-                    {order.status === 'cancelled' && order.cancellation_reason && (
-                      <div className="cancellation-section">
-                        <h5>❌ Cancellation Details</h5>
-                        <div className="cancellation-details">
-                          <div className="cancellation-field">
-                            <span className="field-label">Reason:</span>
-                            <p className="cancellation-reason">{order.cancellation_reason}</p>
-                          </div>
-                          {order.cancelled_at && (
-                            <div className="cancellation-field">
-                              <span className="field-label">Cancelled:</span>
-                              <span className="date-value">{new Date(order.cancelled_at).toLocaleDateString()}</span>
-                            </div>
-                          )}
-                          {order.cancelled_by && (
-                            <div className="cancellation-field">
-                              <span className="field-label">By:</span>
-                              <span className="username-value">{order.cancelled_by.username}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Items Preview - ProductCard Style */}
-                  <div className="items-preview">
-                    <h4>📦 Your Items ({order.items.length})</h4>
-                    <div className="items-grid">
-                      {order.items.map((item, index) => (
-                        <div key={index} className="item-preview">
-                          <div className="item-info">
-                            <span className="item-name">{item.product_name}</span>
-                            <span className="item-quantity">{item.quantity}x</span>
-                          </div>
-                          <div className="item-price">
-                            <span className="price">${item.total_price}</span>
-                          </div>
-                        </div>
-                      ))}
+                      )}
                     </div>
                     
-                    <div className="order-totals">
-                      <div className="total-line">
-                        <span className="total-label">Your Items Total:</span>
-                        <span className="total-amount">${order.seller_items_total?.toFixed(2) || 'N/A'}</span>
+                    {/* Order Number & Date - Matching MyOrdersPage */}
+                    <div className="order-id-section">
+                      <div className="order-number">
+                        <span className="order-prefix">Order</span>
+                        <span className="order-id">#{order.id.slice(-8)}</span>
                       </div>
-                      <div className="total-note">
-                        <small>Full Order Total: ${order.total_amount}</small>
+                      <div className="order-date">
+                        {new Date(order.created_at).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </div>
+                      <div className="item-count">
+                        {order.items.length} item{order.items.length > 1 ? 's' : ''}
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Actions Footer - ProductCard Style */}
-                <div className="order-footer">
-                  <div className="policy-info">
-                    <p><strong>ℹ️ Policy:</strong> You manage only YOUR items. Other sellers handle theirs separately.</p>
-                  </div>
-                  
-                  <div className="order-actions">
-                    {/* Process Order - For pending orders */}
-                    {order.status === 'pending' && (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => processOrder(order.id)}
-                        disabled={updatingOrders.has(order.id)}
-                        title="Move order to processing status"
+                    {/* Customer & Status Info */}
+                    <div className="order-customer-section">
+                      <div className="customer-info">
+                        <div className="customer-avatar">
+                          {order.buyer.first_name?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                        <div className="customer-details">
+                          <div className="customer-name">{order.buyer.first_name} {order.buyer.last_name}</div>
+                          <div className="customer-username">@{order.buyer.username}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="order-status-section">
+                      <span 
+                        className="order-status-badge"
+                        style={{ backgroundColor: getStatusColor(order.status) }}
                       >
-                        {updatingOrders.has(order.id) ? '⏳ Processing...' : '⚡ Process Order'}
+                        {order.status === 'pending_payment' ? 'Pending Payment' :
+                         order.status === 'payment_confirmed' ? 'Payment Confirmed' :
+                         order.status === 'awaiting_shipment' ? 'Awaiting Shipment' :
+                         order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </span>
+                      <div className="order-total">
+                        ${order.total_amount}
+                      </div>
+                    </div>
+
+                    {/* Quick Actions - Matching MyOrdersPage Style */}
+                    <div className="order-actions-section">
+                      <div className="quick-actions">
+                        {/* Process Order - Only for payment_confirmed orders */}
+                        {order.status === 'payment_confirmed' && (
+                          <button
+                            className="action-btn primary-btn"
+                            onClick={() => processOrder(order.id)}
+                            disabled={updatingOrders.has(order.id)}
+                            title="Start Processing Order"
+                          >
+                            {updatingOrders.has(order.id) ? '⏳' : '⚡'}
+                          </button>
+                        )}
+
+                        {/* Tracking Button */}
+                        {['awaiting_shipment'].includes(order.status) && (
+                          <button
+                            className="action-btn secondary-btn"
+                            onClick={() => toggleTrackingForm(order.id)}
+                            disabled={updatingOrders.has(order.id)}
+                            title={order.seller_shipping?.tracking_number ? 'Update Tracking' : 'Add Tracking'}
+                          >
+                            📦
+                          </button>
+                        )}
+
+                        {/* Cancel Button */}
+                        {['payment_confirmed', 'awaiting_shipment'].includes(order.status) && (
+                          <button
+                            className="action-btn danger-btn"
+                            onClick={() => toggleCancelForm(order.id)}
+                            disabled={updatingOrders.has(order.id)}
+                            title="Cancel Order"
+                          >
+                            ❌
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* View Details Button */}
+                      <button 
+                        className="view-details-btn"
+                        onClick={() => {/* Add view details logic */}}
+                      >
+                        View Details
                       </button>
-                    )}
+                    </div>
+                  </div>
 
-
-                    {/* Tracking Section - For confirmed/processing orders */}
-                    {['confirmed', 'processing'].includes(order.status) && (
-                      <div className="tracking-action-section">
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => toggleTrackingForm(order.id)}
-                          disabled={updatingOrders.has(order.id)}
-                        >
-                          {showTrackingForm.has(order.id) 
-                            ? '❌ Cancel' 
-                            : order.seller_shipping?.tracking_number 
-                              ? '📦 Update Tracking' 
-                              : '📦 Add Tracking'}
-                        </button>
-                          
-                        {showTrackingForm.has(order.id) && (
-                          <div className="tracking-form">
-                            <div className="form-header">
-                              <h5>📦 {order.seller_shipping?.tracking_number ? 'Update' : 'Add'} Tracking Information</h5>
+                  {/* Expanded Forms */}
+                  {(showTrackingForm.has(order.id) || showCancelForm.has(order.id)) && (
+                    <div className="order-expanded-section">
+                      {/* Tracking Form */}
+                      {showTrackingForm.has(order.id) && (
+                        <div className="expanded-form tracking-form">
+                          <h4>📦 {order.seller_shipping?.tracking_number ? 'Update' : 'Add'} Tracking</h4>
+                          <div className="form-fields">
+                            <div className="form-group">
+                              <label>Tracking Number:</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Enter tracking number..."
+                                value={trackingData[order.id]?.trackingNumber || order.seller_shipping?.tracking_number || ''}
+                                onChange={(e) => handleTrackingDataChange(order.id, 'trackingNumber', e.target.value)}
+                              />
                             </div>
-                            
-                            <div className="form-notice">
-                              <p>ℹ️ <strong>Rule:</strong> Each seller can add ONE tracking code per order.</p>
+                            <div className="form-group">
+                              <label>Carrier:</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="e.g., CTT, DHL, UPS..."
+                                value={trackingData[order.id]?.carrier || order.seller_shipping?.shipping_carrier || ''}
+                                onChange={(e) => handleTrackingDataChange(order.id, 'carrier', e.target.value)}
+                              />
                             </div>
-                            
-                            <div className="form-fields">
-                              <div className="form-group">
-                                <label>Tracking Number:</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder={order.seller_shipping?.tracking_number || "Enter tracking number..."}
-                                  value={trackingData[order.id]?.trackingNumber || order.seller_shipping?.tracking_number || ''}
-                                  onChange={(e) => handleTrackingDataChange(order.id, 'trackingNumber', e.target.value)}
-                                />
-                              </div>
-                              <div className="form-group">
-                                <label>Carrier (optional):</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="e.g., CTT, DHL, UPS..."
-                                  value={trackingData[order.id]?.carrier || order.seller_shipping?.shipping_carrier || ''}
-                                  onChange={(e) => handleTrackingDataChange(order.id, 'carrier', e.target.value)}
-                                />
-                              </div>
-                            </div>
-                            
                             <button
                               className="btn btn-success"
                               onClick={() => updateTrackingNumber(order.id)}
                               disabled={updatingOrders.has(order.id)}
                             >
-                              {updatingOrders.has(order.id) 
-                                ? (order.seller_shipping?.tracking_number ? '⏳ Updating...' : '⏳ Adding...') 
-                                : (order.seller_shipping?.tracking_number ? '✅ Update Tracking' : '✅ Add & Ship')}
+                              {updatingOrders.has(order.id) ? '⏳ Updating...' : '✅ Save Tracking'}
                             </button>
                           </div>
-                        )}
-                      </div>
-                    )}
+                        </div>
+                      )}
 
-                    {/* Cancel Section - For pending/confirmed orders */}
-                    {['pending', 'confirmed'].includes(order.status) && (
-                      <div className="cancel-action-section">
-                        <button
-                          className="btn btn-danger"
-                          onClick={() => toggleCancelForm(order.id)}
-                          disabled={updatingOrders.has(order.id)}
-                          title="Cancel this order with reason"
-                        >
-                          {showCancelForm.has(order.id) ? '❌ Cancel' : '❌ Cancel Order'}
-                        </button>
-
-                        {showCancelForm.has(order.id) && (
-                          <div className="cancel-form">
-                            <div className="form-header">
-                              <h5>❌ Cancel Order</h5>
+                      {/* Cancel Form */}
+                      {showCancelForm.has(order.id) && (
+                        <div className="expanded-form cancel-form">
+                          <h4>❌ Cancel Order</h4>
+                          <div className="form-fields">
+                            <div className="form-group">
+                              <label>Cancellation Reason:</label>
+                              <textarea
+                                className="form-control"
+                                placeholder="Please provide a reason for cancelling this order..."
+                                value={cancelData[order.id]?.reason || ''}
+                                onChange={(e) => handleCancelDataChange(order.id, e.target.value)}
+                                rows={3}
+                              />
                             </div>
-                            
-                            <div className="form-fields">
-                              <div className="form-group">
-                                <label>Cancellation Reason:</label>
-                                <textarea
-                                  className="form-control"
-                                  placeholder="Please provide a reason for cancelling this order..."
-                                  value={cancelData[order.id]?.reason || ''}
-                                  onChange={(e) => handleCancelDataChange(order.id, e.target.value)}
-                                  rows={3}
-                                />
-                              </div>
-                            </div>
-                            
                             <button
                               className="btn btn-danger"
                               onClick={() => cancelOrderWithReason(order.id)}
                               disabled={updatingOrders.has(order.id)}
                             >
-                              {updatingOrders.has(order.id) ? '⏳ Cancelling...' : '⚠️ Confirm Cancellation'}
+                              {updatingOrders.has(order.id) ? '⏳ Cancelling...' : '⚠️ Confirm Cancel'}
                             </button>
                           </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Status Messages */}
-                    {!['pending', 'confirmed'].includes(order.status) && order.status !== 'cancelled' && (
-                      <div className="status-info cannot-cancel">
-                        <span>⚠️ Order cannot be cancelled once {order.status}</span>
-                      </div>
-                    )}
-
-                    {order.status === 'cancelled' && (
-                      <div className="status-info cancelled">
-                        <span>❌ Order Cancelled</span>
-                      </div>
-                    )}
-
-                    {updatingOrders.has(order.id) && (
-                      <div className="processing-status">
-                        <span>⏳ Processing...</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
-            
+            </div>
           </div>
         )}
       </div>

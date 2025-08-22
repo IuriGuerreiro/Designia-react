@@ -160,13 +160,37 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         isActive = false;
       }
       
+      // Enhanced image URL resolution with presigned URL priority
+      let imageUrl = '/placeholder-product.png';
+      
+      if (item.product.primary_image) {
+        // Use display_url if available (from automatic assimilation)
+        if (item.product.primary_image.display_url) {
+          imageUrl = item.product.primary_image.display_url;
+        }
+        // Fallback to manual resolution if display_url not available
+        else if (item.product.primary_image.presigned_url && item.product.primary_image.presigned_url !== 'null' && item.product.primary_image.presigned_url !== null) {
+          imageUrl = item.product.primary_image.presigned_url;
+        } else if (item.product.primary_image.image_url && item.product.primary_image.image_url !== 'null' && item.product.primary_image.image_url !== null) {
+          imageUrl = item.product.primary_image.image_url;
+        } else if (item.product.primary_image.image && item.product.primary_image.image !== 'null' && item.product.primary_image.image !== null) {
+          imageUrl = item.product.primary_image.image;
+        }
+      }
+      
+      console.log('=== CART CONTEXT - IMAGE URL DEBUG ===');
+      console.log('Product:', item.product.name);
+      console.log('Primary image data:', item.product.primary_image);
+      console.log('Selected imageUrl:', imageUrl);
+      console.log('URL source:', item.product.primary_image?.url_source || 'manual_fallback');
+      
       return {
         id: item.product.id,
         name: item.product.name,
         price: parseFloat(item.product.price.toString()),
         quantity: item.quantity,
-        image: item.product.primary_image?.image || '/placeholder-product.png',
-        imageUrl: item.product.primary_image?.image || '/placeholder-product.png',
+        image: imageUrl,
+        imageUrl: imageUrl,
         slug: item.product.slug,
         isActive: isActive,
         stockError: stockError,

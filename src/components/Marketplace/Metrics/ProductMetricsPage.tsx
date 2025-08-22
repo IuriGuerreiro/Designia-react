@@ -20,6 +20,8 @@ const ProductMetricsPage: React.FC = () => {
       stock_quantity: 0,
       is_active: false,
       created_at: '',
+      primary_image: null,
+      images: []
     },
     product_metrics: {
       total_views: 0,
@@ -125,29 +127,99 @@ const ProductMetricsPage: React.FC = () => {
         {productId && productMetrics.product_info?.name && (
           <div className="product-info-section">
             <h3>Product Information</h3>
-            <div className="metrics-overview-grid">
-              <div className="metric-card">
-                <h4>Product Name</h4>
-                <p className="metric-value" style={{ fontSize: '1.2rem' }}>{productMetrics.product_info.name}</p>
+            
+            {/* Product Image and Basic Info */}
+            <div className="product-summary-container" style={{ display: 'flex', gap: '20px', marginBottom: '20px', alignItems: 'flex-start' }}>
+              {/* Product Image */}
+              <div className="product-image-container" style={{ flexShrink: 0 }}>
+                <img 
+                  src={(() => {
+                    // Enhanced image URL resolution with presigned URL priority
+                    const primaryImage: any = productMetrics.product_info.primary_image || 
+                                       (productMetrics.product_info.images && productMetrics.product_info.images[0]);
+                    
+                    let imageUrl = '/placeholder-product.png';
+                    
+                    if (primaryImage) {
+                      // Use display_url if available (from automatic assimilation)
+                      if (primaryImage.display_url) {
+                        imageUrl = primaryImage.display_url;
+                      }
+                      // Fallback to manual resolution if display_url not available
+                      else if (primaryImage.presigned_url && primaryImage.presigned_url !== 'null' && primaryImage.presigned_url !== null) {
+                        imageUrl = primaryImage.presigned_url;
+                      } else if (primaryImage.image_url && primaryImage.image_url !== 'null' && primaryImage.image_url !== null) {
+                        imageUrl = primaryImage.image_url;
+                      } else if (primaryImage.image && primaryImage.image !== 'null' && primaryImage.image !== null) {
+                        imageUrl = primaryImage.image;
+                      }
+                    }
+                    
+                    console.log('=== PRODUCT METRICS IMAGE DEBUG ===');
+                    console.log('Product info:', productMetrics.product_info);
+                    console.log('Primary image:', primaryImage);
+                    console.log('Selected image URL:', imageUrl);
+                    console.log('URL source:', primaryImage?.url_source || 'manual_fallback');
+                    
+                    return imageUrl;
+                  })()} 
+                  alt={productMetrics.product_info.name} 
+                  style={{ 
+                    width: '120px', 
+                    height: '120px', 
+                    objectFit: 'cover', 
+                    borderRadius: '8px',
+                    border: '1px solid #e0e0e0'
+                  }}
+                />
               </div>
-              <div className="metric-card">
-                <h4>Price</h4>
-                <p className="metric-value">${parseFloat(productMetrics.product_info.price).toFixed(2)}</p>
-              </div>
-              <div className="metric-card">
-                <h4>Stock</h4>
-                <p className="metric-value">{productMetrics.product_info.stock_quantity}</p>
-              </div>
-              <div className="metric-card">
-                <h4>Status</h4>
-                <p className="metric-value" style={{ fontSize: '1.2rem' }}>
-                  {productMetrics.product_info.is_active ? 'Active' : 'Inactive'}
+              
+              {/* Basic Product Details */}
+              <div className="product-basic-info" style={{ flex: 1 }}>
+                <h4 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.4rem' }}>
+                  {productMetrics.product_info.name}
+                </h4>
+                <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#2c5530', margin: '5px 0' }}>
+                  ${parseFloat(productMetrics.product_info.price).toFixed(2)}
+                </p>
+                <p style={{ margin: '5px 0', color: '#666' }}>
+                  Stock: {productMetrics.product_info.stock_quantity} units
+                </p>
+                <p style={{ margin: '5px 0' }}>
+                  <span style={{ 
+                    padding: '4px 8px', 
+                    borderRadius: '4px', 
+                    fontSize: '0.9rem',
+                    backgroundColor: productMetrics.product_info.is_active ? '#d4edda' : '#f8d7da',
+                    color: productMetrics.product_info.is_active ? '#155724' : '#721c24'
+                  }}>
+                    {productMetrics.product_info.is_active ? 'Active' : 'Inactive'}
+                  </span>
                 </p>
               </div>
+            </div>
+
+            <div className="metrics-overview-grid">
               <div className="metric-card">
-                <h4>Created</h4>
-                <p className="metric-value" style={{ fontSize: '1.2rem' }}>{productMetrics.product_info.created_at}</p>
+                <h4>Product ID</h4>
+                <p className="metric-value" style={{ fontSize: '1rem' }}>{productMetrics.product_info.id}</p>
               </div>
+              <div className="metric-card">
+                <h4>Slug</h4>
+                <p className="metric-value" style={{ fontSize: '1rem' }}>{productMetrics.product_info.slug}</p>
+              </div>
+              <div className="metric-card">
+                <h4>Created Date</h4>
+                <p className="metric-value" style={{ fontSize: '1rem' }}>
+                  {new Date(productMetrics.product_info.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              {productMetrics.product_info.images && productMetrics.product_info.images.length > 0 && (
+                <div className="metric-card">
+                  <h4>Total Images</h4>
+                  <p className="metric-value">{productMetrics.product_info.images.length}</p>
+                </div>
+              )}
             </div>
           </div>
         )}

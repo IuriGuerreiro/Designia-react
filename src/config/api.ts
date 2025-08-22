@@ -1,6 +1,10 @@
 // Always use the backend server URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.3.2:8001';
 
+console.log('=== API BASE URL DEBUG ===');
+console.log('VITE_API_BASE_URL env var:', import.meta.env.VITE_API_BASE_URL);
+console.log('Final API_BASE_URL:', API_BASE_URL);
+
 export const API_ENDPOINTS = {
   // Authentication endpoints (matching Django authentication/urls.py)
   LOGIN: `${API_BASE_URL}/api/auth/login/`,
@@ -20,6 +24,7 @@ export const API_ENDPOINTS = {
   
   // User endpoints  
   USER_PROFILE: `${API_BASE_URL}/api/auth/profile/`,
+  CHANGE_LANGUAGE: `${API_BASE_URL}/api/auth/change-language/`,
   
   // 2FA endpoints
   TWO_FACTOR_TOGGLE: `${API_BASE_URL}/api/auth/2fa/toggle/`,
@@ -71,11 +76,12 @@ export const API_ENDPOINTS = {
   // Orders
   ORDERS: `${API_BASE_URL}/api/marketplace/orders/`,
   ORDER_DETAIL: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/`,
-  CREATE_ORDER_FROM_CART: `${API_BASE_URL}/api/marketplace/orders/create_from_cart/`,
   UPDATE_ORDER_STATUS: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/update_status/`,
+  UPDATE_ORDER_STATUS_VALIDATED: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/update_order_status/`,
 
   // Payment System
   CREATE_CHECKOUT_SESSION: `${API_BASE_URL}/api/payments/checkout_session/`,
+  CREATE_RETRY_CHECKOUT_SESSION: (orderId: string) => `${API_BASE_URL}/api/payments/checkout_session/retry/${orderId}/`,
   CHECKOUT_SESSION_STATUS: `${API_BASE_URL}/api/payments/session_status/`,
   CREATE_ORDER_FROM_INTENT: `${API_BASE_URL}/api/payments/create-order-from-intent/`,
   PROCESS_ORDER_PAYMENT: `${API_BASE_URL}/api/payments/process-order/`,
@@ -84,6 +90,22 @@ export const API_ENDPOINTS = {
   STRIPE_ACCOUNT_STATUS: `${API_BASE_URL}/api/payments/stripe-account/status/`,
   SELLER_PAYOUTS: `${API_BASE_URL}/api/payments/seller-payouts/`,
   REQUEST_REFUND: `${API_BASE_URL}/api/payments/refund/request/`,
+  
+  // Stripe Connect (Seller Onboarding)
+  STRIPE_ACCOUNT: `${API_BASE_URL}/api/payments/stripe/account/`,
+  STRIPE_CREATE_SESSION: `${API_BASE_URL}/api/payments/stripe/create-session/`,
+  STRIPE_VALIDATE_ELIGIBILITY: `${API_BASE_URL}/api/payments/stripe/validate-eligibility/`,
+  STRIPE_ACCOUNT_STATUS_CONNECT: `${API_BASE_URL}/api/payments/stripe/account-status/`,
+  STRIPE_PAYMENT_HOLDS: `${API_BASE_URL}/api/payments/stripe/holds/`,
+  STRIPE_TRANSFER_PAYMENT: `${API_BASE_URL}/api/payments/transfer/`,
+  
+  // Payout endpoints
+  SELLER_PAYOUT: `${API_BASE_URL}/api/payments/payout/`,
+  GET_PAYOUT: (payoutId: string) => `${API_BASE_URL}/api/payments/payout/${payoutId}/`,
+  LIST_PAYOUTS: `${API_BASE_URL}/api/payments/payouts/`,
+  PAYOUT_DETAIL: (payoutId: string) => `${API_BASE_URL}/api/payments/payouts/${payoutId}/`,
+  PAYOUT_ORDERS: (payoutId: string) => `${API_BASE_URL}/api/payments/payouts/${payoutId}/orders/`,
+  ELIGIBLE_TRANSFERS: `${API_BASE_URL}/api/payments/eligible-transfers/`,
 
   // Metrics
   METRICS: `${API_BASE_URL}/api/marketplace/metrics/`,

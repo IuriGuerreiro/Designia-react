@@ -1,6 +1,68 @@
 import { apiRequest, API_ENDPOINTS } from '../config/api';
 import { type Category, type ProductListItem, type ProductFilters } from '../types/marketplace';
 
+/**
+ * Helper function to assimilate image URLs for better display
+ * Ensures the best available image URL is used with proper fallback chain
+ */
+const assimilateImageUrl = (imageData: any): any => {
+  if (!imageData) return imageData;
+  
+  // If it's an array of images, process each one
+  if (Array.isArray(imageData)) {
+    return imageData.map(img => assimilateImageUrl(img));
+  }
+  
+  // Process single image object
+  const processedImage = { ...imageData };
+  
+  // Determine the best available URL following priority: presigned_url > image_url > image
+  let bestUrl = '/placeholder-product.png';
+  let urlSource = 'placeholder';
+  
+  if (processedImage.presigned_url && processedImage.presigned_url !== 'null' && processedImage.presigned_url !== null) {
+    bestUrl = processedImage.presigned_url;
+    urlSource = 'presigned_url';
+  } else if (processedImage.image_url && processedImage.image_url !== 'null' && processedImage.image_url !== null) {
+    bestUrl = processedImage.image_url;
+    urlSource = 'image_url';
+  } else if (processedImage.image && processedImage.image !== 'null' && processedImage.image !== null) {
+    bestUrl = processedImage.image;
+    urlSource = 'image';
+  }
+  
+  // Store the best URL in a standardized field for easy access
+  processedImage.display_url = bestUrl;
+  processedImage.url_source = urlSource;
+  
+  console.log(`🔍 Category Service - Image URL assimilation - ID: ${processedImage.id}, Source: ${urlSource}, URL: ${bestUrl}`);
+  
+  return processedImage;
+};
+
+/**
+ * Helper function to process product data and assimilate image URLs
+ */
+const assimilateProductImages = (product: any): any => {
+  if (!product) return product;
+  
+  const processedProduct = { ...product };
+  
+  // Process primary_image
+  if (processedProduct.primary_image) {
+    processedProduct.primary_image = assimilateImageUrl(processedProduct.primary_image);
+  }
+  
+  // Process images array
+  if (processedProduct.images && Array.isArray(processedProduct.images)) {
+    processedProduct.images = assimilateImageUrl(processedProduct.images);
+  }
+  
+  console.log(`📦 Category Service - Product image assimilation complete - ${processedProduct.name} (ID: ${processedProduct.id})`);
+  
+  return processedProduct;
+};
+
 export class CategoryService {
   private static instance: CategoryService;
 
@@ -86,6 +148,13 @@ export class CategoryService {
         count: result?.length || 0,
         hasResults: !!result
       });
+      
+      // Process and assimilate image URLs for all category products
+      if (result && Array.isArray(result) && result.length > 0) {
+        console.log(`🔄 Category Service - Processing ${result.length} category products for image URL assimilation`);
+        const processedProducts = result.map((product: any) => assimilateProductImages(product));
+        return processedProducts;
+      }
       
       return result;
     } catch (error) {

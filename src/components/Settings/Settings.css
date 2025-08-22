@@ -162,6 +162,23 @@ input:checked + .slider:before {
 
 .language-selector {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.language-selector .btn {
+    min-width: 120px;
+    text-align: center;
+}
+
+.current-language-info {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.current-language-info small {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
 }
 

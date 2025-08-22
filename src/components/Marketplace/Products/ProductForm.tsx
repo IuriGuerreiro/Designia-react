@@ -6,6 +6,7 @@ import Select from '../../Common/Select';
 import { useTranslation } from 'react-i18next';
 import { productService, categoryService } from '../../../services';
 import { type Category } from '../../../types/marketplace';
+import { processImagesForUpload, type ImageInfo } from '../../../utils/imageUtils';
 import './Products.css';
 
 const ProductForm: React.FC = () => {
@@ -43,6 +44,7 @@ const ProductForm: React.FC = () => {
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [isProcessingImages, setIsProcessingImages] = useState(false);
 
 
   const availableColors = ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Gray', 'Brown', 'Orange', 'Purple'];
@@ -143,8 +145,57 @@ const ProductForm: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setIsProcessingImages(true);
 
     try {
+      // Process and encode images before sending
+      let processedImages: ImageInfo[] = [];
+      if (imageFiles.length > 0) {
+        console.log('=== IMAGE PROCESSING START ===');
+        console.log(`Starting to process ${imageFiles.length} image files:`);
+        imageFiles.forEach((file, index) => {
+          console.log(`  Original File ${index + 1}:`, {
+            name: file.name,
+            size: `${(file.size / 1024).toFixed(2)} KB`,
+            type: file.type,
+            lastModified: file.lastModified,
+            isValidFile: file instanceof File
+          });
+        });
+        
+        try {
+          processedImages = await processImagesForUpload(imageFiles, {
+            maxSizeBytes: 10 * 1024 * 1024, // 10MB
+            targetQuality: 0.8,
+            maxWidth: 2048,
+            maxHeight: 2048
+          });
+          
+          console.log(`✅ Successfully processed ${processedImages.length} images:`);
+          processedImages.forEach((imageInfo, index) => {
+            console.log(`  Processed Image ${index + 1}:`, {
+              originalName: imageInfo.originalFile.name,
+              originalSize: `${(imageInfo.originalSize / 1024).toFixed(2)} KB`,
+              encodedSize: `${(imageInfo.encodedSize / 1024).toFixed(2)} KB`,
+              encoding: imageInfo.encoding,
+              quality: imageInfo.quality,
+              compressionRatio: imageInfo.compressionRatio.toFixed(2),
+              encodedFileType: imageInfo.encodedFile.constructor.name,
+              encodedFileSize: imageInfo.encodedFile.size,
+              encodedFileIsBlob: imageInfo.encodedFile instanceof Blob
+            });
+          });
+          console.log('=== IMAGE PROCESSING COMPLETE ===');
+        } catch (imageError) {
+          console.error('=== IMAGE PROCESSING FAILED ===');
+          console.error('Image processing error:', imageError);
+          setError(`Image processing failed: ${imageError instanceof Error ? imageError.message : String(imageError)}`);
+          return;
+        }
+      }
+      
+      setIsProcessingImages(false);
+
       // Create FormData for file upload
       const formDataToSend = new FormData();
       
@@ -171,14 +222,177 @@ const ProductForm: React.FC = () => {
       formDataToSend.append('is_featured', formData.is_featured.toString());
       formDataToSend.append('is_digital', formData.is_digital.toString());
 
-      // Add image files
-      imageFiles.forEach((file) => {
-        formDataToSend.append('uploaded_images', file);
+      // Add processed image files with encoding metadata
+      console.log('=== FILE CONVERSION START ===');
+      processedImages.forEach((imageInfo, index) => {
+        console.log(`Converting processed image ${index + 1} to File object:`);
+        console.log(`  Source Blob:`, {
+          size: imageInfo.encodedFile.size,
+          type: imageInfo.encodedFile.type,
+          constructor: imageInfo.encodedFile.constructor.name
+        });
+        
+        // Create File object from encoded blob
+        const encodedFile = new File(
+          [imageInfo.encodedFile], 
+          imageInfo.originalFile.name,
+          { 
+            type: `image/${imageInfo.encoding}`,
+            lastModified: Date.now()
+          }
+        );
+        
+        console.log(`  Created File:`, {
+          name: encodedFile.name,
+          size: encodedFile.size,
+          type: encodedFile.type,
+          lastModified: encodedFile.lastModified,
+          constructor: encodedFile.constructor.name,
+          isFile: encodedFile instanceof File,
+          isBlob: encodedFile instanceof Blob
+        });
+        
+        // Verify the File is valid before appending
+        if (encodedFile.size === 0) {
+          console.error(`🚨 ERROR: Created File has 0 bytes! Original blob size: ${imageInfo.encodedFile.size}`);
+        } else {
+          console.log(`✅ File conversion successful for ${encodedFile.name}`);
+        }
+        
+        formDataToSend.append('uploaded_images', encodedFile);
+        
+        // Add encoding metadata for backend validation
+        formDataToSend.append(`image_${index}_encoding`, imageInfo.encoding);
+        formDataToSend.append(`image_${index}_quality`, imageInfo.quality.toString());
+        formDataToSend.append(`image_${index}_original_size`, imageInfo.originalSize.toString());
+        formDataToSend.append(`image_${index}_encoded_size`, imageInfo.encodedSize.toString());
+        formDataToSend.append(`image_${index}_compression_ratio`, imageInfo.compressionRatio.toString());
       });
 
+      // Debug: Log FormData contents before sending
+      console.log('=== FRONTEND FORMDATA DEBUG ===');
+      console.log('FormData entries:');
+      
+      for (const [key, value] of formDataToSend.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}:`, {
+            name: value.name,
+            size: value.size,
+            type: value.type,
+            lastModified: value.lastModified,
+            isFile: true
+          });
+        } else {
+          console.log(`${key}:`, value);
+        }
+      }
+      
+      // Count files specifically
+      const fileEntries = Array.from(formDataToSend.entries()).filter(([key, value]) => value instanceof File);
+      console.log(`Total files in FormData: ${fileEntries.length}`);
+      
+      if (fileEntries.length > 0) {
+        console.log('File details:');
+        fileEntries.forEach(([key, file], index) => {
+          console.log(`  File ${index + 1} (${key}):`, {
+            name: file.name,
+            size: `${(file.size / 1024).toFixed(2)} KB`,
+            type: file.type,
+            blob: file instanceof File ? 'File object' : 'Other'
+          });
+        });
+      } else {
+        console.warn('No files found in FormData - this may explain the S3 upload issue');
+      }
+      
+      console.log('=== END FORMDATA DEBUG ===');
+
+      // ENHANCED DEBUG: Log the actual request that will be sent
+      console.log('=== REQUEST BODY DEBUG ===');
+      
+      // Create a detailed inspection of what's being sent
+      const requestInspection = {
+        contentType: 'multipart/form-data (browser will set boundary)',
+        formDataSize: Array.from(formDataToSend.entries()).length,
+        hasFiles: Array.from(formDataToSend.entries()).some(([key, value]) => value instanceof File),
+        totalFiles: Array.from(formDataToSend.entries()).filter(([key, value]) => value instanceof File).length,
+        nonFileFields: Array.from(formDataToSend.entries()).filter(([key, value]) => !(value instanceof File)).length,
+        estimatedTotalSize: Array.from(formDataToSend.entries())
+          .reduce((size, [key, value]) => {
+            if (value instanceof File) {
+              return size + value.size;
+            } else if (typeof value === 'string') {
+              return size + new Blob([value]).size;
+            }
+            return size;
+          }, 0)
+      };
+      
+      console.log('Request inspection:', requestInspection);
+      
+      // Log all form fields being sent
+      console.log('All FormData fields being sent to backend:');
+      for (const [key, value] of formDataToSend.entries()) {
+        if (value instanceof File) {
+          console.log(`📎 FILE FIELD: ${key} = File {
+            name: "${value.name}",
+            size: ${value.size} bytes (${(value.size / 1024).toFixed(2)} KB),
+            type: "${value.type}",
+            lastModified: ${value.lastModified},
+            constructor: ${value.constructor.name}
+          }`);
+          
+          // Additional file validation
+          if (value.size === 0) {
+            console.warn(`⚠️ WARNING: File ${value.name} has 0 bytes - this may cause S3 upload issues`);
+          }
+          if (!value.type || value.type === '') {
+            console.warn(`⚠️ WARNING: File ${value.name} has no MIME type - this may cause backend issues`);
+          }
+        } else {
+          const valueStr = typeof value === 'string' ? value : String(value);
+          console.log(`📝 TEXT FIELD: ${key} = "${valueStr}" (${valueStr.length} chars)`);
+        }
+      }
+      
+      // Verify the FormData is properly constructed for multipart upload
+      if (requestInspection.totalFiles === 0) {
+        console.error('🚨 CRITICAL ERROR: No files found in FormData - S3 upload will definitely fail');
+        console.error('This indicates an issue with image processing or FormData construction');
+      } else {
+        console.log(`✅ FormData contains ${requestInspection.totalFiles} files - ready for S3 upload`);
+      }
+      
+      console.log('=== END REQUEST BODY DEBUG ===');
+
+      // FINAL DIAGNOSTIC: Verify FormData integrity just before sending
+      console.log('=== FINAL FORMDATA DIAGNOSTIC ===');
+      const finalDiagnostic = {
+        timestamp: new Date().toISOString(),
+        totalEntries: Array.from(formDataToSend.entries()).length,
+        fileEntries: Array.from(formDataToSend.entries()).filter(([k, v]) => v instanceof File).length,
+        textEntries: Array.from(formDataToSend.entries()).filter(([k, v]) => !(v instanceof File)).length,
+        hasUploadedImages: formDataToSend.has('uploaded_images'),
+        uploadedImagesCount: formDataToSend.getAll('uploaded_images').length
+      };
+      
+      console.log('Final diagnostic before API call:', finalDiagnostic);
+      
+      // Test FormData completeness
+      if (finalDiagnostic.fileEntries === 0 && imageFiles.length > 0) {
+        console.error('🚨 CRITICAL: ImageFiles were provided but no File objects found in FormData!');
+        console.error('This suggests image processing or File conversion failed');
+      } else if (finalDiagnostic.fileEntries > 0) {
+        console.log(`✅ FormData ready: ${finalDiagnostic.fileEntries} files will be sent to backend`);
+      }
+      
+      console.log('=== SENDING REQUEST TO BACKEND ===');
+
       if (isEditing && slug) {
+        console.log(`🔄 Sending UPDATE request to backend for product: ${slug}`);
         await productService.updateProduct(slug, formDataToSend);
       } else {
+        console.log('🔄 Sending CREATE request to backend for new product');
         await productService.createProduct(formDataToSend);
       }
 
@@ -188,6 +402,7 @@ const ProductForm: React.FC = () => {
       setError(t('products.form.errors.save_product'));
     } finally {
       setLoading(false);
+      setIsProcessingImages(false);
     }
   };
 
@@ -231,7 +446,18 @@ const ProductForm: React.FC = () => {
           <div className="form-group">
             <label htmlFor="productImages">{t('products.form.images_label')}</label>
             <p className="form-hint">{t('products.form.images_hint')}</p>
-            <ImageUpload files={imageFiles} setFiles={setImageFiles} />
+            <ImageUpload 
+              files={imageFiles} 
+              setFiles={setImageFiles}
+              maxFiles={10}
+              maxFileSize={10 * 1024 * 1024}
+              allowedExtensions={['jpg', 'jpeg', 'png', 'webp']}
+            />
+            {isProcessingImages && (
+              <div className="processing-images">
+                <p>🔄 Processing images for upload...</p>
+              </div>
+            )}
           </div>
 
           {/* Basic Info */}

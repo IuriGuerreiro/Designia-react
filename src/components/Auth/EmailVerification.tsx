@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import AuthLayout from './AuthLayout';
 import './Auth.css';
 
-interface EmailVerificationProps {
-  token: string;
-}
-
-const EmailVerification: React.FC<EmailVerificationProps> = ({ token }) => {
+const EmailVerification: React.FC = () => {
+  const { token } = useParams<{ token: string }>();
   const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
   const { verifyEmail } = useAuth();
 
   useEffect(() => {
     const handleVerification = async () => {
+      if (!token) {
+        setVerificationStatus('error');
+        setMessage('No verification token provided');
+        return;
+      }
+
       const result = await verifyEmail(token);
       
       if (result.success) {

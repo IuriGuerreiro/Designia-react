@@ -1,6 +1,33 @@
 /* ===================================
    Product List & Grid
    =================================== */
+   
+/* My Products specific styling */
+.my-product-actions {
+  flex-direction: row;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.my-product-actions .btn {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.my-product-card .product-actions {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.my-product-card .condition-badge {
+  font-size: 0.75rem;
+}
+
+/* ===================================
+   Product List & Grid
+   =================================== */
 .products-header {
   display: flex;
   justify-content: space-between;
@@ -858,4 +885,22 @@
   .current-price {
     font-size: 1.6rem;
   }
+}
+
+/* ===================================
+   Image Processing Styles
+   =================================== */
+.processing-images {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: var(--border-radius);
+  color: #0369a1;
+}
+
+.processing-images p {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
 }

@@ -26,6 +26,16 @@ export interface ProductImage {
   alt_text: string;
   is_primary: boolean;
   order: number;
+  // S3 fields for presigned URL support
+  presigned_url?: string;
+  image_url?: string;
+  s3_key?: string;
+  original_filename?: string;
+  file_size?: number;
+  content_type?: string;
+  // Automatic image URL assimilation fields
+  display_url?: string;
+  url_source?: 'presigned_url' | 'image_url' | 'image' | 'placeholder';
 }
 
 export interface ReviewImage {
@@ -189,7 +199,7 @@ export interface OrderShipping {
 export interface Order {
   id: string;
   buyer: User;
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+  status: 'pending_payment' | 'payment_confirmed' | 'awaiting_shipment' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
   payment_status: 'pending' | 'paid' | 'failed' | 'refunded' | 'partial_refund';
   subtotal: number;
   shipping_cost: number;

@@ -69,7 +69,7 @@ const ProductDetailPage: React.FC = () => {
       quantity: quantity,
       quantityType: typeof quantity,
       isInStock: product.is_in_stock,
-      stockQuantity: product.stock_quantity
+      stockQuantity: product.stock_quantity,
     });
     
     setIsAddingToCart(true);
@@ -81,7 +81,19 @@ const ProductDetailPage: React.FC = () => {
         price: product.price.toString(),
         quantity: quantity,
         slug: product.slug,
-        imageUrl: product.images?.[0]?.image || '/placeholder-product.png',
+        imageUrl: (() => {
+          const firstImage = productImages[0];
+          if (!firstImage) return '/placeholder-product.png';
+          
+          if (firstImage.presigned_url && firstImage.presigned_url !== 'null' && firstImage.presigned_url !== null) {
+            return firstImage.presigned_url;
+          } else if (firstImage.image_url && firstImage.image_url !== 'null' && firstImage.image_url !== null) {
+            return firstImage.image_url;
+          } else if (firstImage.image && firstImage.image !== 'null' && firstImage.image !== null) {
+            return firstImage.image;
+          }
+          return '/placeholder-product.png';
+        })(),
         availableStock: product.stock_quantity,
         isActive: product.is_in_stock
       });
@@ -161,11 +173,56 @@ const ProductDetailPage: React.FC = () => {
     return null;
   }
 
-  // Handle product data format
+  // Handle product data format with presigned URLs
   const productImages = product.images || [];
-  const primaryImage = productImages[selectedImageIndex]?.image || 
-                      productImages[0]?.image || 
-                      '/placeholder-product.png';
+  
+  // Get the selected image with presigned URL priority
+  const selectedImage = productImages[selectedImageIndex] || productImages[0];
+  
+  let primaryImage = '/placeholder-product.png';
+  
+  if (selectedImage) {
+    if (selectedImage.presigned_url && selectedImage.presigned_url !== 'null' && selectedImage.presigned_url !== null) {
+      primaryImage = selectedImage.presigned_url;
+    } else if (selectedImage.image_url && selectedImage.image_url !== 'null' && selectedImage.image_url !== null) {
+      primaryImage = selectedImage.image_url;
+    } else if (selectedImage.image && selectedImage.image !== 'null' && selectedImage.image !== null) {
+      primaryImage = selectedImage.image;
+    }
+  }
+  
+  console.log('=== PRODUCT DETAIL IMAGE DEBUG ===');
+  console.log('Product name:', product.name);
+  console.log('Product ID:', product.id);
+  console.log('Selected image index:', selectedImageIndex);
+  console.log('Selected image data:', selectedImage);
+  console.log('Total images:', productImages.length);
+  
+  if (selectedImage) {
+    console.log('Selected image fields:');
+    console.log('  - id:', selectedImage.id);
+    console.log('  - image:', selectedImage.image);
+    console.log('  - presigned_url:', selectedImage.presigned_url);
+    console.log('  - image_url:', selectedImage.image_url);
+    console.log('  - s3_key:', selectedImage.s3_key);
+    console.log('  - is_primary:', selectedImage.is_primary);
+    console.log('  - order:', selectedImage.order);
+    
+    if (selectedImage.presigned_url) {
+      console.log('✅ Using presigned URL:', selectedImage.presigned_url);
+    } else if (selectedImage.image_url) {
+      console.log('⚠️  Using image_url fallback:', selectedImage.image_url);
+    } else if (selectedImage.image) {
+      console.log('⚠️  Using image fallback:', selectedImage.image);
+    } else {
+      console.log('❌ No image URLs found, using placeholder');
+    }
+  } else {
+    console.log('❌ No selected image data found');
+  }
+  
+  console.log('Final primary image URL:', primaryImage);
+  console.log('All product images:', productImages);
 
   const displayPrice = product.price.toString();
   const originalPrice = product.original_price?.toString();
@@ -239,15 +296,27 @@ const ProductDetailPage: React.FC = () => {
             {/* Image thumbnails */}
             {productImages.length > 1 && (
               <div className="image-thumbnails">
-                {productImages.map((image, index) => (
-                  <button
-                    key={index}
-                    className={`thumbnail ${index === selectedImageIndex ? 'active' : ''}`}
-                    onClick={() => handleImageSelect(index)}
-                  >
-                    <img src={image.image} alt={image.alt_text || `${product.name} ${index + 1}`} />
-                  </button>
-                ))}
+                {productImages.map((image, index) => {
+                  let thumbnailUrl = '/placeholder-product.png';
+                  
+                  if (image.presigned_url && image.presigned_url !== 'null' && image.presigned_url !== null) {
+                    thumbnailUrl = image.presigned_url;
+                  } else if (image.image_url && image.image_url !== 'null' && image.image_url !== null) {
+                    thumbnailUrl = image.image_url;
+                  } else if (image.image && image.image !== 'null' && image.image !== null) {
+                    thumbnailUrl = image.image;
+                  }
+                  
+                  return (
+                    <button
+                      key={index}
+                      className={`thumbnail ${index === selectedImageIndex ? 'active' : ''}`}
+                      onClick={() => handleImageSelect(index)}
+                    >
+                      <img src={thumbnailUrl} alt={image.alt_text || `${product.name} ${index + 1}`} />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

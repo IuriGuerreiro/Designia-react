@@ -66,95 +66,6 @@ export class OrderService {
     }
   }
 
-  /**
-   * Create order from cart with comprehensive stock error handling
-   */
-  async createOrderFromCart(orderData: {
-    shipping_address: any;
-    shipping_cost?: string | number;
-    tax_amount?: string | number;
-    discount_amount?: string | number;
-    buyer_notes?: string;
-  }): Promise<{
-    success: boolean;
-    order?: Order;
-    stockErrors?: any[];
-    unavailableProducts?: any[];
-    failedItems?: any[];
-    partialSuccess?: boolean;
-    warnings?: string[];
-  }> {
-    console.log('=== ORDER SERVICE - CREATE ORDER FROM CART ===');
-    console.log('Order data:', orderData);
-    
-    try {
-      const result = await apiRequest(API_ENDPOINTS.CREATE_ORDER_FROM_CART, {
-        method: 'POST',
-        body: JSON.stringify(orderData),
-      });
-      
-      console.log('Order created:', {
-        id: result?.order?.id,
-        status: result?.order?.status,
-        totalAmount: result?.order?.total_amount,
-        itemCount: result?.order?.items?.length || 0,
-        success: result?.success,
-        partialSuccess: result?.partial_success
-      });
-      
-      return {
-        success: result.success,
-        order: result.order,
-        partialSuccess: result.partial_success,
-        failedItems: result.failed_items,
-        warnings: result.warning ? [result.warning] : []
-      };
-    } catch (error: any) {
-      console.error('=== ORDER SERVICE ERROR ===');
-      console.error('Error creating order:', error);
-      
-      // Handle structured error responses with detailed stock information
-      if (error.response?.data) {
-        const errorData = error.response.data;
-        
-        switch (errorData.error) {
-          case 'STOCK_VALIDATION_FAILED':
-            // Return detailed stock error information
-            return {
-              success: false,
-              stockErrors: errorData.stock_errors || [],
-              unavailableProducts: errorData.unavailable_products || [],
-              warnings: [
-                errorData.detail,
-                errorData.action_required
-              ].filter(Boolean)
-            };
-          case 'ORDER_PROCESSING_FAILED':
-            return {
-              success: false,
-              failedItems: errorData.failed_items || [],
-              warnings: [errorData.detail].filter(Boolean)
-            };
-          case 'EMPTY_CART':
-            throw new Error('Your cart is empty. Please add items before proceeding to checkout.');
-          case 'MISSING_ADDRESS':
-            throw new Error('Shipping address is required to complete the order.');
-          default:
-            throw new Error(errorData.detail || 'Failed to create order.');
-        }
-      }
-      
-      // Fallback error handling
-      if (error instanceof Error && error.message.includes('401')) {
-        throw new Error('Authentication required. Please log in to create orders.');
-      } else if (error instanceof Error && error.message.includes('400')) {
-        throw new Error('Invalid order data or empty cart.');
-      } else if (error instanceof Error && error.message.includes('409')) {
-        throw new Error('Some items in your cart are no longer available.');
-      }
-      throw error;
-    }
-  }
 
   /**
    * Cancel order (buyer only, if order is in cancellable status)
@@ -319,42 +230,66 @@ export class OrderService {
   }
 
   /**
-   * Cancel an order with reason (for sellers)
+   * Cancel an order with automatic refund processing (using payment system endpoint)
    */
   async cancelOrderWithReason(orderId: string, cancellationReason: string): Promise<{
     success: boolean;
     message: string;
-    order: Order;
+    refund_requested: boolean;
+    refund_amount?: string;
+    stripe_refund_id?: string;
+    order: {
+      id: string;
+      status: string;
+      payment_status: string;
+      cancelled_at?: string;
+      cancellation_reason: string;
+      cancelled_by?: {
+        id: number;
+        username: string;
+      };
+    };
   }> {
-    console.log('=== ORDER SERVICE - CANCEL ORDER WITH REASON ===');
+    console.log('=== ORDER SERVICE - CANCEL ORDER WITH REFUND ===');
     console.log('Order ID:', orderId);
     console.log('Cancellation Reason:', cancellationReason);
     
     try {
-      const result = await apiRequest(`${API_ENDPOINTS.ORDERS}${orderId}/cancel_order/`, {
-        method: 'PATCH',
+      const result = await apiRequest(`/api/payments/orders/${orderId}/cancel/`, {
+        method: 'POST',
         body: JSON.stringify({
           cancellation_reason: cancellationReason
         }),
       });
       
-      console.log('Order cancelled:', {
+      console.log('Cancellation request submitted:', {
         success: result?.success,
         orderId: result?.order?.id,
-        status: result?.order?.status
+        status: result?.order?.status,
+        refundRequested: result?.refund_requested,
+        refundAmount: result?.refund_amount
       });
       
       return result;
     } catch (error) {
       console.error('=== ORDER SERVICE ERROR ===');
-      console.error('Error cancelling order:', error);
+      console.error('Error cancelling order with refund:', error);
       
       if (error instanceof Error && error.message.includes('401')) {
         throw new Error('Authentication required. Please log in to cancel orders.');
       } else if (error instanceof Error && error.message.includes('403')) {
-        throw new Error('Permission denied. You can only cancel your own orders.');
+        throw new Error('Permission denied. You must be the seller of at least one item or the buyer to cancel this order.');
       } else if (error instanceof Error && error.message.includes('404')) {
         throw new Error('Order not found.');
+      } else if (error instanceof Error && error.message.includes('400')) {
+        // Handle specific cancellation errors
+        if (error.message.includes('CANNOT_CANCEL')) {
+          throw new Error('Order cannot be cancelled. Orders can only be cancelled before shipping.');
+        } else if (error.message.includes('MISSING_REASON')) {
+          throw new Error('Cancellation reason is required.');
+        } else if (error.message.includes('REFUND_FAILED')) {
+          throw new Error('Order cancellation failed. Could not process refund. Please contact support.');
+        }
       }
       throw error;
     }
@@ -497,6 +432,53 @@ export class OrderService {
       return orders.filter(order => order.status === status);
     } catch (error) {
       console.error('Error getting orders by status:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update order status with comprehensive validations
+   * Validates payment status, ownership, and transition rules
+   */
+  async updateOrderStatusValidated(orderId: string, newStatus: string): Promise<{
+    success: boolean;
+    message: string;
+    order: Order;
+    previous_status: string;
+    new_status: string;
+  }> {
+    console.log('=== ORDER SERVICE - UPDATE STATUS VALIDATED ===');
+    console.log('Order ID:', orderId);
+    console.log('New Status:', newStatus);
+    
+    try {
+      const result = await apiRequest(API_ENDPOINTS.UPDATE_ORDER_STATUS_VALIDATED(orderId), {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      
+      console.log('Order status updated:', {
+        success: result?.success,
+        orderId: result?.order?.id,
+        previousStatus: result?.previous_status,
+        newStatus: result?.new_status
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('=== ORDER SERVICE ERROR ===');
+      console.error('Error updating order status:', error);
+      
+      if (error instanceof Error && error.message.includes('401')) {
+        throw new Error('Authentication required. Please log in to update order status.');
+      } else if (error instanceof Error && error.message.includes('403')) {
+        throw new Error('Permission denied. You must be the seller of at least one item in this order.');
+      } else if (error instanceof Error && error.message.includes('404')) {
+        throw new Error('Order not found.');
+      } else if (error instanceof Error && error.message.includes('400')) {
+        // Parse the error message from the backend for better user experience
+        throw error;
+      }
       throw error;
     }
   }

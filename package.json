@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stripe/connect-js": "^3.3.27",
+    "@stripe/react-connect-js": "^3.1.0",
     "@stripe/react-stripe-js": "^3.8.1",
     "@stripe/stripe-js": "^7.7.0",
     "@types/google-one-tap": "^1.2.6",
@@ -18,16 +20,18 @@
     "i18next": "^25.3.2",
     "i18next-browser-languagedetector": "^8.2.0",
     "js-cookie": "^3.0.5",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.8",
     "react-i18next": "^15.6.1",
     "react-router-dom": "^7.7.0"
   },
   "devDependencies": {
+    "@esbuild/linux-x64": "^0.25.9",
     "@eslint/js": "^9.30.1",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
+    "@rollup/rollup-linux-x64-gnu": "^4.46.2",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.6.0",
     "eslint": "^9.30.1",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -35,6 +39,6 @@
     "globals": "^16.3.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "vite": "^7.1.2"
   }
 }

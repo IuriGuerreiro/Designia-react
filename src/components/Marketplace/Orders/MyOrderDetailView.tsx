@@ -59,9 +59,10 @@ const MyOrderDetailView: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="orders-page">
-          <div className="loading-message">
-            <p>Loading order details...</p>
+        <div className="order-detail-container">
+          <div className="order-loading-state">
+            <div className="loading-spinner"></div>
+            <p className="loading-text">Loading order details...</p>
           </div>
         </div>
       </Layout>
@@ -71,11 +72,13 @@ const MyOrderDetailView: React.FC = () => {
   if (error || !order) {
     return (
       <Layout>
-        <div className="orders-page">
-          <div className="error-message">
-            <p>{error || 'Order not found'}</p>
-            <Link to="/my-orders" className="btn btn-primary">
-              Back to Orders
+        <div className="order-detail-container">
+          <div className="order-error-state">
+            <div className="error-icon">⚠️</div>
+            <h3 className="error-title">Order Not Found</h3>
+            <p className="error-description">{error || 'This order could not be found or you do not have permission to view it.'}</p>
+            <Link to="/my-orders" className="back-to-orders-btn">
+              ← Back to Orders
             </Link>
           </div>
         </div>
@@ -85,40 +88,40 @@ const MyOrderDetailView: React.FC = () => {
 
   return (
     <Layout>
-      <div className="orders-page">
-        {/* Breadcrumb */}
-        <div className="breadcrumb">
-          <Link to="/my-orders">My Orders</Link>
-          <span> / </span>
-          <span>Order #{order.id.slice(-8)}</span>
+      <div className="order-detail-container">
+        {/* Modern Breadcrumb */}
+        <div className="modern-breadcrumb">
+          <Link to="/my-orders" className="modern-breadcrumb-link">
+            <span className="breadcrumb-icon">←</span>
+            <span className="breadcrumb-text">Back to Orders</span>
+          </Link>
         </div>
 
-        {/* Sophisticated Order Detail Container */}
-        <div className="sophisticated-order-detail">
+        {/* Modern Order Detail Card */}
+        <div className="modern-order-card">
           
-          {/* Hero Header Section */}
-          <div className="order-hero-section">
-            <div className="order-hero-content">
-              <div className="order-hero-main">
-                <div className="order-number-section">
-                  <span className="order-prefix">Order</span>
-                  <h1 className="order-hero-number">#{order.id.slice(-8)}</h1>
+          {/* Modern Order Header */}
+          <div className="modern-order-header">
+            <div className="header-content">
+              <div className="order-title-section">
+                <div className="order-id-display">
+                  <span className="order-label">Order</span>
+                  <h1 className="order-number">#{order.id.slice(-8)}</h1>
                 </div>
-                <div className="order-meta-info">
-                  <p className="order-placement-date">
-                    Placed on {formatOrderDate(order.created_at)}
-                  </p>
+                <div className="order-date-info">
+                  <span className="date-label">Placed on</span>
+                  <span className="order-date">{formatOrderDate(order.created_at)}</span>
                 </div>
               </div>
               
-              <div className="order-hero-status">
+              <div className="header-status-section">
                 <div 
-                  className="sophisticated-status-badge"
+                  className="modern-status-badge"
                   style={{ backgroundColor: getStatusColor(order.status) }}
                 >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                 </div>
-                <div className="sophisticated-total">
+                <div className="order-total-section">
                   <span className="total-label">Total</span>
                   <span className="total-amount">${order.total_amount || '0.00'}</span>
                 </div>
@@ -126,43 +129,77 @@ const MyOrderDetailView: React.FC = () => {
             </div>
           </div>
 
-          {/* Product Grid Section - Matching ProductList Style */}
-          <div className="sophisticated-section items-section">
-            <div className="section-header-sophisticated">
-              <h2 className="section-title-sophisticated">Items in Your Order</h2>
-              <span className="item-count-sophisticated">{order.items.length} item{order.items.length > 1 ? 's' : ''}</span>
+          {/* Modern Items Section */}
+          <div className="modern-section">
+            <div className="modern-section-header">
+              <h2 className="modern-section-title">
+                <span className="section-icon">📦</span>
+                Items in Your Order
+              </h2>
+              <span className="modern-item-count">{order.items.length} item{order.items.length > 1 ? 's' : ''}</span>
             </div>
             
-            <div className="sophisticated-items-grid">
+            <div className="modern-items-grid">
               {order.items.map((item) => (
-                <div key={item.id} className="sophisticated-item-card">
-                  <div className="item-image-wrapper">
-                    <div className="item-image-container">
-                      <img 
-                        src={item.product_image || '/placeholder-product.png'}
-                        alt={item.product_name}
-                        className="sophisticated-item-image"
-                      />
-                      <div className="quantity-overlay">{item.quantity}x</div>
-                    </div>
+                <div key={item.id} className="modern-item-card">
+                  <div className="modern-item-image">
+                    <img 
+                      src={(() => {
+                        // Enhanced image URL resolution for order items
+                        // Prioritize stored product_image but add fallback logic
+                        let imageUrl = '/placeholder-product.svg';
+                        
+                        if (item.product_image && item.product_image !== 'null' && item.product_image !== '') {
+                          imageUrl = item.product_image;
+                        } else {
+                          // If no stored image, try to construct a fallback URL
+                          // This helps with old orders that might have empty product_image
+                          console.log('⚠️ No stored product_image available, using placeholder for order item:', item.product_name);
+                        }
+                        
+                        console.log('=== MY ORDER DETAIL - ORDER ITEM IMAGE DEBUG ===');
+                        console.log('Order ID:', order.id);
+                        console.log('Item:', item.product_name);
+                        console.log('Stored product_image:', item.product_image);
+                        console.log('Product_image type:', typeof item.product_image);
+                        console.log('Product_image length:', item.product_image?.length);
+                        console.log('Is empty check:', !item.product_image || item.product_image === 'null' || item.product_image === '');
+                        console.log('Selected imageUrl:', imageUrl);
+                        console.log('Full order item data:', item);
+                        
+                        return imageUrl;
+                      })()}
+                      alt={item.product_name}
+                      className="item-thumbnail"
+                      onError={(e) => {
+                        // Fallback to placeholder on image load error
+                        const target = e.target as HTMLImageElement;
+                        if (target.src !== '/placeholder-product.svg') {
+                          console.log('Image failed to load, using placeholder:', target.src);
+                          target.src = '/placeholder-product.svg';
+                        }
+                      }}
+                    />
+                    <div className="modern-quantity-badge">{item.quantity}x</div>
                   </div>
                   
-                  <div className="sophisticated-item-info">
-                    <div className="item-meta-top">
-                      <span className="item-seller">
-                        Sold by <strong>{item.seller?.username || 'Unknown'}</strong>
+                  <div className="modern-item-details">
+                    <div className="item-meta">
+                      <span className="seller-info">
+                        <span className="seller-icon">🏢</span>
+                        <span className="seller-name">{item.seller?.username || 'Unknown Seller'}</span>
                       </span>
                     </div>
-                    <h3 className="sophisticated-item-name">{item.product_name}</h3>
+                    <h3 className="modern-item-name">{item.product_name}</h3>
                     
-                    <div className="sophisticated-pricing">
-                      <div className="price-per-item">
-                        <span className="price-label">Unit Price:</span>
-                        <span className="unit-price">${item.price}</span>
+                    <div className="modern-pricing-grid">
+                      <div className="price-detail">
+                        <span className="price-label">Unit Price</span>
+                        <span className="price-value">${item.price}</span>
                       </div>
-                      <div className="total-price">
-                        <span className="total-label">Total:</span>
-                        <span className="item-total-price">
+                      <div className="price-detail">
+                        <span className="price-label">Total</span>
+                        <span className="price-value total-highlight">
                           ${(parseFloat(item.price) * item.quantity).toFixed(2)}
                         </span>
                       </div>
@@ -173,26 +210,26 @@ const MyOrderDetailView: React.FC = () => {
             </div>
           </div>
 
-          {/* Shipping & Tracking Section */}
+          {/* Shipping Section */}
           {order.shipping_info && order.shipping_info.length > 0 && (
-            <div className="sophisticated-section shipping-section">
-              <div className="section-header-sophisticated">
-                <h2 className="section-title-sophisticated">Shipping & Tracking</h2>
-                <span className="shipping-count-sophisticated">{order.shipping_info.length} shipment{order.shipping_info.length > 1 ? 's' : ''}</span>
+            <div className="order-section">
+              <div className="section-header">
+                <h2 className="section-title">Shipping & Tracking</h2>
+                <span className="shipping-count">{order.shipping_info.length} shipment{order.shipping_info.length > 1 ? 's' : ''}</span>
               </div>
               
-              <div className="sophisticated-shipping-grid">
+              <div className="shipping-list">
                 {order.shipping_info.map((shipping, index) => (
-                  <div key={index} className="sophisticated-shipping-card">
-                    <div className="shipping-card-header">
-                      <div className="seller-avatar-section">
+                  <div key={index} className="shipping-card">
+                    <div className="shipping-header">
+                      <div className="seller-info">
                         <div className="seller-avatar">
                           {shipping.seller.username.charAt(0).toUpperCase()}
                         </div>
                         <div className="seller-details">
-                          <h4 className="sophisticated-seller-name">{shipping.seller.username}</h4>
+                          <h4 className="seller-name">{shipping.seller.username}</h4>
                           {shipping.shipped_date && (
-                            <span className="sophisticated-shipped-date">
+                            <span className="shipped-date">
                               Shipped on {new Date(shipping.shipped_date).toLocaleDateString('en-US', {
                                 month: 'long',
                                 day: 'numeric',
@@ -205,25 +242,21 @@ const MyOrderDetailView: React.FC = () => {
                     </div>
                     
                     {shipping.tracking_number ? (
-                      <div className="sophisticated-tracking-details">
-                        <div className="tracking-row">
-                          <div className="tracking-field">
-                            <span className="field-label">Tracking Number</span>
-                            <div className="sophisticated-tracking-code">{shipping.tracking_number}</div>
-                          </div>
+                      <div className="tracking-info">
+                        <div className="tracking-detail">
+                          <span className="tracking-label">Tracking Number</span>
+                          <div className="tracking-number">{shipping.tracking_number}</div>
                         </div>
                         {shipping.shipping_carrier && (
-                          <div className="tracking-row">
-                            <div className="tracking-field">
-                              <span className="field-label">Shipping Carrier</span>
-                              <span className="sophisticated-carrier">{shipping.shipping_carrier}</span>
-                            </div>
+                          <div className="tracking-detail">
+                            <span className="tracking-label">Carrier</span>
+                            <span className="carrier-name">{shipping.shipping_carrier}</span>
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="sophisticated-no-tracking">
-                        <div className="preparing-badge">
+                      <div className="no-tracking">
+                        <div className="preparing-status">
                           <span>📦 Preparing for shipment</span>
                         </div>
                       </div>
@@ -234,71 +267,6 @@ const MyOrderDetailView: React.FC = () => {
             </div>
           )}
 
-          {/* Order Summary Section */}
-          <div className="sophisticated-section summary-section">
-            <div className="section-header-sophisticated">
-              <h2 className="section-title-sophisticated">Order Summary</h2>
-            </div>
-            
-            <div className="sophisticated-summary-card">
-              <div className="summary-breakdown">
-                <div className="summary-line">
-                  <span className="summary-description">Items ({order.items.length})</span>
-                  <span className="summary-amount">
-                    ${order.items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0).toFixed(2)}
-                  </span>
-                </div>
-                <div className="summary-line">
-                  <span className="summary-description">Shipping & Handling</span>
-                  <span className="summary-amount free-badge">Free</span>
-                </div>
-                <div className="summary-divider"></div>
-                <div className="summary-line total-line">
-                  <span className="summary-description total-description">Order Total</span>
-                  <span className="summary-amount total-final">
-                    ${order.total_amount || '0.00'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Center */}
-          <div className="sophisticated-section actions-section">
-            <div className="section-header-sophisticated">
-              <h2 className="section-title-sophisticated">Order Actions</h2>
-            </div>
-            
-            <div className="sophisticated-actions-grid">
-              <div className="action-buttons-sophisticated">
-                {['pending', 'confirmed'].includes(order.status) && (
-                  <button className="sophisticated-btn sophisticated-btn-secondary">
-                    <span className="btn-icon">🚫</span>
-                    <span className="btn-text">Cancel Order</span>
-                  </button>
-                )}
-                
-                {order.status === 'delivered' && (
-                  <button className="sophisticated-btn sophisticated-btn-primary">
-                    <span className="btn-icon">⭐</span>
-                    <span className="btn-text">Leave Review</span>
-                  </button>
-                )}
-                
-                <button className="sophisticated-btn sophisticated-btn-outline">
-                  <span className="btn-icon">💬</span>
-                  <span className="btn-text">Contact Support</span>
-                </button>
-              </div>
-              
-              <div className="support-notice">
-                <div className="notice-content">
-                  <div className="notice-icon">ℹ️</div>
-                  <p className="notice-text">Need assistance with your order? Our dedicated support team is available 24/7 to help resolve any concerns.</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </Layout>

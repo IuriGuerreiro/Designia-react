@@ -60,9 +60,33 @@ const OrderSuccessPage: React.FC = () => {
             {order.items.map((item) => (
               <div key={item.id} className="order-item-card">
                 <img 
-                  src={item.product_image || '/placeholder-product.png'} 
+                  src={(() => {
+                    // Enhanced image URL resolution for order items
+                    // Prioritize stored product_image but add fallback logic
+                    let imageUrl = '/placeholder-product.png';
+                    
+                    if (item.product_image && item.product_image !== 'null' && item.product_image !== '') {
+                      imageUrl = item.product_image;
+                    }
+                    
+                    console.log('=== ORDER SUCCESS PAGE - ORDER ITEM IMAGE DEBUG ===');
+                    console.log('Order ID:', order.id);
+                    console.log('Item:', item.product_name);
+                    console.log('Stored product_image:', item.product_image);
+                    console.log('Selected imageUrl:', imageUrl);
+                    
+                    return imageUrl;
+                  })()} 
                   alt={item.product_name}
                   className="item-image"
+                  onError={(e) => {
+                    // Fallback to placeholder on image load error
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== '/placeholder-product.png') {
+                      console.log('Image failed to load, using placeholder:', target.src);
+                      target.src = '/placeholder-product.png';
+                    }
+                  }}
                 />
                 <div className="item-details">
                   <h4>{item.product_name}</h4>

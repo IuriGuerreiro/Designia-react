@@ -27,9 +27,12 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     }
     setError('');
     try {
-      await register({ email, password, username, first_name: firstName, last_name: lastName });
+      const result = await register({ email, password, password_confirm: confirmPassword, username, first_name: firstName, last_name: lastName });
+      if (!result.success) {
+        setError(result.message);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
     }
   };
 

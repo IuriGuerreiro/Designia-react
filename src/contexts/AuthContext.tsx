@@ -12,6 +12,7 @@ interface User {
   is_oauth_only_user?: boolean;
   is_verified_seller?: boolean;
   seller_type?: string;
+  language?: string;
   profile?: {
     // Basic Profile Information
     bio?: string;
@@ -87,6 +88,7 @@ interface AuthContextType {
   googleLogin: (googleUserData: any) => Promise<void>;
   updateProfile: (userData: Partial<User>) => Promise<void>;
   refreshUserData: () => Promise<void>;
+  changeLanguage: (languageCode: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -333,7 +335,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const errorMessages = [];
           if (data.errors.email) errorMessages.push(`Email: ${data.errors.email}`);
           if (data.errors.password) errorMessages.push(`Password: ${data.errors.password}`);
+          if (data.errors.password_confirm) errorMessages.push(`Password confirmation: ${data.errors.password_confirm}`);
           if (data.errors.username) errorMessages.push(`Username: ${data.errors.username}`);
+          if (data.errors.first_name) errorMessages.push(`First name: ${data.errors.first_name}`);
+          if (data.errors.last_name) errorMessages.push(`Last name: ${data.errors.last_name}`);
           if (data.errors.general) errorMessages.push(data.errors.general);
           
           return {
@@ -569,6 +574,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const changeLanguage = async (languageCode: string) => {
+    try {
+      const response = await apiRequest(API_ENDPOINTS.CHANGE_LANGUAGE, {
+        method: 'POST',
+        body: JSON.stringify({ language: languageCode }),
+      });
+
+      // Update the user state with the new language
+      if (user) {
+        setUser({ ...user, language: languageCode });
+      }
+
+      return response;
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to change language.');
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -589,6 +612,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     googleLogin,
     updateProfile,
     refreshUserData,
+    changeLanguage,
     logout,
   };
 
