@@ -55,6 +55,14 @@ const Navbar = () => {
                   <span>📦 Seller Orders</span>
                   <small>Orders to fulfill</small>
                 </Link>
+                <Link to="/stripe-holds" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                  <span>⏳ Payment Holds</span>
+                  <small>Payments on hold</small>
+                </Link>
+                <Link to="/payouts" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                  <span>💰 Payouts</span>
+                  <small>Seller payouts</small>
+                </Link>
                 <Link to="/settings" className="dropdown-item" onClick={() => setDropdownOpen(false)}>{t('layout.settings')}</Link>
                 <button onClick={logout} className="dropdown-item logout">{t('layout.logout')}</button>
               </div>

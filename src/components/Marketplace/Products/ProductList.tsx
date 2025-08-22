@@ -58,11 +58,30 @@ const ProductList: React.FC = () => {
   );
 
   const handleAddToCart = async (product: any) => {
+    // Use presigned URL from primary image, fallback to regular image, then placeholder
+    let imageUrl = '/placeholder-product.png';
+    
+    if (product.primary_image) {
+      if (product.primary_image.presigned_url && product.primary_image.presigned_url !== 'null' && product.primary_image.presigned_url !== null) {
+        imageUrl = product.primary_image.presigned_url;
+      } else if (product.primary_image.image_url && product.primary_image.image_url !== 'null' && product.primary_image.image_url !== null) {
+        imageUrl = product.primary_image.image_url;
+      } else if (product.primary_image.image && product.primary_image.image !== 'null' && product.primary_image.image !== null) {
+        imageUrl = product.primary_image.image;
+      }
+    } else if (product.imageUrl) {
+      imageUrl = product.imageUrl;
+    }
+    
+    console.log('=== PRODUCT LIST - ADD TO CART IMAGE DEBUG ===');
+    console.log('Product primary_image:', product.primary_image);
+    console.log('Selected imageUrl:', imageUrl);
+    
     const cartItem = {
       id: product.id,
       name: product.name,
       price: typeof product.price === 'string' ? product.price : product.price.toString(),
-      imageUrl: product.primary_image?.image || product.imageUrl || '/placeholder-product.png',
+      imageUrl: imageUrl,
       quantity: 1,
       availableStock: product.stock_quantity,
       isActive: product.is_in_stock

@@ -106,8 +106,50 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
     }
   };
 
-  // Handle different data formats
-  const primaryImage = product.primary_image?.image || (product as any).imageUrl || '/placeholder-product.png';
+  // Handle different data formats - prioritize presigned URLs
+  let primaryImage = '/placeholder-product.png';
+  
+  if (product.primary_image) {
+    if (product.primary_image.presigned_url && product.primary_image.presigned_url !== 'null' && product.primary_image.presigned_url !== null) {
+      primaryImage = product.primary_image.presigned_url;
+    } else if (product.primary_image.image_url && product.primary_image.image_url !== 'null' && product.primary_image.image_url !== null) {
+      primaryImage = product.primary_image.image_url;
+    } else if (product.primary_image.image && product.primary_image.image !== 'null' && product.primary_image.image !== null) {
+      primaryImage = product.primary_image.image;
+    }
+  } else if ((product as any).imageUrl) {
+    primaryImage = (product as any).imageUrl;
+  }
+  
+  console.log('=== PRODUCT CARD IMAGE DEBUG ===');
+  console.log('Product name:', product.name);
+  console.log('Product ID:', product.id);
+  console.log('Primary image data:', product.primary_image);
+  
+  if (product.primary_image) {
+    console.log('Primary image fields:');
+    console.log('  - id:', product.primary_image.id);
+    console.log('  - image:', product.primary_image.image);
+    console.log('  - presigned_url:', product.primary_image.presigned_url);
+    console.log('  - image_url:', product.primary_image.image_url);
+    console.log('  - s3_key:', product.primary_image.s3_key);
+    console.log('  - is_primary:', product.primary_image.is_primary);
+    console.log('  - order:', product.primary_image.order);
+    
+    if (product.primary_image.presigned_url) {
+      console.log('✅ Using presigned URL:', product.primary_image.presigned_url);
+    } else if (product.primary_image.image_url) {
+      console.log('⚠️  Using image_url fallback:', product.primary_image.image_url);
+    } else if (product.primary_image.image) {
+      console.log('⚠️  Using image fallback:', product.primary_image.image);
+    } else {
+      console.log('❌ No image URLs found, using placeholder');
+    }
+  } else {
+    console.log('❌ No primary image data found');
+  }
+  
+  console.log('Final selected image URL:', primaryImage);
   const displayPrice = product.price.toString();
   const originalPrice = product.original_price?.toString();
   const rating = product.average_rating || (product as any).rating || 0;

@@ -10,8 +10,8 @@ import { useLanguage } from '../../contexts/LanguageContext';
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
-  const { language, changeLanguage } = useLanguage();
-  const { user } = useAuth();
+  const { user, changeLanguage: changeUserLanguage } = useAuth();
+  const { language, changeLanguage: changeLocalLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<string>('account');
   const navigate = useNavigate();
   const [isPrivate, setIsPrivate] = useState(false);
@@ -56,13 +56,72 @@ const Settings: React.FC = () => {
           </>
         );
     case 'preferences':
+        const handleLanguageChange = async (languageCode: string) => {
+            try {
+                if (languageCode === 'en' || languageCode === 'pt') {
+                    // Use backend API for PT and EN (saves to database)
+                    await changeUserLanguage(languageCode);
+                    console.log(`Language changed to ${languageCode} (saved to backend)`);
+                } else {
+                    // Use local language context for other languages (frontend only)
+                    changeLocalLanguage(languageCode);
+                    console.log(`Language changed to ${languageCode} (local only)`);
+                }
+            } catch (error) {
+                console.error('Failed to change language:', error);
+            }
+        };
+
+        // Get current language - prioritize user's backend language, fallback to local language
+        const currentLanguage = user?.language || language;
+
         return (
             <div className="settings-card">
-                <h3>{t('settings.language_section_title')}</h3>
-                <p className="card-description">{t('settings.language_section_description')}</p>
+                <h3>Language Preferences</h3>
+                <p className="card-description">Choose your preferred language for the interface.</p>
                 <div className="language-selector">
-                    <button onClick={() => changeLanguage('en')} className={`btn ${language.startsWith('en') ? 'btn-primary' : 'btn-secondary'}`}>English</button>
-                    <button onClick={() => changeLanguage('pt')} className={`btn ${language.startsWith('pt') ? 'btn-primary' : 'btn-secondary'}`}>Português</button>
+                    <button 
+                        onClick={() => handleLanguageChange('en')} 
+                        className={`btn ${currentLanguage === 'en' ? 'btn-primary' : 'btn-secondary'}`}
+                    >
+                        English
+                    </button>
+                    <button 
+                        onClick={() => handleLanguageChange('pt')} 
+                        className={`btn ${currentLanguage === 'pt' ? 'btn-primary' : 'btn-secondary'}`}
+                    >
+                        Português
+                    </button>
+                    <button 
+                        onClick={() => handleLanguageChange('fr')} 
+                        className={`btn ${currentLanguage === 'fr' ? 'btn-primary' : 'btn-secondary'}`}
+                    >
+                        Français
+                    </button>
+                    <button 
+                        onClick={() => handleLanguageChange('de')} 
+                        className={`btn ${currentLanguage === 'de' ? 'btn-primary' : 'btn-secondary'}`}
+                    >
+                        Deutsch
+                    </button>
+                    <button 
+                        onClick={() => handleLanguageChange('es')} 
+                        className={`btn ${currentLanguage === 'es' ? 'btn-primary' : 'btn-secondary'}`}
+                    >
+                        Español
+                    </button>
+                </div>
+                <div className="current-language-info">
+                    <small>
+                        Current language: {
+                            currentLanguage === 'pt' ? 'Portuguese' :
+                            currentLanguage === 'fr' ? 'French' :
+                            currentLanguage === 'de' ? 'German' :
+                            currentLanguage === 'es' ? 'Spanish' :
+                            'English'
+                        }
+                        {(user?.language === 'en' || user?.language === 'pt') && ' (saved to account)'}
+                    </small>
                 </div>
             </div>
         );

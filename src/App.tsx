@@ -75,6 +75,9 @@ import SocialMediaScreen from './components/SocialMedia/SocialMediaScreen';
 import PostDetailScreen from './components/SocialMedia/PostDetailScreen';
 import NotFound from './components/NotFound/NotFound';
 import './App.css';
+import StripeOnboarding from './components/Marketplace/Stripe/StripeOnboarding';
+import StripeHolds from './pages/StripeHolds';
+import Payouts from './pages/Payouts';
 
 const AppContent: React.FC = () => {
   let isAuthenticated = false;
@@ -129,6 +132,9 @@ const AppContent: React.FC = () => {
           <Route path="/social-media" element={<SocialMediaScreen />} />
           <Route path="/social-media/:postId" element={<PostDetailScreen />} />
           <Route path="/users/:userId" element={<UserProfileScreen />} />
+          <Route path="/stripe-onboarding" element={<StripeOnboarding />} />
+          <Route path="/stripe-holds" element={<StripeHolds />} />
+          <Route path="/payouts" element={<Payouts />} />
           
           {/* 404 catch-all route */}
           <Route path="*" element={<NotFound />} />
