@@ -1,27 +1,43 @@
 :root {
-  /* Fonts */
-  --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  --font-serif: 'Playfair Display', serif;
+  /* ===================================
+     DESIGNIA DESIGN SYSTEM - GLOBAL STYLES
+     =================================== */
 
-  /* Colors */
-  --color-primary: #2c3e50;
-  --color-primary-light: #34495e;
-  --color-accent: #c09f80;
-  --color-accent-dark: #a98b6c;
-  --color-background: #f9f9f9;
-  --color-surface: #ffffff;
-  --color-text: #333333;
-  --color-text-light: #666666;
-  --color-border: #e0e0e0;
-  --color-error: #e74c3c;
-  --color-success: #2ecc71;
+  /* Color Palette */
+  --deep-black: #0A0A0A;
+  --pure-white: #FFFFFF;
+  --charcoal-black: #1A1A1A;
+  --platinum-gray: #F5F5F5;
+  --steel-gray: #6B7280;
+  --slate-gray: #374151;
+  --premium-silver: #E5E7EB;
+  --dark-silver: #9CA3AF;
+  
+  /* Semantic Colors */
+  --success-green: #10B981;
+  --warning-orange: #F59E0B;
+  --error-red: #EF4444;
+  --info-gray: #6B7280;
+
+  /* Typography */
+  --font-primary: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-secondary: 'Playfair Display', serif;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
 
   /* Other */
   --border-radius: 8px;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --shadow: 0 2px 12px rgba(10, 10, 10, 0.08);
+  --shadow-lg: 0 8px 24px rgba(10, 10, 10, 0.12);
 
-  font-family: var(--font-sans);
+  font-family: var(--font-primary);
   line-height: 1.6;
   font-weight: 400;
   font-synthesis: none;
@@ -38,14 +54,14 @@ body {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--pure-white);
+  color: var(--slate-gray);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  color: var(--color-primary);
+  font-family: var(--font-secondary);
+  font-weight: 600;
+  color: var(--deep-black);
 }
 
 button {

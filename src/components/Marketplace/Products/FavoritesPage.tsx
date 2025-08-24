@@ -4,7 +4,6 @@ import Layout from '../../Layout/Layout';
 import ProductCard from './ProductCard';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { useCart } from '../../../contexts/CartContext';
-import './Products.css';
 
 const FavoritesPage: React.FC = () => {
   const { t } = useTranslation();

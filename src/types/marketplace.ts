@@ -182,6 +182,7 @@ export interface OrderItem {
   product_name: string;
   product_description: string;
   product_image: string;
+  product_image_fresh?: string;
 }
 
 export interface OrderShipping {

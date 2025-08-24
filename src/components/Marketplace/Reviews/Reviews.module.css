@@ -1,0 +1,139 @@
+/* ===================================
+   REVIEWS FEATURE - REDESIGNED
+   =================================== */
+
+/* Main container */
+.section {
+  margin-top: var(--space-3xl);
+  padding-top: var(--space-2xl);
+  border-top: 1px solid var(--premium-silver);
+}
+
+.header {
+  font-family: var(--font-secondary);
+  font-size: 24px;
+  color: var(--deep-black);
+  margin-bottom: var(--space-xl);
+}
+
+/* Review Form */
+.formContainer {
+  background-color: var(--platinum-gray);
+  padding: var(--space-xl);
+  border-radius: 12px;
+  margin-bottom: var(--space-2xl);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--slate-gray);
+}
+
+.input, .textarea, .select {
+  background: var(--pure-white);
+  border: 2px solid var(--premium-silver);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus, .textarea:focus, .select:focus {
+  border-color: var(--deep-black);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.1);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-md);
+}
+
+.btn {
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+
+.btnPrimary {
+  background-color: var(--deep-black);
+  color: var(--pure-white);
+  border: none;
+}
+
+.btnSecondary {
+  background-color: var(--pure-white);
+  color: var(--deep-black);
+  border: 2px solid var(--premium-silver);
+}
+
+/* Review List */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.reviewCard {
+  border-bottom: 1px solid var(--premium-silver);
+  padding-bottom: var(--space-xl);
+}
+
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.reviewerName {
+  font-weight: 600;
+  color: var(--deep-black);
+}
+
+.reviewDate {
+  font-size: 12px;
+  color: var(--steel-gray);
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+  color: var(--warning-orange);
+}
+
+.reviewTitle {
+  font-weight: 600;
+  margin: var(--space-md) 0;
+}
+
+.reviewComment {
+  line-height: 1.6;
+  color: var(--slate-gray);
+}
+
+.noReviews {
+  text-align: center;
+  padding: var(--space-2xl);
+  background-color: var(--platinum-gray);
+  border-radius: 12px;
+}

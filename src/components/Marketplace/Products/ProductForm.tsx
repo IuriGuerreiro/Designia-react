@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { productService, categoryService } from '../../../services';
 import { type Category } from '../../../types/marketplace';
 import { processImagesForUpload, type ImageInfo } from '../../../utils/imageUtils';
-import './Products.css';
 
 const ProductForm: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

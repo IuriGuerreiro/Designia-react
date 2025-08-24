@@ -4,7 +4,8 @@ import Layout from '../../Layout/Layout';
 import { useTranslation } from 'react-i18next';
 import { productService } from '../../../services';
 import { type ProductListItem } from '../../../types/marketplace';
-import './Products.css';
+import ProductCard from './ProductCard';
+import './MyProducts.css';
 
 const MyProductsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -14,7 +15,7 @@ const MyProductsPage: React.FC = () => {
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Load user's products
   useEffect(() => {
@@ -52,156 +53,187 @@ const MyProductsPage: React.FC = () => {
     }
   };
 
+  const activeProducts = products.filter(p => p.is_active).length;
+  const inactiveProducts = products.filter(p => !p.is_active).length;
+  const featuredProducts = products.filter(p => p.is_featured).length;
+  const lowStockProducts = products.filter(p => p.stock_quantity > 0 && p.stock_quantity <= 5).length;
+  const outOfStockProducts = products.filter(p => p.stock_quantity === 0).length;
+
   if (loading) {
     return (
       <Layout>
         <div className="my-products-page">
-          <p>Loading your products...</p>
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Loading your products...</p>
+          </div>
         </div>
       </Layout>
     );
   }
 
   return (
-    <Layout>
-      <div className="products-page">
-        {/* Header matching ProductList styling */}
-        <div className="products-header">
-          <h2>{t('products.my_products_title')}</h2>
-          <div className="header-actions">
-            <Link to="/products/new" className="btn btn-primary">
-              {t('products.add_new_product')}
-            </Link>
-          </div>
+    <Layout maxWidth="full">
+      <div className="my-products-page">
+        {/* Hero Section - Like MyOrdersPage.tsx */}
+        <div className="hero-section">
+          <h1 className="hero-title">{t('products.my_products_title')}</h1>
+          <p className="hero-subtitle">Manage your product portfolio with powerful tools and insights</p>
         </div>
 
-        {/* Error message matching ProductList styling */}
+        {/* Error Message */}
         {error && (
-          <div className="error-message">
-            <p>{error}</p>
+          <div className="error-banner">
+            <div className="error-content">
+              <div className="error-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="15" y1="9" x2="9" y2="15"/>
+                  <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+              </div>
+              <div className="error-text">
+                <h4>Failed to Load Products</h4>
+                <p>{error}</p>
+              </div>
+              <button className="retry-btn" onClick={() => window.location.reload()}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 4V10H7M23 20V14H17"/>
+                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M3.51 15A9 9 0 0 0 18.36 18.36L23 14"/>
+                </svg>
+                Retry
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Products grid matching ProductList layout */}
+        <div className="products-overview-box">
+          <div className="overview-header">
+            <h2 className="overview-title">Product Overview</h2>
+            <div className="overview-actions">
+              <Link to="/products/new" className="add-product-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 5V19M5 12H19"/>
+                </svg>
+                Add New Product
+              </Link>
+              <div className="view-mode-toggle">
+                <button 
+                  className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  onClick={() => setViewMode('grid')}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                  </svg>
+                  Grid
+                </button>
+                <button 
+                  className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  onClick={() => setViewMode('list')}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="8" y1="6" x2="21" y2="6"/>
+                    <line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                  </svg>
+                  List
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="overview-stats">
+            <div className="stat-item">
+              <span className="stat-number">{products.length}</span>
+              <span className="stat-label">Total Products</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{activeProducts}</span>
+              <span className="stat-label">Active</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{lowStockProducts}</span>
+              <span className="stat-label">Low Stock</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{outOfStockProducts}</span>
+              <span className="stat-label">Out of Stock</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{featuredProducts}</span>
+              <span className="stat-label">Featured</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{inactiveProducts}</span>
+              <span className="stat-label">Inactive</span>
+            </div>
+          </div>
+        </div>
+        {/* Products Content */}
         {products.length > 0 ? (
-          <div className="products-grid">
-            {products.map(product => (
-              <div key={product.id} className="product-card my-product-card">
-                {/* Product badges */}
-                <div className="product-card-badges">
-                  {product.is_featured && (
-                    <span className="badge bestseller-badge">Featured</span>
-                  )}
-                  {!product.is_active && (
-                    <span className="badge sale-badge">Inactive</span>
-                  )}
-                </div>
+          <div className="my-products-content">
+            {/* Products Overview Box */}
 
-                {/* Product image */}
-                <Link to={`/products/${product.slug}`} className="product-image-link">
-                  <div className="product-image-container">
-                    <img 
-                      src={(() => {
-                        // Enhanced image URL resolution with automatic assimilation support
-                        let imageUrl = '/placeholder-product.png';
-                        
-                        if (product.primary_image) {
-                          // Use display_url if available (from automatic assimilation)
-                          if (product.primary_image.display_url) {
-                            imageUrl = product.primary_image.display_url;
-                          }
-                          // Fallback to manual resolution if display_url not available
-                          else if (product.primary_image.presigned_url && product.primary_image.presigned_url !== 'null' && product.primary_image.presigned_url !== null) {
-                            imageUrl = product.primary_image.presigned_url;
-                          } else if (product.primary_image.image_url && product.primary_image.image_url !== 'null' && product.primary_image.image_url !== null) {
-                            imageUrl = product.primary_image.image_url;
-                          } else if (product.primary_image.image && product.primary_image.image !== 'null' && product.primary_image.image !== null) {
-                            imageUrl = product.primary_image.image;
-                          }
-                        }
-                        
-                        console.log('=== MY PRODUCTS PAGE - IMAGE DEBUG ===');
-                        console.log('Product:', product.name);
-                        console.log('Primary image data:', product.primary_image);
-                        console.log('Selected imageUrl:', imageUrl);
-                        console.log('URL source:', product.primary_image?.url_source || 'manual_fallback');
-                        
-                        return imageUrl;
-                      })()} 
-                      alt={product.name} 
-                      className="product-image"
-                    />
-                    {!product.stock_quantity && (
-                      <div className="out-of-stock-overlay">
-                        Out of Stock
-                      </div>
-                    )}
-                  </div>
-                </Link>
-
-                {/* Product info */}
-                <div className="product-info">
-                  {/* Product meta top */}
-                  <div className="product-meta-top">
-                    <span className="product-seller">Your Product</span>
-                    <span className="condition-badge">
-                      {product.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-
-                  {/* Product name */}
-                  <Link to={`/products/${product.slug}`} className="product-name-link">
-                    <h3 className="product-name">{product.name}</h3>
-                  </Link>
-
-                  {/* Product rating - placeholder since my products don't have reviews */}
-                  <div className="product-rating">
-                    <span className="no-reviews">
-                      Stock: {product.stock_quantity || 0} units
-                    </span>
-                  </div>
-
-                  {/* Product pricing */}
-                  <div className="product-pricing">
-                    <span className="current-price">${parseFloat(product.price).toFixed(2)}</span>
-                  </div>
-
-
-                  {/* Product actions */}
-                  <div className="product-actions my-product-actions">
-                    <button 
-                      onClick={() => navigate(`/metrics/product/${product.slug}`)} 
-                      className="btn btn-sm btn-secondary"
-                      title="View Analytics"
-                    >
-                      {t('products.metrics')}
-                    </button>
-                    <button 
-                      onClick={() => navigate(`/products/${product.slug}/edit`)} 
-                      className="btn btn-sm btn-primary"
-                      title="Edit Product"
-                    >
-                      {t('products.edit')}
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(product.id.toString(), product.slug!)} 
-                      className="btn btn-sm btn-danger"
-                      title="Delete Product"
-                    >
-                      {t('products.delete')}
-                    </button>
-                  </div>
+            {/* Products Grid/List */}
+            <div className="products-section">
+              <div className="products-header">
+                <h3 className="section-title">Your Products</h3>
+                <div className="products-summary">
+                  <span className="summary-text">
+                    Showing {products.length} product{products.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
               </div>
-            ))}
+              
+              <div className={`products-layout ${viewMode === 'list' ? 'products-list' : 'products-grid'}`}>
+                {products.map(product => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    displayMode="owner"
+                    onAddToCart={() => {}} // Empty function for owner mode
+                    onFavoriteToggle={() => {}} // Empty function for owner mode
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         ) : (
-          <div className="no-results-message">
-            <h3>{t('products.no_products_found')}</h3>
-            <p>{t('products.start_selling_prompt')}</p>
-            <Link to="/products/new" className="btn btn-primary btn-lg">
-              {t('products.add_first_product')}
-            </Link>
+          <div className="empty-state">
+            <div className="empty-content">
+              <div className="empty-icon">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M20 7L10 17L5 12"/>
+                  <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"/>
+                </svg>
+              </div>
+              <h3 className="empty-title">No Products Yet</h3>
+              <p className="empty-description">
+                Start building your product portfolio by adding your first item
+              </p>
+              <div className="empty-actions">
+                <Link to="/products/new" className="empty-btn primary">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 5V19M5 12H19"/>
+                  </svg>
+                  Add Your First Product
+                </Link>
+                <Link to="/products" className="empty-btn secondary">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 3V21H21"/>
+                    <path d="M9 9L12 6L16 10L20 6"/>
+                  </svg>
+                  Browse Marketplace
+                </Link>
+              </div>
+            </div>
           </div>
         )}
       </div>

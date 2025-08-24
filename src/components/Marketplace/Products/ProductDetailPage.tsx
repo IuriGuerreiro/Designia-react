@@ -1,545 +1,435 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
-import Reviews from '../Reviews/Reviews';
+import ProductReviews from './ProductReviews';
 import { useCart } from '../../../contexts/CartContext';
 import { useTranslation } from 'react-i18next';
-import { productService, favoriteService, cartService } from '../../../services';
+import { productService } from '../../../services';
 import { type Product } from '../../../types/marketplace';
-import './Products.css';
-
+import './ProductDetailPage.css';
 
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { addToCart } = useCart();
   const { t } = useTranslation();
-  const navigate = useNavigate();
   
-  // State management
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [activeTab, setActiveTab] = useState<'details' | 'specifications'>('details');
 
-  // Load product data
   useEffect(() => {
     const loadProduct = async () => {
-      if (!slug) {
-        console.log('No slug provided');
-        setError('Product not found');
-        setLoading(false);
-        return;
-      }
-      
-      setLoading(true);
-      setError(null);
-      
+      if (!slug) return;
       try {
-        console.log('Loading product from API...', slug);
-        const productData = await productService.getProduct(slug);
-        console.log('Product loaded successfully:', productData?.name);
-        
-        setProduct(productData);
-        setIsFavorited(productData.is_favorited);
+        const data = await productService.getProduct(slug);
+        setProduct(data);
       } catch (err) {
-        console.error('Failed to load product:', err);
-        setError('Failed to load product. Please check your connection and try again.');
-        setProduct(null);
+        setError('Failed to load product.');
       } finally {
         setLoading(false);
       }
     };
-
     loadProduct();
   }, [slug]);
 
   const handleAddToCart = async () => {
     if (!product) return;
     
-    console.log('=== PRODUCT DETAIL - ADD TO CART ===');
-    console.log('Product:', {
-      id: product.id,
-      idType: typeof product.id,
-      name: product.name,
-      price: product.price,
-      priceType: typeof product.price,
-      quantity: quantity,
-      quantityType: typeof quantity,
-      isInStock: product.is_in_stock,
-      stockQuantity: product.stock_quantity,
-    });
-    
     setIsAddingToCart(true);
     try {
-      // Only use the cart context method - it handles both local and server sync
-      await addToCart({
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      addToCart({
         id: product.id,
         name: product.name,
         price: product.price.toString(),
-        quantity: quantity,
+        quantity,
         slug: product.slug,
-        imageUrl: (() => {
-          const firstImage = productImages[0];
-          if (!firstImage) return '/placeholder-product.png';
-          
-          if (firstImage.presigned_url && firstImage.presigned_url !== 'null' && firstImage.presigned_url !== null) {
-            return firstImage.presigned_url;
-          } else if (firstImage.image_url && firstImage.image_url !== 'null' && firstImage.image_url !== null) {
-            return firstImage.image_url;
-          } else if (firstImage.image && firstImage.image !== 'null' && firstImage.image !== null) {
-            return firstImage.image;
-          }
-          return '/placeholder-product.png';
-        })(),
-        availableStock: product.stock_quantity,
-        isActive: product.is_in_stock
+        imageUrl: product.images?.[0]?.presigned_url || '/placeholder-product.png',
       });
-      
-      // Reset quantity after adding
-      setQuantity(1);
-    } catch (error) {
-      console.error('Failed to add to cart:', error);
-      alert(`Failed to add item to cart: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsAddingToCart(false);
     }
   };
 
-  const handleFavoriteToggle = async () => {
-    if (!product) return;
-    
-    try {
-      const response = await favoriteService.toggleFavorite(product.slug);
-      setIsFavorited(response.favorited);
-      
-      // Show user feedback
-      if (response.favorited) {
-        console.log('Product added to favorites');
-        // You can add a toast notification here
-      } else {
-        console.log('Product removed from favorites');
-        // You can add a toast notification here
-      }
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
-      
-      // Handle authentication error
-      if (error instanceof Error && error.message.includes('401')) {
-        alert('Please log in to add products to favorites');
-        navigate('/login');
-      } else {
-        alert('Failed to update favorites. Please try again.');
-      }
-    }
-  };
-
-  const handleImageSelect = (index: number) => {
-    setSelectedImageIndex(index);
-  };
-
-
   if (loading) {
     return (
       <Layout>
-        <div className="product-detail-page">
-          <div className="loading-message">
-            <p>Loading product...</p>
-          </div>
+        <div className="product-detail-loading">
+          <div className="loading-spinner"></div>
+          <p>Loading product details...</p>
         </div>
       </Layout>
     );
   }
 
-  if (error && !product) {
+  if (error || !product) {
     return (
       <Layout>
-        <div className="product-detail-page">
-          <div className="error-message">
-            <h2>Product Not Found</h2>
-            <p>{error}</p>
-            <Link to="/products" className="btn btn-primary">
-              Back to Products
-            </Link>
+        <div className="product-detail-error">
+          <div className="error-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </div>
+          <h3>Product Not Found</h3>
+          <p>{error || 'The product you\'re looking for doesn\'t exist.'}</p>
+          <Link to="/products" className="back-to-products-btn">
+            Browse Products
+          </Link>
         </div>
       </Layout>
     );
   }
 
-  if (!product) {
-    return null;
-  }
-
-  // Handle product data format with presigned URLs
-  const productImages = product.images || [];
-  
-  // Get the selected image with presigned URL priority
-  const selectedImage = productImages[selectedImageIndex] || productImages[0];
-  
-  let primaryImage = '/placeholder-product.png';
-  
-  if (selectedImage) {
-    if (selectedImage.presigned_url && selectedImage.presigned_url !== 'null' && selectedImage.presigned_url !== null) {
-      primaryImage = selectedImage.presigned_url;
-    } else if (selectedImage.image_url && selectedImage.image_url !== 'null' && selectedImage.image_url !== null) {
-      primaryImage = selectedImage.image_url;
-    } else if (selectedImage.image && selectedImage.image !== 'null' && selectedImage.image !== null) {
-      primaryImage = selectedImage.image;
-    }
-  }
-  
-  console.log('=== PRODUCT DETAIL IMAGE DEBUG ===');
-  console.log('Product name:', product.name);
-  console.log('Product ID:', product.id);
-  console.log('Selected image index:', selectedImageIndex);
-  console.log('Selected image data:', selectedImage);
-  console.log('Total images:', productImages.length);
-  
-  if (selectedImage) {
-    console.log('Selected image fields:');
-    console.log('  - id:', selectedImage.id);
-    console.log('  - image:', selectedImage.image);
-    console.log('  - presigned_url:', selectedImage.presigned_url);
-    console.log('  - image_url:', selectedImage.image_url);
-    console.log('  - s3_key:', selectedImage.s3_key);
-    console.log('  - is_primary:', selectedImage.is_primary);
-    console.log('  - order:', selectedImage.order);
-    
-    if (selectedImage.presigned_url) {
-      console.log('✅ Using presigned URL:', selectedImage.presigned_url);
-    } else if (selectedImage.image_url) {
-      console.log('⚠️  Using image_url fallback:', selectedImage.image_url);
-    } else if (selectedImage.image) {
-      console.log('⚠️  Using image fallback:', selectedImage.image);
-    } else {
-      console.log('❌ No image URLs found, using placeholder');
-    }
-  } else {
-    console.log('❌ No selected image data found');
-  }
-  
-  console.log('Final primary image URL:', primaryImage);
-  console.log('All product images:', productImages);
-
-  const displayPrice = product.price.toString();
-  const originalPrice = product.original_price?.toString();
-  const isOnSale = product.is_on_sale || false;
-  const discountPercentage = product.discount_percentage || 0;
-  const isInStock = product.is_in_stock;
-  const stockQuantity = product.stock_quantity || 0;
-  const condition = product.condition || 'new';
-  const brand = product.brand || '';
-  const model = product.model || '';
-  const colors = product.colors || [];
-  const materials = product.materials || '';
-  const tags = product.tags || [];
-  const seller = product.seller || { username: 'Unknown' };
-  const category = product.category || { name: 'Uncategorized' };
-  const averageRating = product.average_rating || 0;
-  const reviewCount = product.review_count || 0;
-  const weight = product.weight;
-  const dimensions = {
-    length: product.dimensions_length,
-    width: product.dimensions_width, 
-    height: product.dimensions_height
-  };
+  const selectedImage = product.images?.[selectedImageIndex]?.presigned_url || '/placeholder-product.png';
 
   return (
     <Layout>
       <div className="product-detail-page">
-        {/* Breadcrumb */}
-        <nav className="breadcrumb">
-          <Link to="/products">Products</Link>
-          <span> / </span>
-          <Link to={`/products?category=${category.name}`}>{category.name}</Link>
-          <span> / </span>
-          <span>{product.name}</span>
+        {/* Breadcrumb Navigation */}
+        <nav className="breadcrumb-nav">
+          <Link to="/products" className="breadcrumb-link">Products</Link>
+          <span className="breadcrumb-separator">/</span>
+          <span className="breadcrumb-current">{product.name}</span>
         </nav>
 
-        <div className="product-detail-main">
-          {/* Product Images */}
-          <div className="product-detail-images">
+        {/* Main Product Content */}
+        <div className="product-main-content">
+          {/* Image Gallery */}
+          <div className="product-gallery">
             <div className="main-image-container">
               <img 
-                src={primaryImage} 
-                alt={productImages[selectedImageIndex]?.alt_text || product.name} 
-                className="main-product-image" 
+                src={selectedImage} 
+                alt={product.name}
+                className="main-image"
               />
-              
-              {/* Sale badge */}
-              {isOnSale && (
-                <div className="sale-badge">
-                  -{discountPercentage}%
+              {!product.is_in_stock && (
+                <div className="out-of-stock-overlay">
+                  <span>Out of Stock</span>
                 </div>
               )}
-
-              {/* Favorite button */}
-              <button 
-                className={`favorite-btn ${isFavorited ? 'favorited' : ''}`}
-                onClick={handleFavoriteToggle}
-                aria-label={isFavorited ? t('products.remove_from_favorites') : t('products.add_to_favorites')}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path 
-                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                    fill={isFavorited ? "#ff4757" : "none"}
-                    stroke={isFavorited ? "#ff4757" : "#999"}
-                    strokeWidth="2"
-                  />
-                </svg>
-              </button>
+              {product.is_featured && (
+                <div className="featured-badge">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Featured
+                </div>
+              )}
             </div>
-
-            {/* Image thumbnails */}
-            {productImages.length > 1 && (
-              <div className="image-thumbnails">
-                {productImages.map((image, index) => {
-                  let thumbnailUrl = '/placeholder-product.png';
-                  
-                  if (image.presigned_url && image.presigned_url !== 'null' && image.presigned_url !== null) {
-                    thumbnailUrl = image.presigned_url;
-                  } else if (image.image_url && image.image_url !== 'null' && image.image_url !== null) {
-                    thumbnailUrl = image.image_url;
-                  } else if (image.image && image.image !== 'null' && image.image !== null) {
-                    thumbnailUrl = image.image;
-                  }
-                  
-                  return (
-                    <button
-                      key={index}
-                      className={`thumbnail ${index === selectedImageIndex ? 'active' : ''}`}
-                      onClick={() => handleImageSelect(index)}
-                    >
-                      <img src={thumbnailUrl} alt={image.alt_text || `${product.name} ${index + 1}`} />
-                    </button>
-                  );
-                })}
+            
+            {product.images && product.images.length > 1 && (
+              <div className="thumbnail-gallery">
+                {product.images.map((image, index) => (
+                  <button
+                    key={image.id}
+                    className={`thumbnail-button ${index === selectedImageIndex ? 'active' : ''}`}
+                    onClick={() => setSelectedImageIndex(index)}
+                    aria-label={`View ${product.name} image ${index + 1}`}
+                  >
+                    <img 
+                      src={image.presigned_url} 
+                      alt={`${product.name} thumbnail ${index + 1}`}
+                      className="thumbnail-image"
+                    />
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Product Info */}
-          <div className="product-detail-info">
+          {/* Product Information */}
+          <div className="product-info">
             <div className="product-header">
-              <h1>{product.name}</h1>
-              
-              {/* Rating */}
-              {averageRating > 0 && (
-                <div className="product-rating">
-                  <div className="rating-stars">
-                    {'★'.repeat(Math.floor(averageRating))}
-                    {'☆'.repeat(5 - Math.floor(averageRating))}
-                  </div>
-                  <span className="rating-text">
-                    {averageRating.toFixed(1)} ({reviewCount} reviews)
+              <h1 className="product-title">{product.name}</h1>
+              <div className="product-meta">
+                <span className="product-seller">
+                  By {product.seller?.username || 'Designia'}
+                </span>
+                {product.is_in_stock && (
+                  <span className="stock-status in-stock">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    In Stock
                   </span>
+                )}
+                {!product.is_in_stock && (
+                  <span className="stock-status out-of-stock">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M18.364 18.364A9 9 0 1 1 5.636 5.636a9 9 0 0 1 12.728 12.728zM12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Out of Stock
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="product-price-section">
+              <div className="price-container">
+                <span className="price-amount">${product.price}</span>
+                {product.original_price && product.original_price > product.price && (
+                  <span className="original-price">${product.original_price}</span>
+                )}
+                {product.is_on_sale && (
+                  <span className="discount-badge">
+                    -{product.discount_percentage}%
+                  </span>
+                )}
+              </div>
+              {product.stock_quantity <= 5 && product.stock_quantity > 0 && (
+                <div className="low-stock-warning">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Only {product.stock_quantity} left in stock
                 </div>
               )}
             </div>
 
-            {/* Price */}
-            <div className="product-pricing">
-              <div className="price-container">
-                <span className="current-price">${displayPrice}</span>
-                {originalPrice && isOnSale && (
-                  <span className="original-price">${originalPrice}</span>
-                )}
-              </div>
-              {isOnSale && (
-                <span className="savings">
-                  Save ${(parseFloat(originalPrice || '0') - parseFloat(displayPrice)).toFixed(2)}
-                </span>
-              )}
-            </div>
-
-            {/* Description */}
             <div className="product-description">
               <p>{product.description}</p>
             </div>
 
-            {/* Product Details */}
-            <div className="product-details">
-              <div className="detail-section">
-                <h4>Details</h4>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <span className="label">Category:</span>
-                    <span className="value">{category.name}</span>
-                  </div>
-                  
-                  {brand && (
-                    <div className="detail-item">
-                      <span className="label">Brand:</span>
-                      <span className="value">{brand}</span>
-                    </div>
-                  )}
-                  
-                  {model && (
-                    <div className="detail-item">
-                      <span className="label">Model:</span>
-                      <span className="value">{model}</span>
-                    </div>
-                  )}
-                  
-                  <div className="detail-item">
-                    <span className="label">Condition:</span>
-                    <span className="value condition-badge">{condition}</span>
-                  </div>
-                  
-                  <div className="detail-item">
-                    <span className="label">Seller:</span>
-                    <span className="value">{seller.username}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Colors */}
-              {colors.length > 0 && (
-                <div className="detail-section">
-                  <h4>Available Colors</h4>
-                  <div className="color-options">
-                    {colors.map((color, index) => (
-                      <span 
-                        key={index}
-                        className="color-option"
-                        style={{ backgroundColor: color.toLowerCase() }}
-                        title={color}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Materials */}
-              {materials && (
-                <div className="detail-section">
-                  <h4>Materials</h4>
-                  <p>{materials}</p>
-                </div>
-              )}
-
-              {/* Dimensions */}
-              {(dimensions.length || dimensions.width || dimensions.height || weight) && (
-                <div className="detail-section">
-                  <h4>Dimensions & Weight</h4>
-                  <div className="dimensions-grid">
-                    {dimensions.length && (
-                      <div className="dimension-item">
-                        <span className="label">Length:</span>
-                        <span className="value">{dimensions.length} cm</span>
-                      </div>
-                    )}
-                    {dimensions.width && (
-                      <div className="dimension-item">
-                        <span className="label">Width:</span>
-                        <span className="value">{dimensions.width} cm</span>
-                      </div>
-                    )}
-                    {dimensions.height && (
-                      <div className="dimension-item">
-                        <span className="label">Height:</span>
-                        <span className="value">{dimensions.height} cm</span>
-                      </div>
-                    )}
-                    {weight && (
-                      <div className="dimension-item">
-                        <span className="label">Weight:</span>
-                        <span className="value">{weight} kg</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Tags */}
-              {tags.length > 0 && (
-                <div className="detail-section">
-                  <h4>Tags</h4>
-                  <div className="tags-container">
-                    {tags.map((tag, index) => (
-                      <span key={index} className="tag">{tag}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Add to Cart Section */}
-            <div className="add-to-cart-section">
-              <div className="stock-info">
-                {isInStock ? (
-                  <span className="in-stock">
-                    ✓ In Stock ({stockQuantity} available)
-                  </span>
-                ) : (
-                  <span className="out-of-stock">
-                    ✗ Out of Stock
-                  </span>
-                )}
-              </div>
-
-              {isInStock && (
-                <div className="quantity-selector">
-                  <label htmlFor="quantity">Quantity:</label>
-                  <div className="quantity-controls">
-                    <button 
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      disabled={quantity <= 1}
-                    >
-                      -
-                    </button>
-                    <input 
-                      id="quantity"
-                      type="number" 
-                      value={quantity} 
-                      onChange={(e) => setQuantity(Math.max(1, Math.min(stockQuantity, parseInt(e.target.value) || 1)))}
-                      min="1"
-                      max={stockQuantity}
-                    />
-                    <button 
-                      onClick={() => setQuantity(Math.min(stockQuantity, quantity + 1))}
-                      disabled={quantity >= stockQuantity}
-                    >
-                      +
-                    </button>
-                  </div>
+            <div className="product-actions">
+              <div className="quantity-selector">
+                <label htmlFor="quantity" className="quantity-label">Quantity</label>
+                <div className="quantity-controls">
+                  <button 
+                    className="quantity-btn"
+                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                    disabled={quantity <= 1}
+                    aria-label="Decrease quantity"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                      <path d="M5 12H19" stroke="#0A0A0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  <input 
+                    id="quantity"
+                    className="quantity-input" 
+                    type="number" 
+                    value={quantity} 
+                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    min="1"
+                    max={product.stock_quantity}
+                    aria-label="Product quantity"
+                  />
+                  <button 
+                    className="quantity-btn"
+                    onClick={() => setQuantity(q => Math.min(product.stock_quantity, q + 1))}
+                    disabled={quantity >= product.stock_quantity}
+                    aria-label="Increase quantity"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                      <path d="M12 5V19M5 12H19" stroke="#0A0A0A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
                 </div>
-              )}
+              </div>
 
               <button 
-                className="btn btn-primary add-to-cart-btn"
+                className={`add-to-cart-btn ${isAddingToCart ? 'loading' : ''} ${!product.is_in_stock ? 'disabled' : ''}`}
                 onClick={handleAddToCart}
-                disabled={!isInStock || isAddingToCart}
+                disabled={!product.is_in_stock || isAddingToCart}
               >
-                {isAddingToCart 
-                  ? 'Adding to Cart...' 
-                  : isInStock 
-                    ? `Add ${quantity} to Cart` 
-                    : 'Out of Stock'
-                }
+                {isAddingToCart ? (
+                  <>
+                    <div className="spinner"></div>
+                    Adding...
+                  </>
+                ) : product.is_in_stock ? (
+                  <>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17C17 18.1 16.1 19 15 19H9C7.9 19 7 18.1 7 17V13H17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    {t('products.add_to_cart_button')}
+                  </>
+                ) : (
+                  t('products.out_of_stock')
+                )}
               </button>
+            </div>
 
-              <div className="shipping-info">
-                <p>🚚 {t('products.shipping_info')}</p>
-                <p>📦 Ships within 2-3 business days</p>
-                <p>↩️ 30-day return policy</p>
+            {/* Quick Product Stats */}
+            <div className="product-quick-stats">
+              <div className="stat-item">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2.458 12C3.732 7.943 7.523 5 12 5C16.477 5 20.268 7.943 21.542 12C20.268 16.057 16.477 19 12 19C7.523 19 3.732 16.057 2.458 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>{product.view_count} views</span>
               </div>
+              <div className="stat-item">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>{product.favorite_count} favorites</span>
+              </div>
+              {product.average_rating > 0 && (
+                <div className="stat-item">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>{product.average_rating.toFixed(1)} ({product.review_count} reviews)</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Reviews Section */}
-        <div className="product-reviews-section">
-          <Reviews 
-            productSlug={product.slug}
-            productId={product.id}
-            initialReviews={product.reviews || []}
-            showAverageRating={true}
-          />
+        {/* Product Details Tabs */}
+        <div className="product-details-tabs">
+          <div className="tab-navigation">
+            <button 
+              className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}
+              onClick={() => setActiveTab('details')}
+            >
+              Product Details
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'specifications' ? 'active' : ''}`}
+              onClick={() => setActiveTab('specifications')}
+            >
+              Specifications
+            </button>
+          </div>
+
+          <div className="tab-content">
+            {activeTab === 'details' && (
+              <div className="details-content">
+                <div className="details-grid">
+                  <div className="detail-item">
+                    <span className="detail-label">Brand</span>
+                    <span className="detail-value">{product.brand || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Model</span>
+                    <span className="detail-value">{product.model || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Condition</span>
+                    <span className="detail-value">{product.condition}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Materials</span>
+                    <span className="detail-value">{product.materials || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Category</span>
+                    <span className="detail-value">{product.category?.name || 'N/A'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Tags</span>
+                    <span className="detail-value">
+                      {product.tags && product.tags.length > 0 ? (
+                        <div className="tags-container">
+                          {product.tags.map((tag, index) => (
+                            <span key={index} className="tag">{tag}</span>
+                          ))}
+                        </div>
+                      ) : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'specifications' && (
+              <div className="specifications-content">
+                <div className="specifications-grid">
+                  {product.weight && (
+                    <div className="spec-item">
+                      <span className="spec-label">Weight</span>
+                      <span className="spec-value">{product.weight} kg</span>
+                    </div>
+                  )}
+                  {product.dimensions_length && (
+                    <div className="spec-item">
+                      <span className="spec-label">Length</span>
+                      <span className="spec-value">{product.dimensions_length} cm</span>
+                    </div>
+                  )}
+                  {product.dimensions_width && (
+                    <div className="spec-item">
+                      <span className="spec-label">Width</span>
+                      <span className="spec-value">{product.dimensions_width} cm</span>
+                    </div>
+                  )}
+                  {product.dimensions_height && (
+                    <div className="spec-item">
+                      <span className="spec-label">Height</span>
+                      <span className="spec-value">{product.dimensions_height} cm</span>
+                    </div>
+                  )}
+                  {product.colors && product.colors.length > 0 && (
+                    <div className="spec-item">
+                      <span className="spec-label">Available Colors</span>
+                      <span className="spec-value">
+                        <div className="colors-container">
+                          {product.colors.map((color, index) => (
+                            <span key={index} className="color-chip">{color}</span>
+                          ))}
+                        </div>
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+        
+        {/* Product Reviews Section */}
+        {product.slug && (
+          <div className="reviews-section">
+            <div className="reviews-header">
+              <h2 className="reviews-title">Customer Reviews</h2>
+              <div className="reviews-summary">
+                {product.average_rating > 0 ? (
+                  <div className="rating-display">
+                    <div className="rating-stars">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <svg 
+                          key={star} 
+                          viewBox="0 0 24 24" 
+                          fill={star <= product.average_rating ? "currentColor" : "none"}
+                          className={`star ${star <= product.average_rating ? 'filled' : 'empty'}`}
+                        >
+                          <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      ))}
+                    </div>
+                    <span className="rating-text">
+                      {product.average_rating.toFixed(1)} out of 5
+                    </span>
+                    <span className="review-count">
+                      Based on {product.review_count} review{product.review_count !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="no-reviews">
+                    <span>No reviews yet</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <ProductReviews 
+              productSlug={product.slug} 
+              productId={product.id} 
+              reviews={[]} // Reviews will be loaded by the ProductReviews component
+            />
+          </div>
+        )}
       </div>
     </Layout>
   );

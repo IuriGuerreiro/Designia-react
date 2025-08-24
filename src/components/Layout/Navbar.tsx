@@ -1,18 +1,27 @@
-import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
-import './Navbar.css';
 import { useTranslation } from 'react-i18next';
+import styles from './Navbar.module.css';
+
+const CartIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <path d="M16 10a4 4 0 0 1-8 0" />
+  </svg>
+);
 
 const Navbar = () => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { cartItems } = useCart();
-  const [dropdownOpen, setDropdownOpen] = React.useState(false);
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
@@ -20,51 +29,59 @@ const Navbar = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [dropdownRef]);
+  }, []);
+
+  useEffect(() => {
+    setDropdownOpen(false);
+  }, [location.pathname]);
 
   const cartItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const userInitial = user?.first_name?.charAt(0) || user?.username?.charAt(0) || 'U';
 
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <Link to="/" className="navbar-logo">Designia</Link>
-        <div className="navbar-links">
-          <NavLink to="/products" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>{t('layout.products')}</NavLink>
-          <NavLink to="/social-media" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>{t('layout.social_media')}</NavLink>
+    <nav className={styles.navbar}>
+      <div className={styles.container}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Link to="/" className={styles.logo}>Designia</Link>
+          <div className={styles.navLinks}>
+            <NavLink to="/products" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}>
+              {t('layout.products')}
+            </NavLink>
+            <NavLink to="/social-media" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}>
+              {t('layout.social_media')}
+            </NavLink>
+          </div>
         </div>
-        <div className="navbar-actions">
-          <Link to="/cart" className="nav-link cart-link">
-            <span className="cart-icon">🛒</span>
-            {cartItemCount > 0 && <span className="cart-count">{cartItemCount}</span>}
+
+        <div className={styles.actions}>
+          <Link to="/cart" className={styles.actionBtn}>
+            <CartIcon />
+            {cartItemCount > 0 && <div className={styles.cartBadge}>{cartItemCount}</div>}
           </Link>
-          <div className="navbar-user-menu" ref={dropdownRef}>
-            <button className="user-menu-trigger" onClick={() => setDropdownOpen(!dropdownOpen)}>
-              <div className="user-avatar">{user?.first_name?.charAt(0) || user?.username?.charAt(0)}</div>
-              <span>{user?.first_name || user?.username}</span>
-              <span className={`dropdown-caret ${dropdownOpen ? 'open' : ''}`}>▼</span>
+
+          <div className={styles.userMenu} ref={dropdownRef}>
+            <button className={styles.userAvatar} onClick={() => setDropdownOpen(!dropdownOpen)}>
+              {userInitial}
             </button>
+            
             {dropdownOpen && (
-              <div className="dropdown-menu">
-                <Link to="/my-products" className="dropdown-item" onClick={() => setDropdownOpen(false)}>{t('layout.my_products')}</Link>
-                <div className="dropdown-divider"></div>
-                <Link to="/my-orders" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                  <span>🛒 My Orders</span>
-                  <small>Orders you placed</small>
-                </Link>
-                <Link to="/order-management" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                  <span>📦 Seller Orders</span>
-                  <small>Orders to fulfill</small>
-                </Link>
-                <Link to="/stripe-holds" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                  <span>⏳ Payment Holds</span>
-                  <small>Payments on hold</small>
-                </Link>
-                <Link to="/payouts" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                  <span>💰 Payouts</span>
-                  <small>Seller payouts</small>
-                </Link>
-                <Link to="/settings" className="dropdown-item" onClick={() => setDropdownOpen(false)}>{t('layout.settings')}</Link>
-                <button onClick={logout} className="dropdown-item logout">{t('layout.logout')}</button>
+              <div className={styles.dropdown}>
+                <div className={styles.dropdownHeader}>
+                  <p className={styles.dropdownUserName}>{user?.first_name || user?.username}</p>
+                  <p className={styles.dropdownUserEmail}>{user?.email}</p>
+                </div>
+                <div className={styles.dropdownBody}>
+                  <Link to="/my-products" className={styles.dropdownLink}>{t('layout.my_products')}</Link>
+                  <Link to="/my-orders" className={styles.dropdownLink}>My Orders</Link>
+                  <Link to="/order-management" className={styles.dropdownLink}>Seller Orders</Link>
+                  <Link to="/payouts" className={styles.dropdownLink}>Payouts</Link>
+                  <Link to="/settings" className={styles.dropdownLink}>{t('layout.settings')}</Link>
+                </div>
+                <div className={styles.dropdownFooter}>
+                  <button onClick={logout} className={`${styles.dropdownLink} ${styles.logoutBtn}`}>
+                    {t('layout.logout')}
+                  </button>
+                </div>
               </div>
             )}
           </div>

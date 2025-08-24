@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../../Layout/Layout';
 import { useTranslation } from 'react-i18next';
-import './Orders.css';
 import { Link } from 'react-router-dom';
 import { orderService } from '../../../services';
 import { type Order } from '../../../types/marketplace';
+import './Orders.css';
 
 const MyOrdersPage: React.FC = () => {
   const { t } = useTranslation();
@@ -14,6 +14,35 @@ const MyOrdersPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
+
+  // Helper function to get the best available image URL
+  const getBestImageUrl = (item: any) => {
+    // Try fresh product_image_fresh first (new presigned URLs)
+    if (item.product_image_fresh && 
+        item.product_image_fresh !== 'null' && 
+        item.product_image_fresh !== '' && 
+        item.product_image_fresh !== 'undefined' &&
+        item.product_image_fresh !== 'None') {
+      
+      console.log(`Using fresh image URL for ${item.product_name}:`, item.product_image_fresh);
+      return item.product_image_fresh;
+    }
+    
+    // Fallback to stored product_image (might be expired)
+    if (item.product_image && 
+        item.product_image !== 'null' && 
+        item.product_image !== '' && 
+        item.product_image !== 'undefined' &&
+        item.product_image !== 'None') {
+      
+      console.log(`Using stored image URL for ${item.product_name}:`, item.product_image);
+      return item.product_image;
+    }
+    
+    // Final fallback to placeholder
+    console.log(`No valid image URL for ${item.product_name}, using placeholder`);
+    return '/placeholder-product.svg';
+  };
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -84,12 +113,35 @@ const MyOrdersPage: React.FC = () => {
     }
   };
 
+  // Helper function to clean search term
+  const cleanSearchTerm = (term: string) => {
+    return term
+      .toLowerCase()
+      .replace(/^order\s*/i, '') // Remove "order" from beginning
+      .replace(/#/g, '') // Remove all # symbols
+      .trim();
+  };
+
+  // Helper function to check if search term looks like an order ID
+  const isOrderIdSearch = (term: string) => {
+    const cleaned = cleanSearchTerm(term);
+    // If it contains numbers, treat it as order ID search
+    return /\d/.test(cleaned);
+  };
+
   // Filter orders by status and search term
   const filteredOrders = orders.filter(order => {
     const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
-    const matchesSearch = searchTerm === '' || 
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.items.some(item => item.product_name.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    if (searchTerm === '') return matchesStatus;
+    
+    const cleanedSearch = cleanSearchTerm(searchTerm);
+    if (cleanedSearch === '') return matchesStatus;
+    
+    const matchesSearch = 
+      order.id.toLowerCase().includes(cleanedSearch) ||
+      order.items.some(item => item.product_name.toLowerCase().includes(cleanedSearch));
+    
     return matchesStatus && matchesSearch;
   });
 
@@ -107,9 +159,42 @@ const MyOrdersPage: React.FC = () => {
     return (
       <Layout>
         <div className="orders-container">
-          <div className="orders-loading-state">
-            <div className="loading-spinner"></div>
-            <p className="loading-text">Loading your orders...</p>
+          {/* Header Section */}
+          <div className="orders-header">
+            <h1 className="orders-title">My Orders</h1>
+            <p className="orders-subtitle">Track and manage your furniture orders</p>
+          </div>
+          
+          {/* Skeleton Loading */}
+          <div className="orders-skeleton">
+            {[1, 2, 3].map((index) => (
+              <div key={index} className="skeleton-card">
+                <div className="skeleton-header">
+                  <div>
+                    <div className="skeleton-order-id"></div>
+                    <div className="skeleton-order-date"></div>
+                  </div>
+                  <div className="skeleton-total"></div>
+                </div>
+                
+                <div className="skeleton-body">
+                  <div className="skeleton-images">
+                    <div className="skeleton-image"></div>
+                    <div className="skeleton-image"></div>
+                    <div className="skeleton-image"></div>
+                  </div>
+                  <div className="skeleton-content">
+                    <div className="skeleton-text-line short"></div>
+                    <div className="skeleton-text-line medium"></div>
+                  </div>
+                </div>
+                
+                <div className="skeleton-footer">
+                  <div className="skeleton-status"></div>
+                  <div className="skeleton-button"></div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </Layout>
@@ -119,23 +204,39 @@ const MyOrdersPage: React.FC = () => {
   return (
     <Layout>
       <div className="orders-container">
-        {/* Header Section - Matching Mobile Design */}
+        {/* Header Section - Premium Design System */}
         <div className="orders-header">
           <h1 className="orders-title">My Orders</h1>
+          <p className="orders-subtitle">Track and manage your furniture orders</p>
         </div>
         
-        {/* Search Bar - Matching Mobile Design */}
+        {/* Search Bar - Premium Design System */}
         <div className="orders-search-container">
-          <input
-            className="orders-search-input"
-            type="text"
-            placeholder="Search orders by ID or product name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="search-input-wrapper">
+            <input
+              className="orders-search-input"
+              type="text"
+              placeholder="Search by order ID (e.g., 12345678) or product name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <div className="search-icon">🔍</div>
+          </div>
+          {searchTerm && (
+            <div className="search-info">
+              <small className="search-hint">
+                Searching for: "{cleanSearchTerm(searchTerm)}"
+                {searchTerm !== cleanSearchTerm(searchTerm) && (
+                  <span className="search-cleanup">
+                    {" "}(cleaned from "{searchTerm}")
+                  </span>
+                )}
+              </small>
+            </div>
+          )}
         </div>
         
-        {/* Status Tabs - Matching Mobile Design */}
+        {/* Status Tabs - Premium Design System */}
         {orders.length > 0 && (
           <div className="orders-status-tabs">
             {Object.entries(statusCounts).map(([status, count]) => (
@@ -169,7 +270,7 @@ const MyOrdersPage: React.FC = () => {
           </div>
         )}
         
-        {/* Order Cards - Matching Mobile Design Style */}
+        {/* Order Cards - Premium Design System */}
         {filteredOrders.length > 0 ? (
           <div className="orders-list-container">
             <div className="orders-count">
@@ -179,140 +280,78 @@ const MyOrdersPage: React.FC = () => {
               {filteredOrders.map(order => (
                 <Link key={order.id} to={`/my-orders/${order.id}`} className="order-card-link">
                   <div className="order-card">
-                    <div className="order-content-row">
-                      {/* Product Images */}
-                      <div className="order-images-section">
-                        {order.items.slice(0, 3).map((item, index) => {
-                          // Enhanced image URL resolution for order items
-                          // Prioritize stored product_image but add fallback logic
-                          let imageUrl = '/placeholder-product.svg';
-                          
-                          if (item.product_image && item.product_image !== 'null' && item.product_image !== '') {
-                            imageUrl = item.product_image;
-                          }
-                          
-                          console.log('=== MY ORDERS PAGE - ORDER ITEM IMAGE DEBUG ===');
-                          console.log('Order ID:', order.id);
-                          console.log('Item:', item.product_name);
-                          console.log('Stored product_image:', item.product_image);
-                          console.log('Product_image type:', typeof item.product_image);
-                          console.log('Product_image length:', item.product_image?.length);
-                          console.log('Is empty check:', !item.product_image || item.product_image === 'null' || item.product_image === '');
-                          console.log('Selected imageUrl:', imageUrl);
+                    {/* Card Header */}
+                    <div className="card-header">
+                      <div>
+                        <h3 className="order-id">Order #{order.id.slice(-8)}</h3>
+                        <p className="order-date">{formatOrderDate(order.created_at)}</p>
+                      </div>
+                      <div className="order-total">
+                        <p className="total-label">Total</p>
+                        <p className="total-amount">${order.total_amount || '0.00'}</p>
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="card-body">
+                      <div className="order-images">
+                                                {order.items.slice(0, 3).map((item, index) => {
+                          const imageUrl = getBestImageUrl(item);
                           
                           return (
                             <img 
                               key={index}
                               src={imageUrl}
                               alt={item.product_name}
-                              className="product-thumbnail"
-                              style={{ 
-                                marginLeft: index > 0 ? '-8px' : '0',
-                                zIndex: 10 - index 
-                              }}
-                              onError={(e) => {
-                                // Fallback to placeholder on image load error
-                                const target = e.target as HTMLImageElement;
-                                if (target.src !== '/placeholder-product.svg') {
-                                  console.log('Image failed to load, using placeholder:', target.src);
-                                  target.src = '/placeholder-product.svg';
-                                }
+                              className="order-item-image"
+                              onError={(e) => { 
+                                console.warn(`Image failed to load for ${item.product_name}, falling back to placeholder`);
+                                e.currentTarget.src = '/placeholder-product.svg'; 
                               }}
                             />
                           );
                         })}
                         {order.items.length > 3 && (
-                          <div className="more-items-badge">
+                          <div className="order-item-overflow">
                             +{order.items.length - 3}
                           </div>
                         )}
                       </div>
-                      
-                      {/* Order Number & Date */}
-                      <div className="order-id-section">
-                        <div className="order-number">
-                          <span className="order-prefix">Order</span>
-                          <span className="order-id">#{order.id.slice(-8)}</span>
-                        </div>
-                        <div className="order-date">{formatOrderDate(order.created_at)}</div>
+                      <div className="order-items-summary">
+                        <p className="items-count">
+                          {order.items.length} item{order.items.length > 1 ? 's' : ''} including:
+                        </p>
+                        <p className="items-list">
+                          {order.items.slice(0, 2).map(item => item.product_name).join(', ')}
+                          {order.items.length > 2 && `, and ${order.items.length - 2} more`}
+                        </p>
                       </div>
-                      
-                      {/* Items Info */}
-                      <div className="order-items-section">
-                        <div className="items-count">{order.items.length} item{order.items.length > 1 ? 's' : ''}</div>
-                        <div className="items-names">
-                          {order.items.slice(0, 2).map((item, index) => (
-                            <span key={index} className="item-name-text">
-                              {item.product_name}
-                              {index < Math.min(order.items.length - 1, 1) && ', '}
-                            </span>
-                          ))}
-                          {order.items.length > 2 && <span className="more-items-text"> +{order.items.length - 2} more</span>}
-                        </div>
+                    </div>
+
+                    {/* Card Footer */}
+                    <div className="card-footer">
+                      <div className={`status-badge ${getStatusClass(order.status)}`}>
+                        {order.status.replace('_', ' ')}
                       </div>
-                      
-                      {/* Status */}
-                      <div className="order-status-section">
-                        <div className="status-badge" style={{
-                          backgroundColor: order.status === 'delivered' ? '#10b981' :
-                                         order.status === 'shipped' ? '#f59e0b' :
-                                         order.status === 'awaiting_shipment' ? '#8b5cf6' :
-                                         order.status === 'payment_confirmed' ? '#06d6a0' :
-                                         order.status === 'pending_payment' ? '#fbbf24' :
-                                         order.status === 'cancelled' ? '#ef4444' : '#6b7280'
-                        }}>
-                          {order.status === 'pending_payment' ? 'Pending Payment' :
-                           order.status === 'payment_confirmed' ? 'Payment Confirmed' :
-                           order.status === 'awaiting_shipment' ? 'Awaiting Shipment' :
-                           order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                        </div>
-                      </div>
-                      
-                      {/* Price & Actions */}
-                      <div className="order-price-section">
-                        <div className="total-amount">${order.total_amount || '0.00'}</div>
-                        <div className="order-actions">
-                          <Link 
-                            to={`/my-orders/${order.id}`}
-                            className="view-details-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
+                      <div className="order-actions">
+                        {order.status === 'pending_payment' && (
+                          <button 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/checkout?retry_order=${order.id}`; }}
+                            className="retry-payment-btn"
                           >
-                            View Details
-                          </Link>
-                          {order.status === 'pending_payment' && (
-                            <Link 
-                              to={`/checkout?retry_order=${order.id}`}
-                              className="retry-payment-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                              }}
-                              style={{
-                                backgroundColor: '#10b981',
-                                color: 'white',
-                                padding: '6px 12px',
-                                borderRadius: '6px',
-                                textDecoration: 'none',
-                                fontSize: '12px',
-                                fontWeight: '500',
-                                display: 'inline-block',
-                                marginRight: '8px'
-                              }}
-                            >
-                              Retry Payment
-                            </Link>
-                          )}
-                          {['pending_payment', 'payment_confirmed'].includes(order.status) && (
-                            <button 
-                              className="cancel-order-btn"
-                              onClick={(e) => handleCancelOrder(order.id, e)}
-                              disabled={cancellingOrderId === order.id}
-                            >
-                              {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
-                            </button>
-                          )}
-                        </div>
+                            Retry Payment
+                          </button>
+                        )}
+                        {['pending_payment', 'payment_confirmed'].includes(order.status) && (
+                          <button 
+                            onClick={(e) => handleCancelOrder(order.id, e)}
+                            disabled={cancellingOrderId === order.id}
+                            className="cancel-order-btn"
+                          >
+                            {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel Order'}
+                          </button>
+                        )}
+                        <span className="view-details-btn">View Details</span>
                       </div>
                     </div>
                   </div>
