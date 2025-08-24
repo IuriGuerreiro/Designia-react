@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState } from "react";
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
@@ -8,6 +8,7 @@ import { paymentService } from "../../../services/paymentService";
 import { useCart } from "../../../contexts/CartContext";
 import Layout from "../../Layout/Layout";
 import { useSearchParams } from "react-router-dom";
+import './Checkout.css';
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
@@ -63,32 +64,61 @@ const SimpleCheckoutPage = () => {
   const options = { fetchClientSecret };
 
   return (
-    <Layout>
-      <div id="checkout">
-        <h1>{retryOrderId ? 'Retry Payment' : 'Checkout'}</h1>
-        {retryOrderId && (
-          <p style={{ color: '#6c757d', marginBottom: '1rem' }}>
-            Retry payment for order #{retryOrderId.slice(-8)}
-          </p>
-        )}
-        
+    <Layout maxWidth="full">
+      <div className="checkout-container">
+
+        {/* Error Display */}
         {error && (
-          <div style={{ color: 'red', padding: '1rem', backgroundColor: '#f8d7da', borderRadius: '4px', marginBottom: '1rem' }}>
-            <strong>Error:</strong> {error}
+          <div className="checkout-error">
+            <div className="error-icon">⚠️</div>
+            <div className="error-content">
+              <h3 className="error-title">Checkout Error</h3>
+              <p className="error-message">{error}</p>
+            </div>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="retry-checkout-btn"
+            >
+              🔄 Try Again
+            </button>
           </div>
         )}
+        <EmbeddedCheckoutProvider
+                stripe={stripePromise}
+                options={options}
+        >
+          <EmbeddedCheckout />
+        </EmbeddedCheckoutProvider>
 
-        <div style={{ minHeight: '500px' }}>
-          <EmbeddedCheckoutProvider
-            stripe={stripePromise}
-            options={options}
-          >
-            <EmbeddedCheckout />
-          </EmbeddedCheckoutProvider>
+        {/* Help Section */}
+        <div className="checkout-help">
+          <div className="help-card">
+            <h3 className="help-title">Need Help?</h3>
+            <p className="help-description">
+              If you encounter any issues during checkout, our support team is here to help.
+            </p>
+            <div className="help-actions">
+              <a href="mailto:support@designia.com" className="help-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                Contact Support
+              </a>
+              <a href="/faq" className="help-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                FAQ
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
   );
-}
+};
 
 export default SimpleCheckoutPage;
