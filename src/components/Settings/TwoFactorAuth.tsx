@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest, API_ENDPOINTS } from '../../config/api';
 import TwoFactorVerifyModal from './TwoFactorVerifyModal';
+import './TwoFactorAuth.css';
 
 interface TwoFactorStatus {
   two_factor_enabled: boolean;
@@ -72,49 +73,31 @@ const TwoFactorAuth: React.FC = () => {
 
   return (
     <div className="two-factor-auth">
-      <div className="two-factor-card">
-        <div className="two-factor-header">
-          <div className="status-indicator">
-            <span className={`status-dot ${twoFactorStatus?.two_factor_enabled ? 'enabled' : 'disabled'}`}></span>
-            <span className="status-text">
-              {twoFactorStatus?.two_factor_enabled ? 'Enabled' : 'Disabled'}
-            </span>
-          </div>
-          <h4>Email Two-Factor Authentication</h4>
+      <div className="two-factor-simple">
+        <div className="two-factor-info">
+          <span className="email">{twoFactorStatus?.email}</span>
+          <span className="status">
+            {twoFactorStatus?.two_factor_enabled ? '2FA Enabled' : '2FA Disabled'}
+          </span>
         </div>
         
-        <div className="two-factor-body">
-          <p className="description">
-            {twoFactorStatus?.two_factor_enabled 
-              ? 'Your account is protected with email-based two-factor authentication. You will receive a verification code via email when signing in.'
-              : 'Add an extra layer of security to your account. When enabled, you will receive a verification code via email when signing in.'
-            }
-          </p>
-          
-          {twoFactorStatus?.email && (
-            <p className="email-info">
-              <strong>Email:</strong> {twoFactorStatus.email}
-            </p>
-          )}
-          
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-          
-          <div className="two-factor-actions">
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+        
+                  <div className="two-factor-actions">
             <button
-              className={`btn ${twoFactorStatus?.two_factor_enabled ? 'btn-danger' : 'btn-primary'}`}
+              className={`2fa-btn ${twoFactorStatus?.two_factor_enabled ? '2fa-btn-danger' : '2fa-btn-primary'}`}
               onClick={() => handleToggle2FA(!twoFactorStatus?.two_factor_enabled)}
               disabled={loading}
             >
               {loading ? 'Processing...' : (
-                twoFactorStatus?.two_factor_enabled ? 'Disable 2FA' : 'Enable 2FA'
+                twoFactorStatus?.two_factor_enabled ? 'Disable' : 'Enable'
               )}
             </button>
           </div>
-        </div>
       </div>
 
       {showVerifyModal && pendingAction && (

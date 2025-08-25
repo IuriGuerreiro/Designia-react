@@ -1,0 +1,144 @@
+.two-factor-auth {
+  max-width: 600px;
+}
+
+.two-factor-simple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: var(--platinum-gray);
+  border-radius: 12px;
+  border: 1px solid var(--premium-silver);
+}
+
+.two-factor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.two-factor-info .email {
+  font-weight: 600;
+  color: var(--deep-black);
+  font-size: 1rem;
+}
+
+.two-factor-info .status {
+  color: var(--slate-gray);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--error-red);
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.two-factor-actions {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* 2FA Specific Button Styles */
+.2fa-btn {
+  min-width: 120px;
+  text-align: center;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-primary);
+}
+
+.2fa-btn-primary {
+  background: transparent;
+  color: var(--deep-black);
+  border: 2px solid var(--deep-black);
+}
+
+.2fa-btn-primary:hover:not(:disabled) {
+  background: var(--error-red);
+  color: #FFFFFF;
+  border-color: var(--error-red);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.2fa-btn-primary:disabled {
+  background: var(--steel-gray);
+  border-color: var(--steel-gray);
+  color: #FFFFFF;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.2fa-btn-danger {
+  background: transparent;
+  color: var(--deep-black);
+  border: 2px solid var(--deep-black);
+}
+
+.2fa-btn-danger:hover:not(:disabled) {
+  background: var(--error-red);
+  color: #FFFFFF;
+  border-color: var(--error-red);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.2fa-btn-danger:disabled {
+  background: var(--steel-gray);
+  border-color: var(--steel-gray);
+  color: #FFFFFF;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.loading {
+  text-align: center;
+  color: var(--steel-gray);
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .two-factor-simple {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .two-factor-actions {
+    justify-content: center;
+  }
+  
+  .2fa-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .2fa-btn:hover {
+    transform: none;
+  }
+}

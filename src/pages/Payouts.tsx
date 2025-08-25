@@ -6,7 +6,7 @@ import {
 } from '../services/paymentService';
 import PayoutsList from '../components/Marketplace/Stripe/PayoutsList';
 import Layout from '../components/Layout/Layout';
-import '../styles/Payouts.css';
+import './Payouts.css';
 
 type TabType = 'history' | 'create';
 
@@ -40,141 +40,158 @@ const Payouts: React.FC = () => {
     }
   };
 
-  return (
-    <Layout>
-      <div className="payouts-container">
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Page Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Payouts Management</h1>
-          <p className="text-gray-600">
-            View your payout history and create new payouts from your available balance
-          </p>
-        </div>
+    return (
+    <Layout maxWidth="full">
+      <div className="payouts-page">
+        <div className="payouts-container">
+          {/* Hero Section */}
+          <div className="payouts-hero">
+            <h1 className="payouts-title">Payouts Management</h1>
+            <p className="payouts-subtitle">
+              View your payout history and create new payouts from your available balance
+            </p>
+          </div>
 
-        {/* Tab Navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-lg p-1 shadow-md border border-gray-200">
+          {/* Tab Navigation */}
+          <div className="payouts-tabs">
             <button
               onClick={() => setActiveTab('history')}
-              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
-                activeTab === 'history'
-                  ? 'bg-blue-500 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+              className={`payouts-tab ${activeTab === 'history' ? 'active' : ''}`}
             >
-              📋 Payout History
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z"/>
+                <path d="M14 2V8H20"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <line x1="10" y1="9" x2="8" y2="9"/>
+              </svg>
+              Payout History
             </button>
             <button
               onClick={() => setActiveTab('create')}
-              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
-                activeTab === 'create'
-                  ? 'bg-green-500 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+              className={`payouts-tab ${activeTab === 'create' ? 'active' : ''}`}
             >
-              💰 Create Payout
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 5V19M5 12H19"/>
+              </svg>
+              Create Payout
             </button>
           </div>
-        </div>
 
-        {/* Tab Content */}
-        <div className="tab-content">
-          {activeTab === 'history' && (
-            <div className="payout-history-tab">
-              <PayoutsList />
-            </div>
-          )}
+          {/* Tab Content */}
+          <div className="payouts-content">
+            {activeTab === 'history' && (
+              <div className="payouts-history-section">
+                <PayoutsList />
+              </div>
+            )}
 
-          {activeTab === 'create' && (
-            <div className="create-payout-tab">
-              <div className="max-w-2xl mx-auto">
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
-                    <h2 className="text-xl font-semibold text-white">Create New Payout</h2>
-                    <p className="text-green-100 text-sm mt-1">
-                      Request a payout using your available balance
-                    </p>
-                  </div>
-                  
-                  <div className="p-6">
-                    <div className="text-center">
-                      <div className="mb-6">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                          <span className="text-2xl">💰</span>
+            {activeTab === 'create' && (
+              <div className="payouts-create-section">
+                <div className="payouts-create-container">
+                  <div className="payouts-create-card">
+                    <div className="payouts-create-header">
+                      <div className="payouts-create-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                          <path d="M2 17L12 22L22 17"/>
+                          <path d="M2 12L12 17L22 12"/>
+                        </svg>
+                      </div>
+                      <div className="payouts-create-text">
+                        <h2 className="payouts-create-title">Create New Payout</h2>
+                        <p className="payouts-create-description">
+                          Request a payout using your available balance
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="payouts-create-body">
+                      <div className="payouts-create-info">
+                        <div className="payouts-info-icon">
+                          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                            <path d="M2 17L12 22L22 17"/>
+                            <path d="M2 12L12 17L22 12"/>
+                          </svg>
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Instant Payout
-                        </h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="payouts-info-title">Instant Payout</h3>
+                        <p className="payouts-info-description">
                           Create a payout using your full available balance with auto-detected currency
                         </p>
                       </div>
 
-                      <button
-                        onClick={() => {
-                          console.log('🔵 Button clicked - starting payout...');
-                          console.log('🔵 Calling paymentService.createSellerPayout...');
-                          
-                          const payoutData: PayoutRequest = {
-                            amount: 24784,
-                            currency: 'eur',
-                            description: 'Instant payout request',
-                          };
-                          
-                          console.log('🔵 Payout data:', payoutData);
-                          handleCreatePayout(payoutData);
-                        }}
-                        disabled={creating}
-                        className="create-payout-btn text-white py-4 px-8 rounded-lg font-medium inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed min-w-[200px]"
-                      >
-                        {creating ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-3"></div>
-                            Creating Payout...
-                          </>
-                        ) : (
-                          <>
-                            <span className="mr-3">💸</span>
-                            Create Payout
-                          </>
-                        )}
-                      </button>
-
-                      <div className="mt-6 bg-blue-50 rounded-lg p-4 border border-blue-200">
-                        <div className="flex items-start">
-                          <div className="flex-shrink-0">
-                            <span className="text-blue-500 text-lg">ℹ️</span>
-                          </div>
-                          <div className="ml-3 text-left">
-                            <h4 className="text-sm font-medium text-blue-900 mb-1">
-                              Payout Information
-                            </h4>
-                            <ul className="text-sm text-blue-700 space-y-1">
-                              <li>• Uses your full available balance</li>
-                              <li>• Currency is auto-detected</li>
-                              <li>• Funds typically arrive in 1-2 business days</li>
-                              <li>• You'll receive email confirmation when processed</li>
-                            </ul>
-                          </div>
-                        </div>
+                      <div className="payouts-create-actions">
+                        <button
+                          onClick={() => {
+                            console.log('🔵 Button clicked - starting payout...');
+                            console.log('🔵 Calling paymentService.createSellerPayout...');
+                            
+                            const payoutData: PayoutRequest = {
+                              amount: 24784,
+                              currency: 'eur',
+                              description: 'Instant payout request',
+                            };
+                            
+                            console.log('🔵 Payout data:', payoutData);
+                            handleCreatePayout(payoutData);
+                          }}
+                          disabled={creating}
+                          className="payouts-create-button"
+                        >
+                          {creating ? (
+                            <>
+                              <div className="payouts-button-spinner"></div>
+                              Creating Payout...
+                            </>
+                          ) : (
+                            <>
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z"/>
+                                <path d="M2 17L12 22L22 17"/>
+                                <path d="M2 12L12 17L22 12"/>
+                              </svg>
+                              Create Payout
+                            </>
+                          )}
+                        </button>
                       </div>
 
-                      <div className="mt-4 text-center">
+                      <div className="payouts-info-box">
+                        <div className="payouts-info-header">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                          </svg>
+                          <h4 className="payouts-info-heading">Payout Information</h4>
+                        </div>
+                        <ul className="payouts-info-list">
+                          <li>Uses your full available balance</li>
+                          <li>Currency is auto-detected</li>
+                          <li>Funds typically arrive in 1-2 business days</li>
+                          <li>You'll receive email confirmation when processed</li>
+                        </ul>
+                      </div>
+
+                      <div className="payouts-view-link">
                         <button
                           onClick={() => setActiveTab('history')}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
+                          className="payouts-link-button"
                         >
-                          View Previous Payouts →
+                          View Previous Payouts
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                            <polyline points="12,5 19,12 12,19"/>
+                          </svg>
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
         </div>
       </div>
     </Layout>

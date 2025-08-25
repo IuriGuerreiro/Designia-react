@@ -224,7 +224,8 @@ const ProductList: React.FC = () => {
         
         // Handle both paginated and direct array responses
         const apiProducts = productsResponse.results || productsResponse;
-        setProducts(apiProducts);
+        // Ensure apiProducts is an array
+        setProducts(Array.isArray(apiProducts) ? apiProducts : []);
         setCategories(categoriesResponse);
       } catch (err) {
         console.error('Failed to load data:', err);

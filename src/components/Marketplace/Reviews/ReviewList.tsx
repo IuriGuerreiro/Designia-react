@@ -10,6 +10,7 @@ interface ReviewListProps {
   currentUserId?: string;
   onReviewDeleted?: () => void;
   onReviewEdit?: (review: ProductReview) => void;
+  loading?: boolean;
 }
 
 const ReviewList: React.FC<ReviewListProps> = ({ 
@@ -17,7 +18,8 @@ const ReviewList: React.FC<ReviewListProps> = ({
   productSlug,
   currentUserId, 
   onReviewDeleted,
-  onReviewEdit 
+  onReviewEdit,
+  loading = false
 }) => {
   const { t } = useTranslation();
   const [deletingReviewId, setDeletingReviewId] = useState<number | null>(null);
@@ -104,6 +106,41 @@ const ReviewList: React.FC<ReviewListProps> = ({
           <h4>No Reviews Yet</h4>
           <p>Be the first to review this product and help other customers make informed decisions.</p>
         </div>
+      </div>
+    );
+  }
+
+  // Skeleton loading component
+  const ReviewSkeleton = () => (
+    <div className="review-skeleton">
+      <div className="skeleton-header">
+        <div className="skeleton-avatar"></div>
+        <div className="skeleton-info">
+          <div className="skeleton-name"></div>
+          <div className="skeleton-meta">
+            <div className="skeleton-stars"></div>
+            <div className="skeleton-date"></div>
+          </div>
+        </div>
+      </div>
+      <div className="skeleton-content">
+        <div className="skeleton-title"></div>
+        <div className="skeleton-comment">
+          <div className="skeleton-line"></div>
+          <div className="skeleton-line"></div>
+          <div className="skeleton-line short"></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Show skeleton loading if loading is true
+  if (loading) {
+    return (
+      <div className="reviews-list">
+        {[1, 2, 3].map((index) => (
+          <ReviewSkeleton key={index} />
+        ))}
       </div>
     );
   }
