@@ -18,6 +18,7 @@ const ProductDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'specifications'>('details');
 
@@ -60,9 +61,82 @@ const ProductDetailPage: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="product-detail-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading product details...</p>
+        <div className="product-detail-page">
+          {/* Breadcrumb Navigation Skeleton */}
+          <nav className="breadcrumb-nav">
+            <div className="skeleton-line" style={{ width: '80px', height: '16px' }}></div>
+            <span className="breadcrumb-separator">/</span>
+            <div className="skeleton-line" style={{ width: '120px', height: '16px' }}></div>
+          </nav>
+
+          {/* Main Product Content Skeleton */}
+          <div className="product-skeleton">
+            {/* Image Gallery Skeleton */}
+            <div className="skeleton-gallery">
+              <div className="skeleton-main-image"></div>
+              <div className="skeleton-thumbnails">
+                {[1, 2, 3, 4, 5].map((index) => (
+                  <div key={index} className="skeleton-thumbnail"></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Product Information Skeleton */}
+            <div className="skeleton-product-info">
+              <div className="skeleton-title"></div>
+              <div className="skeleton-meta"></div>
+              <div className="skeleton-price"></div>
+              <div className="skeleton-description">
+                <div className="skeleton-description-line"></div>
+                <div className="skeleton-description-line"></div>
+                <div className="skeleton-description-line"></div>
+              </div>
+              <div className="skeleton-actions"></div>
+            </div>
+          </div>
+
+          {/* Product Details Tabs Skeleton */}
+          <div className="skeleton-tabs">
+            <div className="skeleton-tab-navigation"></div>
+            <div className="skeleton-tab-content">
+              <div className="skeleton-detail-item"></div>
+              <div className="skeleton-detail-item"></div>
+              <div className="skeleton-detail-item"></div>
+              <div className="skeleton-detail-item"></div>
+            </div>
+          </div>
+
+          {/* Reviews Section Skeleton */}
+          <div className="reviews-section">
+            <div className="reviews-header">
+              <div className="skeleton-title" style={{ width: '200px', height: '32px' }}></div>
+              <div className="skeleton-meta" style={{ width: '150px', height: '20px' }}></div>
+            </div>
+            <div className="reviews-content">
+              {[1, 2, 3].map((index) => (
+                <div key={index} className="review-skeleton">
+                  <div className="skeleton-header">
+                    <div className="skeleton-avatar"></div>
+                    <div className="skeleton-info">
+                      <div className="skeleton-name"></div>
+                      <div className="skeleton-meta">
+                        <div className="skeleton-stars"></div>
+                        <div className="skeleton-date"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="skeleton-content">
+                    <div className="skeleton-title"></div>
+                    <div className="skeleton-comment">
+                      <div className="skeleton-line"></div>
+                      <div className="skeleton-line"></div>
+                      <div className="skeleton-line short"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </Layout>
     );
@@ -198,6 +272,25 @@ const ProductDetailPage: React.FC = () => {
             <div className="product-description">
               <p>{product.description}</p>
             </div>
+
+            {/* Color Selection */}
+            {product.colors && product.colors.length > 0 && (
+              <div className="color-selection">
+                <label className="color-label">Select Color</label>
+                <div className="color-options">
+                  {product.colors.map((color, index) => (
+                    <button
+                      key={index}
+                      className={`color-option ${selectedColor === color ? 'selected' : ''}`}
+                      style={{ backgroundColor: color.toLowerCase() }}
+                      onClick={() => setSelectedColor(color)}
+                      title={color}
+                      aria-label={`Select ${color} color`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Add to Cart Section */}
             <div className="product-actions">

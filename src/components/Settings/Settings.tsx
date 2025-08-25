@@ -4,7 +4,7 @@ import Layout from '../Layout/Layout';
 import { useAuth } from '../../contexts/AuthContext';
 import TwoFactorAuth from '../Settings/TwoFactorAuth';
 import PasswordSetup from '../Settings/PasswordSetup';
-import './Settings.css';
+import './SettingsMain.css';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -22,19 +22,6 @@ const Settings: React.FC = () => {
         return (
           <>
             <div className="settings-card">
-              <h3>Account Privacy</h3>
-              <div className="privacy-option">
-                <div>
-                  <strong>Private Account</strong>
-                  <p>When your account is private, only people you approve can see your projects and collections.</p>
-                </div>
-                <label className="switch">
-                  <input type="checkbox" checked={isPrivate} onChange={() => setIsPrivate(!isPrivate)} />
-                  <span className="slider round"></span>
-                </label>
-              </div>
-            </div>
-            <div className="settings-card">
               <h3>Two-Factor Authentication</h3>
               <p className="card-description">Add an extra layer of security to your account.</p>
               <TwoFactorAuth />
@@ -50,8 +37,57 @@ const Settings: React.FC = () => {
               {user?.is_oauth_only_user ? (
                 <PasswordSetup />
               ) : (
-                <button className="btn btn-secondary">Change Password</button>
+                <button className="account-btn account-btn-secondary">Change Password</button>
               )}
+            </div>
+            <div className="settings-card">
+              <h3>Account Management</h3>
+              <p className="card-description">Manage your account settings and profile.</p>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <button className="account-btn account-btn-secondary" onClick={() => navigate('/profile/edit')}>
+                  Edit Profile
+                </button>
+                {!user?.is_verified_seller && (
+                  <button className="account-btn account-btn-primary" onClick={() => navigate('/settings/become-seller')}>
+                    Become a Verified Seller
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        );
+      case 'privacy':
+        return (
+          <div className="settings-card">
+            <h3>Account Privacy</h3>
+            <div className="privacy-option">
+              <div>
+                <strong>Private Account</strong>
+                <p>When your account is private, only people you approve can see your projects and collections.</p>
+              </div>
+              <label className="switch">
+                <input type="checkbox" checked={isPrivate} onChange={() => setIsPrivate(!isPrivate)} />
+                <span className="slider round"></span>
+              </label>
+            </div>
+          </div>
+        );
+      case 'legal':
+        return (
+          <>
+            <div className="settings-card">
+              <h3>Privacy Policy</h3>
+              <p className="card-description">Read our privacy policy to understand how we collect, use, and protect your information.</p>
+              <button className="account-btn account-btn-secondary" onClick={() => window.open('/privacy-policy', '_blank')}>
+                View Privacy Policy
+              </button>
+            </div>
+            <div className="settings-card">
+              <h3>Terms of Use</h3>
+              <p className="card-description">Review our terms of service and user agreement.</p>
+              <button className="account-btn account-btn-secondary" onClick={() => window.open('/terms-of-use', '_blank')}>
+                View Terms of Use
+              </button>
             </div>
           </>
         );
@@ -82,31 +118,31 @@ const Settings: React.FC = () => {
                 <div className="language-selector">
                     <button 
                         onClick={() => handleLanguageChange('en')} 
-                        className={`btn ${currentLanguage === 'en' ? 'btn-primary' : 'btn-secondary'}`}
+                        className={`settings-btn ${currentLanguage === 'en' ? 'settings-btn-primary' : 'settings-btn-secondary'}`}
                     >
                         English
                     </button>
                     <button 
                         onClick={() => handleLanguageChange('pt')} 
-                        className={`btn ${currentLanguage === 'pt' ? 'btn-primary' : 'btn-secondary'}`}
+                        className={`settings-btn ${currentLanguage === 'pt' ? 'settings-btn-primary' : 'settings-btn-secondary'}`}
                     >
                         Português
                     </button>
                     <button 
                         onClick={() => handleLanguageChange('fr')} 
-                        className={`btn ${currentLanguage === 'fr' ? 'btn-primary' : 'btn-secondary'}`}
+                        className={`settings-btn ${currentLanguage === 'fr' ? 'settings-btn-primary' : 'settings-btn-secondary'}`}
                     >
                         Français
                     </button>
                     <button 
                         onClick={() => handleLanguageChange('de')} 
-                        className={`btn ${currentLanguage === 'de' ? 'btn-primary' : 'btn-secondary'}`}
+                        className={`settings-btn ${currentLanguage === 'de' ? 'settings-btn-primary' : 'settings-btn-secondary'}`}
                     >
                         Deutsch
                     </button>
                     <button 
                         onClick={() => handleLanguageChange('es')} 
-                        className={`btn ${currentLanguage === 'es' ? 'btn-primary' : 'btn-secondary'}`}
+                        className={`settings-btn ${currentLanguage === 'es' ? 'settings-btn-primary' : 'settings-btn-secondary'}`}
                     >
                         Español
                     </button>
@@ -151,9 +187,6 @@ const Settings: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <button className="btn btn-secondary" style={{ marginTop: '1rem' }} onClick={() => navigate('/profile/edit')}>
-                Edit Profile
-              </button>
             </div>
             <div className="settings-card">
               <h3>Seller Status</h3>
@@ -171,11 +204,6 @@ const Settings: React.FC = () => {
                   </div>
                 )}
               </div>
-              {!user?.is_verified_seller && (
-                <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => navigate('/settings/become-seller')}>
-                  Become a Verified Seller
-                </button>
-              )}
             </div>
           </>
         );
@@ -191,7 +219,8 @@ const Settings: React.FC = () => {
         <div className="settings-tabs">
           <button onClick={() => setActiveTab('account')} className={`tab-button ${activeTab === 'account' ? 'active' : ''}`}>{t('settings.account_tab')}</button>
           <button onClick={() => setActiveTab('security')} className={`tab-button ${activeTab === 'security' ? 'active' : ''}`}>{t('settings.security_tab')}</button>
-          <button className="tab-button" disabled>{t('settings.notifications_tab')}</button>
+          <button onClick={() => setActiveTab('privacy')} className={`tab-button ${activeTab === 'privacy' ? 'active' : ''}`}>{t('settings.privacy_tab')}</button>
+          <button onClick={() => setActiveTab('legal')} className={`tab-button ${activeTab === 'legal' ? 'active' : ''}`}>{t('settings.legal_tab')}</button>
           <button onClick={() => setActiveTab('preferences')} className={`tab-button ${activeTab === 'preferences' ? 'active' : ''}`}>{t('settings.preferences_tab')}</button>
         </div>
         <div className="settings-content">

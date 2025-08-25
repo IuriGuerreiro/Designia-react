@@ -114,7 +114,8 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
     return (
       <div className={`payouts-list ${className || ''}`}>
         <div className="payouts-header">
-          <h2>Your Payouts</h2>
+          <h2>Payout History</h2>
+          <p className="payouts-subtitle">Track all your payout requests and their current status</p>
         </div>
         <div className="payouts-loading">
           <div className="loading-spinner"></div>
@@ -128,7 +129,8 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
     return (
       <div className={`payouts-list ${className || ''}`}>
         <div className="payouts-header">
-          <h2>Your Payouts</h2>
+          <h2>Payout History</h2>
+          <p className="payouts-subtitle">Track all your payout requests and their current status</p>
         </div>
         <div className="payouts-error">
           <p>Error: {error}</p>
@@ -144,7 +146,8 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
     return (
       <div className={`payouts-list ${className || ''}`}>
         <div className="payouts-header">
-          <h2>Your Payouts</h2>
+          <h2>Payout History</h2>
+          <p className="payouts-subtitle">Track all your payout requests and their current status</p>
         </div>
         <div className="payouts-empty">
           <div className="empty-state">
@@ -160,12 +163,15 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
 
   return (
     <div className={`payouts-list ${className || ''}`}>
-      <div className="payouts-header">
-        <h2>Your Payouts</h2>
-        <div className="payouts-stats">
-          <span className="total-count">{pagination.totalCount} total payouts</span>
+              <div className="payouts-header">
+          <div className="payouts-header-content">
+            <h2>Payout History</h2>
+            <p className="payouts-subtitle">Track all your payout requests and their current status</p>
+          </div>
+          <div className="payouts-stats">
+            <span className="total-count">{pagination.totalCount} total payouts</span>
+          </div>
         </div>
-      </div>
 
       <div className="payouts-table-container">
         <table className="payouts-table">

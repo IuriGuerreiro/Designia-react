@@ -35,8 +35,6 @@ const assimilateImageUrl = (imageData: any): any => {
   processedImage.display_url = bestUrl;
   processedImage.url_source = urlSource;
   
-  console.log(`🔍 Category Service - Image URL assimilation - ID: ${processedImage.id}, Source: ${urlSource}, URL: ${bestUrl}`);
-  
   return processedImage;
 };
 
@@ -58,8 +56,7 @@ const assimilateProductImages = (product: any): any => {
     processedProduct.images = assimilateImageUrl(processedProduct.images);
   }
   
-  console.log(`📦 Category Service - Product image assimilation complete - ${processedProduct.name} (ID: ${processedProduct.id})`);
-  
+
   return processedProduct;
 };
 
@@ -151,7 +148,6 @@ export class CategoryService {
       
       // Process and assimilate image URLs for all category products
       if (result && Array.isArray(result) && result.length > 0) {
-        console.log(`🔄 Category Service - Processing ${result.length} category products for image URL assimilation`);
         const processedProducts = result.map((product: any) => assimilateProductImages(product));
         return processedProducts;
       }

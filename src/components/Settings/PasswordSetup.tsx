@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiRequest, API_ENDPOINTS } from '../../config/api';
-import './Settings.css';
+import './PasswordSetup.css';
 
 interface PasswordSetupProps {
   onPasswordSet?: () => void;
@@ -136,7 +136,7 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
           </div>
           
           <button
-            className="btn btn-primary"
+            className="settings-btn settings-btn-primary"
             onClick={handleRequestPasswordSetup}
             disabled={loading}
           >
@@ -210,7 +210,7 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
             <div className="form-actions">
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="settings-btn settings-btn-secondary"
                 onClick={handleBack}
                 disabled={loading}
               >
@@ -218,7 +218,7 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="settings-btn settings-btn-primary"
                 disabled={loading || verificationCode.length !== 6 || !password || !confirmPassword}
               >
                 {loading ? 'Setting Password...' : 'Set Password'}

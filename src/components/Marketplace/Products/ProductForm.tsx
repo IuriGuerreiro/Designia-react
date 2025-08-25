@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { productService, categoryService } from '../../../services';
 import { type Category } from '../../../types/marketplace';
 import { processImagesForUpload, type ImageInfo } from '../../../utils/imageUtils';
+import './ProductForm.css';
 
 const ProductForm: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -418,7 +419,8 @@ const ProductForm: React.FC = () => {
     return (
       <Layout>
         <div className="product-form-page">
-          <div className="loading-message">
+          <div className="product-loading-container">
+            <div className="product-loading-spinner"></div>
             <p>{t('products.form.loading_product')}</p>
           </div>
         </div>
@@ -429,342 +431,503 @@ const ProductForm: React.FC = () => {
   return (
     <Layout>
       <div className="product-form-page">
-        <div className="page-header">
-          <h2>{isEditing ? t('products.edit_product_title') : t('products.create_product_title')}</h2>
-          
+        {/* Header Section - Like MyOrdersPage.tsx */}
+        <div className="product-form-header">
+          <h1 className="product-form-title">{isEditing ? 'Edit Product' : 'Create New Product'}</h1>
+          <p className="product-form-subtitle">
+            {isEditing 
+              ? 'Update your product information and images' 
+              : 'Add a new product to your portfolio with detailed information'
+            }
+          </p>
         </div>
 
+        {/* Error Banner */}
         {error && (
-          <div className="error-message">
-            <p>{error}</p>
+          <div className="error-banner">
+            <div className="error-content">
+              <div className="error-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="15" y1="9" x2="9" y2="15"/>
+                  <line x1="9" y1="9" x2="15" y2="18"/>
+                </svg>
+              </div>
+              <div className="error-text">
+                <h4>Error</h4>
+                <p>{error}</p>
+              </div>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="product-form">
-          {/* Images */}
-          <div className="form-group">
-            <label htmlFor="productImages">{t('products.form.images_label')}</label>
-            <p className="form-hint">{t('products.form.images_hint')}</p>
-            <ImageUpload 
-              files={imageFiles} 
-              setFiles={setImageFiles}
-              maxFiles={10}
-              maxFileSize={10 * 1024 * 1024}
-              allowedExtensions={['jpg', 'jpeg', 'png', 'webp']}
-            />
-            {isProcessingImages && (
-              <div className="processing-images">
-                <p>🔄 Processing images for upload...</p>
+        {/* Main Form */}
+        <div className="product-form-container">
+          <form onSubmit={handleSubmit} className="product-form-form">
+                      {/* Images Section */}
+            <div className="product-form-section">
+              <div className="product-section-header">
+                <div className="product-section-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21,15 16,10 5,21"/>
+                  </svg>
+                </div>
+                <div className="product-section-content">
+                  <h3 className="product-section-title">Product Images</h3>
+                  <p className="product-section-description">Upload high-quality images to showcase your product</p>
+                </div>
               </div>
-            )}
-          </div>
-
-          {/* Basic Info */}
-          <div className="form-section">
-            <h3>{t('products.form.basic_info_title')}</h3>
-            
-            <div className="form-group">
-              <label htmlFor="name">{t('products.form.name_label')} *</label>
-              <input 
-                type="text" 
-                id="name" 
-                value={formData.name} 
-                onChange={e => setFormData({...formData, name: e.target.value})} 
-                required 
-                maxLength={200}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="short_description">{t('products.form.short_description_label')}</label>
-              <input 
-                type="text" 
-                id="short_description" 
-                value={formData.short_description} 
-                onChange={e => setFormData({...formData, short_description: e.target.value})} 
-                maxLength={300}
-                placeholder={t('products.form.short_description_placeholder')}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="description">{t('products.form.full_description_label')} *</label>
-              <textarea 
-                id="description" 
-                value={formData.description} 
-                onChange={e => setFormData({...formData, description: e.target.value})} 
-                required
-                rows={5}
-                placeholder={t('products.form.full_description_placeholder')}
-              />
-            </div>
-          </div>
-
-          {/* Pricing & Inventory */}
-          <div className="form-section">
-            <h3>{t('products.form.pricing_inventory_title')}</h3>
-            
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="price">{t('products.form.price_label')} *</label>
-                <input 
-                  type="number" 
-                  id="price" 
-                  value={formData.price} 
-                  onChange={e => setFormData({...formData, price: e.target.value})} 
-                  required 
-                  min="0.01"
-                  step="0.01"
+              
+              <div className="product-form-group">
+                <ImageUpload 
+                  files={imageFiles} 
+                  setFiles={setImageFiles}
+                  maxFiles={10}
+                  maxFileSize={10 * 1024 * 1024}
+                  allowedExtensions={['jpg', 'jpeg', 'png', 'webp']}
                 />
-              </div>
-              <div className="form-group">
-                <label htmlFor="original_price">{t('products.form.original_price_label')}</label>
-                <input 
-                  type="number" 
-                  id="original_price" 
-                  value={formData.original_price} 
-                  onChange={e => setFormData({...formData, original_price: e.target.value})} 
-                  min="0.01"
-                  step="0.01"
-                  placeholder={t('products.form.original_price_placeholder')}
-                />
+                {isProcessingImages && (
+                  <div className="product-processing-indicator">
+                    <div className="product-processing-spinner"></div>
+                    <span>Processing images for upload...</span>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="stock_quantity">{t('products.form.stock_quantity_label')} *</label>
-                <input 
-                  type="number" 
-                  id="stock_quantity" 
-                  value={formData.stock_quantity} 
-                  onChange={e => setFormData({...formData, stock_quantity: parseInt(e.target.value) || 0})} 
-                  required 
-                  min="0"
-                />
+                      {/* Basic Information */}
+            <div className="product-form-section">
+              <div className="product-section-header">
+                <div className="product-section-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M16 4H18C19.1046 4 20 4.89543 20 6V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6C4 4.89543 4.89543 4 6 4H8"/>
+                    <path d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55228 8.44772 6 9 6H15C15.5523 6 16 5.55228 16 5V3C16 2.44772 15.5523 2 15 2Z"/>
+                  </svg>
+                </div>
+                <div className="product-section-content">
+                  <h3 className="product-section-title">Basic Information</h3>
+                  <p className="product-section-description">Essential details about your product</p>
+                </div>
               </div>
-              <div className="form-group">
-                <label htmlFor="condition">{t('products.form.condition_label')} *</label>
-                <Select
-                  value={formData.condition}
-                  onChange={value => setFormData({...formData, condition: value})}
-                  options={conditionOptions}
-                  placeholder={t('products.form.condition_placeholder')}
-                />
-              </div>
-            </div>
-          </div>
+              
+              <div className="product-form-grid">
+                <div className="product-form-group full-width">
+                  <label htmlFor="name">Product Name *</label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    value={formData.name} 
+                    onChange={e => setFormData({...formData, name: e.target.value})} 
+                    required 
+                    maxLength={200}
+                    placeholder="Enter product name"
+                  />
+                </div>
 
-          {/* Category & Details */}
-          <div className="form-section">
-            <h3>{t('products.form.category_details_title')}</h3>
-            
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="category">{t('products.form.category_label')} *</label>
-                <Select
-                  value={formData.category}
-                  onChange={value => setFormData({...formData, category: value})}
-                  options={categoryOptions}
-                  placeholder={t('products.form.category_placeholder')}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="brand">{t('products.form.brand_label')}</label>
-                <input 
-                  type="text" 
-                  id="brand" 
-                  value={formData.brand} 
-                  onChange={e => setFormData({...formData, brand: e.target.value})} 
-                  placeholder={t('products.form.brand_placeholder')}
-                />
-              </div>
-            </div>
+                <div className="product-form-group full-width">
+                  <label htmlFor="short_description">Short Description</label>
+                  <input 
+                    type="text" 
+                    id="short_description" 
+                    value={formData.short_description} 
+                    onChange={e => setFormData({...formData, short_description: e.target.value})} 
+                    maxLength={300}
+                    placeholder="Brief description (optional)"
+                  />
+                </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="model">{t('products.form.model_label')}</label>
-                <input 
-                  type="text" 
-                  id="model" 
-                  value={formData.model} 
-                  onChange={e => setFormData({...formData, model: e.target.value})} 
-                  placeholder={t('products.form.model_placeholder')}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="materials">{t('products.form.materials_label')}</label>
-                <input 
-                  type="text" 
-                  id="materials" 
-                  value={formData.materials} 
-                  onChange={e => setFormData({...formData, materials: e.target.value})} 
-                  placeholder={t('products.form.materials_placeholder')}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Physical Properties */}
-          <div className="form-section">
-            <h3>{t('products.form.physical_properties_title')}</h3>
-            
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="weight">{t('products.form.weight_label')}</label>
-                <input 
-                  type="number" 
-                  id="weight" 
-                  value={formData.weight} 
-                  onChange={e => setFormData({...formData, weight: e.target.value})} 
-                  min="0"
-                  step="0.1"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="dimensions_length">{t('products.form.length_label')}</label>
-                <input 
-                  type="number" 
-                  id="dimensions_length" 
-                  value={formData.dimensions_length} 
-                  onChange={e => setFormData({...formData, dimensions_length: e.target.value})} 
-                  min="0"
-                  step="0.1"
-                />
+                <div className="product-form-group full-width">
+                  <label htmlFor="description">Full Description *</label>
+                  <textarea 
+                    id="description" 
+                    value={formData.description} 
+                    onChange={e => setFormData({...formData, description: e.target.value})} 
+                    required
+                    rows={4}
+                    placeholder="Detailed description of your product"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="dimensions_width">{t('products.form.width_label')}</label>
-                <input 
-                  type="number" 
-                  id="dimensions_width" 
-                  value={formData.dimensions_width} 
-                  onChange={e => setFormData({...formData, dimensions_width: e.target.value})} 
-                  min="0"
-                  step="0.1"
-                />
+            {/* Pricing & Inventory */}
+            <div className="product-form-section">
+              <div className="product-section-header">
+                <div className="product-section-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5A3.5 3.5 0 0 0 6 8.5V11A3.5 3.5 0 0 0 9.5 14.5H17"/>
+                    <path d="M17 19H9.5A3.5 3.5 0 0 0 6 22.5V25A3.5 3.5 0 0 0 9.5 28.5H17"/>
+                  </svg>
+                </div>
+                <div className="product-section-content">
+                  <h3 className="product-section-title">Pricing & Inventory</h3>
+                  <p className="product-section-description">Set your price and manage stock levels</p>
+                </div>
               </div>
-              <div className="form-group">
-                <label htmlFor="dimensions_height">{t('products.form.height_label')}</label>
-                <input 
-                  type="number" 
-                  id="dimensions_height" 
-                  value={formData.dimensions_height} 
-                  onChange={e => setFormData({...formData, dimensions_height: e.target.value})} 
-                  min="0"
-                  step="0.1"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Colors */}
-          <div className="form-section">
-            <h3>{t('products.form.colors_title')}</h3>
-            <div className="form-group">
-              <Select
-                value=""
-                onChange={handleAddColor}
-                options={colorOptions}
-                placeholder={t('products.form.add_color_placeholder')}
-              />
-              <div className="selected-items">
-                {selectedColors.map(color => (
-                  <div key={color} className="selected-item">
-                    <span 
-                      className="color-indicator" 
-                      style={{ backgroundColor: color.toLowerCase() }}
+              
+              <div className="product-form-grid">
+                <div className="product-form-group">
+                  <label htmlFor="price">Price *</label>
+                  <div className="product-input-with-icon">
+                    <span className="product-currency-symbol">$</span>
+                    <input 
+                      type="number" 
+                      id="price" 
+                      value={formData.price} 
+                      onChange={e => setFormData({...formData, price: e.target.value})} 
+                      required 
+                      min="0.01"
+                      step="0.01"
+                      placeholder="0.00"
                     />
-                    {color}
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveColor(color)}
-                      className="remove-btn"
-                    >
-                      ×
-                    </button>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
+                </div>
 
-          {/* Tags */}
-          <div className="form-section">
-            <h3>{t('products.form.tags_title')}</h3>
-            <div className="form-group">
-              <div className="tag-input-container">
-                <input 
-                  type="text" 
-                  value={tagInput} 
-                  onChange={e => setTagInput(e.target.value)}
-                  onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                  placeholder={t('products.form.tags_placeholder')}
-                />
-                <button type="button" onClick={handleAddTag}>{t('products.form.add_tag_button')}</button>
-              </div>
-              <div className="selected-items">
-                {formData.tags.map(tag => (
-                  <div key={tag} className="selected-item">
-                    {tag}
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveTag(tag)}
-                      className="remove-btn"
-                    >
-                      ×
-                    </button>
+                <div className="product-form-group">
+                  <label htmlFor="original_price">Original Price</label>
+                  <div className="product-input-with-icon">
+                    <span className="product-currency-symbol">$</span>
+                    <input 
+                      type="number" 
+                      id="original_price" 
+                      value={formData.original_price} 
+                      onChange={e => setFormData({...formData, original_price: e.target.value})} 
+                      min="0.01"
+                      step="0.01"
+                      placeholder="0.00"
+                    />
                   </div>
-                ))}
+                </div>
+
+                <div className="product-form-group">
+                  <label htmlFor="stock_quantity">Stock Quantity *</label>
+                  <input 
+                    type="number" 
+                    id="stock_quantity" 
+                    value={formData.stock_quantity} 
+                    onChange={e => setFormData({...formData, stock_quantity: parseInt(e.target.value) || 0})} 
+                    required 
+                    min="0"
+                    placeholder="0"
+                  />
+                </div>
+
+                <div className="product-form-group">
+                  <label htmlFor="condition">Condition *</label>
+                  <Select
+                    value={formData.condition}
+                    onChange={value => setFormData({...formData, condition: value})}
+                    options={conditionOptions}
+                    placeholder="Select condition"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Options */}
-          <div className="form-section">
-            <h3>{t('products.form.options_title')}</h3>
-            <div className="form-group checkbox-group">
-              <label>
-                <input 
-                  type="checkbox" 
-                  checked={formData.is_featured} 
-                  onChange={e => setFormData({...formData, is_featured: e.target.checked})} 
-                />
-                {t('products.form.featured_label')}
-              </label>
-            </div>
-            <div className="form-group checkbox-group">
-              <label>
-                <input 
-                  type="checkbox" 
-                  checked={formData.is_digital} 
-                  onChange={e => setFormData({...formData, is_digital: e.target.checked})} 
-                />
-                {t('products.form.digital_label')}
-              </label>
-            </div>
-          </div>
+            {/* Category & Details */}
+            <div className="product-form-section">
+              <div className="product-section-header">
+                <div className="product-section-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 3H21V7H3V3Z"/>
+                    <path d="M3 11H21V15H3V11Z"/>
+                    <path d="M3 19H21V23H3V19Z"/>
+                  </svg>
+                </div>
+                <div className="product-section-content">
+                  <h3 className="product-section-title">Category & Details</h3>
+                  <p className="product-section-description">Organize and categorize your product</p>
+                </div>
+              </div>
+              
+              <div className="product-form-grid">
+                <div className="product-form-group">
+                  <label htmlFor="category">Category *</label>
+                  <Select
+                    value={formData.category}
+                    onChange={value => setFormData({...formData, category: value})}
+                    options={categoryOptions}
+                    placeholder="Select category"
+                  />
+                </div>
 
-          {/* Submit Buttons */}
-          <div className="form-actions">
-            <button 
-              type="button" 
-              onClick={() => navigate('/my-products')} 
-              className="btn btn-secondary"
-            >
-              {t('products.form.cancel_button')}
-            </button>
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="btn btn-primary"
-            >
-              {loading ? t('products.form.saving_button') : (isEditing ? t('products.form.update_button') : t('products.form.create_button'))}
-            </button>
-          </div>
-        </form>
+                <div className="product-form-group">
+                  <label htmlFor="brand">Brand</label>
+                  <input 
+                    type="text" 
+                    id="brand" 
+                    value={formData.brand} 
+                    onChange={e => setFormData({...formData, brand: e.target.value})} 
+                    placeholder="Product brand"
+                  />
+                </div>
+
+                <div className="product-form-group">
+                  <label htmlFor="model">Model</label>
+                  <input 
+                    type="text" 
+                    id="model" 
+                    value={formData.model} 
+                    onChange={e => setFormData({...formData, model: e.target.value})} 
+                    placeholder="Product model"
+                  />
+                </div>
+
+                <div className="product-form-group">
+                  <label htmlFor="materials">Materials</label>
+                  <input 
+                    type="text" 
+                    id="materials" 
+                    value={formData.materials} 
+                    onChange={e => setFormData({...formData, materials: e.target.value})} 
+                    placeholder="e.g., Wood, Metal, Fabric"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Physical Properties */}
+            <div className="product-form-section">
+              <div className="product-section-header">
+                <div className="product-section-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 16V8A2 2 0 0 0 19 6H5A2 2 0 0 0 3 8V16A2 2 0 0 0 5 18H19A2 2 0 0 0 21 16Z"/>
+                    <path d="M7 2V22"/>
+                    <path d="M17 2V22"/>
+                  </svg>
+                </div>
+                <div className="product-section-content">
+                  <h3 className="product-section-title">Physical Properties</h3>
+                  <p className="product-section-description">Dimensions and weight information</p>
+                </div>
+              </div>
+              
+              <div className="product-form-grid">
+                <div className="product-form-group">
+                  <label htmlFor="weight">Weight (kg)</label>
+                  <input 
+                    type="number" 
+                    id="weight" 
+                    value={formData.weight} 
+                    onChange={e => setFormData({...formData, weight: e.target.value})} 
+                    min="0"
+                    step="0.1"
+                    placeholder="0.0"
+                  />
+                </div>
+
+                <div className="product-form-group">
+                  <label htmlFor="dimensions_length">Length (cm)</label>
+                  <input 
+                    type="number" 
+                    id="dimensions_length" 
+                    value={formData.dimensions_length} 
+                    onChange={e => setFormData({...formData, dimensions_length: e.target.value})} 
+                    min="0"
+                    step="0.1"
+                    placeholder="0.0"
+                  />
+                </div>
+
+                <div className="product-form-group">
+                  <label htmlFor="dimensions_width">Width (cm)</label>
+                  <input 
+                    type="number" 
+                    id="dimensions_width" 
+                    value={formData.dimensions_width} 
+                    onChange={e => setFormData({...formData, dimensions_width: e.target.value})} 
+                    min="0"
+                    step="0.1"
+                    placeholder="0.0"
+                  />
+                </div>
+
+                <div className="product-form-group">
+                  <label htmlFor="dimensions_height">Height (cm)</label>
+                  <input 
+                    type="number" 
+                    id="dimensions_height" 
+                    value={formData.dimensions_height} 
+                    onChange={e => setFormData({...formData, dimensions_height: e.target.value})} 
+                    min="0"
+                    step="0.1"
+                    placeholder="0.0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Colors */}
+            <div className="product-form-section">
+              <div className="product-section-header">
+                <div className="product-section-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="13.5" cy="6.5" r="1.5"/>
+                    <circle cx="17.5" cy="10.5" r="1.5"/>
+                    <circle cx="8.5" cy="7.5" r="1.5"/>
+                    <circle cx="6.5" cy="12.5" r="1.5"/>
+                    <path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2Z"/>
+                  </svg>
+                </div>
+                <div className="product-section-content">
+                  <h3 className="product-section-title">Available Colors</h3>
+                  <p className="product-section-description">Select the colors available for this product</p>
+                </div>
+              </div>
+              
+              <div className="product-form-group">
+                <Select
+                  value=""
+                  onChange={handleAddColor}
+                  options={colorOptions}
+                  placeholder="Add a color"
+                />
+                <div className="product-selected-colors">
+                  {selectedColors.map(color => (
+                    <div key={color} className="product-color-chip">
+                      <span 
+                        className="product-color-indicator" 
+                        style={{ backgroundColor: color.toLowerCase() }}
+                      />
+                      <span className="product-color-name">{color}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveColor(color)}
+                        className="product-remove-color-btn"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div className="product-form-section">
+              <div className="product-section-header">
+                <div className="product-section-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20.59 13.41L13.42 20.58C13.2343 20.766 13.0137 20.9135 12.7709 21.0141C12.5281 21.1148 12.2682 21.1666 12.005 21.1666C11.7418 21.1666 11.4819 21.1148 11.2391 21.0141C10.9963 20.9135 10.7757 20.766 10.59 20.58L2 12V2H12L20.59 10.59C20.9625 10.9625 21.1666 11.4645 21.1666 12C21.1666 12.5355 20.9625 13.0375 20.59 13.41Z"/>
+                  </svg>
+                </div>
+                <div className="product-section-content">
+                  <h3 className="product-section-title">Tags</h3>
+                  <p className="product-section-description">Add relevant tags to help customers find your product</p>
+                </div>
+              </div>
+              
+              <div className="product-form-group">
+                <div className="product-tag-input-container">
+                  <input 
+                    type="text" 
+                    value={tagInput} 
+                    onChange={e => setTagInput(e.target.value)}
+                    onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                    placeholder="Type a tag and press Enter"
+                  />
+                  <button type="button" onClick={handleAddTag} className="product-add-tag-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                  </button>
+                </div>
+                <div className="product-selected-tags">
+                  {formData.tags.map(tag => (
+                    <div key={tag} className="product-tag-chip">
+                      <span className="product-tag-text">{tag}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => handleRemoveTag(tag)}
+                        className="product-remove-tag-btn"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Options */}
+            <div className="product-form-section">
+              <div className="product-section-header">
+                <div className="product-section-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15A1.65 1.65 0 0 0 18 14.5C18 13.5 19 12 19 12C19 12 18 10.5 18 9.5A1.65 1.65 0 0 0 16.6 9C16.6 9 16 9.5 16 10.5C16 11.5 16.6 12 16.6 12C16.6 12 16 12.5 16 13.5C16 14.5 16.6 15 16.6 15"/>
+                    <path d="M7.4 15A1.65 1.65 0 0 1 9 14.5C9 13.5 8 12 8 12C8 12 9 10.5 9 9.5A1.65 1.65 0 0 1 10.4 9C10.4 9 11 9.5 11 10.5C11 11.5 10.4 12 10.4 12C10.4 12 11 12.5 11 13.5C11 14.5 10.4 15 10.4 15"/>
+                  </svg>
+                </div>
+                <div className="product-section-content">
+                  <h3 className="product-section-title">Product Options</h3>
+                  <p className="product-section-description">Additional settings for your product</p>
+                </div>
+              </div>
+              
+              <div className="product-form-grid">
+                <div className="product-form-group product-checkbox-group">
+                  <label className="product-checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      checked={formData.is_featured} 
+                      onChange={e => setFormData({...formData, is_featured: e.target.checked})} 
+                    />
+                    <span className="product-checkmark"></span>
+                    <span className="product-label-text">Featured Product</span>
+                  </label>
+                </div>
+                
+                <div className="product-form-group product-checkbox-group">
+                  <label className="product-checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      checked={formData.is_digital} 
+                      onChange={e => setFormData({...formData, is_digital: e.target.checked})} 
+                    />
+                    <span className="product-checkmark"></span>
+                    <span className="product-label-text">Digital Product</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Form Actions */}
+            <div className="product-form-actions">
+              <button 
+                type="button" 
+                onClick={() => navigate('/my-products')} 
+                className="product-form-btn product-form-btn-secondary"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="product-form-btn product-form-btn-primary"
+              >
+                {loading ? (
+                  <>
+                    <div className="product-form-btn-spinner"></div>
+                    Saving...
+                  </>
+                ) : (
+                  isEditing ? 'Update Product' : 'Create Product'
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </Layout>
   );

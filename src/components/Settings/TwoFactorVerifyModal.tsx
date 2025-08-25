@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest, API_ENDPOINTS } from '../../config/api';
+import './TwoFactorVerifyModal.css';
 
 interface TwoFactorVerifyModalProps {
   action: 'enable' | 'disable';
@@ -130,7 +131,7 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({
             <div className="modal-actions">
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="settings-btn settings-btn-secondary"
                 onClick={onCancel}
                 disabled={loading}
               >
@@ -138,7 +139,7 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="settings-btn settings-btn-primary"
                 disabled={loading || code.length !== 6 || timeLeft <= 0}
               >
                 {loading ? 'Verifying...' : 'Verify Code'}

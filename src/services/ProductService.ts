@@ -35,8 +35,7 @@ const assimilateImageUrl = (imageData: any): any => {
   processedImage.display_url = bestUrl;
   processedImage.url_source = urlSource;
   
-  console.log(`🔍 Image URL assimilation - ID: ${processedImage.id}, Source: ${urlSource}, URL: ${bestUrl}`);
-  
+
   return processedImage;
 };
 
@@ -58,8 +57,7 @@ const assimilateProductImages = (product: any): any => {
     processedProduct.images = assimilateImageUrl(processedProduct.images);
   }
   
-  console.log(`📦 Product image assimilation complete - ${processedProduct.name} (ID: ${processedProduct.id})`);
-  
+
   return processedProduct;
 };
 
@@ -108,8 +106,7 @@ export class ProductService {
       const products = result?.results || result || [];
       
       if (products.length > 0) {
-        console.log(`🔄 Processing ${products.length} products for image URL assimilation`);
-        
+
         // Process each product's images
         const processedProducts = products.map((product: any) => assimilateProductImages(product));
         
@@ -122,19 +119,8 @@ export class ProductService {
         
         // Debug the first product's processed image data
         const firstProduct = processedProducts[0];
-        console.log('=== FIRST PRODUCT IMAGE DEBUG (AFTER ASSIMILATION) ===');
-        console.log('Product name:', firstProduct.name);
-        console.log('Product ID:', firstProduct.id);
-        console.log('Primary image processed data:', firstProduct.primary_image);
-        
-        if (firstProduct.primary_image) {
-          console.log('Primary image fields:');
-          console.log('  - display_url:', firstProduct.primary_image.display_url);
-          console.log('  - url_source:', firstProduct.primary_image.url_source);
-          console.log('  - presigned_url:', firstProduct.primary_image.presigned_url);
-          console.log('  - image_url:', firstProduct.primary_image.image_url);
-          console.log('  - image:', firstProduct.primary_image.image);
-        } else {
+
+        if (!firstProduct.primary_image) {
           console.log('❌ No primary_image found in API response');
         }
       }
@@ -400,7 +386,6 @@ export class ProductService {
       
       // Process and assimilate image URLs for all user's products
       if (result && Array.isArray(result) && result.length > 0) {
-        console.log(`🔄 Processing ${result.length} user products for image URL assimilation`);
         const processedProducts = result.map((product: any) => assimilateProductImages(product));
         return processedProducts;
       }
