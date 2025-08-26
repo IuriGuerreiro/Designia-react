@@ -566,6 +566,103 @@
   border: 1px solid var(--designia-premium);
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(10, 10, 10, 0.08);
+  margin-bottom: var(--space-2xl);
+}
+
+/* Seller Profile Section */
+.seller-profile-section {
+  background: var(--designia-white);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(107, 114, 128, 0.15);
+  border: 1px solid var(--designia-dark-silver);
+  overflow: hidden;
+  margin-bottom: var(--space-2xl);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2xl);
+  background: linear-gradient(135deg, var(--designia-white) 0%, var(--designia-platinum) 100%);
+  border-bottom: 1px solid var(--designia-dark-silver);
+}
+
+.section-title {
+  color: var(--designia-deep);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  margin: 0;
+}
+
+.view-full-profile-btn {
+  background: var(--designia-deep);
+  color: var(--designia-white);
+  padding: var(--space-md) var(--space-xl);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: var(--space-md);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.view-full-profile-btn:hover {
+  background: var(--designia-charcoal);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.3);
+}
+
+/* Compact Seller View Styles */
+.compact-seller-view {
+  max-width: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.compact-seller-view .seller-header {
+  padding: var(--space-xl);
+  background: var(--designia-white);
+}
+
+.compact-seller-view .seller-avatar {
+  width: 80px;
+  height: 80px;
+}
+
+.compact-seller-view .seller-name {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.compact-seller-view .seller-bio {
+  max-width: none;
+}
+
+.compact-seller-view .seller-completion {
+  min-width: 80px;
+}
+
+.compact-seller-view .completion-bar {
+  width: 60px;
+}
+
+/* No Seller Info */
+.no-seller-info {
+  padding: var(--space-2xl);
+  text-align: center;
+  color: var(--designia-steel);
+}
+
+.no-seller-info p {
+  margin: 0;
+  font-size: 16px;
+  font-style: italic;
 }
 
 .tab-navigation {

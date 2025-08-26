@@ -109,6 +109,19 @@ export const API_ENDPOINTS = {
 
   // Metrics
   METRICS: `${API_BASE_URL}/api/marketplace/metrics/`,
+
+  // Seller endpoints
+  SELLER_PROFILE: (sellerId: number) => `${API_BASE_URL}/api/auth/seller/${sellerId}/`,
+
+  // Chat endpoints
+  CHAT: `${API_BASE_URL}/api/chat/`,
+  CHAT_DETAIL: (chatId: number) => `${API_BASE_URL}/api/chat/${chatId}/`,
+  CHAT_CREATE: `${API_BASE_URL}/api/chat/`,
+  CHAT_MESSAGES: (chatId: number) => `${API_BASE_URL}/api/chat/${chatId}/messages/`,
+  CHAT_SEND_MESSAGE: (chatId: number) => `${API_BASE_URL}/api/chat/${chatId}/messages/`,
+  CHAT_MARK_READ: (chatId: number) => `${API_BASE_URL}/api/chat/${chatId}/messages/mark-read/`,
+  CHAT_UPLOAD_IMAGE: `${API_BASE_URL}/api/chat/upload-image/`,
+  CHAT_SEARCH_USERS: `${API_BASE_URL}/api/chat/search-users/`,
 };
 
 // API utility functions

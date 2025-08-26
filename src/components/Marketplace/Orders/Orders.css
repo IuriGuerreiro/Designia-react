@@ -555,6 +555,90 @@
   line-height: 1.5;
 }
 
+/* Seller Preview Section */
+.seller-preview {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--premium-silver);
+}
+
+.seller-preview-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.seller-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--steel-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.seller-name-link {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--deep-black);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.seller-name-link:hover {
+  color: var(--charcoal-black);
+  text-decoration: underline;
+}
+
+/* Mini Seller View Styles */
+.mini-seller-view {
+  max-width: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  background: var(--platinum-gray) !important;
+}
+
+.mini-seller-view .seller-header {
+  padding: var(--space-md) !important;
+  background: var(--platinum-gray) !important;
+  border-bottom: 1px solid var(--premium-silver) !important;
+}
+
+.mini-seller-view .seller-avatar {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.mini-seller-view .seller-name {
+  font-size: 16px !important;
+  line-height: 20px !important;
+}
+
+.mini-seller-view .seller-bio {
+  font-size: 14px !important;
+  max-width: none !important;
+}
+
+.mini-seller-view .seller-completion {
+  min-width: 60px !important;
+}
+
+.mini-seller-view .completion-bar {
+  width: 40px !important;
+}
+
+.mini-seller-view .completion-label {
+  font-size: 12px !important;
+}
+
+.mini-seller-view .completion-percentage {
+  font-size: 12px !important;
+}
+
 /* Card Footer */
 .card-footer {
   display: flex;

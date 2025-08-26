@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
 import ImageUpload from '../../Common/ImageUpload';
 import Select from '../../Common/Select';
-import './Forms.css';
+import './BecomeSellerForm.css';
 
 const sellerTypeOptions = [
   { value: 'manufacturer', label: 'Manufacturer' },
@@ -27,19 +27,35 @@ const BecomeSellerForm: React.FC = () => {
 
   return (
     <Layout>
-      <div className="form-page-container">
-        <h2>Become a Verified Seller</h2>
-        <p>Tell us about your business. Your application will be reviewed by our team to ensure the quality of our marketplace.</p>
+      <div className="become-seller-page">
+        <div className="seller-form-header">
+          <h1 className="heading-lg">Become a Verified Seller</h1>
+          <p className="body-lg">
+            Tell us about your business. Your application will be reviewed by our team to ensure the quality of our marketplace.
+          </p>
+        </div>
         
-        <form onSubmit={handleSubmit} className="standard-form">
-          <fieldset>
-            <legend>Business Information</legend>
-            <div className="form-group">
-              <label htmlFor="businessName">Business Name</label>
-              <input type="text" id="businessName" name="businessName" required />
+        <form onSubmit={handleSubmit} className="premium-form">
+          <div className="form-section">
+            <div className="seller-section-header">
+              <h2 className="heading-md">Business Information</h2>
+              <p className="body-md">Help us understand your business and expertise</p>
             </div>
+            
+            <div className="seller-form-group">
+              <label htmlFor="businessName" className="form-label">Business Name</label>
+              <input 
+                type="text" 
+                id="businessName" 
+                name="businessName" 
+                className="input-field" 
+                required 
+                placeholder="Enter your business name"
+              />
+            </div>
+            
             <div className="form-group">
-              <label htmlFor="sellerType">What best describes you?</label>
+              <label htmlFor="sellerType" className="form-label">What best describes you?</label>
               <Select
                 options={sellerTypeOptions}
                 value={sellerType}
@@ -47,32 +63,72 @@ const BecomeSellerForm: React.FC = () => {
                 placeholder="Select a type..."
               />
             </div>
-             <div className="form-group">
-              <label htmlFor="motivation">Why do you want to sell on Designia?</label>
-              <textarea id="motivation" name="motivation" rows={5} placeholder="Describe your passion for furniture, your business mission, and why you're a good fit for our platform." required></textarea>
+            
+            <div className="form-group">
+              <label htmlFor="motivation" className="form-label">Why do you want to sell on Designia?</label>
+              <textarea 
+                id="motivation" 
+                name="motivation" 
+                rows={5} 
+                className="input-field textarea-field"
+                placeholder="Describe your passion for furniture, your business mission, and why you're a good fit for our platform." 
+                required
+              ></textarea>
             </div>
-          </fieldset>
+          </div>
 
-          <fieldset>
-            <legend>Verification & Portfolio</legend>
-            <div className="form-group">
-              <label htmlFor="portfolio">Portfolio or Website Link</label>
-              <input type="url" id="portfolio" name="portfolio" placeholder="https://your-brand.com" required />
+          <div className="form-section">
+            <div className="seller-section-header">
+              <h2 className="heading-md">Verification & Portfolio</h2>
+              <p className="body-md">Showcase your work and establish credibility</p>
             </div>
-             <div className="form-group">
-              <label htmlFor="socialMedia">Social Media (Optional)</label>
-              <input type="url" id="socialMedia" name="socialMedia" placeholder="https://instagram.com/your-brand" />
-            </div>
+            
             <div className="form-group">
-              <label htmlFor="workshopPhotos">Photos of Your Workshop/Products</label>
+              <label htmlFor="portfolio" className="form-label">Portfolio or Website Link</label>
+              <input 
+                type="url" 
+                id="portfolio" 
+                name="portfolio" 
+                className="input-field" 
+                placeholder="https://your-brand.com" 
+                required 
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="socialMedia" className="form-label">Social Media (Optional)</label>
+              <input 
+                type="url" 
+                id="socialMedia" 
+                name="socialMedia" 
+                className="input-field" 
+                placeholder="https://instagram.com/your-brand" 
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="workshopPhotos" className="form-label">Photos of Your Workshop/Products</label>
               <p className="form-hint">Please upload at least 3 photos. This helps us verify your work.</p>
-              <ImageUpload files={workshopFiles} setFiles={setWorkshopFiles} />
+              <div className="upload-container">
+                <ImageUpload files={workshopFiles} setFiles={setWorkshopFiles} />
+              </div>
             </div>
-          </fieldset>
+          </div>
 
-          <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={() => navigate('/settings')}>Cancel</button>
-            <button type="submit" className="btn btn-primary">Submit Application</button>
+          <div className="seller-form-actions">
+            <button 
+              type="button" 
+              className="seller-btn seller-btn-secondary" 
+              onClick={() => navigate('/settings')}
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className="seller-btn seller-btn-primary"
+            >
+              Submit Application
+            </button>
           </div>
         </form>
       </div>

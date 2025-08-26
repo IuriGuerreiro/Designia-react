@@ -1,6 +1,7 @@
 import React from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { ChatProvider } from './contexts/ChatContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -65,16 +66,17 @@ import Settings from './components/Settings/Settings';
 
 // Pages Components  
 import EditProfile from './components/Pages/Profile/EditProfile';
-import UserProfileScreen from './components/Pages/UserProfileScreen';
 
+// Chat Components
+import Chat from './components/chat/Chat';
 // Settings Components (moved from Pages)
 import BecomeSellerForm from './components/Settings/Forms/BecomeSellerForm';
+import SellerProfilePage from './components/Marketplace/Seller/SellerProfilePage';
 
-// SocialMedia Components
-import SocialMediaScreen from './components/SocialMedia/SocialMediaScreen';
-import PostDetailScreen from './components/SocialMedia/PostDetailScreen';
+
 import NotFound from './components/NotFound/NotFound';
 import './App.css';
+//stripe testing REMOVE AFTER TESTING
 import StripeOnboarding from './components/Marketplace/Stripe/StripeOnboarding';
 import StripeHolds from './pages/StripeHolds';
 import Payouts from './pages/Payouts';
@@ -119,6 +121,8 @@ const AppContent: React.FC = () => {
           <Route path="/settings" element={<Settings />} />
           <Route path="/settings/become-seller" element={<BecomeSellerForm />} />
           <Route path="/profile/edit" element={<EditProfile />} />
+          <Route path="/seller/:sellerId" element={<SellerProfilePage />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/metrics" element={<ProductMetricsPage />} />
           <Route path="/metrics/product/:productId" element={<ProductMetricsPage />} />
@@ -129,9 +133,6 @@ const AppContent: React.FC = () => {
           <Route path="/checkout" element={<SimpleCheckoutPage />} />
           <Route path="/checkout-success" element={<CheckoutSuccess />} />
           <Route path="/payment" element={<PaymentPage />} />
-          <Route path="/social-media" element={<SocialMediaScreen />} />
-          <Route path="/social-media/:postId" element={<PostDetailScreen />} />
-          <Route path="/users/:userId" element={<UserProfileScreen />} />
           <Route path="/stripe-onboarding" element={<StripeOnboarding />} />
           <Route path="/stripe-holds" element={<StripeHolds />} />
           <Route path="/payouts" element={<Payouts />} />
@@ -148,11 +149,13 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <CartProvider>
-            <LanguageProvider>
-              <AppContent />
-            </LanguageProvider>
-          </CartProvider>
+          <ChatProvider>
+            <CartProvider>
+              <LanguageProvider>
+                <AppContent />
+              </LanguageProvider>
+            </CartProvider>
+          </ChatProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

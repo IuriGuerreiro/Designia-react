@@ -1,0 +1,391 @@
+/* ViewSellerAccount.css - Designia Design System Implementation */
+
+.seller-account-view {
+  background: var(--designia-white, #FFFFFF);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(107, 114, 128, 0.15);
+  border: 1px solid var(--designia-silver, #9CA3AF);
+  overflow: hidden;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Header Section */
+.seller-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xl);
+  padding: var(--space-2xl);
+  background: linear-gradient(135deg, var(--designia-white, #FFFFFF) 0%, var(--designia-platinum, #F5F5F5) 100%);
+  border-bottom: 1px solid var(--designia-silver, #9CA3AF);
+}
+
+.seller-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.seller-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid var(--designia-white, #FFFFFF);
+  box-shadow: 0 4px 16px rgba(10, 10, 10, 0.15);
+  background: var(--designia-platinum, #F5F5F5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seller-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.seller-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--designia-deep, #0A0A0A) 0%, var(--designia-charcoal, #1A1A1A) 100%);
+  color: var(--designia-white, #FFFFFF);
+  font-size: 48px;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seller-verification-badge {
+  margin-top: var(--space-xs);
+}
+
+.verified-badge {
+  background: var(--designia-success, #10B981);
+  color: var(--designia-white, #FFFFFF);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 20px;
+  font-size: var(--body-sm, 14px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.seller-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.seller-name {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.seller-username {
+  color: var(--designia-steel, #6B7280);
+  font-size: var(--body-md, 16px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.seller-bio {
+  color: var(--designia-slate, #374151);
+  font-size: var(--body-md, 16px);
+  line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  max-width: 400px;
+}
+
+
+
+/* Section Styling */
+.seller-section {
+  padding: var(--space-2xl);
+  border-bottom: 1px solid var(--designia-platinum, #F5F5F5);
+}
+
+.seller-section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 var(--space-lg) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  background: var(--designia-platinum, #F5F5F5);
+  border-radius: 8px;
+  border: 1px solid var(--designia-silver, #9CA3AF);
+}
+
+.info-label {
+  color: var(--designia-steel, #6B7280);
+  font-size: var(--body-sm, 14px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-value {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: var(--body-md, 16px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+}
+
+.info-link {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: var(--body-md, 16px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.info-link:hover {
+  color: var(--designia-charcoal, #1A1A1A);
+  text-decoration: underline;
+}
+
+/* Social Media Grid */
+.social-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-md);
+}
+
+.social-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--designia-white, #FFFFFF);
+  border: 2px solid var(--designia-platinum, #E5E7EB);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.social-link:hover {
+  border-color: var(--designia-deep, #0A0A0A);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.15);
+}
+
+.social-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.social-label {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: var(--body-sm, 14px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Platform-specific social media styling */
+.social-link.instagram:hover {
+  border-color: #E4405F;
+  box-shadow: 0 4px 12px rgba(228, 64, 95, 0.2);
+}
+
+.social-link.twitter:hover {
+  border-color: #1DA1F2;
+  box-shadow: 0 4px 12px rgba(29, 161, 242, 0.2);
+}
+
+.social-link.linkedin:hover {
+  border-color: #0077B5;
+  box-shadow: 0 4px 12px rgba(0, 119, 181, 0.2);
+}
+
+.social-link.facebook:hover {
+  border-color: #1877F2;
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.2);
+}
+
+/* Member Since */
+.member-since {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--designia-platinum, #F5F5F5);
+  border-radius: 8px;
+  border: 1px solid var(--designia-silver, #9CA3AF);
+}
+
+.member-label {
+  color: var(--designia-steel, #6B7280);
+  font-size: var(--body-sm, 14px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.member-date {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: var(--body-md, 16px);
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .seller-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-lg);
+    padding: var(--space-xl);
+  }
+  
+  .seller-avatar {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .seller-name {
+    font-size: 28px;
+    line-height: 36px;
+  }
+  
+  .seller-bio {
+    max-width: none;
+  }
+  
+  .seller-completion {
+    min-width: 100px;
+  }
+  
+  .completion-bar {
+    width: 80px;
+  }
+  
+  .social-media-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-sm);
+  }
+  
+  .social-link {
+    padding: var(--space-md);
+  }
+  
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .seller-account-view {
+    border-radius: 12px;
+    margin: var(--space-md);
+  }
+  
+  .seller-header {
+    padding: var(--space-lg);
+  }
+  
+  .seller-avatar {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .seller-name {
+    font-size: 24px;
+    line-height: 32px;
+  }
+  
+  .seller-section {
+    padding: var(--space-lg);
+  }
+  
+  .section-title {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  
+  .social-media-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .social-link {
+    padding: var(--space-sm);
+  }
+  
+  .social-icon {
+    font-size: 20px;
+  }
+  
+  .social-label {
+    font-size: 12px;
+  }
+}
+
+/* CSS Custom Properties for Design System Colors */
+:root {
+  --designia-deep: #0A0A0A;
+  --designia-white: #FFFFFF;
+  --designia-charcoal: #1A1A1A;
+  --designia-platinum: #F5F5F5;
+  --designia-steel: #6B7280;
+  --designia-slate: #374151;
+  --designia-silver: #9CA3AF;
+  --designia-success: #10B981;
+  --designia-warning: #F59E0B;
+  --designia-error: #EF4444;
+  
+  /* Spacing Scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  
+  /* Typography Scale */
+  --body-sm: 14px;
+  --body-md: 16px;
+  --body-lg: 18px;
+  --label: 14px;
+  --button: 16px;
+}

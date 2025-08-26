@@ -203,6 +203,13 @@ const Settings: React.FC = () => {
                     <p>{user?.seller_type || 'N/A'}</p>
                   </div>
                 )}
+                {!user?.is_verified_seller && (
+                  <div className="info-group">
+                    <button className="account-btn account-btn-primary" onClick={() => navigate('/settings/become-seller')}>
+                      Become a Verified Seller
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </>
