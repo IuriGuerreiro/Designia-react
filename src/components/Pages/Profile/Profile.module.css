@@ -1,0 +1,443 @@
+/* Profile.module.css - Designia Design System Implementation */
+
+.editProfilePage {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+.profileFormHeader {
+  text-align: center;
+  margin-bottom: var(--space-3xl);
+  padding: var(--space-2xl) 0;
+}
+
+.profileFormHeader h1 {
+  color: var(--designia-deep, #0A0A0A);
+  margin-bottom: var(--space-md);
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+}
+
+.profileFormHeader p {
+  color: var(--designia-slate, #374151);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.profileCompletion {
+  margin-top: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--designia-platinum, #F5F5F5);
+  border-radius: 12px;
+  border: 1px solid var(--designia-silver, #9CA3AF);
+}
+
+.completionText {
+  display: block;
+  color: var(--designia-slate, #374151);
+  font-weight: 500;
+  margin-bottom: var(--space-sm);
+  font-size: var(--body-md, 16px);
+}
+
+.profileProgressBar {
+  width: 100%;
+  height: 8px;
+  background: var(--designia-white, #FFFFFF);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--designia-silver, #9CA3AF);
+}
+
+.profileProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--designia-deep, #0A0A0A) 0%, var(--designia-charcoal, #1A1A1A) 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.profilePremiumForm {
+  background: var(--designia-white, #FFFFFF);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(107, 114, 128, 0.15);
+  border: 1px solid var(--designia-silver, #9CA3AF);
+  overflow: hidden;
+}
+
+.profileTabNavigation {
+  display: flex;
+  background: var(--designia-platinum, #F5F5F5);
+  border-bottom: 1px solid var(--designia-silver, #9CA3AF);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.profileTabNavigation::-webkit-scrollbar {
+  display: none;
+}
+
+.profileTabBtn {
+  flex: 1;
+  min-width: 120px;
+  padding: var(--space-md) var(--space-sm);
+  background: transparent;
+  border: none;
+  color: var(--designia-steel, #6B7280);
+  font-size: var(--body-sm, 14px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+}
+
+.profileTabBtn:hover {
+  color: var(--designia-deep, #0A0A0A);
+  background: var(--designia-white, #FFFFFF);
+}
+
+.profileTabBtn.active {
+  color: var(--designia-deep, #0A0A0A);
+  background: var(--designia-white, #FFFFFF);
+  border-bottom-color: var(--designia-deep, #0A0A0A);
+}
+
+.profileTabContainer {
+  padding: var(--space-2xl);
+}
+
+.tabContent {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.profileFormGroup {
+  margin-bottom: var(--space-xl);
+}
+
+.profileFormRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.profileFormLabel {
+  display: block;
+  color: var(--designia-deep, #0A0A0A);
+  font-weight: 500;
+  margin-bottom: var(--space-sm);
+  font-size: var(--label, 14px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profileInputField {
+  width: 100%;
+  background: var(--designia-white, #FFFFFF);
+  border: 2px solid var(--designia-platinum, #E5E7EB);
+  border-radius: 8px;
+  padding: var(--space-md);
+  font-size: var(--body-md, 16px);
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  color: var(--designia-deep, #0A0A0A);
+}
+
+.profileInputField:focus {
+  border-color: var(--designia-deep, #0A0A0A);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.1);
+  transform: translateY(-1px);
+}
+
+.profileInputField::placeholder {
+  color: var(--designia-steel, #6B7280);
+  opacity: 0.7;
+}
+
+.profileTextareaField {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.profileFormHint {
+  color: var(--designia-steel, #6B7280);
+  font-size: var(--body-sm, 14px);
+  margin-top: var(--space-xs);
+  font-style: italic;
+}
+
+.profilePictureSection {
+  text-align: center;
+  padding: var(--space-lg);
+  background: var(--designia-platinum, #F5F5F5);
+  border-radius: 12px;
+  border: 2px dashed var(--designia-silver, #9CA3AF);
+}
+
+.profileCheckboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.profileCheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--designia-slate, #374151);
+  font-size: var(--body-md, 16px);
+  cursor: pointer;
+}
+
+.profileCheckboxLabel input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--designia-deep, #0A0A0A);
+}
+
+.profileFormActions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  padding: var(--space-2xl);
+  background: var(--designia-platinum, #F5F5F5);
+  border-top: 1px solid var(--designia-silver, #9CA3AF);
+}
+
+.profileBtn {
+  padding: var(--space-md) var(--space-xl);
+  border-radius: 8px;
+  font-size: var(--button, 16px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  min-width: 140px;
+}
+
+.profileBtnPrimary {
+  background: var(--designia-deep, #0A0A0A);
+  color: var(--designia-white, #FFFFFF);
+  box-shadow: 0 2px 8px rgba(10, 10, 10, 0.2);
+}
+
+.profileBtnPrimary:hover {
+  background: var(--designia-charcoal, #1A1A1A);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.3);
+}
+
+.profileBtnSecondary {
+  background: transparent;
+  color: var(--designia-deep, #0A0A0A);
+  border: 2px solid var(--designia-deep, #0A0A0A);
+}
+
+.profileBtnSecondary:hover {
+  background: var(--designia-deep, #0A0A0A);
+  color: var(--designia-white, #FFFFFF);
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .editProfilePage {
+    padding: var(--space-lg) var(--space-md);
+  }
+  
+  .profileTabContainer {
+    padding: var(--space-xl) var(--space-lg);
+  }
+  
+  .profileFormRow {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  
+  .profileFormActions {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .profileBtn {
+    width: 100%;
+  }
+  
+  .profileTabNavigation {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  
+  .profileTabBtn {
+    min-width: 100px;
+    font-size: var(--body-sm, 14px);
+    padding: var(--space-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .profileFormHeader {
+    margin-bottom: var(--space-2xl);
+    padding: var(--space-xl) 0;
+  }
+  
+  .profileFormHeader h1 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+  
+  .profileFormHeader p {
+    font-size: var(--body-md, 16px);
+  }
+  
+  .profileTabContainer {
+    padding: var(--space-lg) var(--space-md);
+  }
+  
+  .restrictionText {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+  
+  .becomeSellerLink {
+    width: 100%;
+    text-align: center;
+    padding: var(--space-md);
+  }
+  
+  .restrictedTabMessage {
+    padding: var(--space-2xl) var(--space-lg);
+  }
+  
+  .restrictedTabTitle {
+    font-size: 20px;
+  }
+}
+
+/* CSS Custom Properties for Design System Colors */
+:root {
+  --designia-deep: #0A0A0A;
+  --designia-white: #FFFFFF;
+  --designia-charcoal: #1A1A1A;
+  --designia-platinum: #F5F5F5;
+  --designia-steel: #6B7280;
+  --designia-slate: #374151;
+  --designia-silver: #9CA3AF;
+  --designia-success: #10B981;
+  --designia-warning: #F59E0B;
+  --designia-error: #EF4444;
+  
+  /* Spacing Scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  
+  /* Typography Scale */
+  --body-sm: 14px;
+  --body-md: 16px;
+  --body-lg: 18px;
+  --label: 14px;
+  --button: 16px;
+}
+
+/* Typography Classes */
+.headingLg {
+  font-size: 48px;
+  line-height: 56px;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  color: var(--designia-deep, #0A0A0A);
+}
+
+.bodyLg {
+  font-size: var(--body-lg, 18px);
+  line-height: 1.6;
+  color: var(--designia-slate, #374151);
+}
+
+.sellerRestrictionNote {
+  margin-top: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--designia-warning, #F59E0B);
+  border-radius: 12px;
+  border: 1px solid var(--designia-warning, #F59E0B);
+  color: var(--designia-white, #FFFFFF);
+}
+
+.restrictionText {
+  margin: 0;
+  font-size: var(--body-md, 16px);
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.becomeSellerLink {
+  background: var(--designia-white, #FFFFFF);
+  color: var(--designia-warning, #F59E0B);
+  border: none;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 6px;
+  font-size: var(--body-sm, 14px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.becomeSellerLink:hover {
+  background: var(--designia-platinum, #F5F5F5);
+  transform: translateY(-1px);
+}
+
+.restrictedTabMessage {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-2xl);
+  background: var(--designia-platinum, #F5F5F5);
+  border-radius: 12px;
+  border: 2px dashed var(--designia-silver, #9CA3AF);
+}
+
+.restrictedTabTitle {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  font-family: 'Playfair Display', serif;
+}
+
+.restrictedTabText {
+  color: var(--designia-slate, #374151);
+  font-size: var(--body-md, 16px);
+  line-height: 1.6;
+  margin-bottom: var(--space-xl);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}

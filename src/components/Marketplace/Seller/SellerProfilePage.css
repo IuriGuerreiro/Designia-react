@@ -1,0 +1,413 @@
+/* SellerProfilePage.css - Designia Design System Implementation */
+
+.seller-profile-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+/* Breadcrumb Navigation */
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-md) 0;
+}
+
+.breadcrumb-link {
+  color: var(--designia-steel, #6B7280);
+  text-decoration: none;
+  font-size: var(--body-md, 16px);
+  font-family: 'Inter', sans-serif;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-link:hover {
+  color: var(--designia-deep, #0A0A0A);
+}
+
+.breadcrumb-separator {
+  color: var(--designia-silver, #9CA3AF);
+  font-size: var(--body-md, 16px);
+}
+
+.breadcrumb-current {
+  color: var(--designia-deep, #0A0A0A);
+  text-decoration: none;
+  font-size: var(--body-md, 16px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Seller Profile Section */
+.seller-profile-section {
+  margin-bottom: var(--space-3xl);
+}
+
+/* Seller Products Section */
+.seller-products-section {
+  margin-bottom: var(--space-3xl);
+}
+
+.section-title {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  margin: 0 0 var(--space-2xl) 0;
+  text-align: center;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+}
+
+.product-card {
+  background: var(--designia-white, #FFFFFF);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(10, 10, 10, 0.08);
+  border: 1px solid var(--designia-silver, #9CA3AF);
+  overflow: hidden;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(10, 10, 10, 0.12);
+}
+
+.product-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: var(--designia-platinum, #F5F5F5);
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-info {
+  padding: var(--space-lg);
+}
+
+.product-name {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: var(--body-md, 16px);
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 var(--space-sm) 0;
+  line-height: 1.4;
+}
+
+.product-price {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.product-meta {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.product-condition {
+  background: var(--designia-platinum, #F5F5F5);
+  color: var(--designia-slate, #374151);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 12px;
+  font-size: var(--body-sm, 14px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  text-transform: capitalize;
+}
+
+.featured-badge {
+  background: var(--designia-warning, #F59E0B);
+  color: var(--designia-white, #FFFFFF);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 12px;
+  font-size: var(--body-sm, 14px);
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+}
+
+.view-all-products {
+  text-align: center;
+}
+
+.view-all-btn {
+  background: var(--designia-deep, #0A0A0A);
+  color: var(--designia-white, #FFFFFF);
+  padding: var(--space-md) var(--space-2xl);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: var(--body-md, 16px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.view-all-btn:hover {
+  background: var(--designia-charcoal, #1A1A1A);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.3);
+}
+
+/* No Products Section */
+.no-products-section {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-2xl);
+  background: var(--designia-platinum, #F5F5F5);
+  border-radius: 16px;
+  border: 2px dashed var(--designia-silver, #9CA3AF);
+}
+
+.no-products-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-lg);
+}
+
+.no-products-section h3 {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: 24px;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.no-products-section p {
+  color: var(--designia-slate, #374151);
+  font-size: var(--body-md, 16px);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+/* Loading Skeleton */
+.seller-profile-skeleton {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.skeleton-header {
+  display: flex;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-2xl);
+  background: var(--designia-white, #FFFFFF);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(107, 114, 128, 0.15);
+}
+
+.skeleton-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--designia-platinum, #F5F5F5);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-info {
+  flex: 1;
+}
+
+.skeleton-name {
+  width: 200px;
+  height: 32px;
+  background: var(--designia-platinum, #F5F5F5);
+  border-radius: 4px;
+  margin-bottom: var(--space-md);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-bio {
+  width: 300px;
+  height: 20px;
+  background: var(--designia-platinum, #F5F5F5);
+  border-radius: 4px;
+  margin-bottom: var(--space-sm);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.skeleton-section {
+  width: 100%;
+  height: 120px;
+  background: var(--designia-platinum, #F5F5F5);
+  border-radius: 8px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Error State */
+.seller-profile-error {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-2xl);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-lg);
+}
+
+.seller-profile-error h3 {
+  color: var(--designia-deep, #0A0A0A);
+  font-size: 24px;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.seller-profile-error p {
+  color: var(--designia-slate, #374151);
+  font-size: var(--body-md, 16px);
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 var(--space-xl) 0;
+  line-height: 1.6;
+}
+
+.back-to-products-btn {
+  background: var(--designia-deep, #0A0A0A);
+  color: var(--designia-white, #FFFFFF);
+  padding: var(--space-md) var(--space-xl);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: var(--body-md, 16px);
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.back-to-products-btn:hover {
+  background: var(--designia-charcoal, #1A1A1A);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .seller-profile-page {
+    padding: var(--space-lg) var(--space-md);
+  }
+  
+  .section-title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-lg);
+  }
+  
+  .skeleton-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-lg);
+  }
+  
+  .skeleton-avatar {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .skeleton-name {
+    width: 150px;
+  }
+  
+  .skeleton-bio {
+    width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .seller-profile-page {
+    padding: var(--space-md);
+  }
+  
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  
+  .section-title {
+    font-size: 20px;
+    line-height: 28px;
+  }
+  
+  .product-info {
+    padding: var(--space-md);
+  }
+  
+  .product-name {
+    font-size: var(--body-sm, 14px);
+  }
+  
+  .product-price {
+    font-size: 18px;
+  }
+}
+
+/* CSS Custom Properties for Design System Colors */
+:root {
+  --designia-deep: #0A0A0A;
+  --designia-white: #FFFFFF;
+  --designia-charcoal: #1A1A1A;
+  --designia-platinum: #F5F5F5;
+  --designia-steel: #6B7280;
+  --designia-slate: #374151;
+  --designia-silver: #9CA3AF;
+  --designia-success: #10B981;
+  --designia-warning: #F59E0B;
+  --designia-error: #EF4444;
+  
+  /* Spacing Scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  
+  /* Typography Scale */
+  --body-sm: 14px;
+  --body-md: 16px;
+  --body-lg: 18px;
+  --label: 14px;
+  --button: 16px;
+}

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { orderService } from '../../../services';
 import { type Order } from '../../../types/marketplace';
+import ViewSellerAccount from '../../Common/ViewSellerAccount';
 import './Orders.css';
 
 const MyOrdersPage: React.FC = () => {
@@ -326,6 +327,41 @@ const MyOrdersPage: React.FC = () => {
                           {order.items.length > 2 && `, and ${order.items.length - 2} more`}
                         </p>
                       </div>
+                      
+                      {/* Seller Profile Preview */}
+                      {order.items.length > 0 && order.items[0].seller_id && (
+                        <div className="seller-preview">
+                          <div className="seller-preview-header">
+                            <span className="seller-label">Seller:</span>
+                            <Link 
+                              to={`/seller/${order.items[0].seller_id}`}
+                              className="seller-name-link"
+                            >
+                              {order.items[0].seller_name || 'Designia Seller'}
+                            </Link>
+                          </div>
+                          <ViewSellerAccount 
+                            seller={{
+                              id: order.items[0].seller_id || 1,
+                              username: order.items[0].seller_name || 'designia_seller',
+                              first_name: 'Jane',
+                              last_name: 'Designer',
+                              avatar: 'https://via.placeholder.com/60x60/0A0A0A/FFFFFF?text=JD',
+                              bio: 'Professional furniture designer with expertise in creating beautiful pieces.',
+                              job_title: 'Senior Furniture Designer',
+                              company: 'Designia Studios',
+                              is_verified_seller: true,
+                              seller_type: 'Professional Designer',
+                              profile_completion_percentage: 95,
+                              created_at: '2023-01-15T00:00:00Z'
+                            }}
+                            showContactInfo={false}
+                            showSocialMedia={false}
+                            showProfessionalInfo={false}
+                            className="mini-seller-view"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     {/* Card Footer */}

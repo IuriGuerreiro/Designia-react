@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
 import ImageUpload from '../../Common/ImageUpload';
 import { useAuth } from '../../../contexts/AuthContext';
-import './Profile.css';
+import styles from './Profile.module.css';
 
 const EditProfile: React.FC = () => {
   const { user, updateProfile } = useAuth();
@@ -59,6 +59,14 @@ const EditProfile: React.FC = () => {
       notifications_enabled: user?.profile?.notifications_enabled ?? true
     }
   });
+
+  // Effect to handle tab switching when seller status changes
+  useEffect(() => {
+    // If user is not a verified seller and is on a restricted tab, switch to basic
+    if (!user?.profile?.is_verified_seller && ['contact', 'professional', 'social'].includes(activeTab)) {
+      setActiveTab('basic');
+    }
+  }, [user?.profile?.is_verified_seller, activeTab]);
 
   // Utility function to format URLs
   const formatUrl = (url: string, fieldName?: string): string => {
@@ -226,32 +234,59 @@ const EditProfile: React.FC = () => {
   };
 
   const renderBasicTab = () => (
-    <div className="tab-content">
-      <div className="form-group profile-picture-section">
-        <label>Profile Picture</label>
+    <div className={styles.tabContent}>
+              <div className={`${styles.profileFormGroup} ${styles.profilePictureSection}`}>
+          <label className={styles.profileFormLabel}>Profile Picture</label>
         <ImageUpload files={profileImage} setFiles={setProfileImage} />
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="first_name">First Name</label>
-          <input type="text" id="first_name" name="first_name" value={formData.first_name} onChange={handleChange} />
+      <div className={styles.profileFormRow}>
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="first_name" className={styles.profileFormLabel}>First Name</label>
+          <input 
+            type="text" 
+            id="first_name" 
+            name="first_name" 
+            value={formData.first_name} 
+            onChange={handleChange}
+            className={styles.profileInputField}
+          />
         </div>
-        <div className="form-group">
-          <label htmlFor="last_name">Last Name</label>
-          <input type="text" id="last_name" name="last_name" value={formData.last_name} onChange={handleChange} />
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="last_name" className={styles.profileFormLabel}>Last Name</label>
+          <input 
+            type="text" 
+            id="last_name" 
+            name="last_name" 
+            value={formData.last_name} 
+            onChange={handleChange}
+            className={styles.profileInputField}
+          />
         </div>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="username">Username</label>
-        <input type="text" id="username" name="username" value={formData.username} onChange={handleChange} />
+      <div className={styles.profileFormGroup}>
+        <label htmlFor="username" className={styles.profileFormLabel}>Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          value={formData.username} 
+          onChange={handleChange}
+          className={styles.profileInputField}
+        />
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="gender">Gender</label>
-          <select id="gender" name="gender" value={formData.profile.gender} onChange={handleChange}>
+      <div className={styles.profileFormRow}>
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="gender" className={styles.profileFormLabel}>Gender</label>
+          <select 
+            id="gender" 
+            name="gender" 
+            value={formData.profile.gender} 
+            onChange={handleChange}
+            className={styles.profileInputField}
+          >
             <option value="">Select Gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
@@ -260,144 +295,354 @@ const EditProfile: React.FC = () => {
             <option value="other">Other</option>
           </select>
         </div>
-        <div className="form-group">
-          <label htmlFor="pronouns">Pronouns</label>
-          <input type="text" id="pronouns" name="pronouns" value={formData.profile.pronouns} onChange={handleChange} placeholder="e.g., they/them" />
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="pronouns" className={styles.profileFormLabel}>Pronouns</label>
+          <input 
+            type="text" 
+            id="pronouns" 
+            name="pronouns" 
+            value={formData.profile.pronouns} 
+            onChange={handleChange} 
+            placeholder="e.g., they/them"
+            className={styles.profileInputField}
+          />
         </div>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="birth_date">Birth Date</label>
-        <input type="date" id="birth_date" name="birth_date" value={formData.profile.birth_date} onChange={handleChange} />
+      <div className={styles.profileFormGroup}>
+        <label htmlFor="birth_date" className={styles.profileFormLabel}>Birth Date</label>
+        <input 
+          type="date" 
+          id="birth_date" 
+          name="birth_date" 
+          value={formData.profile.birth_date} 
+          onChange={handleChange}
+          className={styles.profileInputField}
+        />
       </div>
 
-      <div className="form-group">
-        <label htmlFor="bio">Bio</label>
-        <textarea id="bio" name="bio" value={formData.profile.bio} onChange={handleChange} rows={4} maxLength={500} placeholder="Tell us a little about yourself..." />
-        <small>{formData.profile.bio.length}/500 characters</small>
+      <div className={styles.profileFormGroup}>
+        <label htmlFor="bio" className={styles.profileFormLabel}>Bio</label>
+        <textarea 
+          id="bio" 
+          name="bio" 
+          value={formData.profile.bio} 
+          onChange={handleChange} 
+          rows={4} 
+          maxLength={500} 
+          placeholder="Tell us a little about yourself..."
+          className={`${styles.profileInputField} ${styles.profileTextareaField}`}
+        />
+        <small className={styles.profileFormHint}>{formData.profile.bio.length}/500 characters</small>
       </div>
     </div>
   );
 
   const renderContactTab = () => (
-    <div className="tab-content">
-      <div className="form-row">
-        <div className="form-group" style={{flex: '0 0 120px'}}>
-          <label htmlFor="country_code">Country Code</label>
-          <select id="country_code" name="country_code" value={formData.profile.country_code} onChange={handleChange}>
-            <option value="+1">+1 (US/CA)</option>
-            <option value="+44">+44 (UK)</option>
-            <option value="+33">+33 (FR)</option>
-            <option value="+49">+49 (DE)</option>
-            <option value="+34">+34 (ES)</option>
-            <option value="+39">+39 (IT)</option>
-            <option value="+81">+81 (JP)</option>
-            <option value="+86">+86 (CN)</option>
-            <option value="+91">+91 (IN)</option>
-          </select>
+    <div className={styles.tabContent}>
+      {!user?.profile?.is_verified_seller ? (
+        <div className={styles.restrictedTabMessage}>
+          <h3 className={styles.restrictedTabTitle}>Contact Information Restricted</h3>
+          <p className={styles.restrictedTabText}>
+            Contact information fields are only available to verified sellers. This helps maintain the quality of our marketplace.
+          </p>
+          <button 
+            className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
+            onClick={() => navigate('/settings/become-seller')}
+          >
+            Become a Verified Seller
+          </button>
         </div>
-        <div className="form-group">
-          <label htmlFor="phone_number">Phone Number</label>
-          <input type="tel" id="phone_number" name="phone_number" value={formData.profile.phone_number} onChange={handleChange} placeholder="(555) 123-4567" />
-        </div>
-      </div>
+      ) : (
+        <>
+          <div className={styles.profileFormRow}>
+            <div className={styles.profileFormGroup} style={{flex: '0 0 120px'}}>
+              <label htmlFor="country_code" className={styles.profileFormLabel}>Country Code</label>
+              <select 
+                id="country_code" 
+                name="country_code" 
+                value={formData.profile.country_code} 
+                onChange={handleChange}
+                className={styles.profileInputField}
+              >
+                <option value="+1">+1 (US/CA)</option>
+                <option value="+44">+44 (UK)</option>
+                <option value="+33">+33 (FR)</option>
+                <option value="+49">+49 (DE)</option>
+                <option value="+34">+34 (ES)</option>
+                <option value="+39">+39 (IT)</option>
+                <option value="+81">+81 (JP)</option>
+                <option value="+86">+86 (CN)</option>
+                <option value="+91">+91 (IN)</option>
+              </select>
+            </div>
+            <div className={styles.profileFormGroup}>
+              <label htmlFor="phone_number" className={styles.profileFormLabel}>Phone Number</label>
+              <input 
+                type="tel" 
+                id="phone_number" 
+                name="phone_number" 
+                value={formData.profile.phone_number} 
+                onChange={handleChange} 
+                placeholder="(555) 123-4567"
+                className={styles.profileInputField}
+              />
+            </div>
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="website">Website</label>
-        <input type="url" id="website" name="website" value={formData.profile.website} onChange={handleChange} onBlur={handleUrlBlur} placeholder="yourwebsite.com" />
-      </div>
+          <div className={styles.profileFormGroup}>
+            <label htmlFor="website" className={styles.profileFormLabel}>Website</label>
+            <input 
+              type="url" 
+              id="website" 
+              name="website" 
+              value={formData.profile.website} 
+              onChange={handleChange} 
+              onBlur={handleUrlBlur} 
+              placeholder="yourwebsite.com"
+              className={styles.profileInputField}
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="location">Location</label>
-        <input type="text" id="location" name="location" value={formData.profile.location} onChange={handleChange} placeholder="City, State" />
-      </div>
+          <div className={styles.profileFormGroup}>
+            <label htmlFor="location" className={styles.profileFormLabel}>Location</label>
+            <input 
+              type="text" 
+              id="location" 
+              name="location" 
+              value={formData.profile.location} 
+              onChange={handleChange} 
+              placeholder="City, State"
+              className={styles.profileInputField}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 
   const renderProfessionalTab = () => (
-    <div className="tab-content">
-      <div className="form-group">
-        <label htmlFor="job_title">Job Title</label>
-        <input type="text" id="job_title" name="job_title" value={formData.profile.job_title} onChange={handleChange} placeholder="Software Engineer" />
-      </div>
+    <div className={styles.tabContent}>
+      {!user?.profile?.is_verified_seller ? (
+        <div className={styles.restrictedTabMessage}>
+          <h3 className={styles.restrictedTabTitle}>Professional Information Restricted</h3>
+          <p className={styles.restrictedTabText}>
+            Professional information fields are only available to verified sellers. This helps maintain the quality of our marketplace.
+          </p>
+          <button 
+            className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
+            onClick={() => navigate('/settings/become-seller')}
+          >
+            Become a Verified Seller
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className={styles.profileFormGroup}>
+            <label htmlFor="job_title" className={styles.profileFormLabel}>Job Title</label>
+            <input 
+              type="text" 
+              id="job_title" 
+              name="job_title" 
+              value={formData.profile.job_title} 
+              onChange={handleChange} 
+              placeholder="Software Engineer"
+              className={styles.profileInputField}
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="company">Company</label>
-        <input type="text" id="company" name="company" value={formData.profile.company} onChange={handleChange} placeholder="Company Name" />
-      </div>
+          <div className={styles.profileFormGroup}>
+            <label htmlFor="company" className={styles.profileFormLabel}>Company</label>
+            <input 
+              type="text" 
+              id="company" 
+              name="company" 
+              value={formData.profile.company} 
+              onChange={handleChange} 
+              placeholder="Company Name"
+              className={styles.profileInputField}
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="account_type">Account Type</label>
-        <select id="account_type" name="account_type" value={formData.profile.account_type} onChange={handleChange}>
-          <option value="personal">Personal</option>
-          <option value="business">Business</option>
-          <option value="creator">Creator</option>
-        </select>
-      </div>
+          <div className={styles.profileFormGroup}>
+            <label htmlFor="account_type" className={styles.profileFormLabel}>Account Type</label>
+            <select 
+              id="account_type" 
+              name="account_type" 
+              value={formData.profile.account_type} 
+              onChange={handleChange}
+              className={styles.profileInputField}
+            >
+              <option value="personal">Personal</option>
+              <option value="business">Business</option>
+              <option value="creator">Creator</option>
+            </select>
+          </div>
+        </>
+      )}
     </div>
   );
 
   const renderAddressTab = () => (
-    <div className="tab-content">
-      <div className="form-group">
-        <label htmlFor="street_address">Street Address</label>
-        <input type="text" id="street_address" name="street_address" value={formData.profile.street_address} onChange={handleChange} placeholder="123 Main St" />
+    <div className={styles.tabContent}>
+      <div className={styles.profileFormGroup}>
+        <label htmlFor="street_address" className={styles.profileFormLabel}>Street Address</label>
+        <input 
+          type="text" 
+          id="street_address" 
+          name="street_address" 
+          value={formData.profile.street_address} 
+          onChange={handleChange} 
+          placeholder="123 Main St"
+          className={styles.profileInputField}
+        />
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="city">City</label>
-          <input type="text" id="city" name="city" value={formData.profile.city} onChange={handleChange} placeholder="New York" />
+      <div className={styles.profileFormRow}>
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="city" className={styles.profileFormLabel}>City</label>
+          <input 
+            type="text" 
+            id="city" 
+            name="city" 
+            value={formData.profile.city} 
+            onChange={handleChange} 
+            placeholder="New York"
+            className={styles.profileInputField}
+          />
         </div>
-        <div className="form-group">
-          <label htmlFor="state_province">State/Province</label>
-          <input type="text" id="state_province" name="state_province" value={formData.profile.state_province} onChange={handleChange} placeholder="NY" />
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="state_province" className={styles.profileFormLabel}>State/Province</label>
+          <input 
+            type="text" 
+            id="state_province" 
+            name="state_province" 
+            value={formData.profile.state_province} 
+            onChange={handleChange} 
+            placeholder="NY"
+            className={styles.profileInputField}
+          />
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="country">Country</label>
-          <input type="text" id="country" name="country" value={formData.profile.country} onChange={handleChange} placeholder="United States" />
+      <div className={styles.profileFormRow}>
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="country" className={styles.profileFormLabel}>Country</label>
+          <input 
+            type="text" 
+            id="country" 
+            name="country" 
+            value={formData.profile.country} 
+            onChange={handleChange} 
+            placeholder="United States"
+            className={styles.profileInputField}
+          />
         </div>
-        <div className="form-group">
-          <label htmlFor="postal_code">Postal Code</label>
-          <input type="text" id="postal_code" name="postal_code" value={formData.profile.postal_code} onChange={handleChange} placeholder="10001" />
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="postal_code" className={styles.profileFormLabel}>Postal Code</label>
+                      <input 
+              type="text" 
+              id="postal_code" 
+              name="postal_code" 
+              value={formData.profile.postal_code} 
+              onChange={handleChange} 
+              placeholder="10001"
+              className={styles.profileInputField}
+            />
         </div>
       </div>
     </div>
   );
 
   const renderSocialTab = () => (
-    <div className="tab-content">
-      <div className="form-group">
-        <label htmlFor="instagram_url">Instagram</label>
-        <input type="url" id="instagram_url" name="instagram_url" value={formData.profile.instagram_url} onChange={handleChange} onBlur={handleUrlBlur} placeholder="instagram.com/username" />
-      </div>
+    <div className={styles.tabContent}>
+      {!user?.profile?.is_verified_seller ? (
+        <div className={styles.restrictedTabMessage}>
+          <h3 className={styles.restrictedTabTitle}>Social Media Links Restricted</h3>
+          <p className={styles.restrictedTabText}>
+            Social media link fields are only available to verified sellers. This helps maintain the quality of our marketplace.
+          </p>
+          <button 
+            className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
+            onClick={() => navigate('/settings/become-seller')}
+          >
+            Become a Verified Seller
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className={styles.profileFormGroup}>
+            <label htmlFor="instagram_url" className={styles.profileFormLabel}>Instagram</label>
+            <input 
+              type="url" 
+              id="instagram_url" 
+              name="instagram_url" 
+              value={formData.profile.instagram_url} 
+              onChange={handleChange} 
+              onBlur={handleUrlBlur} 
+              placeholder="instagram.com/username"
+              className={styles.profileInputField}
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="twitter_url">Twitter</label>
-        <input type="url" id="twitter_url" name="twitter_url" value={formData.profile.twitter_url} onChange={handleChange} onBlur={handleUrlBlur} placeholder="twitter.com/username" />
-      </div>
+          <div className={styles.profileFormGroup}>
+            <label htmlFor="twitter_url" className={styles.profileFormLabel}>Twitter</label>
+            <input 
+              type="url" 
+              id="twitter_url" 
+              name="twitter_url" 
+              value={formData.profile.twitter_url} 
+              onChange={handleChange} 
+              onBlur={handleUrlBlur} 
+              placeholder="twitter.com/username"
+              className={styles.profileInputField}
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="linkedin_url">LinkedIn</label>
-        <input type="url" id="linkedin_url" name="linkedin_url" value={formData.profile.linkedin_url} onChange={handleChange} onBlur={handleUrlBlur} placeholder="linkedin.com/in/username" />
-      </div>
+          <div className={styles.profileFormGroup}>
+            <label htmlFor="linkedin_url" className={styles.profileFormLabel}>LinkedIn</label>
+            <input 
+              type="url" 
+              id="linkedin_url" 
+              name="linkedin_url" 
+              value={formData.profile.linkedin_url} 
+              onChange={handleChange} 
+              onBlur={handleUrlBlur} 
+              placeholder="linkedin.com/in/username"
+              className={styles.profileInputField}
+            />
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="facebook_url">Facebook</label>
-        <input type="url" id="facebook_url" name="facebook_url" value={formData.profile.facebook_url} onChange={handleChange} onBlur={handleUrlBlur} placeholder="facebook.com/username" />
-      </div>
+          <div className={styles.profileFormGroup}>
+            <label htmlFor="facebook_url" className={styles.profileFormLabel}>Facebook</label>
+            <input 
+              type="url" 
+              id="facebook_url" 
+              name="facebook_url" 
+              value={formData.profile.facebook_url} 
+              onChange={handleChange} 
+              onBlur={handleUrlBlur} 
+              placeholder="facebook.com/username"
+              className={styles.profileInputField}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 
   const renderPreferencesTab = () => (
-    <div className="tab-content">
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="timezone">Timezone</label>
-          <select id="timezone" name="timezone" value={formData.profile.timezone} onChange={handleChange}>
+    <div className={styles.tabContent}>
+      <div className={styles.profileFormRow}>
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="timezone" className={styles.profileFormLabel}>Timezone</label>
+          <select 
+            id="timezone" 
+            name="timezone" 
+            value={formData.profile.timezone} 
+            onChange={handleChange}
+            className={styles.profileInputField}
+          >
             <option value="UTC">UTC</option>
             <option value="America/New_York">Eastern Time</option>
             <option value="America/Chicago">Central Time</option>
@@ -408,9 +653,15 @@ const EditProfile: React.FC = () => {
             <option value="Asia/Tokyo">Tokyo</option>
           </select>
         </div>
-        <div className="form-group">
-          <label htmlFor="language_preference">Language</label>
-          <select id="language_preference" name="language_preference" value={formData.profile.language_preference} onChange={handleChange}>
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="language_preference" className={styles.profileFormLabel}>Language</label>
+          <select 
+            id="language_preference" 
+            name="language_preference" 
+            value={formData.profile.language_preference} 
+            onChange={handleChange}
+            className={styles.profileInputField}
+          >
             <option value="en">English</option>
             <option value="es">Spanish</option>
             <option value="fr">French</option>
@@ -421,10 +672,16 @@ const EditProfile: React.FC = () => {
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="currency_preference">Currency</label>
-          <select id="currency_preference" name="currency_preference" value={formData.profile.currency_preference} onChange={handleChange}>
+      <div className={styles.profileFormRow}>
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="currency_preference" className={styles.profileFormLabel}>Currency</label>
+          <select 
+            id="currency_preference" 
+            name="currency_preference" 
+            value={formData.profile.currency_preference} 
+            onChange={handleChange}
+            className={styles.profileInputField}
+          >
             <option value="USD">USD ($)</option>
             <option value="EUR">EUR (€)</option>
             <option value="GBP">GBP (£)</option>
@@ -432,9 +689,15 @@ const EditProfile: React.FC = () => {
             <option value="CAD">CAD (C$)</option>
           </select>
         </div>
-        <div className="form-group">
-          <label htmlFor="profile_visibility">Profile Visibility</label>
-          <select id="profile_visibility" name="profile_visibility" value={formData.profile.profile_visibility} onChange={handleChange}>
+        <div className={styles.profileFormGroup}>
+          <label htmlFor="profile_visibility" className={styles.profileFormLabel}>Profile Visibility</label>
+          <select 
+            id="profile_visibility" 
+            name="profile_visibility" 
+            value={formData.profile.profile_visibility} 
+            onChange={handleChange}
+            className={styles.profileInputField}
+          >
             <option value="public">Public</option>
             <option value="private">Private</option>
             <option value="friends_only">Friends Only</option>
@@ -442,10 +705,10 @@ const EditProfile: React.FC = () => {
         </div>
       </div>
 
-      <div className="form-group">
-        <label>Communication Preferences</label>
-        <div className="checkbox-group">
-          <label className="checkbox-label">
+      <div className={styles.profileFormGroup}>
+        <label className={styles.profileFormLabel}>Communication Preferences</label>
+        <div className={styles.profileCheckboxGroup}>
+          <label className={styles.profileCheckboxLabel}>
             <input 
               type="checkbox" 
               name="marketing_emails_enabled" 
@@ -454,7 +717,7 @@ const EditProfile: React.FC = () => {
             />
             Marketing Emails
           </label>
-          <label className="checkbox-label">
+          <label className={styles.profileCheckboxLabel}>
             <input 
               type="checkbox" 
               name="newsletter_enabled" 
@@ -463,7 +726,7 @@ const EditProfile: React.FC = () => {
             />
             Newsletter
           </label>
-          <label className="checkbox-label">
+          <label className={styles.profileCheckboxLabel}>
             <input 
               type="checkbox" 
               name="notifications_enabled" 
@@ -479,70 +742,90 @@ const EditProfile: React.FC = () => {
 
   return (
     <Layout>
-      <div className="form-page-container">
-        <div className="profile-header">
-          <h2>Edit Profile</h2>
-          <p>Keep your profile information up to date.</p>
+      <div className={styles.editProfilePage}>
+        <div className={styles.profileFormHeader}>
+                      <h1 className={styles.headingLg}>Edit Profile</h1>
+            <p className={styles.bodyLg}>Keep your profile information up to date.</p>
           {user?.profile?.profile_completion_percentage !== undefined && (
-            <div className="profile-completion">
-              <span>Profile completion: {user.profile.profile_completion_percentage}%</span>
-              <div className="progress-bar">
+            <div className={styles.profileCompletion}>
+              <span className={styles.completionText}>Profile completion: {user.profile.profile_completion_percentage}%</span>
+              <div className={styles.profileProgressBar}>
                 <div 
-                  className="progress-fill" 
+                  className={styles.profileProgressFill} 
                   style={{width: `${user.profile.profile_completion_percentage}%`}}
                 ></div>
               </div>
             </div>
           )}
+          
+          {!user?.profile?.is_verified_seller && (
+            <div className={styles.sellerRestrictionNote}>
+              <p className={styles.restrictionText}>
+                <strong>Note:</strong> Professional, contact, and social media fields are only available to verified sellers. 
+                <button 
+                  className={styles.becomeSellerLink}
+                  onClick={() => navigate('/settings/become-seller')}
+                >
+                  Become a Verified Seller
+                </button>
+              </p>
+            </div>
+          )}
         </div>
         
-        <form onSubmit={handleSubmit} className="profile-form">
-          <div className="tab-navigation">
+        <form onSubmit={handleSubmit} className={styles.profilePremiumForm}>
+          <div className={styles.profileTabNavigation}>
             <button 
               type="button" 
-              className={`tab-btn ${activeTab === 'basic' ? 'active' : ''}`}
+              className={`${styles.profileTabBtn} ${activeTab === 'basic' ? styles.active : ''}`}
               onClick={() => setActiveTab('basic')}
             >
               Basic Info
             </button>
+            {user?.profile?.is_verified_seller && (
+              <button 
+                type="button" 
+                className={`${styles.profileTabBtn} ${activeTab === 'contact' ? styles.active : ''}`}
+                onClick={() => setActiveTab('contact')}
+              >
+                Contact
+              </button>
+            )}
+            {user?.profile?.is_verified_seller && (
+              <button 
+                type="button" 
+                className={`${styles.profileTabBtn} ${activeTab === 'professional' ? styles.active : ''}`}
+                onClick={() => setActiveTab('professional')}
+              >
+                Professional
+              </button>
+            )}
             <button 
               type="button" 
-              className={`tab-btn ${activeTab === 'contact' ? 'active' : ''}`}
-              onClick={() => setActiveTab('contact')}
-            >
-              Contact
-            </button>
-            <button 
-              type="button" 
-              className={`tab-btn ${activeTab === 'professional' ? 'active' : ''}`}
-              onClick={() => setActiveTab('professional')}
-            >
-              Professional
-            </button>
-            <button 
-              type="button" 
-              className={`tab-btn ${activeTab === 'address' ? 'active' : ''}`}
+              className={`${styles.profileTabBtn} ${activeTab === 'address' ? styles.active : ''}`}
               onClick={() => setActiveTab('address')}
             >
               Address
             </button>
+            {user?.profile?.is_verified_seller && (
+              <button 
+                type="button" 
+                className={`${styles.profileTabBtn} ${activeTab === 'social' ? styles.active : ''}`}
+                onClick={() => setActiveTab('social')}
+              >
+                Social
+              </button>
+            )}
             <button 
               type="button" 
-              className={`tab-btn ${activeTab === 'social' ? 'active' : ''}`}
-              onClick={() => setActiveTab('social')}
-            >
-              Social
-            </button>
-            <button 
-              type="button" 
-              className={`tab-btn ${activeTab === 'preferences' ? 'active' : ''}`}
+              className={`${styles.profileTabBtn} ${activeTab === 'preferences' ? styles.active : ''}`}
               onClick={() => setActiveTab('preferences')}
             >
               Preferences
             </button>
           </div>
 
-          <div className="tab-container">
+          <div className={styles.profileTabContainer}>
             {activeTab === 'basic' && renderBasicTab()}
             {activeTab === 'contact' && renderContactTab()}
             {activeTab === 'professional' && renderProfessionalTab()}
@@ -551,9 +834,20 @@ const EditProfile: React.FC = () => {
             {activeTab === 'preferences' && renderPreferencesTab()}
           </div>
 
-          <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={() => navigate('/settings')}>Cancel</button>
-            <button type="submit" className="btn btn-primary">Save Profile</button>
+          <div className={styles.profileFormActions}>
+            <button 
+              type="button" 
+              className={`${styles.profileBtn} ${styles.profileBtnSecondary}`} 
+              onClick={() => navigate('/settings')}
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
+            >
+              Save Profile
+            </button>
           </div>
         </form>
       </div>

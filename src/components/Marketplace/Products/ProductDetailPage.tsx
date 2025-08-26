@@ -6,6 +6,7 @@ import { useCart } from '../../../contexts/CartContext';
 import { useTranslation } from 'react-i18next';
 import { productService } from '../../../services';
 import { type Product } from '../../../types/marketplace';
+import ViewSellerAccount from '../../Common/ViewSellerAccount';
 import './ProductDetailPage.css';
 
 const ProductDetailPage: React.FC = () => {
@@ -481,6 +482,56 @@ const ProductDetailPage: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Seller Profile Section */}
+        {product.seller && product.seller.id ? (
+          <div className="seller-profile-section">
+            <div className="section-header">
+              <h2 className="section-title">About the Seller</h2>
+              <Link 
+                to={`/seller/${product.seller.id}`} 
+                className="view-full-profile-btn"
+                aria-label={`View full profile of ${product.seller.first_name || product.seller.username}`}
+              >
+                View Full Profile
+              </Link>
+            </div>
+            <ViewSellerAccount 
+              seller={{
+                id: product.seller.id,
+                username: product.seller.username,
+                first_name: product.seller.first_name,
+                last_name: product.seller.last_name,
+                avatar: product.seller.profile?.profile_picture_url,
+                bio: product.seller.profile?.bio || 'Professional furniture designer with expertise in creating beautiful, functional pieces.',
+                location: product.seller.profile?.location || 'Location not specified',
+                website: product.seller.profile?.website,
+                job_title: product.seller.profile?.job_title,
+                company: product.seller.profile?.company,
+                instagram_url: product.seller.profile?.instagram_url,
+                twitter_url: product.seller.profile?.twitter_url,
+                linkedin_url: product.seller.profile?.linkedin_url,
+                facebook_url: product.seller.profile?.facebook_url,
+                is_verified_seller: product.seller.is_verified_seller || false,
+                seller_type: product.seller.profile?.seller_type,
+                created_at: product.seller.profile?.created_at || product.seller.profile?.updated_at
+              }}
+              showContactInfo={false}
+              showSocialMedia={false}
+              showProfessionalInfo={true}
+              className="compact-seller-view"
+            />
+          </div>
+        ) : (
+          <div className="seller-profile-section">
+            <div className="section-header">
+              <h2 className="section-title">About the Seller</h2>
+            </div>
+            <div className="no-seller-info">
+              <p>Seller information not available</p>
+            </div>
+          </div>
+        )}
         
         {/* Product Reviews Section */}
         {product.slug && (
