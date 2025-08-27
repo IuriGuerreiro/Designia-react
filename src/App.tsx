@@ -108,38 +108,42 @@ const AppContent: React.FC = () => {
     }
   else if (isAuthenticated) {
     return (
-      <Routes>
-        {/* Protected Routes */}
-          <Route path="/logout" element={<Navigate to="/login" />} />
-          <Route path="/" element={<ProductList />} />
-          <Route path="/products" element={<ProductList />} />
-          <Route path="/products/new" element={<ProductForm />} />
-          <Route path="/products/:slug" element={<ProductDetailPage />} />
-          <Route path="/products/:slug/edit" element={<ProductForm />} />
-          <Route path="/my-products" element={<MyProductsPage />} />
-          <Route path="/favorites" element={<FavoritesPage />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/settings/become-seller" element={<BecomeSellerForm />} />
-          <Route path="/profile/edit" element={<EditProfile />} />
-          <Route path="/seller/:sellerId" element={<SellerProfilePage />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/metrics" element={<ProductMetricsPage />} />
-          <Route path="/metrics/product/:productId" element={<ProductMetricsPage />} />
-          <Route path="/my-orders" element={<MyOrdersPage />} />
-          <Route path="/my-orders/:orderId" element={<MyOrderDetailView />} />
-          <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-          <Route path="/order-management" element={<UserOrdersManagement />} />
-          <Route path="/checkout" element={<SimpleCheckoutPage />} />
-          <Route path="/checkout-success" element={<CheckoutSuccess />} />
-          <Route path="/payment" element={<PaymentPage />} />
-          <Route path="/stripe-onboarding" element={<StripeOnboarding />} />
-          <Route path="/stripe-holds" element={<StripeHolds />} />
-          <Route path="/payouts" element={<Payouts />} />
-          
-          {/* 404 catch-all route */}
-          <Route path="*" element={<NotFound />} />
-      </Routes>
+      <ChatProvider>
+        <CartProvider>
+          <Routes>
+            {/* Protected Routes */}
+              <Route path="/logout" element={<Navigate to="/login" />} />
+              <Route path="/" element={<ProductList />} />
+              <Route path="/products" element={<ProductList />} />
+              <Route path="/products/new" element={<ProductForm />} />
+              <Route path="/products/:slug" element={<ProductDetailPage />} />
+              <Route path="/products/:slug/edit" element={<ProductForm />} />
+              <Route path="/my-products" element={<MyProductsPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings/become-seller" element={<BecomeSellerForm />} />
+              <Route path="/profile/edit" element={<EditProfile />} />
+              <Route path="/seller/:sellerId" element={<SellerProfilePage />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/metrics" element={<ProductMetricsPage />} />
+              <Route path="/metrics/product/:productId" element={<ProductMetricsPage />} />
+              <Route path="/my-orders" element={<MyOrdersPage />} />
+              <Route path="/my-orders/:orderId" element={<MyOrderDetailView />} />
+              <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+              <Route path="/order-management" element={<UserOrdersManagement />} />
+              <Route path="/checkout" element={<SimpleCheckoutPage />} />
+              <Route path="/checkout-success" element={<CheckoutSuccess />} />
+              <Route path="/payment" element={<PaymentPage />} />
+              <Route path="/stripe-onboarding" element={<StripeOnboarding />} />
+              <Route path="/stripe-holds" element={<StripeHolds />} />
+              <Route path="/payouts" element={<Payouts />} />
+              
+              {/* 404 catch-all route */}
+              <Route path="*" element={<NotFound />} />
+          </Routes>
+        </CartProvider>
+      </ChatProvider>
     );
   }
 };
@@ -149,13 +153,9 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <ChatProvider>
-            <CartProvider>
-              <LanguageProvider>
-                <AppContent />
-              </LanguageProvider>
-            </CartProvider>
-          </ChatProvider>
+          <LanguageProvider>
+            <AppContent />
+          </LanguageProvider>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>
