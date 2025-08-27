@@ -132,14 +132,20 @@ class WebSocketService {
       return false;
     }
 
-    const message = {
-      type: 'chat_message',
-      message_type: 'text',
-      text_content: text.trim()
-    };
+    try {
+      const message = {
+        type: 'chat_message',
+        message_type: 'text',
+        text_content: text.trim()
+      };
 
-    this.socket.send(JSON.stringify(message));
-    return true;
+      this.socket.send(JSON.stringify(message));
+      console.log('📤 Text message sent successfully:', { text: text.substring(0, 50) });
+      return true;
+    } catch (error) {
+      console.error('❌ WebSocket send failed:', error);
+      return false;
+    }
   }
 
   /**
@@ -151,14 +157,20 @@ class WebSocketService {
       return false;
     }
 
-    const message = {
-      type: 'chat_message',
-      message_type: 'image',
-      image_url: imageUrl
-    };
+    try {
+      const message = {
+        type: 'chat_message',
+        message_type: 'image',
+        image_url: imageUrl
+      };
 
-    this.socket.send(JSON.stringify(message));
-    return true;
+      this.socket.send(JSON.stringify(message));
+      console.log('📤 Image message sent successfully:', { imageUrl: imageUrl.substring(0, 50) });
+      return true;
+    } catch (error) {
+      console.error('❌ WebSocket send failed:', error);
+      return false;
+    }
   }
 
   /**
@@ -170,9 +182,14 @@ class WebSocketService {
       return false;
     }
 
-    console.log('🔤📤 Sending typing_start to server');
-    this.socket.send(JSON.stringify({ type: 'typing_start' }));
-    return true;
+    try {
+      console.log('🔤📤 Sending typing_start to server');
+      this.socket.send(JSON.stringify({ type: 'typing_start' }));
+      return true;
+    } catch (error) {
+      console.error('❌ WebSocket send failed for typing_start:', error);
+      return false;
+    }
   }
 
   /**
@@ -184,9 +201,14 @@ class WebSocketService {
       return false;
     }
 
-    console.log('⏹️📤 Sending typing_stop to server');
-    this.socket.send(JSON.stringify({ type: 'typing_stop' }));
-    return true;
+    try {
+      console.log('⏹️📤 Sending typing_stop to server');
+      this.socket.send(JSON.stringify({ type: 'typing_stop' }));
+      return true;
+    } catch (error) {
+      console.error('❌ WebSocket send failed for typing_stop:', error);
+      return false;
+    }
   }
 
   /**
@@ -197,8 +219,14 @@ class WebSocketService {
       return false;
     }
 
-    this.socket.send(JSON.stringify({ type: 'mark_read' }));
-    return true;
+    try {
+      this.socket.send(JSON.stringify({ type: 'mark_read' }));
+      console.log('👁️📤 Mark messages as read sent successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ WebSocket send failed for mark_read:', error);
+      return false;
+    }
   }
 
   /**

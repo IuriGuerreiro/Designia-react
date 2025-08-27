@@ -1,5 +1,5 @@
 import React from 'react';
-import './Auth.css';
+import styles from './Auth.module.css';
 
 interface ErrorMessageProps {
   message: string;
@@ -21,12 +21,12 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onClose }) => {
   const errorType = getErrorType(message);
 
   return (
-    <div className={`error-message ${errorType}`}>
-      <span className="error-text">{message}</span>
+    <div className={`${styles['error-message']} ${errorType ? styles[errorType] : ''}`}>
+      <span className={styles['error-text']}>{message}</span>
       {onClose && (
         <button 
           onClick={onClose}
-          className="error-close"
+          className={styles['error-close']}
           type="button"
           aria-label="Close error message"
         >

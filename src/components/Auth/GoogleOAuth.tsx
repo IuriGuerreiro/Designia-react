@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import styles from './Auth.module.css';
 
 // Utility function to decode JWT token (simplified, for Google ID tokens)
 const decodeJWTPayload = (token: string) => {
@@ -164,25 +165,22 @@ const GoogleOAuth: React.FC<GoogleOAuthProps> = ({ onError }) => {
 
   if (!isGoogleLoaded) {
     return (
-      <div className="google-oauth-container">
-        <div className="divider">
-          <span>{t('auth.google_oauth_or')}</span>
+      <div className={styles['google-oauth-container']}>
+        <div className={styles['auth-divider']}>
+          <span>{t('auth.google_oauth_or') || 'or'}</span>
         </div>
-        <div className="google-oauth-loading">
-          <div className="spinner"></div>
+        <div className={styles['google-oauth-loading']}>
+          <div className={styles['spinner']}></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="google-oauth-container">
-      <div className="divider">
-        <span>{t('auth.google_oauth_or')}</span>
-      </div>
+    <div className={styles['google-oauth-container']}>
       <div 
         id="google-signin-button" 
-        className={isLoading ? 'google-button-disabled' : ''}
+        className={isLoading ? styles['google-button-disabled'] : ''}
       ></div>
     </div>
   );
