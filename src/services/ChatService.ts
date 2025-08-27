@@ -35,7 +35,7 @@ class ChatService {
     }
   }
 
-  // Get messages for a chat
+  // Get messages for a chat (latest first from backend)
   async getMessages(chatId: number, page: number = 1): Promise<MessageListResponse> {
     try {
       return await apiRequest(`${API_ENDPOINTS.CHAT_MESSAGES(chatId)}?page=${page}`);

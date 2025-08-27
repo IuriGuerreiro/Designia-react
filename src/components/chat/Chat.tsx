@@ -199,8 +199,21 @@ const ChatComponent: React.FC = () => {
   const loadMessages = useCallback(async (chatId: number) => {
     setIsLoadingMessages(true);
     try {
-      const response = await getMessages(chatId);
-      setMessages(response.results);
+      // Always get page 1 which has the most recent messages (backend orders by -created_at)
+      const response = await getMessages(chatId, 1);
+      console.log('📊 Messages loaded for chat', chatId, ':', {
+        totalMessages: response.results.length,
+        hasNext: !!response.next,
+        hasPrevious: !!response.previous,
+        count: response.count,
+        firstMessageText: response.results[0]?.text_content?.substring(0, 20) + '...',
+        firstMessageTime: response.results[0]?.created_at,
+        lastMessageText: response.results[response.results.length - 1]?.text_content?.substring(0, 20) + '...',
+        lastMessageTime: response.results[response.results.length - 1]?.created_at
+      });
+      
+      // Backend returns 50 most recent messages (newest first), reverse for chat display (oldest first)
+      setMessages(response.results.reverse());
       
       // Mark messages as read via context
       await markMessagesAsRead(chatId);

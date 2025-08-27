@@ -283,8 +283,6 @@ class GlobalWebSocketService {
    */
   private handleMessage(data: string): void {
     try {
-      console.log('🌐📥 Raw WebSocket data received:', data);
-      
       const message: GlobalWebSocketMessage = JSON.parse(data);
       console.log('🌐📥 Parsed WebSocket message:', message);
 
@@ -331,9 +329,6 @@ class GlobalWebSocketService {
               messageValid: !!(message.message && message.message.id), 
               chatIdValid: !!message.chat_id 
             });
-            
-            // Log the raw message for debugging
-            console.error('❌ Raw malformed message:', message);
           }
           break;
 

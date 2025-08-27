@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import ChatService from '../services/ChatService';
 import globalWebSocketService from '../services/GlobalWebSocketService';
-import webSocketService from '../services/WebSocketService';
 import { useAuth } from './AuthContext';
 import { type Chat, type Message, type User } from '../types/chat';
 
