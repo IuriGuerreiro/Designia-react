@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useEmailRateLimit } from '../../hooks/useEmailRateLimit';
 import AuthLayout from './AuthLayout';
-import './Auth.css';
+import styles from './Auth.module.css';
 
 const EmailVerificationPending: React.FC = () => {
   const [isResending, setIsResending] = useState(false);
@@ -54,30 +54,30 @@ const EmailVerificationPending: React.FC = () => {
 
   return (
     <AuthLayout>
-      <div className="auth-card">
-        <div className="auth-header">
-          <h2>{t('auth.check_email_title')}</h2>
-          <p>{fromLogin ? t('auth.verification_required') : t('auth.verify_email_continue')}</p>
+      <div className={styles['auth-card']}>
+        <div className={styles['auth-header']}>
+          <h2 className={styles['auth-title']}>{t('auth.check_email_title')}</h2>
+          <p className={styles['auth-subtitle']}>{fromLogin ? t('auth.verification_required') : t('auth.verify_email_continue')}</p>
         </div>
 
-        <div className="verification-pending-content">
+        <div className={styles['verification-pending-content']}>
           <p>{t('auth.verification_sent_message', { email })}</p>
           
           {resendMessage && (
-            <div className={`message ${resendSuccess ? 'success' : 'error'}`}>
+            <div className={`${styles['message']} ${resendSuccess ? styles['success'] : styles['error']}`}>
               {resendMessage}
             </div>
           )}
 
-          <div className="verification-actions">
+          <div className={styles['verification-actions']}>
             <button
               onClick={handleResendEmail}
               disabled={isResending || !canSend}
-              className="auth-button"
+              className={`${styles['auth-button']} ${styles['primary']}`}
             >
               {isResending ? t('auth.sending_button') : !canSend ? t('auth.resend_in_button', { seconds: timeRemaining }) : t('auth.resend_verification_button')}
             </button>
-            <button onClick={() => navigate('/login')} className="link-button">
+            <button onClick={() => navigate('/login')} className={styles['link-button']}>
               {t('auth.back_to_login_link')}
             </button>
           </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import AuthLayout from './AuthLayout';
-import './Auth.css';
+import styles from './Auth.module.css';
 
 const EmailVerification: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -38,21 +38,21 @@ const EmailVerification: React.FC = () => {
 
   return (
     <AuthLayout>
-      <div className="auth-card">
-        <div className="auth-header">
-          <h2>Email Verification</h2>
+      <div className={styles['auth-card']}>
+        <div className={styles['auth-header']}>
+          <h2 className={styles['auth-title']}>Email Verification</h2>
         </div>
 
-        <div className="verification-content">
+        <div className={styles['verification-content']}>
           {verificationStatus === 'loading' && (
-            <div className="loading-state">
-              <div className="spinner"></div>
+            <div className={styles['loading-state']}>
+              <div className={styles['spinner']}></div>
               <p>Verifying your email...</p>
             </div>
           )}
 
           {verificationStatus === 'success' && (
-            <div className="success-state">
+            <div className={styles['success-state']}>
               <h3>Email Verified!</h3>
               <p>{message}</p>
               <p>Redirecting to login...</p>
@@ -60,12 +60,12 @@ const EmailVerification: React.FC = () => {
           )}
 
           {verificationStatus === 'error' && (
-            <div className="error-state">
+            <div className={styles['error-state']}>
               <h3>Verification Failed</h3>
-              <p className="error-message">{message}</p>
+              <p className={styles['error-message']}>{message}</p>
               <button 
                 onClick={() => window.location.href = '/'}
-                className="auth-button"
+                className={`${styles['auth-button']} ${styles['primary']}`}
               >
                 Go to Homepage
               </button>

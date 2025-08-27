@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import ChatService from '../../services/ChatService';
-import webSocketService from '../../services/WebSocketService';
-import globalWebSocketService from '../../services/GlobalWebSocketService';
 import { useChatContext } from '../../contexts/ChatContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { type Chat, type Message, type User } from '../../types/chat';
 import Layout from '../Layout/Layout';
 import styles from './Chat.module.css';
@@ -64,12 +62,13 @@ const UserSearchModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   onSelectUser: (user: User) => void;
-}> = ({ isOpen, onClose, onSelectUser }) => {
+  searchUsersFromContext: (query: string) => Promise<User[]>;
+}> = ({ isOpen, onClose, onSelectUser, searchUsersFromContext }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  const searchUsers = useCallback(async (query: string) => {
+  const performSearch = useCallback(async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
       return;
@@ -77,22 +76,22 @@ const UserSearchModal: React.FC<{
 
     setIsSearching(true);
     try {
-      const users = await ChatService.searchUsers(query);
+      const users = await searchUsersFromContext(query);
       setSearchResults(users);
     } catch (error) {
       console.error('Error searching users:', error);
     } finally {
       setIsSearching(false);
     }
-  }, []);
+  }, [searchUsersFromContext]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      searchUsers(searchQuery);
+      performSearch(searchQuery);
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, searchUsers]);
+  }, [searchQuery, performSearch]);
 
   if (!isOpen) return null;
 
@@ -150,22 +149,39 @@ const UserSearchModal: React.FC<{
 
 // Main Chat Component
 const ChatComponent: React.FC = () => {
-  // Context
-  const { chats, refreshChats, markChatAsRead, isConnected: contextIsConnected } = useChatContext();
+  // Context - get all chat functionality from context
+  const { 
+    chats, 
+    isConnected,
+    sendTextMessage,
+    sendImageMessage,
+    sendTypingStart,
+    sendTypingStop,
+    setActiveChat,
+    leaveActiveChat,
+    getMessages,
+    uploadImage,
+    searchUsers,
+    createChat,
+    markMessagesAsRead,
+    typingUsers,
+    typingUserNames,
+    setMessageCallback,
+    getWebSocketStatus
+  } = useChatContext();
   
-  // State
+  // Get current user for optimistic updates
+  const { user } = useAuth();
+  
+  // Local component state
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [showUserSearch, setShowUserSearch] = useState(false);
   const [showChatList, setShowChatList] = useState(true);
-  const [isConnected, setIsConnected] = useState(false);
-  const [typingUsers, setTypingUsers] = useState<Map<number, Set<number>>>(new Map());
-  const [typingUserNames, setTypingUserNames] = useState<Map<number, string>>(new Map()); // userId -> username
-  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -183,25 +199,17 @@ const ChatComponent: React.FC = () => {
   const loadMessages = useCallback(async (chatId: number) => {
     setIsLoadingMessages(true);
     try {
-      const response = await ChatService.getMessages(chatId);
+      const response = await getMessages(chatId);
       setMessages(response.results);
       
-      // Mark messages as read
-      await ChatService.markMessagesAsRead(chatId);
-      
-      // Update context to reflect read status
-      markChatAsRead(chatId);
-      
-      // Also notify via WebSocket for real-time updates
-      if (globalWebSocketService.isConnected()) {
-        globalWebSocketService.markMessagesAsRead(chatId);
-      }
+      // Mark messages as read via context
+      await markMessagesAsRead(chatId);
     } catch (error) {
       console.error('Error loading messages:', error);
     } finally {
       setIsLoadingMessages(false);
     }
-  }, []);
+  }, [getMessages, markMessagesAsRead]);
 
   // Send text message
   const sendMessage = async () => {
@@ -212,34 +220,59 @@ const ChatComponent: React.FC = () => {
     setIsSending(true);
 
     try {
-      if (isConnected && globalWebSocketService.isConnected()) {
-        // Send via global WebSocket for real-time delivery
-        const success = globalWebSocketService.sendTextMessage(selectedChat.id, messageText);
-        if (!success) {
-          throw new Error('Global WebSocket send failed');
-        }
-        // Note: The actual message will be added to the UI via WebSocket onMessage callback
-      } else {
-        // Fallback to HTTP API if WebSocket not connected
-        const message = await ChatService.sendTextMessage(selectedChat.id, messageText);
-        setMessages(prev => [...prev, message]);
-        // No need to call loadChats - context WebSocket will handle updates
-      }
-    } catch (error) {
-      setMessageInput(messageText); // Restore message on error
+      // Debug WebSocket status
+      const wsStatus = getWebSocketStatus();
+      console.log('🔍 WebSocket status before sending:', wsStatus);
       
-      // Try HTTP fallback if WebSocket failed
       if (isConnected) {
-        try {
-          const message = await ChatService.sendTextMessage(selectedChat.id, messageText);
-          setMessages(prev => [...prev, message]);
-          // No need to call loadChats - context WebSocket will handle updates
-        } catch (fallbackError) {
-          alert('Failed to send message. Please try again.');
+        // Send via context WebSocket for real-time delivery
+        console.log('📤 Attempting to send message via WebSocket...');
+        const success = sendTextMessage(selectedChat.id, messageText);
+        
+        if (success) {
+          console.log('✅ Message sent via WebSocket successfully');
+          
+          // Optimistic update - add message immediately to local state
+          // The WebSocket callback will handle adding it again, but we check for duplicates
+          const optimisticMessage: Message = {
+            id: Date.now(), // Temporary ID, will be replaced when real message comes back
+            chat: selectedChat.id,
+            text_content: messageText,
+            message_type: 'text',
+            sender: user!, // Current user is sending the message
+            created_at: new Date().toISOString(),
+            image_temp_url: '',
+            is_read: false
+          };
+          
+          setMessages(prev => [...prev, optimisticMessage]);
+        } else {
+          console.warn('⚠️ WebSocket send failed, message may not be delivered');
+          // Still add optimistic message, but warn user
+          const optimisticMessage: Message = {
+            id: Date.now(),
+            chat: selectedChat.id,
+            text_content: messageText,
+            message_type: 'text',
+            sender: user!,
+            created_at: new Date().toISOString(),
+            image_temp_url: '',
+            is_read: false
+          };
+          
+          setMessages(prev => [...prev, optimisticMessage]);
+          
+          // Show warning to user
+          alert('Message sent but may not be delivered in real-time. Please check your connection.');
         }
       } else {
+        console.warn('⚠️ WebSocket not connected, message may not be delivered');
         alert('Connection error. Please check your internet connection.');
       }
+    } catch (error) {
+      console.error('Send message error:', error);
+      setMessageInput(messageText); // Restore message on error
+      alert('Failed to send message. Please try again.');
     } finally {
       setIsSending(false);
     }
@@ -264,21 +297,18 @@ const ChatComponent: React.FC = () => {
 
     setIsSending(true);
     try {
-      // First upload the image (this still needs to be done via HTTP)
-      const uploadResult = await ChatService.uploadImage(file);
+      // First upload the image via context
+      const uploadResult = await uploadImage(file);
       
-      // Then send via WebSocket if connected, otherwise HTTP
-      if (isConnected && webSocketService.isConnected()) {
-        const success = webSocketService.sendImageMessage(uploadResult.image_url);
+      // Then send via WebSocket if connected
+      if (isConnected) {
+        const success = sendImageMessage(selectedChat.id, uploadResult.image_url);
         if (!success) {
           throw new Error('WebSocket send failed');
         }
         // Note: The actual message will be added to the UI via WebSocket onMessage callback
       } else {
-        // Fallback to HTTP API
-        const message = await ChatService.sendImageMessage(selectedChat.id, uploadResult.image_url);
-        setMessages(prev => [...prev, message]);
-        // No need to call loadChats - context WebSocket will handle updates
+        alert('Connection error. Please check your internet connection.');
       }
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -300,82 +330,95 @@ const ChatComponent: React.FC = () => {
     }
   };
 
-  // Connect to global WebSocket for all chats
-  const connectToGlobalWebSocket = useCallback(async () => {
-    try {
-      setConnectionError(null);
-      await globalWebSocketService.connect({
-        onConnect: () => {
-          setIsConnected(true);
-        },
-        onDisconnect: () => {
-          setIsConnected(false);
-          setTypingUsers(new Map()); // Clear typing indicators when disconnected
-          setTypingUserNames(new Map());
-        },
-        onMessage: (message: Message, chatId: number) => {
-          // Update messages if this is the currently selected chat
-          if (selectedChat && selectedChat.id === chatId) {
-            setMessages(prev => {
-              // Check if message already exists to avoid duplicates
-              const exists = prev.some(m => m.id === message.id);
-              if (exists) {
-                return prev;
-              }
-              return [...prev, message];
-            });
+  // Register message callback with ChatContext to update local messages
+  useEffect(() => {
+    const messageHandler = (message?: Message, chatId?: number) => {
+      // Console log when a new message event is received
+      console.log('📥 NEW MESSAGE EVENT RECEIVED:', {
+        messageId: message?.id,
+        chatId,
+        selectedChatId: selectedChat?.id,
+        messageValid: !!(message && message.id),
+        chatIdValid: !!chatId
+      });
+      
+      // Safety check - ensure message and chatId exist
+      if (!message || !message.id || !chatId) {
+        console.error('❌ Received invalid message in callback:', { 
+          message, 
+          chatId,
+          messageValid: !!(message && message.id),
+          chatIdValid: !!chatId,
+          messageType: typeof message,
+          chatIdType: typeof chatId,
+          selectedChatId: selectedChat?.id
+        });
+        return;
+      }
+      
+      // Check if this message is for the currently selected chat
+      if (selectedChat && selectedChat.id === chatId) {
+        console.log('✅ THIS IS THE SELECTED CHAT - MESSAGE WILL BE ADDED:', {
+          selectedChatId: selectedChat.id,
+          eventChatId: chatId,
+          messageId: message.id,
+          messageText: message.text_content?.substring(0, 50) + '...'
+        });
+        
+        setMessages(prev => {
+          // Check if this is a real message replacing an optimistic one
+          // Look for optimistic messages with similar content and timestamp
+          const optimisticIndex = prev.findIndex(m => 
+            m.id > 1000000000000 && // Temporary ID (timestamp)
+            m.text_content === message.text_content &&
+            m.sender.id === message.sender.id &&
+            Math.abs(new Date(m.created_at).getTime() - new Date(message.created_at).getTime()) < 10000 // Within 10 seconds
+          );
+          
+          if (optimisticIndex !== -1) {
+            // Replace the optimistic message with the real one
+            const newMessages = [...prev];
+            newMessages[optimisticIndex] = message;
+            return newMessages;
           }
           
-          // No need to loadChats - the ChatContext WebSocket already handles this
-        },
-        onTypingStart: (userId: number, username: string, chatId: number) => {
-          // Store the username for this user
-          setTypingUserNames(prev => {
-            const newMap = new Map(prev);
-            newMap.set(userId, username);
-            return newMap;
-          });
+          // Check if message already exists to avoid duplicates
+          const exists = prev.some(m => m.id === message.id);
+          if (exists) {
+            return prev;
+          }
           
-          setTypingUsers(prev => {
-            const newMap = new Map(prev);
-            if (!newMap.has(chatId)) {
-              newMap.set(chatId, new Set());
-            }
-            newMap.get(chatId)!.add(userId);
-            return newMap;
-          });
-        },
-        onTypingStop: (userId: number, username: string, chatId: number) => {
-          // Store the username for this user (in case we didn't have it)
-          setTypingUserNames(prev => {
-            const newMap = new Map(prev);
-            newMap.set(userId, username);
-            return newMap;
-          });
-          
-          setTypingUsers(prev => {
-            const newMap = new Map(prev);
-            if (newMap.has(chatId)) {
-              newMap.get(chatId)!.delete(userId);
-              if (newMap.get(chatId)!.size === 0) {
-                newMap.delete(chatId);
-              }
-            }
-            return newMap;
-          });
-        },
-        onMessagesRead: (userId: number, chatId: number) => {
-          // You could add logic here to update message read status in the UI if needed
-        },
-        onError: (error: string) => {
-          setConnectionError(error);
-        }
+          return [...prev, message];
+        });
+      }
+    };
+
+    // Debug: Check callback registration
+    console.log('🔧 CHAT.TSX REGISTERING CALLBACK:', {
+      hasSetMessageCallback: !!setMessageCallback,
+      setMessageCallbackType: typeof setMessageCallback,
+      selectedChatId: selectedChat?.id,
+      registering: !!(setMessageCallback && typeof setMessageCallback === 'function')
+    });
+
+    // Register the callback
+    if (setMessageCallback && typeof setMessageCallback === 'function') {
+      console.log('✅ CHAT.TSX CALLBACK REGISTERED for chat:', selectedChat?.id);
+      setMessageCallback(messageHandler);
+    } else {
+      console.log('❌ CHAT.TSX CALLBACK NOT REGISTERED:', {
+        hasSetMessageCallback: !!setMessageCallback,
+        setMessageCallbackType: typeof setMessageCallback
       });
-    } catch (error) {
-      setConnectionError(error instanceof Error ? error.message : 'Connection failed');
-      setIsConnected(false);
     }
-  }, [loadChats, selectedChat]);
+
+    return () => {
+      console.log('🧹 CHAT.TSX CLEANING UP CALLBACK for chat:', selectedChat?.id);
+      if (setMessageCallback && typeof setMessageCallback === 'function') {
+        setMessageCallback(undefined);
+      }
+    };
+  }, [selectedChat?.id, isConnected]); // Re-register callback when WebSocket reconnects
 
   // Handle typing indicators
   const handleTyping = useCallback(() => {
@@ -383,8 +426,8 @@ const ChatComponent: React.FC = () => {
       return;
     }
 
-    // Send typing start for the current chat
-    globalWebSocketService.sendTypingStart(selectedChat.id);
+    // Send typing start for the current chat via context
+    sendTypingStart(selectedChat.id);
 
     // Clear existing timeout
     if (typingTimeoutRef.current) {
@@ -393,42 +436,49 @@ const ChatComponent: React.FC = () => {
 
     // Set timeout to send typing stop
     typingTimeoutRef.current = setTimeout(() => {
-      globalWebSocketService.sendTypingStop(selectedChat.id);
+      sendTypingStop(selectedChat.id);
     }, 5000);
-  }, [isConnected, selectedChat]);
+  }, [isConnected, selectedChat, sendTypingStart, sendTypingStop]);
 
   // Select chat
   const selectChat = (chat: Chat) => {
+    console.log('🎯 CHAT SELECTED:', {
+      chatId: chat.id,
+      otherUser: chat.other_user.username,
+      previousSelectedChatId: selectedChat?.id || 'none',
+      timestamp: new Date().toISOString()
+    });
+    
     // Leave previous chat if any
     if (selectedChat) {
       // Send typing stop for previous chat if user was typing
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
-        globalWebSocketService.sendTypingStop(selectedChat.id);
+        sendTypingStop(selectedChat.id);
         typingTimeoutRef.current = null;
       }
-      globalWebSocketService.leaveActiveChat();
+      leaveActiveChat();
     }
     
     setSelectedChat(chat);
     setShowChatList(false); // Hide chat list on mobile
     
-    // Set this chat as active in global WebSocket
-    globalWebSocketService.setActiveChat(chat.id);
+    // Set this chat as active via context
+    setActiveChat(chat.id);
     
     loadMessages(chat.id);
   };
 
   // Create new chat with user
   const createChatWithUser = async (user: User) => {
+    console.log('🔨 Creating new chat with user:', { userId: user.id, username: user.username });
     setShowUserSearch(false);
     try {
-      const chat = await ChatService.createChat(user.id);
-      // Refresh chats from context to get updated list
-      await refreshChats();
+      const chat = await createChat(user.id);
+      console.log('✅ Chat created successfully:', { chatId: chat.id, otherUser: user.username });
       selectChat(chat);
     } catch (error) {
-      console.error('Error creating chat:', error);
+      console.error('❌ Error creating chat:', error);
     }
   };
 
@@ -436,26 +486,19 @@ const ChatComponent: React.FC = () => {
   useEffect(() => {
     // Just update loading state since chats come from context
     setIsLoading(false);
-    
-    // Use the WebSocket connection from ChatContext instead of connecting here
-    setIsConnected(contextIsConnected);
-  }, [contextIsConnected]);
+  }, []);
 
   // Scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  // Cleanup WebSocket connection on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      globalWebSocketService.disconnect();
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
-      // Clear typing states
-      setTypingUsers(new Map());
-      setTypingUserNames(new Map());
     };
   }, []);
 
@@ -570,22 +613,11 @@ const ChatComponent: React.FC = () => {
                       ) : (
                         <span className={`${styles['status-indicator']} ${styles.offline}`}>● Offline</span>
                       )}
-                      {connectionError && (
-                        <div className={styles['connection-error-inline']}>
-                          Error: {connectionError}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Connection Error */}
-              {connectionError && (
-                <div className={styles['connection-error']}>
-                  ⚠️ Connection error: {connectionError}
-                </div>
-              )}
 
               {/* Messages */}
               <div className={styles['messages-container']}>
@@ -710,6 +742,7 @@ const ChatComponent: React.FC = () => {
           isOpen={showUserSearch}
           onClose={() => setShowUserSearch(false)}
           onSelectUser={createChatWithUser}
+          searchUsersFromContext={searchUsers}
         />
       </div>
     </Layout>

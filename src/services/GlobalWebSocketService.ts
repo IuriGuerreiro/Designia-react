@@ -2,8 +2,9 @@
 import { type Message, type User } from '../types/chat';
 
 export interface GlobalWebSocketMessage {
-  type: 'chat_message' | 'typing_start' | 'typing_stop' | 'messages_read' | 'connection_success' | 'error';
+  type: 'chat_message' | 'typing_start' | 'typing_stop' | 'messages_read' | 'new_chat' | 'connection_success' | 'error';
   message?: Message;
+  chat?: any; // New chat object
   user_id?: number;
   username?: string;
   chat_id?: number;
@@ -15,6 +16,7 @@ export interface GlobalWebSocketCallbacks {
   onTypingStart?: (userId: number, username: string, chatId: number) => void;
   onTypingStop?: (userId: number, username: string, chatId: number) => void;
   onMessagesRead?: (userId: number, chatId: number) => void;
+  onNewChat?: (chat: any) => void;
   onError?: (error: string) => void;
   onConnect?: () => void;
   onDisconnect?: () => void;
@@ -50,7 +52,15 @@ class GlobalWebSocketService {
 
       // Get JWT token from localStorage
       const token = localStorage.getItem('access_token');
+      console.log('🔑 GlobalWebSocketService checking token:', { 
+        hasToken: !!token, 
+        tokenLength: token?.length,
+        timestamp: new Date().toISOString()
+      });
+      
       if (!token) {
+        console.error('❌ No authentication token found in localStorage');
+        console.log('Available localStorage keys:', Object.keys(localStorage));
         this.isConnecting = false;
         reject(new Error('No authentication token found'));
         return;
@@ -186,11 +196,9 @@ class GlobalWebSocketService {
    */
   sendTypingStart(chatId: number): boolean {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      console.warn('🌐🔤❌ Cannot send typing_start: WebSocket not connected');
       return false;
     }
 
-    console.log(`🌐🔤📤 Sending typing_start for chat ${chatId}`);
     return this.sendMessage({
       type: 'typing_start',
       chat_id: chatId
@@ -255,42 +263,133 @@ class GlobalWebSocketService {
   }
 
   /**
+   * Handle valid chat message
+   */
+  private handleChatMessage(message: Message, chatId: number): void {
+    console.log(`🌐📥 GlobalWebSocketService received message from chat ${chatId}:`, { 
+      messageId: message.id, 
+      senderId: message.sender?.id,
+      text: message.text_content?.substring(0, 50),
+      hasCallback: !!this.callbacks.onMessage
+    });
+    
+    if (this.callbacks.onMessage) {
+      this.callbacks.onMessage(message, chatId);
+    }
+  }
+
+  /**
    * Handle incoming WebSocket message
    */
   private handleMessage(data: string): void {
     try {
+      console.log('🌐📥 Raw WebSocket data received:', data);
+      
       const message: GlobalWebSocketMessage = JSON.parse(data);
+      console.log('🌐📥 Parsed WebSocket message:', message);
 
       switch (message.type) {
         case 'connection_success':
-          console.log('🌐✅ Global WebSocket connection confirmed');
+          if (message.user_id) {
+            console.log(`✅ GlobalWebSocketService connection successful for user ${message.user_id}`);
+          } else {
+            console.error('❌ Invalid connection_success format:', { 
+              user_id: message.user_id 
+            });
+          }
           break;
 
         case 'chat_message':
+          console.log('🌐📥 Processing chat_message:', {
+            hasMessage: !!message.message, 
+            hasChatId: !!message.chat_id,
+            messageType: typeof message.message, 
+            chatIdType: typeof message.chat_id,
+            messageKeys: message.message ? Object.keys(message.message) : 'undefined',
+            fullMessage: message
+          });
+          
+          // Validate that both message and chat_id are present
           if (message.message && message.chat_id) {
-            console.log(`🌐📥 Received message from chat ${message.chat_id}:`, message.message);
-            this.callbacks.onMessage?.(message.message, message.chat_id);
+            // Ensure message has required fields
+            if (message.message.id && message.message.sender) {
+              console.log('✅ Valid chat_message received, processing...');
+              // Convert chat_id from string to number
+              const chatId = typeof message.chat_id === 'string' ? parseInt(message.chat_id, 10) : message.chat_id;
+              this.handleChatMessage(message.message, chatId);
+            } else {
+              console.error('❌ Invalid message structure in chat_message:', {
+                hasId: !!message.message.id,
+                hasSender: !!message.message.sender,
+                message: message.message
+              });
+            }
+          } else {
+            console.error('❌ Invalid chat_message format - missing message or chat_id:', { 
+              message: message.message, 
+              chat_id: message.chat_id,
+              messageValid: !!(message.message && message.message.id), 
+              chatIdValid: !!message.chat_id 
+            });
+            
+            // Log the raw message for debugging
+            console.error('❌ Raw malformed message:', message);
           }
           break;
 
         case 'typing_start':
           if (message.user_id && message.username && message.chat_id) {
-            console.log(`🌐🔤📥 Received typing_start from ${message.username} in chat ${message.chat_id}`);
-            this.callbacks.onTypingStart?.(message.user_id, message.username, message.chat_id);
+            console.log(`🔤📥 GlobalWebSocketService received typing_start from ${message.username} in chat ${message.chat_id}`);
+            // Convert chat_id from string to number
+            const chatId = typeof message.chat_id === 'string' ? parseInt(message.chat_id, 10) : message.chat_id;
+            this.callbacks.onTypingStart?.(message.user_id, message.username, chatId);
+          } else {
+            console.error('❌ Invalid typing_start format:', { 
+              user_id: message.user_id, 
+              username: message.username, 
+              chat_id: message.chat_id 
+            });
           }
           break;
 
         case 'typing_stop':
           if (message.user_id && message.username && message.chat_id) {
-            console.log(`🌐⏹️📥 Received typing_stop from ${message.username} in chat ${message.chat_id}`);
-            this.callbacks.onTypingStop?.(message.user_id, message.username, message.chat_id);
+            console.log(`⏹️📥 GlobalWebSocketService received typing_stop from ${message.username} in chat ${message.chat_id}`);
+            // Convert chat_id from string to number
+            const chatId = typeof message.chat_id === 'string' ? parseInt(message.chat_id, 10) : message.chat_id;
+            this.callbacks.onTypingStop?.(message.user_id, message.username, chatId);
+          } else {
+            console.error('❌ Invalid typing_stop format:', { 
+              user_id: message.user_id, 
+              username: message.username, 
+              chat_id: message.chat_id 
+            });
           }
           break;
 
         case 'messages_read':
           if (message.user_id && message.chat_id) {
-            console.log(`🌐👁️📥 Messages read by user ${message.user_id} in chat ${message.chat_id}`);
-            this.callbacks.onMessagesRead?.(message.user_id, message.chat_id);
+            console.log(`👁️📥 GlobalWebSocketService received messages_read from user ${message.user_id} in chat ${message.chat_id}`);
+            // Convert chat_id from string to number
+            const chatId = typeof message.chat_id === 'string' ? parseInt(message.chat_id, 10) : message.chat_id;
+            this.callbacks.onMessagesRead?.(message.user_id, chatId);
+          } else {
+            console.error('❌ Invalid messages_read format:', { 
+              user_id: message.user_id, 
+              chat_id: message.chat_id 
+            });
+          }
+          break;
+
+        case 'new_chat':
+          if (message.chat && message.chat.id) {
+            console.log(`💬📥 GlobalWebSocketService received new_chat notification:`, message.chat);
+            this.callbacks.onNewChat?.(message.chat);
+          } else {
+            console.error('❌ Invalid new_chat format:', { 
+              hasChat: !!message.chat, 
+              chatId: message.chat?.id 
+            });
           }
           break;
 
@@ -304,6 +403,7 @@ class GlobalWebSocketService {
       }
     } catch (error) {
       console.error('🌐❌ Error parsing global WebSocket message:', error);
+      console.error('🌐❌ Raw data that failed to parse:', data);
     }
   }
 

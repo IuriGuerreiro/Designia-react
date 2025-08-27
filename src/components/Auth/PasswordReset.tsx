@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '../../config/api';
 import ErrorMessage from './ErrorMessage';
-import './Auth.css';
+import styles from './Auth.module.css';
 
 interface PasswordResetProps {
   onBackToLogin: () => void;
@@ -87,19 +87,19 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
   };
 
   return (
-    <div className="auth-card">
-      <div className="auth-header">
-        <h2>{t('auth.password_reset_title')}</h2>
-        <p>{step === 'email' ? t('auth.password_reset_description_email') : t('auth.password_reset_description_verify', { email })}</p>
+    <div className={styles['auth-card']}>
+      <div className={styles['auth-header']}>
+        <h2 className={styles['auth-title']}>{t('auth.password_reset_title')}</h2>
+        <p className={styles['auth-subtitle']}>{step === 'email' ? t('auth.password_reset_description_email') : t('auth.password_reset_description_verify', { email })}</p>
       </div>
 
-      <div className="auth-form">
+      <div className={styles['auth-form']}>
         {error && <ErrorMessage message={error} onClose={() => setError('')} />}
-        {success && <div className="success-message">{success}</div>}
+        {success && <div className={styles['success-message']}>{success}</div>}
         
         {step === 'email' ? (
-          <div className="form-group">
-            <label htmlFor="email">{t('auth.email_address_label')}</label>
+          <div className={styles['form-group']}>
+            <label htmlFor="email" className={styles['form-label']}>{t('auth.email_address_label')}</label>
             <input
               id="email"
               type="email"
@@ -107,13 +107,14 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t('auth.email_placeholder')}
               disabled={isLoading}
+              className={`${styles['form-input']} ${styles['auth-input-email']}`}
               onKeyPress={(e) => e.key === 'Enter' && handleRequestReset()}
             />
           </div>
         ) : (
           <>
-            <div className="form-group">
-              <label htmlFor="code">{t('auth.verification_code_label')}</label>
+            <div className={styles['form-group']}>
+              <label htmlFor="code" className={styles['form-label']}>{t('auth.verification_code_label')}</label>
               <input
                 id="code"
                 type="text"
@@ -122,10 +123,11 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
                 placeholder="000000"
                 maxLength={6}
                 disabled={isLoading}
+                className={`${styles['form-input']} ${styles['code-input']} ${styles['auth-input-verification']}`}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="password">{t('auth.new_password_label')}</label>
+            <div className={styles['form-group']}>
+              <label htmlFor="password" className={styles['form-label']}>{t('auth.new_password_label')}</label>
               <input
                 id="password"
                 type="password"
@@ -133,10 +135,11 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t('auth.password_placeholder')}
                 disabled={isLoading}
+                className={`${styles['form-input']} ${styles['auth-input-password']}`}
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="confirmPassword">{t('auth.confirm_password_label')}</label>
+            <div className={styles['form-group']}>
+              <label htmlFor="confirmPassword" className={styles['form-label']}>{t('auth.confirm_password_label')}</label>
               <input
                 id="confirmPassword"
                 type="password"
@@ -144,6 +147,7 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder={t('auth.confirm_password_placeholder')}
                 disabled={isLoading}
+                className={`${styles['form-input']} ${styles['auth-input-confirm-password']}`}
                 onKeyPress={(e) => e.key === 'Enter' && handleResetPassword()}
               />
             </div>
@@ -152,7 +156,7 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
 
         <button 
           type="button" 
-          className="auth-button" 
+          className={`${styles['auth-button']} ${styles['primary']}`} 
           disabled={isLoading}
           onClick={step === 'email' ? handleRequestReset : handleResetPassword}
         >
@@ -160,11 +164,11 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
         </button>
       </div>
 
-      <div className="auth-switch">
-        <p>
+      <div className={styles['auth-switch']}>
+        <p className={styles['switch-text']}>
           <button 
             type="button" 
-            className="link-button" 
+            className={styles['link-button']} 
             onClick={onBackToLogin}
           >
             {t('auth.back_to_login_link')}

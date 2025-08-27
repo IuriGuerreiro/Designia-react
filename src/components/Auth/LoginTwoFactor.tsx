@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../contexts/AuthContext';
 import ErrorMessage from './ErrorMessage';
-import './Auth.css';
+import styles from './Auth.module.css';
 
 interface LoginTwoFactorProps {
   userId: number;
@@ -12,10 +12,12 @@ interface LoginTwoFactorProps {
 
 const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }) => {
   const [code, setCode] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [resendCooldown, setResendCooldown] = useState(0);
   const [isResending, setIsResending] = useState(false);
-  const { loginVerify2FA, resend2FACode, isLoading } = useAuth();
+  const [resendCooldown, setResendCooldown] = useState(0);
+  
+  const { verifyTwoFactor, resendTwoFactorCode } = useAuth();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -26,47 +28,54 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
   }, [resendCooldown]);
 
   const handleVerify = async () => {
-    if (!code || code.length !== 6) {
-      setError('Please enter the 6-digit verification code.');
+    if (code.length !== 6) {
+      setError('Please enter the 6-digit verification code');
       return;
     }
+
+    setIsLoading(true);
     setError('');
+
     try {
-      await loginVerify2FA(userId, code);
+      await verifyTwoFactor(userId, code);
+      // Success - user will be redirected by the auth context
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Verification failed.');
+      setError(err instanceof Error ? err.message : 'Verification failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleResendCode = async () => {
-    if (resendCooldown > 0 || isResending) return;
     setIsResending(true);
+    setError('');
+
     try {
-      const result = await resend2FACode(userId, 'login');
-      if (result.success) {
-        setResendCooldown(60);
-      } else {
-        setError(result.message);
-      }
+      await resendTwoFactorCode(userId);
+      setResendCooldown(60); // 60 second cooldown
     } catch (err) {
-      setError('Failed to resend code.');
+      setError(err instanceof Error ? err.message : 'Failed to resend code');
     } finally {
       setIsResending(false);
     }
   };
 
   return (
-    <div className="auth-card">
-      <div className="auth-header">
-        <h2>{t('auth.two_factor_title')}</h2>
-        <p>{t('auth.two_factor_description', { email })}</p>
+    <div className={styles['auth-card']}>
+      <div className={styles['auth-header']}>
+        <h2 className={styles['auth-title']}>{t('auth.two_factor_title') || 'Two-Factor Authentication'}</h2>
+        <p className={styles['auth-subtitle']}>
+          {t('auth.two_factor_description', { email }) || `We've sent a verification code to ${email}`}
+        </p>
       </div>
 
-      <div className="auth-form">
+      <div className={styles['auth-form']}>
         {error && <ErrorMessage message={error} onClose={() => setError('')} />}
         
-        <div className="form-group">
-          <label htmlFor="verificationCode">{t('auth.verification_code_label')}</label>
+        <div className={styles['form-group']}>
+          <label htmlFor="verificationCode" className={styles['form-label']}>
+            {t('auth.verification_code_label') || 'Verification Code'}
+          </label>
           <input
             id="verificationCode"
             type="text"
@@ -74,32 +83,36 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
             placeholder="000000"
             maxLength={6}
-            className="code-input"
+            className={`${styles['form-input']} ${styles['code-input']} ${styles['auth-input-verification']}`}
             disabled={isLoading}
             onKeyPress={(e) => e.key === 'Enter' && handleVerify()}
           />
         </div>
 
         <button 
-          className="auth-button" 
+          className={`${styles['auth-button']} ${styles['primary']}`} 
           disabled={isLoading || code.length !== 6}
           onClick={handleVerify}
         >
-          {isLoading ? t('auth.verifying_button') : t('auth.verify_login_button')}
+          {isLoading ? (t('auth.verifying_button') || 'Verifying...') : (t('auth.verify_login_button') || 'Verify & Sign In')}
         </button>
 
-        <div className="auth-switch">
-          <p>
-            {t('auth.didnt_receive_code')}{' '}
+        <div className={styles['auth-switch']}>
+          <p className={styles['switch-text']}>
+            {t('auth.didnt_receive_code') || "Didn't receive the code?"}{' '}
             <button 
-              className="link-button" 
+              className={styles['link-button']} 
               onClick={handleResendCode}
               disabled={isResending || resendCooldown > 0}
             >
-              {isResending ? t('auth.sending_button') : resendCooldown > 0 ? t('auth.resend_in_button', { seconds: resendCooldown }) : t('auth.resend_code_button')}
+              {isResending ? (t('auth.sending_button') || 'Sending...') : 
+               resendCooldown > 0 ? (t('auth.resend_in_button', { seconds: resendCooldown }) || `Resend in ${resendCooldown}s`) : 
+               (t('auth.resend_code_button') || 'Resend Code')}
             </button>
           </p>
-          <button onClick={onBack} className="link-button">{t('auth.back_to_login_link')}</button>
+          <button onClick={onBack} className={`${styles['link-button']} ${styles['back-link']}`}>
+            {t('auth.back_to_login_link') || 'Back to Login'}
+          </button>
         </div>
       </div>
     </div>

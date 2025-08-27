@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import GoogleOAuth from './GoogleOAuth';
+import { useAuth } from '../../contexts/AuthContext';
 import ErrorMessage from './ErrorMessage';
-import LoginTwoFactor from './LoginTwoFactor';
-import './Auth.css';
+import GoogleOAuth from './GoogleOAuth';
+import styles from './Auth.module.css';
 
 interface LoginProps {
   onSwitchToRegister: () => void;
@@ -14,74 +13,57 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordReset }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [twoFactorData, setTwoFactorData] = useState<{ userId: number; email: string; } | null>(null);
-  const { login, isLoading } = useAuth();
+  
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    setError('');
     if (!email || !password) {
-      setError('Please fill in all fields.');
+      setError('Please fill in all fields');
       return;
     }
 
+    setIsLoading(true);
+    setError('');
+
     try {
-      const result = await login(email, password);
-      
-      if (result.emailNotVerified) {
-        navigate('/verify-email-pending', { 
-          state: { 
-            email: result.email || email,
-            fromLogin: true
-          } 
-        });
-        return;
-      }
-      
-      if (result.requires2FA && result.userId) {
-        setTwoFactorData({ userId: result.userId, email });
-      }
+      await login(email, password);
+      navigate('/dashboard');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed.');
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (twoFactorData) {
-    return (
-      <LoginTwoFactor
-        userId={twoFactorData.userId}
-        email={twoFactorData.email}
-        onBack={() => setTwoFactorData(null)}
-      />
-    );
-  }
-
   return (
-    <div className="auth-card">
-      <div className="auth-header">
-        <h2>Welcome Back</h2>
-        <p>Sign in to access your account.</p>
+    <div className={styles['auth-card']}>
+      <div className={styles['auth-header']}>
+        <h2 className={styles['auth-title']}>Welcome Back</h2>
+        <p className={styles['auth-subtitle']}>Sign in to access your premium Designia experience</p>
       </div>
 
-      <div className="auth-form">
+      <div className={styles['auth-form']}>
         {error && <ErrorMessage message={error} onClose={() => setError('')} />}
         
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
+        <div className={styles['form-group']}>
+          <label htmlFor="email" className={styles['form-label']}>Email Address</label>
           <input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you @example.com"
+            placeholder="you@example.com"
             disabled={isLoading}
+            className={`${styles['form-input']} ${styles['auth-input-email']}`}
             onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
+        <div className={styles['form-group']}>
+          <label htmlFor="password" className={styles['form-label']}>Password</label>
           <input
             id="password"
             type="password"
@@ -89,14 +71,15 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordRes
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             disabled={isLoading}
+            className={`${styles['form-input']} ${styles['auth-input-password']}`}
             onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
           />
         </div>
 
-        <div style={{ textAlign: 'right', fontSize: '0.9rem' }}>
+        <div className={styles['form-actions']}>
           <button 
             type="button" 
-            className="link-button" 
+            className={styles['link-button']} 
             onClick={onSwitchToPasswordReset}
           >
             Forgot Password?
@@ -105,7 +88,7 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordRes
 
         <button 
           type="button" 
-          className="auth-button" 
+          className={`${styles['auth-button']} ${styles['primary']}`} 
           disabled={isLoading}
           onClick={handleLogin}
         >
@@ -113,14 +96,18 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordRes
         </button>
       </div>
 
+      <div className={styles['auth-divider']}>
+        <span>or</span>
+      </div>
+
       <GoogleOAuth onError={setError} />
 
-      <div className="auth-switch">
-        <p>
+      <div className={styles['auth-switch']}>
+        <p className={styles['switch-text']}>
           Don't have an account?{' '}
           <button 
             type="button" 
-            className="link-button" 
+            className={styles['link-button']} 
             onClick={onSwitchToRegister}
           >
             Sign Up
