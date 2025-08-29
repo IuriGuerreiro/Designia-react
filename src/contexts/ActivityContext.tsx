@@ -20,6 +20,9 @@ interface ActivityContextType {
   // Cart state
   cartCount: number;
   
+  // Messages state
+  unreadMessagesCount: number;
+  
   // Notifications
   notifications: ActivityNotification[];
   unreadCount: number;
@@ -32,6 +35,7 @@ interface ActivityContextType {
   markAllNotificationsAsRead: () => void;
   clearNotifications: () => void;
   recountCartItems: () => void;
+  requestUnreadMessagesCount: () => void;
   
   // WebSocket status
   getWebSocketStatus: () => {
@@ -54,9 +58,10 @@ interface ActivityProviderProps {
 }
 
 interface ActivityWebSocketMessage {
-  type: 'connection_success' | 'cart_updated' | 'activity_notification' | 'cart_count_update' | 'error';
+  type: 'connection_success' | 'cart_updated' | 'activity_notification' | 'cart_count_update' | 'unread_messages_count_update' | 'error';
   user_id?: number;
   cart_count?: number;
+  unread_messages_count?: number;
   action?: string;
   product_id?: number;
   message?: string;
@@ -69,6 +74,7 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({ children }) 
   const { user } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
   const [notifications, setNotifications] = useState<ActivityNotification[]>([]);
   
   // Get singleton instance of ActivityWebSocketService
@@ -96,6 +102,10 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({ children }) 
         onCartUpdate: (newCartCount) => {
           console.log('🛒 ActivityContext received cart update:', newCartCount);
           setCartCount(newCartCount);
+        },
+        onUnreadMessagesUpdate: (newUnreadCount) => {
+          console.log('💬 ActivityContext received unread messages update:', newUnreadCount);
+          setUnreadMessagesCount(newUnreadCount);
         },
         onActivityNotification: (notification) => {
           console.log('📥 ActivityContext received activity notification:', notification);
@@ -162,6 +172,15 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({ children }) 
       activityService.sendCartUpdateNotification();
     } else {
       console.warn('⚠️ Cannot recount cart items: WebSocket not connected');
+    }
+  }, []);
+
+  const requestUnreadMessagesCount = useCallback(() => {
+    console.log('💬🔄 ActivityContext requesting unread messages count via WebSocket');
+    if (activityService.isConnected()) {
+      activityService.sendUnreadMessagesRequest();
+    } else {
+      console.warn('⚠️ Cannot get unread messages count: WebSocket not connected');
     }
   }, []);
 
@@ -234,6 +253,7 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({ children }) 
   const value: ActivityContextType = {
     isConnected,
     cartCount,
+    unreadMessagesCount,
     notifications,
     unreadCount,
     connect,
@@ -243,6 +263,7 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({ children }) 
     markAllNotificationsAsRead,
     clearNotifications,
     recountCartItems,
+    requestUnreadMessagesCount,
     getWebSocketStatus
   };
 

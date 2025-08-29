@@ -22,7 +22,7 @@ const ChatIcon = () => (
 const Navbar = () => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
-  const { cartCount } = useActivityContext();
+  const { cartCount, unreadMessagesCount } = useActivityContext();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -63,6 +63,7 @@ const Navbar = () => {
 
           <Link to="/chat" className={styles.actionBtn}>
             <ChatIcon />
+            {unreadMessagesCount > 0 && <div className={styles.cartBadge}>{unreadMessagesCount}</div>}
           </Link>
 
           <div className={styles.userMenu} ref={dropdownRef}>

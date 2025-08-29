@@ -14,10 +14,11 @@ interface Chat {
   last_message?: Message;
   created_at: string;
   updated_at: string;
+  unread_count?: number; // From backend
 }
 
 interface Message {
-  id: number;
+  id: number | string; // Allow temporary string IDs for instant messages
   chat: number;
   sender: {
     id: number;
@@ -32,6 +33,10 @@ interface Message {
   created_at: string;
   is_read: boolean;
   read_at?: string;
+  // Local states for instant messaging
+  status?: 'sending' | 'sent' | 'delivered' | 'read' | 'error';
+  error?: string;
+  isTemp?: boolean; // Mark as temporary message
 }
 
 interface ChatUser {
@@ -248,15 +253,40 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const handleNewMessage = (message: Message) => {
     console.log('Chat: New message received via WebSocket:', message);
     
+    // Check if this is our own message coming back (update status to delivered)
+    const isOwnMessage = user?.id === message.sender.id;
+    
     // Add message to the appropriate chat, avoiding duplicates
     setMessages(prev => {
       const existingMessages = prev[message.chat] || [];
-      // Check if message already exists to avoid duplicates
+      
+      // For own messages, try to find and update temp message first
+      if (isOwnMessage) {
+        const tempMessageIndex = existingMessages.findIndex(msg => 
+          msg.isTemp && 
+          msg.text_content === message.text_content &&
+          msg.message_type === message.message_type
+        );
+        
+        if (tempMessageIndex !== -1) {
+          // Replace temp message with actual message and mark as delivered
+          const updatedMessages = [...existingMessages];
+          updatedMessages[tempMessageIndex] = { ...message, status: 'delivered' };
+          console.log('Chat: Updated temp message with delivered status');
+          return {
+            ...prev,
+            [message.chat]: updatedMessages
+          };
+        }
+      }
+      
+      // Check if message already exists by ID
       if (existingMessages.some(msg => msg.id === message.id)) {
         console.log('Chat: Message already exists, skipping duplicate');
         return prev;
       }
       
+      // Add new message (for other users' messages)
       return {
         ...prev,
         [message.chat]: [...existingMessages, message].sort((a, b) => 
@@ -265,12 +295,21 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       };
     });
 
-    // Update chat's last message
-    setChats(prev => prev.map(chat => 
-      chat.id === message.chat 
-        ? { ...chat, last_message: message, updated_at: message.created_at }
-        : chat
-    ).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()));
+    // Update chat's last message and increment unread count if message is from other user
+    setChats(prev => prev.map(chat => {
+      if (chat.id === message.chat) {
+        const isFromOtherUser = message.sender.id !== user?.id;
+        return {
+          ...chat, 
+          last_message: message, 
+          updated_at: message.created_at,
+          unread_count: isFromOtherUser 
+            ? (chat.unread_count || 0) + 1 
+            : chat.unread_count
+        };
+      }
+      return chat;
+    }).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()));
     
     // Show notification if message is from another user and not in current chat
     if (message.sender.id !== user?.id && (!currentChat || currentChat.id !== message.chat)) {
@@ -286,10 +325,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   const handleMessageRead = (chatId: number) => {
     console.log('Chat: Messages marked as read for chat:', chatId);
-    // Update local message state to mark messages as read
+    // Update local message state to mark our own messages as read (blue checkmarks)
     setMessages(prev => ({
       ...prev,
-      [chatId]: (prev[chatId] || []).map(msg => ({ ...msg, is_read: true }))
+      [chatId]: (prev[chatId] || []).map(msg => 
+        msg.sender.id === user?.id 
+          ? { ...msg, is_read: true, status: 'read' }
+          : { ...msg, is_read: true }
+      )
     }));
   };
 
@@ -388,6 +431,34 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   };
 
   const sendMessage = async (chatId: number, content: string, messageType: 'text' | 'image' = 'text') => {
+    // Generate temporary ID for instant display
+    const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Create instant message for immediate display
+    const tempMessage: Message = {
+      id: tempId,
+      chat: chatId,
+      sender: {
+        id: user!.id,
+        username: user!.username,
+        first_name: user!.first_name,
+        last_name: user!.last_name,
+      },
+      message_type: messageType,
+      text_content: messageType === 'text' ? content : undefined,
+      image_url: messageType === 'image' ? content : undefined,
+      created_at: new Date().toISOString(),
+      is_read: false,
+      status: 'sending',
+      isTemp: true
+    };
+
+    // Add temporary message immediately for instant display
+    setMessages(prev => ({
+      ...prev,
+      [chatId]: [...(prev[chatId] || []), tempMessage]
+    }));
+
     try {
       console.log('Chat: Sending message to chat:', chatId, messageType, content);
       
@@ -395,30 +466,27 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         ? { message_type: 'text', text_content: content }
         : { message_type: 'image', image_url: content };
       
-      const message = await apiRequest(`/api/chat/${chatId}/messages/`, {
+      const actualMessage = await apiRequest(`/api/chat/${chatId}/messages/`, {
         method: 'POST',
         body: JSON.stringify(payload),
       });
       
-      console.log('Chat: Message sent:', message);
+      console.log('Chat: Message sent successfully:', actualMessage);
       
-      // Add message to local state immediately (sender sees it right away)
-      setMessages(prev => {
-        const existingMessages = prev[chatId] || [];
-        // Check if message already exists to avoid duplicates
-        if (existingMessages.some(msg => msg.id === message.id)) {
-          return prev;
-        }
-        return {
-          ...prev,
-          [chatId]: [...existingMessages, message]
-        };
-      });
+      // Replace temporary message with actual message
+      setMessages(prev => ({
+        ...prev,
+        [chatId]: (prev[chatId] || []).map(msg => 
+          msg.id === tempId 
+            ? { ...actualMessage, status: 'sent' } 
+            : msg
+        )
+      }));
 
       // Update chat's last message
       setChats(prev => prev.map(chat => 
         chat.id === chatId 
-          ? { ...chat, last_message: message, updated_at: message.created_at }
+          ? { ...chat, last_message: actualMessage, updated_at: actualMessage.created_at }
           : chat
       ).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()));
 
@@ -433,7 +501,24 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     } catch (error) {
       console.error('Chat: Failed to send message:', error);
-      throw error;
+      
+      // Update temporary message to show error state
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send message';
+      setMessages(prev => ({
+        ...prev,
+        [chatId]: (prev[chatId] || []).map(msg => 
+          msg.id === tempId 
+            ? { 
+                ...msg, 
+                status: 'error', 
+                error: 'Error sending message'
+              } 
+            : msg
+        )
+      }));
+
+      // Don't throw error - message stays in UI with error state
+      console.log('Chat: Message marked as failed, staying in UI for retry');
     }
   };
 
@@ -443,13 +528,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         method: 'POST',
       });
       
-      // Update local state
+      // Update local state - mark messages as read
       setMessages(prev => ({
         ...prev,
         [chatId]: (prev[chatId] || []).map(msg => 
           msg.sender.id !== user?.id ? { ...msg, is_read: true } : msg
         )
       }));
+      
+      // Update chat's unread count to 0
+      setChats(prev => prev.map(chat => 
+        chat.id === chatId 
+          ? { ...chat, unread_count: 0 }
+          : chat
+      ));
       
     } catch (error) {
       console.error('Chat: Failed to mark messages as read:', error);
@@ -486,17 +578,25 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     if (!user) return 0;
     
     const chatMessages = messages[chatId] || [];
-    return chatMessages.filter(message => 
-      !message.is_read && message.sender.id !== user.id
-    ).length;
+    
+    // If messages are loaded for this chat, calculate from messages
+    if (chatMessages.length > 0) {
+      return chatMessages.filter(message => 
+        !message.is_read && message.sender.id !== user.id
+      ).length;
+    }
+    
+    // If messages aren't loaded yet, use backend's unread count from chat data
+    const chat = chats.find(c => c.id === chatId);
+    return chat?.unread_count || 0;
   };
 
   const getTotalUnreadCount = (): number => {
     if (!user) return 0;
     
-    return Object.keys(messages).reduce((total, chatIdStr) => {
-      const chatId = parseInt(chatIdStr);
-      return total + getUnreadCount(chatId);
+    // Calculate total from all chats (using getUnreadCount which handles loaded/unloaded messages)
+    return chats.reduce((total, chat) => {
+      return total + getUnreadCount(chat.id);
     }, 0);
   };
 

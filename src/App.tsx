@@ -49,7 +49,6 @@ import EmailVerificationPending from './components/Auth/EmailVerificationPending
 import ProductList from './components/Marketplace/Products/ProductList';
 // Chat Components
 import { ChatPage } from './components/chat/ChatPage';
-import { ChatTestPage } from './components/chat/ChatTestPage';
 import ProductDetailPage from './components/Marketplace/Products/ProductDetailPage';
 import ProductForm from './components/Marketplace/Products/ProductForm';
 import FavoritesPage from './components/Marketplace/Products/FavoritesPage';
@@ -142,7 +141,6 @@ const AppContent: React.FC = () => {
             
             {/* Chat routes */}
             <Route path="/chat" element={<ChatPage />} />
-            <Route path="/chat/test" element={<ChatTestPage />} />
             
             {/* 404 catch-all route */}
             <Route path="*" element={<NotFound />} />
