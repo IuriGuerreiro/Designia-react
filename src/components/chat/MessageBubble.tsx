@@ -15,6 +15,9 @@ interface Message {
   image_temp_url?: string;
   created_at: string;
   is_read: boolean;
+  // Local states for instant messaging
+  status?: 'sending' | 'sent' | 'delivered' | 'read' | 'error';
+  error?: string;
 }
 
 interface MessageBubbleProps {
@@ -42,6 +45,48 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       return `${message.sender.first_name || ''} ${message.sender.last_name || ''}`.trim();
     }
     return message.sender.username;
+  };
+
+  const getMessageStatus = () => {
+    if (!isOwnMessage) return null;
+    
+    // Use local status if available, otherwise derive from is_read
+    const status = message.status || (message.is_read ? 'read' : 'delivered');
+    
+    switch (status) {
+      case 'sending':
+        return (
+          <span className={`${styles.messageStatus} ${styles.sending}`}>
+            <div className={styles.loadingSpinner}></div>
+          </span>
+        );
+      case 'sent':
+        return (
+          <span className={`${styles.messageStatus} ${styles.sent}`}>
+            ✓
+          </span>
+        );
+      case 'delivered':
+        return (
+          <span className={`${styles.messageStatus} ${styles.delivered}`}>
+            ✓✓
+          </span>
+        );
+      case 'read':
+        return (
+          <span className={`${styles.messageStatus} ${styles.read}`}>
+            ✓✓
+          </span>
+        );
+      case 'error':
+        return (
+          <span className={`${styles.messageStatus} ${styles.error}`}>
+            ⚠️
+          </span>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -76,12 +121,15 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       
       <div className={styles.messageMeta}>
         <span className={styles.messageTime}>{formatTime(message.created_at)}</span>
-        {isOwnMessage && (
-          <span className={`${styles.messageStatus} ${message.is_read ? styles.read : styles.sent}`}>
-            {message.is_read ? '✓✓' : '✓'}
-          </span>
-        )}
+        {getMessageStatus()}
       </div>
+      
+      {/* Error message display */}
+      {message.error && (
+        <div className={styles.errorMessage}>
+          {message.error}
+        </div>
+      )}
     </div>
   );
 };

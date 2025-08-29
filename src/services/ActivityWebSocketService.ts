@@ -1,8 +1,9 @@
 // Activity WebSocket service for cart notifications and activity tracking
 export interface ActivityWebSocketMessage {
-  type: 'connection_success' | 'cart_updated' | 'activity_notification' | 'cart_count_update' | 'error';
+  type: 'connection_success' | 'cart_updated' | 'activity_notification' | 'cart_count_update' | 'unread_messages_count_update' | 'error';
   user_id?: number;
   cart_count?: number;
+  unread_messages_count?: number;
   action?: string;
   product_id?: number;
   message?: string;
@@ -16,6 +17,7 @@ export interface ActivityWebSocketCallbacks {
   onConnect?: () => void;
   onDisconnect?: () => void;
   onCartUpdate?: (cartCount: number) => void;
+  onUnreadMessagesUpdate?: (unreadCount: number) => void;
   onActivityNotification?: (notification: any) => void;
   onError?: (error: string) => void;
 }
@@ -169,6 +171,21 @@ export class ActivityWebSocketService {
   }
 
   /**
+   * Send unread messages request to trigger unread count refresh
+   */
+  sendUnreadMessagesRequest(): boolean {
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+      console.warn('⚡⚠️ Cannot send unread messages request: WebSocket not connected');
+      return false;
+    }
+
+    console.log('💬📤 Sending unread messages count request');
+    return this.sendMessage({
+      type: 'get_unread_count'
+    });
+  }
+
+  /**
    * Track product activity
    */
   trackActivity(productId: number, action: string): boolean {
@@ -218,6 +235,9 @@ export class ActivityWebSocketService {
           if (message.cart_count !== undefined) {
             this.callbacks.onCartUpdate?.(message.cart_count);
           }
+          if (message.unread_messages_count !== undefined) {
+            this.callbacks.onUnreadMessagesUpdate?.(message.unread_messages_count);
+          }
           break;
 
         case 'cart_updated':
@@ -231,6 +251,13 @@ export class ActivityWebSocketService {
           console.log('🛒📥 Cart count update:', message);
           if (message.cart_count !== undefined) {
             this.callbacks.onCartUpdate?.(message.cart_count);
+          }
+          break;
+
+        case 'unread_messages_count_update':
+          console.log('💬📥 Unread messages count update:', message);
+          if (message.unread_messages_count !== undefined) {
+            this.callbacks.onUnreadMessagesUpdate?.(message.unread_messages_count);
           }
           break;
 

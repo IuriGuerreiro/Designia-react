@@ -101,14 +101,50 @@
 .messageStatus {
   font-size: 0.75rem;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.sending {
+  color: #999;
 }
 
 .sent {
   color: #999;
 }
 
+.delivered {
+  color: #999;
+}
+
 .read {
   color: #007bff;
+}
+
+.error {
+  color: #ff4757;
+}
+
+.loadingSpinner {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #ddd;
+  border-top: 1px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorMessage {
+  font-size: 0.7rem;
+  color: #ff4757;
+  margin-top: 2px;
+  font-style: italic;
+  align-self: flex-end;
 }
 
 /* Mobile responsiveness */
