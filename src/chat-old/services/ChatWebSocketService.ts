@@ -1,7 +1,7 @@
-// Global WebSocket service for user-level real-time notifications
+// Dedicated Chat WebSocket service for chat messaging only
 import { type Message, type User } from '../types/chat';
 
-export interface GlobalWebSocketMessage {
+export interface ChatWebSocketMessage {
   type: 'chat_message' | 'typing_start' | 'typing_stop' | 'messages_read' | 'new_chat' | 'connection_success' | 'error';
   message?: Message;
   chat?: any; // New chat object
@@ -11,7 +11,7 @@ export interface GlobalWebSocketMessage {
   error?: string;
 }
 
-export interface GlobalWebSocketCallbacks {
+export interface ChatWebSocketCallbacks {
   onMessage?: (message: Message, chatId: number) => void;
   onTypingStart?: (userId: number, username: string, chatId: number) => void;
   onTypingStop?: (userId: number, username: string, chatId: number) => void;
@@ -22,9 +22,9 @@ export interface GlobalWebSocketCallbacks {
   onDisconnect?: () => void;
 }
 
-class GlobalWebSocketService {
+class ChatWebSocketService {
   private socket: WebSocket | null = null;
-  private callbacks: GlobalWebSocketCallbacks = {};
+  private callbacks: ChatWebSocketCallbacks = {};
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
@@ -32,12 +32,12 @@ class GlobalWebSocketService {
   private activeChatId: number | null = null;
 
   /**
-   * Connect to global user WebSocket
+   * Connect to dedicated chat WebSocket
    */
-  connect(callbacks: GlobalWebSocketCallbacks): Promise<void> {
+  connect(callbacks: ChatWebSocketCallbacks): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-        console.log('🌐✅ Already connected to global WebSocket');
+        console.log('💬✅ Already connected to chat WebSocket');
         resolve();
         return;
       }
@@ -52,7 +52,7 @@ class GlobalWebSocketService {
 
       // Get JWT token from localStorage
       const token = localStorage.getItem('access_token');
-      console.log('🔑 GlobalWebSocketService checking token:', { 
+      console.log('🔑 ChatWebSocketService checking token:', { 
         hasToken: !!token, 
         tokenLength: token?.length,
         timestamp: new Date().toISOString()
@@ -60,23 +60,22 @@ class GlobalWebSocketService {
       
       if (!token) {
         console.error('❌ No authentication token found in localStorage');
-        console.log('Available localStorage keys:', Object.keys(localStorage));
         this.isConnecting = false;
         reject(new Error('No authentication token found'));
         return;
       }
 
-      // Construct WebSocket URL
+      // Construct WebSocket URL for chat
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001';
       const wsHost = new URL(apiBaseUrl).host;
-      const wsUrl = `${protocol}//${wsHost}/ws/user/?token=${encodeURIComponent(token)}`;
+      const wsUrl = `${protocol}//${wsHost}/ws/chat/?token=${encodeURIComponent(token)}`;
 
       try {
         this.socket = new WebSocket(wsUrl);
 
         this.socket.onopen = () => {
-          console.log(`🌐🔌 Connected to global WebSocket`);
+          console.log(`💬🔌 Connected to chat WebSocket`);
           this.isConnecting = false;
           this.reconnectAttempts = 0;
           this.callbacks.onConnect?.();
@@ -88,7 +87,7 @@ class GlobalWebSocketService {
         };
 
         this.socket.onclose = (event) => {
-          console.log(`🌐🔌 Disconnected from global WebSocket`, event.code, event.reason);
+          console.log(`💬🔌 Disconnected from chat WebSocket`, event.code, event.reason);
           this.isConnecting = false;
           this.callbacks.onDisconnect?.();
           
@@ -99,9 +98,9 @@ class GlobalWebSocketService {
         };
 
         this.socket.onerror = (error) => {
-          console.error('🌐🔌 Global WebSocket error:', error);
+          console.error('💬🔌 Chat WebSocket error:', error);
           this.isConnecting = false;
-          reject(new Error('Global WebSocket connection failed'));
+          reject(new Error('Chat WebSocket connection failed'));
         };
 
       } catch (error) {
@@ -126,18 +125,11 @@ class GlobalWebSocketService {
   }
 
   /**
-   * Check if WebSocket is connected
-   */
-  isConnected(): boolean {
-    return this.socket !== null && this.socket.readyState === WebSocket.OPEN;
-  }
-
-  /**
    * Set the currently active chat
    */
   setActiveChat(chatId: number): void {
     if (this.activeChatId !== chatId) {
-      console.log(`🌐💬 Setting active chat to ${chatId}`);
+      console.log(`💬🎯 Setting active chat to ${chatId}`);
       this.activeChatId = chatId;
       
       // Join the chat group
@@ -153,7 +145,7 @@ class GlobalWebSocketService {
    */
   leaveActiveChat(): void {
     if (this.activeChatId) {
-      console.log(`🌐💬 Leaving active chat ${this.activeChatId}`);
+      console.log(`💬🚪 Leaving active chat ${this.activeChatId}`);
       this.sendMessage({
         type: 'leave_chat',
         chat_id: this.activeChatId
@@ -167,11 +159,11 @@ class GlobalWebSocketService {
    */
   sendTextMessage(chatId: number, text: string): boolean {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      console.error('🌐❌ WebSocket not connected');
+      console.error('💬❌ WebSocket not connected');
       return false;
     }
 
-    console.log(`🌐📤 Sending text message to chat ${chatId}`);
+    console.log(`💬📤 Sending text message to chat ${chatId}`);
     return this.sendMessage({
       type: 'chat_message',
       chat_id: chatId,
@@ -185,11 +177,11 @@ class GlobalWebSocketService {
    */
   sendImageMessage(chatId: number, imageUrl: string): boolean {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      console.error('🌐❌ WebSocket not connected');
+      console.error('💬❌ WebSocket not connected');
       return false;
     }
 
-    console.log(`🌐📤 Sending image message to chat ${chatId}`);
+    console.log(`💬📤 Sending image message to chat ${chatId}`);
     return this.sendMessage({
       type: 'chat_message',
       chat_id: chatId,
@@ -217,11 +209,11 @@ class GlobalWebSocketService {
    */
   sendTypingStop(chatId: number): boolean {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      console.warn('🌐⏹️❌ Cannot send typing_stop: WebSocket not connected');
+      console.warn('💬⏹️❌ Cannot send typing_stop: WebSocket not connected');
       return false;
     }
 
-    console.log(`🌐⏹️📤 Sending typing_stop for chat ${chatId}`);
+    console.log(`💬⏹️📤 Sending typing_stop for chat ${chatId}`);
     return this.sendMessage({
       type: 'typing_stop',
       chat_id: chatId
@@ -236,11 +228,18 @@ class GlobalWebSocketService {
       return false;
     }
 
-    console.log(`🌐👁️📤 Marking messages as read for chat ${chatId}`);
+    console.log(`💬👁️📤 Marking messages as read for chat ${chatId}`);
     return this.sendMessage({
       type: 'mark_read',
       chat_id: chatId
     });
+  }
+
+  /**
+   * Check if WebSocket is connected
+   */
+  isConnected(): boolean {
+    return this.socket !== null && this.socket.readyState === WebSocket.OPEN;
   }
 
   /**
@@ -254,26 +253,19 @@ class GlobalWebSocketService {
    * Send a message to the WebSocket
    */
   private sendMessage(message: any): boolean {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      try {
-        this.socket.send(JSON.stringify(message));
-        console.log('🌐📤 Sent message to global WebSocket:', message);
-        return true;
-      } catch (error) {
-        console.error('🌐❌ Failed to send message to global WebSocket:', error);
-        return false;
-      }
-    } else {
-      console.warn('🌐⚠️ Cannot send message: WebSocket not connected');
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       return false;
     }
+
+    this.socket.send(JSON.stringify(message));
+    return true;
   }
 
   /**
    * Handle valid chat message
    */
   private handleChatMessage(message: Message, chatId: number): void {
-    console.log(`🌐📥 GlobalWebSocketService received message from chat ${chatId}:`, { 
+    console.log(`💬📥 ChatWebSocketService received message from chat ${chatId}:`, { 
       messageId: message.id, 
       senderId: message.sender?.id,
       text: message.text_content?.substring(0, 50),
@@ -290,13 +282,13 @@ class GlobalWebSocketService {
    */
   private handleMessage(data: string): void {
     try {
-      const message: GlobalWebSocketMessage = JSON.parse(data);
-      console.log('🌐📥 Parsed WebSocket message:', message);
+      const message: ChatWebSocketMessage = JSON.parse(data);
+      console.log('💬📥 Parsed chat WebSocket message:', message);
 
       switch (message.type) {
         case 'connection_success':
           if (message.user_id) {
-            console.log(`✅ GlobalWebSocketService connection successful for user ${message.user_id}`);
+            console.log(`✅ ChatWebSocketService connection successful for user ${message.user_id}`);
           } else {
             console.error('❌ Invalid connection_success format:', { 
               user_id: message.user_id 
@@ -305,7 +297,7 @@ class GlobalWebSocketService {
           break;
 
         case 'chat_message':
-          console.log('🌐📥 Processing chat_message:', {
+          console.log('💬📥 Processing chat_message:', {
             hasMessage: !!message.message, 
             hasChatId: !!message.chat_id,
             messageType: typeof message.message, 
@@ -341,7 +333,7 @@ class GlobalWebSocketService {
 
         case 'typing_start':
           if (message.user_id && message.username && message.chat_id) {
-            console.log(`🔤📥 GlobalWebSocketService received typing_start from ${message.username} in chat ${message.chat_id}`);
+            console.log(`🔤📥 ChatWebSocketService received typing_start from ${message.username} in chat ${message.chat_id}`);
             // Convert chat_id from string to number
             const chatId = typeof message.chat_id === 'string' ? parseInt(message.chat_id, 10) : message.chat_id;
             this.callbacks.onTypingStart?.(message.user_id, message.username, chatId);
@@ -356,7 +348,7 @@ class GlobalWebSocketService {
 
         case 'typing_stop':
           if (message.user_id && message.username && message.chat_id) {
-            console.log(`⏹️📥 GlobalWebSocketService received typing_stop from ${message.username} in chat ${message.chat_id}`);
+            console.log(`⏹️📥 ChatWebSocketService received typing_stop from ${message.username} in chat ${message.chat_id}`);
             // Convert chat_id from string to number
             const chatId = typeof message.chat_id === 'string' ? parseInt(message.chat_id, 10) : message.chat_id;
             this.callbacks.onTypingStop?.(message.user_id, message.username, chatId);
@@ -371,7 +363,7 @@ class GlobalWebSocketService {
 
         case 'messages_read':
           if (message.user_id && message.chat_id) {
-            console.log(`👁️📥 GlobalWebSocketService received messages_read from user ${message.user_id} in chat ${message.chat_id}`);
+            console.log(`👁️📥 ChatWebSocketService received messages_read from user ${message.user_id} in chat ${message.chat_id}`);
             // Convert chat_id from string to number
             const chatId = typeof message.chat_id === 'string' ? parseInt(message.chat_id, 10) : message.chat_id;
             this.callbacks.onMessagesRead?.(message.user_id, chatId);
@@ -385,7 +377,7 @@ class GlobalWebSocketService {
 
         case 'new_chat':
           if (message.chat && message.chat.id) {
-            console.log(`💬📥 GlobalWebSocketService received new_chat notification:`, message.chat);
+            console.log(`💬📥 ChatWebSocketService received new_chat notification:`, message.chat);
             this.callbacks.onNewChat?.(message.chat);
           } else {
             console.error('❌ Invalid new_chat format:', { 
@@ -396,16 +388,16 @@ class GlobalWebSocketService {
           break;
 
         case 'error':
-          console.error('🌐❌ Global WebSocket error:', message.error);
+          console.error('💬❌ Chat WebSocket error:', message.error);
           this.callbacks.onError?.(message.error || 'Unknown WebSocket error');
           break;
 
         default:
-          console.warn('🌐❓ Unknown global WebSocket message type:', message.type);
+          console.warn('💬❓ Unknown chat WebSocket message type:', message.type);
       }
     } catch (error) {
-      console.error('🌐❌ Error parsing global WebSocket message:', error);
-      console.error('🌐❌ Raw data that failed to parse:', data);
+      console.error('💬❌ Error parsing chat WebSocket message:', error);
+      console.error('💬❌ Raw data that failed to parse:', data);
     }
   }
 
@@ -414,23 +406,23 @@ class GlobalWebSocketService {
    */
   private attemptReconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('🌐❌ Max reconnect attempts reached for global WebSocket');
+      console.error('💬❌ Max reconnect attempts reached for chat WebSocket');
       return;
     }
 
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
-    console.log(`🌐🔄 Attempting to reconnect global WebSocket in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+    console.log(`💬🔄 Attempting to reconnect chat WebSocket in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
 
     setTimeout(() => {
       this.connect(this.callbacks).catch((error) => {
-        console.error('🌐❌ Global WebSocket reconnect attempt failed:', error);
+        console.error('💬❌ Chat WebSocket reconnect attempt failed:', error);
       });
     }, delay);
   }
 }
 
 // Export singleton instance
-export const globalWebSocketService = new GlobalWebSocketService();
-export default globalWebSocketService;
+export const chatWebSocketService = new ChatWebSocketService();
+export default chatWebSocketService;

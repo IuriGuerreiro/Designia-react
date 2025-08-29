@@ -1,0 +1,147 @@
+.messageBubble {
+  max-width: 70%;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ownMessage {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.otherMessage {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.senderName {
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+
+.messageContent {
+  border-radius: 18px;
+  padding: 8px 12px;
+  word-wrap: break-word;
+  position: relative;
+}
+
+.ownMessage .messageContent {
+  background: #007bff;
+  color: white;
+}
+
+.otherMessage .messageContent {
+  background: #f1f3f5;
+  color: #333;
+}
+
+.textMessage {
+  line-height: 1.4;
+}
+
+.imageMessage {
+  padding: 0;
+}
+
+.messageImage {
+  max-width: 250px;
+  max-height: 300px;
+  border-radius: 18px;
+  display: block;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.messageImage:hover {
+  opacity: 0.9;
+}
+
+.imagePlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  color: #666;
+  gap: 4px;
+}
+
+.imagePlaceholder span:first-child {
+  font-size: 1.5rem;
+}
+
+.imagePlaceholder span:last-child {
+  font-size: 0.875rem;
+}
+
+.messageMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.ownMessage .messageMeta {
+  justify-content: flex-end;
+}
+
+.otherMessage .messageMeta {
+  justify-content: flex-start;
+}
+
+.messageTime {
+  font-size: 0.75rem;
+}
+
+.messageStatus {
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.sent {
+  color: #999;
+}
+
+.read {
+  color: #007bff;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .messageBubble {
+    max-width: 85%;
+  }
+  
+  .messageContent {
+    padding: 6px 10px;
+  }
+  
+  .messageImage {
+    max-width: 200px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .otherMessage .messageContent {
+    background: #3a3a3a;
+    color: #f1f3f5;
+  }
+  
+  .senderName {
+    color: #aaa;
+  }
+  
+  .messageMeta {
+    color: #999;
+  }
+  
+  .imagePlaceholder {
+    color: #aaa;
+  }
+}

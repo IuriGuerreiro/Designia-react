@@ -3,12 +3,32 @@ import { type Cart, type CartItem } from '../types/marketplace';
 
 export class CartService {
   private static instance: CartService;
+  private recountCallback: (() => void) | null = null;
 
   public static getInstance(): CartService {
     if (!CartService.instance) {
       CartService.instance = new CartService();
     }
     return CartService.instance;
+  }
+
+  /**
+   * Set the callback function to trigger cart recount
+   */
+  public setRecountCallback(callback: (() => void) | null): void {
+    this.recountCallback = callback;
+  }
+
+  /**
+   * Trigger cart recount via the callback
+   */
+  private triggerCartRecount(): void {
+    if (this.recountCallback) {
+      console.log('🛒📤 CartService triggering cart recount');
+      this.recountCallback();
+    } else {
+      console.warn('⚠️ Cart recount callback not set');
+    }
   }
 
   /**
@@ -64,6 +84,9 @@ export class CartService {
         totalPrice: result?.item?.total_price,
         success: result?.success
       });
+      
+      // Notify WebSocket for real-time cart count update
+      this.triggerCartRecount();
       
       return result.item || result;
     } catch (error: any) {
@@ -125,6 +148,9 @@ export class CartService {
         success: result?.success
       });
       
+      // Notify WebSocket for real-time cart count update
+      this.triggerCartRecount();
+      
       return result.item || result;
     } catch (error: any) {
       console.error('=== CART SERVICE ERROR ===');
@@ -180,6 +206,9 @@ export class CartService {
       });
       
       console.log('Item removed from cart');
+      
+      // Notify WebSocket for real-time cart count update
+      this.triggerCartRecount();
     } catch (error) {
       console.error('=== CART SERVICE ERROR ===');
       console.error('Error removing cart item:', error);
@@ -207,6 +236,9 @@ export class CartService {
       });
       
       console.log('Cart cleared successfully');
+      
+      // Notify WebSocket for real-time cart count update
+      this.triggerCartRecount();
     } catch (error) {
       console.error('=== CART SERVICE ERROR ===');
       console.error('Error clearing cart:', error);

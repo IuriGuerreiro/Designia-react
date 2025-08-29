@@ -1,7 +1,7 @@
 import React from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
-import { ChatProvider } from './contexts/ChatContext';
+import { ActivityProvider } from './contexts/ActivityContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -47,6 +47,9 @@ import EmailVerification from './components/Auth/EmailVerification';
 import EmailVerificationPending from './components/Auth/EmailVerificationPending';
 // Marketplace Components
 import ProductList from './components/Marketplace/Products/ProductList';
+// Chat Components
+import { ChatPage } from './components/chat/ChatPage';
+import { ChatTestPage } from './components/chat/ChatTestPage';
 import ProductDetailPage from './components/Marketplace/Products/ProductDetailPage';
 import ProductForm from './components/Marketplace/Products/ProductForm';
 import FavoritesPage from './components/Marketplace/Products/FavoritesPage';
@@ -67,11 +70,10 @@ import Settings from './components/Settings/Settings';
 // Pages Components  
 import EditProfile from './components/Pages/Profile/EditProfile';
 
-// Chat Components
-import Chat from './components/chat/Chat';
 // Settings Components (moved from Pages)
 import BecomeSellerForm from './components/Settings/Forms/BecomeSellerForm';
 import SellerProfilePage from './components/Marketplace/Seller/SellerProfilePage';
+
 
 
 import NotFound from './components/NotFound/NotFound';
@@ -108,42 +110,45 @@ const AppContent: React.FC = () => {
     }
   else if (isAuthenticated) {
     return (
-      <ChatProvider>
+      <ActivityProvider>
         <CartProvider>
           <Routes>
-            {/* Protected Routes */}
-              <Route path="/logout" element={<Navigate to="/login" />} />
-              <Route path="/" element={<ProductList />} />
-              <Route path="/products" element={<ProductList />} />
-              <Route path="/products/new" element={<ProductForm />} />
-              <Route path="/products/:slug" element={<ProductDetailPage />} />
-              <Route path="/products/:slug/edit" element={<ProductForm />} />
-              <Route path="/my-products" element={<MyProductsPage />} />
-              <Route path="/favorites" element={<FavoritesPage />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/settings/become-seller" element={<BecomeSellerForm />} />
-              <Route path="/profile/edit" element={<EditProfile />} />
-              <Route path="/seller/:sellerId" element={<SellerProfilePage />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/metrics" element={<ProductMetricsPage />} />
-              <Route path="/metrics/product/:productId" element={<ProductMetricsPage />} />
-              <Route path="/my-orders" element={<MyOrdersPage />} />
-              <Route path="/my-orders/:orderId" element={<MyOrderDetailView />} />
-              <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-              <Route path="/order-management" element={<UserOrdersManagement />} />
-              <Route path="/checkout" element={<SimpleCheckoutPage />} />
-              <Route path="/checkout-success" element={<CheckoutSuccess />} />
-              <Route path="/payment" element={<PaymentPage />} />
-              <Route path="/stripe-onboarding" element={<StripeOnboarding />} />
-              <Route path="/stripe-holds" element={<StripeHolds />} />
-              <Route path="/payouts" element={<Payouts />} />
-              
-              {/* 404 catch-all route */}
-              <Route path="*" element={<NotFound />} />
+          {/* Protected Routes */}
+            <Route path="/logout" element={<Navigate to="/login" />} />
+            <Route path="/" element={<ProductList />} />
+            <Route path="/products" element={<ProductList />} />
+            <Route path="/products/new" element={<ProductForm />} />
+            <Route path="/products/:slug" element={<ProductDetailPage />} />
+            <Route path="/products/:slug/edit" element={<ProductForm />} />
+            <Route path="/my-products" element={<MyProductsPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/settings/become-seller" element={<BecomeSellerForm />} />
+            <Route path="/profile/edit" element={<EditProfile />} />
+            <Route path="/seller/:sellerId" element={<SellerProfilePage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/metrics" element={<ProductMetricsPage />} />
+            <Route path="/metrics/product/:productId" element={<ProductMetricsPage />} />
+            <Route path="/my-orders" element={<MyOrdersPage />} />
+            <Route path="/my-orders/:orderId" element={<MyOrderDetailView />} />
+            <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+            <Route path="/order-management" element={<UserOrdersManagement />} />
+            <Route path="/checkout" element={<SimpleCheckoutPage />} />
+            <Route path="/checkout-success" element={<CheckoutSuccess />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/stripe-onboarding" element={<StripeOnboarding />} />
+            <Route path="/stripe-holds" element={<StripeHolds />} />
+            <Route path="/payouts" element={<Payouts />} />
+            
+            {/* Chat routes */}
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/chat/test" element={<ChatTestPage />} />
+            
+            {/* 404 catch-all route */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </CartProvider>
-      </ChatProvider>
+      </ActivityProvider>
     );
   }
 };

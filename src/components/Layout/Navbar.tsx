@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useCart } from '../../contexts/CartContext';
-import { useChatContext } from '../../contexts/ChatContext';
+import { useActivityContext } from '../../contexts/ActivityContext';
 import { useTranslation } from 'react-i18next';
 import styles from './Navbar.module.css';
 
@@ -23,8 +22,7 @@ const ChatIcon = () => (
 const Navbar = () => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
-  const { cartItems } = useCart();
-  const { totalUnreadCount } = useChatContext();
+  const { cartCount } = useActivityContext();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -43,7 +41,6 @@ const Navbar = () => {
     setDropdownOpen(false);
   }, [location.pathname]);
 
-  const cartItemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const userInitial = user?.first_name?.charAt(0) || user?.username?.charAt(0) || 'U';
 
   return (
@@ -61,12 +58,11 @@ const Navbar = () => {
         <div className={styles.actions}>
           <Link to="/cart" className={styles.actionBtn}>
             <CartIcon />
-            {cartItemCount > 0 && <div className={styles.cartBadge}>{cartItemCount}</div>}
+            {cartCount > 0 && <div className={styles.cartBadge}>{cartCount}</div>}
           </Link>
 
           <Link to="/chat" className={styles.actionBtn}>
             <ChatIcon />
-            {totalUnreadCount > 0 && <div className={styles.cartBadge}>{totalUnreadCount}</div>}
           </Link>
 
           <div className={styles.userMenu} ref={dropdownRef}>
