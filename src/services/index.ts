@@ -7,7 +7,6 @@ import { favoriteService } from './FavoriteService';
 import { cartService } from './CartService';
 import { orderService } from './OrderService';
 import { reviewService } from './ReviewService';
-import ChatService from './ChatService';
 import { userService } from './userService';
 
 // Export all services
@@ -18,7 +17,6 @@ export {
   cartService,
   orderService,
   reviewService,
-  ChatService,
   userService,
 };
 
@@ -41,7 +39,6 @@ export const marketplaceService = {
   cart: cartService,
   orders: orderService,
   reviews: reviewService,
-  chat: ChatService,
 };
 
 export default marketplaceService;

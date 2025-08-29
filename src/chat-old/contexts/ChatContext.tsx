@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import ChatService from '../services/ChatService';
-import globalWebSocketService from '../services/GlobalWebSocketService';
-import { useAuth } from './AuthContext';
+import ChatWebSocketService from '../services/ChatWebSocketService';
+import WebSocketService from '../services/WebSocketService';
 import { type Chat, type Message, type User } from '../types/chat';
+import { useAuth } from './AuthContext';
 
 interface ChatContextType {
   totalUnreadCount: number;
@@ -27,6 +29,9 @@ interface ChatContextType {
   // Typing indicators and message callbacks for Chat component
   typingUsers: Map<number, Set<number>>;
   typingUserNames: Map<number, string>;
+  onMessage?: (message: Message, chatId: number) => void;
+  onTypingStart?: (userId: number, username: string, chatId: number) => void;
+  onTypingStop?: (userId: number, username: string, chatId: number) => void;
   
   // Callback setters for Chat component
   setMessageCallback: (callback: ((message: Message, chatId: number) => void) | undefined) => void;
@@ -35,8 +40,9 @@ interface ChatContextType {
   
   // Debug method
   getWebSocketStatus: () => {
-    globalWebSocket: boolean;
+    chatWebSocket: boolean;
     activeChatId: number | null;
+    hasChatWebSocket: boolean;
   };
 }
 
@@ -62,12 +68,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [typingUsers, setTypingUsers] = useState<Map<number, Set<number>>>(new Map());
   const [typingUserNames, setTypingUserNames] = useState<Map<number, string>>(new Map());
   
-  // Callbacks for Chat component - use refs to avoid closure issues
-  const messageCallbackRef = useRef<((message: Message, chatId: number) => void) | undefined>(undefined);
-  const typingStartCallbackRef = useRef<((userId: number, username: string, chatId: number) => void) | undefined>(undefined);
-  const typingStopCallbackRef = useRef<((userId: number, username: string, chatId: number) => void) | undefined>(undefined);
+  // Callbacks for Chat component
+  const [messageCallback, setMessageCallbackState] = useState<((message: Message, chatId: number) => void) | undefined>(undefined);
+  const [typingStartCallback, setTypingStartCallback] = useState<((userId: number, username: string, chatId: number) => void) | undefined>(undefined);
+  const [typingStopCallback, setTypingStopCallback] = useState<((userId: number, username: string, chatId: number) => void) | undefined>(undefined);
 
-  // Track active chat for global WebSocket
+  // Chat-specific WebSocket service for sending messages
+  const [chatWebSocket, setChatWebSocket] = useState<WebSocketService | null>(null);
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
 
   const calculateTotalUnread = (chatList: Chat[]) => {
@@ -79,13 +86,19 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   const refreshChats = async () => {
     try {
-      console.log('🔄 ChatContext refreshing chats...');
       const token = localStorage.getItem('access_token');
-      console.log('Has token for chat request:', !!token);
       
       const response = await ChatService.getChats();
-      const chatList = Array.isArray(response) ? response : (response?.results || []);
-      console.log('✅ Chats loaded successfully:', { count: chatList.length });
+      // Handle different response formats
+      let chatList: Chat[];
+      if (Array.isArray(response)) {
+        chatList = response;
+      } else if (response && typeof response === 'object' && 'results' in response) {
+        chatList = (response as any).results || [];
+      } else {
+        chatList = [];
+      }
+      
       setChats(chatList);
       setTotalUnreadCount(calculateTotalUnread(chatList));
     } catch (error) {
@@ -117,7 +130,6 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   // Initialize WebSocket connection and load chats
   useEffect(() => {
     const initializeChat = async () => {
-      console.log('🚀 ChatContext initializing...');
       
       // Check authentication first
       const token = localStorage.getItem('access_token');
@@ -129,11 +141,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       // Load initial chats
       await refreshChats();
 
-      // Connect to global WebSocket only if we have authentication and not already connected
-      if (!globalWebSocketService.isConnected()) {
-        try {
-          console.log('🌐 Attempting WebSocket connection...');
-          await globalWebSocketService.connect({
+      // Connect to chat WebSocket for notifications
+      try {
+        console.log('💬 Attempting chat WebSocket connection...');
+        await ChatWebSocketService.connect({
           onConnect: () => {
             setIsConnected(true);
           },
@@ -172,41 +183,24 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
               return updatedChats;
             });
             
-            // Debug: Check callback conditions
-            console.log('🔍 CHATCONTEXT CALLBACK CHECK:', {
-              hasMessageCallback: !!messageCallbackRef.current,
-              messageCallbackType: typeof messageCallbackRef.current,
-              hasMessage: !!message,
-              hasMessageId: !!(message && message.id),
-              chatIdType: typeof chatId,
-              chatIdValue: chatId,
-              allConditionsMet: !!(messageCallbackRef.current && 
-                typeof messageCallbackRef.current === 'function' && 
-                message && 
-                message.id && 
-                typeof chatId === 'number' && 
-                chatId > 0)
-            });
             
-            if (messageCallbackRef.current && 
-                typeof messageCallbackRef.current === 'function' && 
+            if (messageCallback && 
+                typeof messageCallback === 'function' && 
                 message && 
                 message.id && 
                 typeof chatId === 'number' && 
                 chatId > 0) {
               try {
-                console.log('🔄 Executing Chat component callback with valid data...');
                 // Use setTimeout to ensure this runs outside React's render cycle
                 setTimeout(() => {
-                  if (messageCallbackRef.current) { // Double-check callback still exists
-                    messageCallbackRef.current(message, chatId);
-                    console.log('✅ Chat component callback executed successfully');
+                  if (messageCallback) { // Double-check callback still exists
+                    messageCallback(message, chatId);
                   }
                 }, 0);
               } catch (error) {
                 console.error('❌ Error in Chat component message callback:', error);
                 console.error('Callback details:', {
-                  messageCallback: typeof messageCallbackRef.current,
+                  messageCallback: typeof messageCallback,
                   message: message ? { id: message.id, type: message.message_type } : null,
                   chatId
                 });
@@ -231,7 +225,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             });
             
             // Call Chat component callback if registered
-            typingStartCallbackRef.current?.(userId, username, chatId);
+            typingStartCallback?.(userId, username, chatId);
           },
           onTypingStop: (userId, username, chatId) => {
             // Store the username for this user (in case we didn't have it)
@@ -253,32 +247,20 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             });
             
             // Call Chat component callback if registered
-            typingStopCallbackRef.current?.(userId, username, chatId);
+            typingStopCallback?.(userId, username, chatId);
           },
           onMessagesRead: (userId, chatId) => {
             // Update read status if needed
           },
           onNewChat: (chat) => {
-            console.log('🌐💬 ChatContext received new chat notification:', { 
-              chatId: chat.id, 
-              otherUser: chat.other_user?.username,
-              currentChatCount: chats.length 
-            });
             
             // Add new chat to the beginning of the chat list
             setChats(prevChats => {
               // Check if chat already exists to avoid duplicates
               const exists = prevChats.some(c => c.id === chat.id);
               if (exists) {
-                console.log('🔄 Chat already exists, ignoring duplicate:', chat.id);
                 return prevChats;
               }
-              
-              console.log('✅ Adding new chat to list:', { 
-                chatId: chat.id, 
-                otherUser: chat.other_user?.username,
-                newTotal: prevChats.length + 1 
-              });
               
               return [chat, ...prevChats];
             });
@@ -287,12 +269,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
             console.error('Chat WebSocket error:', error);
           }
         });
-        } catch (error) {
-          console.error('Failed to connect to chat WebSocket:', error);
-        }
-      } else {
-        console.log('🌐 Global WebSocket already connected, skipping connection attempt');
-        setIsConnected(true);
+      } catch (error) {
+        console.error('Failed to connect to chat WebSocket:', error);
       }
     };
 
@@ -300,7 +278,10 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // Cleanup on unmount
     return () => {
-      globalWebSocketService.disconnect();
+      ChatWebSocketService.disconnect();
+      if (chatWebSocket) {
+        chatWebSocket.disconnect();
+      }
     };
   }, []);
 
@@ -311,9 +292,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   // Chat service methods
   const sendTextMessage = (chatId: number, text: string): boolean => {
-    // Use global WebSocket for sending messages
-    if (globalWebSocketService.isConnected()) {
-      return globalWebSocketService.sendTextMessage(chatId, text);
+    // Use chat-specific WebSocket for sending messages
+    if (chatWebSocket && activeChatId === chatId) {
+      return chatWebSocket.sendTextMessage(text);
     } else {
       // Fallback to HTTP API
       ChatService.sendTextMessage(chatId, text).catch((error) => {
@@ -324,9 +305,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   };
 
   const sendImageMessage = (chatId: number, imageUrl: string): boolean => {
-    // Use global WebSocket for sending image messages
-    if (globalWebSocketService.isConnected()) {
-      return globalWebSocketService.sendImageMessage(chatId, imageUrl);
+    // Use chat-specific WebSocket for sending image messages
+    if (chatWebSocket && activeChatId === chatId) {
+      return chatWebSocket.sendImageMessage(imageUrl);
     } else {
       // Fallback to HTTP API
       ChatService.sendImageMessage(chatId, imageUrl).catch(console.error);
@@ -335,15 +316,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   };
 
   const sendTypingStart = (chatId: number): boolean => {
-    if (globalWebSocketService.isConnected()) {
-      return globalWebSocketService.sendTypingStart(chatId);
+    if (chatWebSocket && activeChatId === chatId) {
+      return chatWebSocket.sendTypingStart();
     }
     return false;
   };
 
   const sendTypingStop = (chatId: number): boolean => {
-    if (globalWebSocketService.isConnected()) {
-      return globalWebSocketService.sendTypingStop(chatId);
+    if (chatWebSocket && activeChatId === chatId) {
+      return chatWebSocket.sendTypingStop();
     }
     return false;
   };
@@ -351,19 +332,52 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const setActiveChat = (chatId: number): void => {
     setActiveChatId(chatId);
     
-    // Use global WebSocket to set active chat
-    if (globalWebSocketService.isConnected()) {
-      globalWebSocketService.setActiveChat(chatId);
+    // Connect to chat-specific WebSocket
+    if (chatId) {
+      const newChatWebSocket = new WebSocketService();
+      newChatWebSocket.connect(chatId, {
+        onConnect: () => {
+          console.log(`Connected to chat ${chatId} WebSocket`);
+          setChatWebSocket(newChatWebSocket);
+        },
+        onDisconnect: () => {
+          console.log(`Disconnected from chat ${chatId} WebSocket`);
+          if (chatWebSocket === newChatWebSocket) {
+            setChatWebSocket(null);
+          }
+        },
+        onMessage: (message) => {
+          console.log(`Chat ${chatId} WebSocket received message:`, message);
+          // This will be handled by the global WebSocket for consistency
+        },
+        onError: (error) => {
+          console.error(`Chat ${chatId} WebSocket error:`, error);
+          if (chatWebSocket === newChatWebSocket) {
+            setChatWebSocket(null);
+          }
+        }
+      }).then(() => {
+        console.log(`Chat ${chatId} WebSocket connection established`);
+      }).catch((error) => {
+        console.error(`Failed to connect to chat ${chatId} WebSocket:`, error);
+        setChatWebSocket(null);
+      });
+    } else {
+      // No chat selected, ensure WebSocket is disconnected
+      if (chatWebSocket) {
+        chatWebSocket.disconnect();
+        setChatWebSocket(null);
+      }
+      setActiveChatId(null);
     }
   };
 
   const leaveActiveChat = (): void => {
-    setActiveChatId(null);
-    
-    // Use global WebSocket to leave active chat
-    if (globalWebSocketService.isConnected()) {
-      globalWebSocketService.leaveActiveChat();
+    if (chatWebSocket) {
+      chatWebSocket.disconnect();
+      setChatWebSocket(null);
     }
+    setActiveChatId(null);
   };
 
   const getMessages = async (chatId: number) => {
@@ -389,17 +403,18 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     await ChatService.markMessagesAsRead(chatId);
     // Update context to reflect read status
     markChatAsRead(chatId);
-    // Also notify via global WebSocket
-    if (globalWebSocketService.isConnected()) {
-      globalWebSocketService.markMessagesAsRead(chatId);
+    // Also notify via chat-specific WebSocket
+    if (chatWebSocket && activeChatId === chatId) {
+      chatWebSocket.markMessagesAsRead();
     }
   };
 
   // Debug method to check WebSocket status
   const getWebSocketStatus = () => {
     return {
-      globalWebSocket: globalWebSocketService.isConnected(),
-      activeChatId
+      chatWebSocket: ChatWebSocketService.isConnected(),
+      activeChatId,
+      hasChatWebSocket: !!chatWebSocket
     };
   };
 
@@ -426,22 +441,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // Typing indicators and message callbacks for Chat component
     typingUsers,
     typingUserNames,
+    onMessage: messageCallback,
+    onTypingStart: typingStartCallback,
+    onTypingStop: typingStopCallback,
     
     // Callback setters for Chat component
-    setMessageCallback: useCallback((callback: ((message: Message, chatId: number) => void) | undefined) => {
-      console.log('🔄 CHATCONTEXT setMessageCallback called:', {
-        callbackType: typeof callback,
-        isUndefined: callback === undefined,
-        timestamp: new Date().toISOString()
-      });
-      messageCallbackRef.current = callback;
-    }, []),
-    setTypingStartCallback: useCallback((callback: ((userId: number, username: string, chatId: number) => void) | undefined) => {
-      typingStartCallbackRef.current = callback;
-    }, []),
-    setTypingStopCallback: useCallback((callback: ((userId: number, username: string, chatId: number) => void) | undefined) => {
-      typingStopCallbackRef.current = callback;
-    }, []),
+    setMessageCallback: setMessageCallbackState,
+    setTypingStartCallback: setTypingStartCallback,
+    setTypingStopCallback: setTypingStopCallback,
     
     // Debug method
     getWebSocketStatus

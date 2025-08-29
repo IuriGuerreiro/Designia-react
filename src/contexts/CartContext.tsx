@@ -26,7 +26,6 @@ interface CartContextType {
   totalAmount: number;
   isLoading: boolean;
   error: string | null;
-  syncWithServer: () => Promise<void>;
   clearError: () => void;
   clearItemError: (productId: number | string) => Promise<void>;
   getActiveCartItems: () => Product[];
@@ -63,62 +62,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartStatus, setCartStatus] = useState<string | null>(null);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
-  // Check if user is authenticated and sync cart
-  useEffect(() => {
-    const initializeCart = async () => {
-      const token = localStorage.getItem('access_token');
-      console.log('=== CART CONTEXT INITIALIZATION ===');
-      console.log('Has token:', !!token);
-      
-      if (token) {
-        setIsAuthenticated(true);
-        console.log('User authenticated, syncing with server...');
-        await syncWithServer();
-      } else {
-        setIsAuthenticated(false);
-        console.log('User not authenticated, loading from localStorage...');
-        loadCartFromLocalStorage();
-      }
-    };
-
-    initializeCart();
-  }, []);
-
-  // Listen for authentication changes
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'access_token') {
-        const token = e.newValue;
-        if (token) {
-          setIsAuthenticated(true);
-          syncWithServer();
-        } else {
-          setIsAuthenticated(false);
-          loadCartFromLocalStorage();
-        }
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  // Periodic cart sync to validate stock and update inactive items
-  useEffect(() => {
-    if (!isAuthenticated || isPaymentProcessing) return;
-
-    const interval = setInterval(() => {
-      // Don't sync during payment processing
-      if (isPaymentProcessing || isCartLocked) {
-        console.log('Skipping periodic cart sync - payment processing or cart locked');
-        return;
-      }
-      console.log('Performing periodic cart sync for stock validation...');
-      syncWithServer();
-    }, 5 * 60 * 1000); // Every 5 minutes
-
-    return () => clearInterval(interval);
-  }, [isAuthenticated, isPaymentProcessing, isCartLocked]);
 
   // Save cart to localStorage
   const saveCartToLocalStorage = (items: Product[]) => {
@@ -200,72 +143,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     });
   };
 
-  // Sync with server cart and validate stock
-  const syncWithServer = async () => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      console.log('No token available, skipping server sync');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      console.log('Syncing cart with server...');
-      const serverCart = await cartService.getCart();
-      console.log('Server cart received:', {
-        id: serverCart?.id,
-        totalItems: serverCart?.total_items || 0,
-        itemsCount: serverCart?.items?.length || 0,
-        locked: serverCart?.locked,
-        canModify: serverCart?.can_be_modified
-      });
-      
-      // Update cart locking state
-      setIsCartLocked(serverCart?.locked || false);
-      setCanModifyCart(serverCart?.can_be_modified !== false);
-      setCartStatus(serverCart?.locked ? 'locked' : 'active');
-      
-      const localItems = convertServerCartToLocal(serverCart);
-      
-      // Check if any items became inactive due to stock issues
-      const inactiveItems = localItems.filter(item => !item.isActive);
-      if (inactiveItems.length > 0) {
-        console.log(`Found ${inactiveItems.length} inactive items due to stock issues`);
-        
-        // Update inactive items in database
-        try {
-          await Promise.all(
-            inactiveItems.map(async (item) => {
-              if (item.cartItemId) {
-                console.log(`Marking cart item ${item.cartItemId} as inactive in database`);
-                await cartService.updateItemStatus(item.cartItemId, false);
-              }
-            })
-          );
-          console.log('Successfully updated inactive items in database');
-        } catch (error) {
-          console.error('Failed to update some inactive items in database:', error);
-        }
-        
-        // Set a general warning about stock issues
-        setError(`Some items in your cart are no longer available or have limited stock.`);
-      }
-      
-      setCartItems(localItems);
-      // Also save to localStorage as backup
-      saveCartToLocalStorage(localItems);
-      console.log('Cart synced successfully with stock validation');
-    } catch (err) {
-      console.error('Failed to sync with server cart:', err);
-      setError('Failed to load cart from server');
-      // Fall back to localStorage if server fails
-      loadCartFromLocalStorage();
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const addToCart = async (product: Product) => {
     const newQuantity = product.quantity || 1;
@@ -392,8 +269,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       } catch (err) {
         console.error('Failed to remove from server cart:', err);
         setError('Failed to sync with server');
-        // Revert optimistic update on error
-        syncWithServer();
       }
     }
   };
@@ -454,8 +329,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           } else {
             setError('Failed to update cart. Please try again.');
           }
-          // Revert optimistic update on error
-          syncWithServer();
         }
       }
     }
@@ -480,8 +353,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       } catch (err) {
         console.error('Failed to clear server cart:', err);
         setError('Failed to sync with server');
-        // Revert optimistic update on error
-        syncWithServer();
       }
     }
   };
@@ -546,18 +417,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   };
 
-  // Get only active cart items (for checkout)
   const getActiveCartItems = (): Product[] => {
     return cartItems.filter(item => item.isActive !== false);
   };
 
-  // Helper function to extract available stock from error message
   const extractAvailableStock = (errorMessage: string): number | undefined => {
     const match = errorMessage.match(/(\d+)\s+items?\s+available/);
     return match ? parseInt(match[1], 10) : undefined;
   };
 
-  // Calculate totals
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalAmount = cartItems.reduce((sum, item) => {
     const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
@@ -575,7 +443,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       totalAmount,
       isLoading,
       error,
-      syncWithServer,
       clearError,
       clearItemError,
       getActiveCartItems,
