@@ -19,18 +19,30 @@ const ChatIcon = () => (
   </svg>
 );
 
+const AdminIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);
+
 const Navbar = () => {
   const { t } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const { cartCount, unreadMessagesCount } = useActivityContext();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const adminDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
+      }
+      if (adminDropdownRef.current && !adminDropdownRef.current.contains(event.target as Node)) {
+        setAdminDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -39,6 +51,7 @@ const Navbar = () => {
 
   useEffect(() => {
     setDropdownOpen(false);
+    setAdminDropdownOpen(false);
   }, [location.pathname]);
 
   const userInitial = user?.first_name?.charAt(0) || user?.username?.charAt(0) || 'U';
@@ -52,10 +65,39 @@ const Navbar = () => {
             <NavLink to="/products" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}>
               {t('layout.products')}
             </NavLink>
+
+            {isAdmin() && (
+              <div className={styles.adminNavMenu} ref={adminDropdownRef}>
+                <button
+                  className={styles.adminNavLink}
+                  onClick={() => setAdminDropdownOpen(!adminDropdownOpen)}
+                >
+                  Admin
+                </button>
+
+                {adminDropdownOpen && (
+                  <div className={styles.adminNavDropdown}>
+                    <Link to="/admin/seller-applications" className={styles.adminNavDropdownLink}>
+                      Seller Applications
+                    </Link>
+                    <Link to="/admin/payouts" className={styles.adminNavDropdownLink}>
+                      All Payouts
+                    </Link>
+                    <Link to="/admin/transactions" className={styles.adminNavDropdownLink}>
+                      All Transactions
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         <div className={styles.actions}>
+          <div className={styles.roleDisplay}>
+            Role: {user?.role || 'user'}
+          </div>
+
           <Link to="/cart" className={styles.actionBtn}>
             <CartIcon />
             {cartCount > 0 && <div className={styles.cartBadge}>{cartCount}</div>}

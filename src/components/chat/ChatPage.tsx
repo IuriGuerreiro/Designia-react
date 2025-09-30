@@ -1,14 +1,16 @@
 import React from 'react';
 import Layout from '../Layout/Layout';
-import { ChatProvider } from './ChatContext';
 import { Chat } from './Chat';
+import { ChatProvider } from './ChatContext';
 
-export const ChatPage: React.FC = () => {
+const ChatPage: React.FC = () => {
   return (
-    <Layout maxWidth="xl" padding="default">
+    <Layout maxWidth="full" padding="minimal">
       <ChatProvider>
         <Chat />
       </ChatProvider>
     </Layout>
   );
 };
+
+export default ChatPage;

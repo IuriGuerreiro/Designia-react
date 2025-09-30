@@ -13,6 +13,7 @@ interface User {
   is_verified_seller?: boolean;
   seller_type?: string;
   language?: string;
+  role?: 'user' | 'seller' | 'admin';
   profile?: {
     // Basic Profile Information
     bio?: string;
@@ -74,6 +75,25 @@ interface RateLimitStatus {
   time_remaining: number;
 }
 
+interface SellerApplicationRequest {
+  businessName: string;
+  sellerType: string;
+  motivation: string;
+  portfolio: string;
+  socialMedia?: string;
+  workshopPhotos: File[];
+}
+
+interface SellerApplicationStatus {
+  has_application: boolean;
+  is_seller: boolean;
+  status?: 'pending' | 'under_review' | 'approved' | 'rejected' | 'revision_requested';
+  application_id?: number;
+  submitted_at?: string;
+  admin_notes?: string;
+  rejection_reason?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -90,6 +110,15 @@ interface AuthContextType {
   refreshUserData: () => Promise<void>;
   changeLanguage: (languageCode: string) => Promise<void>;
   logout: () => void;
+
+  // Seller application methods
+  submitSellerApplication: (applicationData: SellerApplicationRequest) => Promise<{success: boolean, message: string, application_id?: number}>;
+  getSellerApplicationStatus: () => Promise<SellerApplicationStatus>;
+
+  // User role helpers
+  isSeller: () => boolean;
+  isAdmin: () => boolean;
+  canSellProducts: () => boolean;
 }
 
 interface RegisterData {
@@ -598,6 +627,85 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
+  // Seller application methods
+  const submitSellerApplication = async (applicationData: SellerApplicationRequest): Promise<{success: boolean, message: string, application_id?: number}> => {
+    try {
+      const formData = new FormData();
+
+      // Add basic application data
+      formData.append('businessName', applicationData.businessName);
+      formData.append('sellerType', applicationData.sellerType);
+      formData.append('motivation', applicationData.motivation);
+      formData.append('portfolio', applicationData.portfolio);
+
+      if (applicationData.socialMedia) {
+        formData.append('socialMedia', applicationData.socialMedia);
+      }
+
+      // Add workshop photos
+      applicationData.workshopPhotos.forEach((file) => {
+        formData.append('workshopPhotos', file);
+      });
+
+      const response = await apiRequest(API_ENDPOINTS.SELLER_APPLICATION_APPLY, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Refresh user data to get updated status
+        await refreshUserData();
+
+        return {
+          success: true,
+          message: data.message || 'Seller application submitted successfully!',
+          application_id: data.application_id
+        };
+      } else {
+        return {
+          success: false,
+          message: data.error || 'Failed to submit seller application'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Service may be unavailable. Please try again later.'
+      };
+    }
+  };
+
+  const getSellerApplicationStatus = async (): Promise<SellerApplicationStatus> => {
+    try {
+      const response = await apiRequest(API_ENDPOINTS.SELLER_APPLICATION_STATUS);
+      return response;
+    } catch (error) {
+      return {
+        has_application: false,
+        is_seller: user?.role === 'seller' || false,
+        status: undefined
+      };
+    }
+  };
+
+  // User role helpers
+  const isSeller = (): boolean => {
+    return user?.role === 'seller' || false;
+  };
+
+  const isAdmin = (): boolean => {
+    return user?.role === 'admin' || false;
+  };
+
+  const canSellProducts = (): boolean => {
+    return isSeller() || isAdmin();
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -614,6 +722,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshUserData,
     changeLanguage,
     logout,
+
+    // Seller application methods
+    submitSellerApplication,
+    getSellerApplicationStatus,
+
+    // User role helpers
+    isSeller,
+    isAdmin,
+    canSellProducts,
   };
 
   return (

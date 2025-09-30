@@ -48,7 +48,7 @@ import EmailVerificationPending from './components/Auth/EmailVerificationPending
 // Marketplace Components
 import ProductList from './components/Marketplace/Products/ProductList';
 // Chat Components
-import { ChatPage } from './components/chat/ChatPage';
+import { ChatPage } from './components/chat';
 import ProductDetailPage from './components/Marketplace/Products/ProductDetailPage';
 import ProductForm from './components/Marketplace/Products/ProductForm';
 import FavoritesPage from './components/Marketplace/Products/FavoritesPage';
@@ -81,6 +81,11 @@ import './App.css';
 import StripeOnboarding from './components/Marketplace/Stripe/StripeOnboarding';
 import StripeHolds from './pages/StripeHolds';
 import Payouts from './pages/Payouts';
+
+// Admin Components
+import SellerApplicationList from './components/Admin/SellerApplicationList';
+import AdminPayouts from './components/Admin/AdminPayouts';
+import AdminTransactions from './components/Admin/AdminTransactions';
 
 const AppContent: React.FC = () => {
   let isAuthenticated = false;
@@ -138,10 +143,15 @@ const AppContent: React.FC = () => {
             <Route path="/stripe-onboarding" element={<StripeOnboarding />} />
             <Route path="/stripe-holds" element={<StripeHolds />} />
             <Route path="/payouts" element={<Payouts />} />
-            
+
             {/* Chat routes */}
             <Route path="/chat" element={<ChatPage />} />
-            
+
+            {/* Admin routes */}
+            <Route path="/admin/seller-applications" element={<SellerApplicationList />} />
+            <Route path="/admin/payouts" element={<AdminPayouts />} />
+            <Route path="/admin/transactions" element={<AdminTransactions />} />
+
             {/* 404 catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>

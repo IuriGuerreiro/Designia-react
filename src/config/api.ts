@@ -107,11 +107,23 @@ export const API_ENDPOINTS = {
   PAYOUT_ORDERS: (payoutId: string) => `${API_BASE_URL}/api/payments/payouts/${payoutId}/orders/`,
   ELIGIBLE_TRANSFERS: `${API_BASE_URL}/api/payments/eligible-transfers/`,
 
+  // Admin payment oversight endpoints
+  ADMIN_PAYOUTS: `${API_BASE_URL}/api/payments/admin/payouts/`,
+  ADMIN_TRANSACTIONS: `${API_BASE_URL}/api/payments/admin/transactions/`,
+
   // Metrics
   METRICS: `${API_BASE_URL}/api/marketplace/metrics/`,
 
   // Seller endpoints
   SELLER_PROFILE: (sellerId: number) => `${API_BASE_URL}/api/auth/seller/${sellerId}/`,
+  SELLER_APPLICATION_APPLY: `${API_BASE_URL}/api/auth/seller/apply/`,
+  SELLER_APPLICATION_STATUS: `${API_BASE_URL}/api/auth/seller/application/status/`,
+  USER_ROLE_INFO: `${API_BASE_URL}/api/auth/user/role/`,
+
+  // Admin seller management endpoints
+  ADMIN_SELLER_APPLICATIONS: `${API_BASE_URL}/api/auth/admin/seller/applications/`,
+  ADMIN_APPROVE_SELLER: (applicationId: number) => `${API_BASE_URL}/api/auth/admin/seller/approve/${applicationId}/`,
+  ADMIN_REJECT_SELLER: (applicationId: number) => `${API_BASE_URL}/api/auth/admin/seller/reject/${applicationId}/`,
 
   // Chat endpoints
   CHAT: `${API_BASE_URL}/api/chat/`,
