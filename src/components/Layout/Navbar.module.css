@@ -73,6 +73,16 @@
   gap: var(--space-lg);
 }
 
+.roleDisplay {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--steel-gray);
+  background-color: var(--platinum-gray);
+  border-radius: 20px;
+  font-weight: 500;
+  border: 1px solid var(--premium-silver);
+}
+
 .actionBtn {
   position: relative;
   color: var(--slate-gray);
@@ -190,4 +200,66 @@
   text-align: left;
   cursor: pointer;
   color: var(--error-red);
+}
+
+/* Admin Navigation Dropdown */
+.adminNavMenu {
+  position: relative;
+}
+
+.adminNavLink {
+  font-family: var(--font-primary);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--steel-gray);
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.adminNavLink:hover {
+  color: var(--deep-black);
+  background-color: var(--platinum-gray);
+}
+
+.adminNavDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background-color: var(--pure-white);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(10, 10, 10, 0.12);
+  border: 1px solid var(--premium-silver);
+  overflow: hidden;
+  z-index: 1001;
+  padding: var(--space-sm);
+}
+
+.adminRoleDisplay {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--steel-gray);
+  background-color: var(--platinum-gray);
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.adminNavDropdownLink {
+  display: block;
+  padding: 10px 12px;
+  text-decoration: none;
+  color: var(--slate-gray);
+  font-size: 14px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.adminNavDropdownLink:hover {
+  background-color: var(--platinum-gray);
 }

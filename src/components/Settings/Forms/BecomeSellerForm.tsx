@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
 import Layout from '../../Layout/Layout';
 import ImageUpload from '../../Common/ImageUpload';
 import Select from '../../Common/Select';
@@ -15,14 +16,55 @@ const sellerTypeOptions = [
 
 const BecomeSellerForm: React.FC = () => {
   const navigate = useNavigate();
+  const { submitSellerApplication } = useAuth();
   const [workshopFiles, setWorkshopFiles] = useState<File[]>([]);
   const [sellerType, setSellerType] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Seller application submitted with files:', workshopFiles.map(f => f.name));
-    alert('Application submitted! Our team will review your application shortly.');
-    navigate('/settings');
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+
+      // Validate required fields
+      const businessName = formData.get('businessName') as string;
+      const motivation = formData.get('motivation') as string;
+      const portfolio = formData.get('portfolio') as string;
+
+      if (!businessName || !sellerType || !motivation || !portfolio) {
+        throw new Error('Please fill in all required fields.');
+      }
+
+      if (workshopFiles.length < 3) {
+        throw new Error('Please upload at least 3 workshop/product photos.');
+      }
+
+      // Create the seller application request object
+      const sellerApplicationData = {
+        businessName,
+        sellerType,
+        motivation,
+        portfolio,
+        socialMedia: formData.get('socialMedia') as string || undefined,
+        workshopPhotos: workshopFiles,
+      };
+
+      await submitSellerApplication(sellerApplicationData);
+
+      setSuccess(true);
+      setTimeout(() => {
+        navigate('/settings');
+      }, 2000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to submit application. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -34,6 +76,18 @@ const BecomeSellerForm: React.FC = () => {
             Tell us about your business. Your application will be reviewed by our team to ensure the quality of our marketplace.
           </p>
         </div>
+
+        {error && (
+          <div className="alert alert-error" style={{ marginBottom: '20px' }}>
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="alert alert-success" style={{ marginBottom: '20px' }}>
+            Application submitted successfully! Our team will review your application shortly. Redirecting...
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="premium-form">
           <div className="form-section">
@@ -123,11 +177,12 @@ const BecomeSellerForm: React.FC = () => {
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="seller-btn seller-btn-primary"
+              disabled={isLoading || success}
             >
-              Submit Application
+              {isLoading ? 'Submitting...' : success ? 'Submitted!' : 'Submit Application'}
             </button>
           </div>
         </form>

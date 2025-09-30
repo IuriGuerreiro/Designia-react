@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { API_ENDPOINTS } from '../../config/api';
 
 // Chat interfaces
 interface Chat {
@@ -115,7 +116,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
-  
+  const [isRefreshingToken, setIsRefreshingToken] = useState(false);
+
   // Chat state
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
@@ -336,12 +338,64 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }));
   };
 
-  // API methods
+  // Token refresh function
+  const refreshAccessToken = async (): Promise<string | null> => {
+    // Prevent multiple simultaneous refresh attempts
+    if (isRefreshingToken) {
+      // Wait for the current refresh to complete
+      while (isRefreshingToken) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      // Return the new token that was just refreshed
+      return localStorage.getItem('access_token');
+    }
+
+    try {
+      setIsRefreshingToken(true);
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) {
+        console.log('Chat: No refresh token available');
+        return null;
+      }
+
+      const response = await fetch(API_ENDPOINTS.REFRESH_TOKEN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
+
+      if (!response.ok) {
+        console.log('Chat: Token refresh failed');
+        // Clear invalid tokens
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        return null;
+      }
+
+      const data = await response.json();
+      localStorage.setItem('access_token', data.access);
+      console.log('Chat: Token refreshed successfully');
+      return data.access;
+    } catch (error) {
+      console.error('Chat: Token refresh error:', error);
+      // Clear invalid tokens
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      return null;
+    } finally {
+      setIsRefreshingToken(false);
+    }
+  };
+
+  // Enhanced API request with token refresh
   const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
-    const token = localStorage.getItem('access_token');
-    const url = `${API_BASE_URL}${endpoint}`;
+    let token = localStorage.getItem('access_token');
+    let url = `${API_BASE_URL}${endpoint}`;
     
-    const response = await fetch(url, {
+    // First attempt with current token
+    let response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -349,6 +403,29 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         ...options.headers,
       },
     });
+
+    // If 401 Unauthorized, try to refresh token
+    if (response.status === 401) {
+      console.log('Chat: Token expired, attempting refresh...');
+      const newToken = await refreshAccessToken();
+      
+      if (newToken) {
+        // Retry with new token
+        console.log('Chat: Retrying request with new token...');
+        response = await fetch(url, {
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${newToken}`,
+            ...options.headers,
+          },
+        });
+      } else {
+        // Token refresh failed, user needs to re-authenticate
+        console.log('Chat: Token refresh failed, user needs to re-authenticate');
+        throw new Error('Authentication expired. Please log in again.');
+      }
+    }
 
     if (!response.ok) {
       const error = await response.text();

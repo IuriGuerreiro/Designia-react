@@ -20,6 +20,56 @@ export interface SellerProfile {
   created_at?: string;
 }
 
+export interface SellerApplicationImage {
+  id: number;
+  image: string;
+  image_type: string;
+  description: string;
+  order: number;
+  uploaded_at: string;
+}
+
+export interface SellerApplication {
+  id: number;
+  business_name: string;
+  seller_type: string;
+  motivation: string;
+  portfolio_url: string;
+  social_media_url?: string;
+  status: 'pending' | 'under_review' | 'approved' | 'rejected' | 'revision_requested';
+  admin_notes?: string;
+  rejection_reason?: string;
+  submitted_at: string;
+  reviewed_at?: string;
+  approved_by?: number;
+  rejected_by?: number;
+  approved_by_name?: string;
+  rejected_by_name?: string;
+  user_email: string;
+  user_name: string;
+  images: SellerApplicationImage[];
+}
+
+export interface UserRole {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: 'user' | 'seller' | 'admin';
+  is_seller: boolean;
+  is_admin: boolean;
+  can_sell_products: boolean;
+}
+
+export interface SellerApplicationRequest {
+  businessName: string;
+  sellerType: string;
+  motivation: string;
+  portfolio: string;
+  socialMedia?: string;
+  workshopPhotos: File[];
+}
+
 class UserService {
   /**
    * Get user profile by ID

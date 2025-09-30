@@ -1,110 +1,297 @@
+/* Message Input Container */
 .messageInputContainer {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  padding: 20px 24px;
+  background: var(--designia-pure-white, #FFFFFF);
+  border-top: 1px solid var(--designia-platinum-gray, #F5F5F5);
+  gap: 16px;
 }
 
+/* Input Wrapper */
 .inputWrapper {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
-  padding: 12px;
-  background: white;
-  border-top: 1px solid #e1e5e9;
+  gap: 12px;
 }
 
+/* Textarea Container */
+.textareaContainer {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  background: var(--designia-pure-white, #FFFFFF);
+  border: 2px solid var(--designia-platinum-gray, #F5F5F5);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.textareaContainer:focus-within {
+  border-color: var(--designia-deep-black, #0A0A0A);
+  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.1);
+}
+
+/* Message Input */
 .messageInput {
   flex: 1;
-  border: 1px solid #d1d5db;
-  border-radius: 20px;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: none;
-  outline: none;
-  transition: border-color 0.2s ease;
+  min-height: 44px;
   max-height: 120px;
-  min-height: 40px;
+  padding: 12px 16px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--designia-deep-black, #0A0A0A);
+  resize: none;
   overflow-y: auto;
 }
 
-.messageInput:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+.messageInput::placeholder {
+  color: var(--designia-steel-gray, #6B7280);
 }
 
 .messageInput:disabled {
-  background-color: #f8f9fa;
-  color: #6c757d;
+  color: var(--designia-steel-gray, #6B7280);
   cursor: not-allowed;
 }
 
-.messageInput::placeholder {
-  color: #9ca3af;
+/* Input Actions */
+.inputActions {
+  display: flex;
+  align-items: center;
+  padding: 0 12px 12px 0;
+  gap: 8px;
 }
 
-.sendButton {
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 50%;
-  background: #007bff;
-  color: white;
-  cursor: pointer;
+.attachButton {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--designia-steel-gray, #6B7280);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.attachButton:hover:not(:disabled) {
+  background: var(--designia-platinum-gray, #F5F5F5);
+  color: var(--designia-deep-black, #0A0A0A);
+}
+
+.attachButton:disabled {
+  color: var(--designia-platinum-gray, #F5F5F5);
+  cursor: not-allowed;
+}
+
+.attachButton svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+}
+
+/* Send Button */
+.sendButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: var(--designia-deep-black, #0A0A0A);
+  color: var(--designia-pure-white, #FFFFFF);
+  border-radius: 10px;
+  cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .sendButton:hover:not(:disabled) {
-  background: #0056b3;
-  transform: scale(1.05);
-}
-
-.sendButton:active {
-  transform: scale(0.95);
+  background: var(--designia-charcoal-black, #1A1A1A);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.15);
 }
 
 .sendButton:disabled {
-  background: #6c757d;
+  background: var(--designia-platinum-gray, #F5F5F5);
+  color: var(--designia-steel-gray, #6B7280);
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
-.sendIcon {
-  font-size: 16px;
-  transform: rotate(-45deg);
+.sendButton svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
 }
 
+/* Spinner */
 .spinner {
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.spinner svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
+/* Connection Status */
 .connectionStatus {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 16px;
-  font-size: 12px;
-  color: #6c757d;
-  background: #fff3cd;
-  border-left: 3px solid #ffc107;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--designia-warning-orange, #F59E0B);
+  color: var(--designia-pure-white, #FFFFFF);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
 }
 
-.disconnectedDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ffc107;
-  animation: pulse 2s infinite;
+.connectionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.connectionIcon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+}
+
+/* Input Footer */
+.inputFooter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inputHint {
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--designia-steel-gray, #6B7280);
+  font-weight: 500;
+}
+
+/* File Upload Area */
+.fileUploadArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  background: var(--designia-platinum-gray, #F5F5F5);
+  border: 2px dashed var(--designia-steel-gray, #6B7280);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fileUploadArea:hover {
+  background: var(--designia-steel-gray, #6B7280);
+  border-color: var(--designia-deep-black, #0A0A0A);
+  color: var(--designia-pure-white, #FFFFFF);
+}
+
+.fileUploadArea.dragover {
+  background: var(--designia-deep-black, #0A0A0A);
+  border-color: var(--designia-deep-black, #0A0A0A);
+  color: var(--designia-pure-white, #FFFFFF);
+}
+
+.fileUploadIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.fileUploadIcon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+
+.fileUploadText {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+/* Emoji Picker */
+.emojiPicker {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 8px;
+  background: var(--designia-pure-white, #FFFFFF);
+  border: 1px solid var(--designia-platinum-gray, #F5F5F5);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(10, 10, 10, 0.1);
+  z-index: 1000;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Voice Message */
+.voiceMessageButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--designia-steel-gray, #6B7280);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.voiceMessageButton:hover:not(:disabled) {
+  background: var(--designia-platinum-gray, #F5F5F5);
+  color: var(--designia-deep-black, #0A0A0A);
+}
+
+.voiceMessageButton.recording {
+  background: var(--designia-error-red, #EF4444);
+  color: var(--designia-pure-white, #FFFFFF);
+  animation: pulse 1s ease-in-out infinite;
 }
 
 @keyframes pulse {
@@ -112,60 +299,66 @@
     opacity: 1;
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.7;
   }
 }
 
-/* Mobile responsiveness */
+/* Responsive Design */
 @media (max-width: 768px) {
+  .messageInputContainer {
+    padding: 16px 20px;
+  }
+  
   .inputWrapper {
-    padding: 8px;
+    gap: 8px;
   }
   
   .messageInput {
-    padding: 8px 12px;
+    min-height: 40px;
     font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .sendButton {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .sendButton svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .messageInputContainer {
+    padding: 12px 16px;
+  }
+  
+  .inputWrapper {
+    gap: 6px;
+  }
+  
+  .textareaContainer {
+    border-radius: 10px;
+  }
+  
+  .messageInput {
+    padding: 10px 14px;
+    font-size: 16px;
   }
   
   .sendButton {
     width: 36px;
     height: 36px;
+    border-radius: 8px;
   }
   
-  .sendIcon {
-    font-size: 14px;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .inputWrapper {
-    background: #1a1a1a;
-    border-top-color: #374151;
+  .sendButton svg {
+    width: 16px;
+    height: 16px;
   }
   
-  .messageInput {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-  
-  .messageInput:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  .messageInput:disabled {
-    background-color: #374151;
-    color: #9ca3af;
-  }
-  
-  .messageInput::placeholder {
-    color: #6b7280;
-  }
-  
-  .connectionStatus {
-    background: #374151;
-    color: #d1d5db;
+  .inputHint {
+    font-size: 10px;
   }
 }
