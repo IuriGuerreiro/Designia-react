@@ -115,7 +115,7 @@ export const API_ENDPOINTS = {
   METRICS: `${API_BASE_URL}/api/marketplace/metrics/`,
 
   // Seller endpoints
-  SELLER_PROFILE: (sellerId: number) => `${API_BASE_URL}/api/auth/seller/${sellerId}/`,
+  SELLER_PROFILE: (sellerId: number) => `${API_BASE_URL}/api/marketplace/sellers/${sellerId}/`,
   SELLER_APPLICATION_APPLY: `${API_BASE_URL}/api/auth/seller/apply/`,
   SELLER_APPLICATION_STATUS: `${API_BASE_URL}/api/auth/seller/application/status/`,
   USER_ROLE_INFO: `${API_BASE_URL}/api/auth/user/role/`,

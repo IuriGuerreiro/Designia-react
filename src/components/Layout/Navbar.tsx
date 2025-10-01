@@ -28,7 +28,7 @@ const AdminIcon = () => (
 
 const Navbar = () => {
   const { t } = useTranslation();
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, isSeller, canSellProducts } = useAuth();
   const { cartCount, unreadMessagesCount } = useActivityContext();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -120,10 +120,22 @@ const Navbar = () => {
                   <p className={styles.dropdownUserEmail}>{user?.email}</p>
                 </div>
                 <div className={styles.dropdownBody}>
-                  <Link to="/my-products" className={styles.dropdownLink}>{t('layout.my_products')}</Link>
+                  {/* Seller/Admin only features */}
+                  {canSellProducts() && (
+                    <>
+                      <Link to="/my-products" className={styles.dropdownLink}>{t('layout.my_products')}</Link>
+                      <Link to="/order-management" className={styles.dropdownLink}>Seller Orders</Link>
+                      <Link to="/payouts" className={styles.dropdownLink}>Payouts</Link>
+                    </>
+                  )}
+
+                  {/* User only feature - Apply to become seller */}
+                  {!canSellProducts() && (
+                    <Link to="/settings/become-seller" className={styles.dropdownLink}>Become a Seller</Link>
+                  )}
+
+                  {/* Everyone can access these */}
                   <Link to="/my-orders" className={styles.dropdownLink}>My Orders</Link>
-                  <Link to="/order-management" className={styles.dropdownLink}>Seller Orders</Link>
-                  <Link to="/payouts" className={styles.dropdownLink}>Payouts</Link>
                   <Link to="/settings" className={styles.dropdownLink}>{t('layout.settings')}</Link>
                 </div>
                 <div className={styles.dropdownFooter}>

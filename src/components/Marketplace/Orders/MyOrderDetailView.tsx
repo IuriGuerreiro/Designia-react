@@ -226,7 +226,9 @@ const MyOrderDetailView: React.FC = () => {
                         {shipping.seller.username.charAt(0).toUpperCase()}
                       </div>
                       <div className="seller-details">
-                        <h4 className="seller-name">{shipping.seller.username}</h4>
+                        <Link to={`/seller/${shipping.seller.id}`} className="seller-name-link">
+                          <h4 className="seller-name">{shipping.seller.username}</h4>
+                        </Link>
                         {shipping.shipped_at && (
                           <span className="shipped-date">
                             Shipped on {new Date(shipping.shipped_at).toLocaleDateString('en-US', {

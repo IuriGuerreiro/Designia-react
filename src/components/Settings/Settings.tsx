@@ -47,9 +47,9 @@ const Settings: React.FC = () => {
                 <button className="account-btn account-btn-secondary" onClick={() => navigate('/profile/edit')}>
                   Edit Profile
                 </button>
-                {!user?.is_verified_seller && (
+                {!user?.is_verified_seller && user?.role !== 'seller' && user?.role !== 'admin' && (
                   <button className="account-btn account-btn-primary" onClick={() => navigate('/settings/become-seller')}>
-                    Become a Verified Seller
+                    Become a Seller
                   </button>
                 )}
               </div>
@@ -203,10 +203,10 @@ const Settings: React.FC = () => {
                     <p>{user?.seller_type || 'N/A'}</p>
                   </div>
                 )}
-                {!user?.is_verified_seller && (
+                {!user?.is_verified_seller && user?.role !== 'seller' && user?.role !== 'admin' && (
                   <div className="info-group">
                     <button className="account-btn account-btn-primary" onClick={() => navigate('/settings/become-seller')}>
-                      Become a Verified Seller
+                      Become a Seller
                     </button>
                   </div>
                 )}

@@ -45,6 +45,7 @@ class ErrorBoundary extends React.Component<
 import AuthScreen from './components/Auth/AuthScreen';
 import EmailVerification from './components/Auth/EmailVerification';
 import EmailVerificationPending from './components/Auth/EmailVerificationPending';
+import RoleGuard from './components/Auth/RoleGuard';
 // Marketplace Components
 import ProductList from './components/Marketplace/Products/ProductList';
 // Chat Components
@@ -121,36 +122,36 @@ const AppContent: React.FC = () => {
             <Route path="/logout" element={<Navigate to="/login" />} />
             <Route path="/" element={<ProductList />} />
             <Route path="/products" element={<ProductList />} />
-            <Route path="/products/new" element={<ProductForm />} />
+            <Route path="/products/new" element={<RoleGuard requiredRole="seller"><ProductForm /></RoleGuard>} />
             <Route path="/products/:slug" element={<ProductDetailPage />} />
-            <Route path="/products/:slug/edit" element={<ProductForm />} />
-            <Route path="/my-products" element={<MyProductsPage />} />
+            <Route path="/products/:slug/edit" element={<RoleGuard requiredRole="seller"><ProductForm /></RoleGuard>} />
+            <Route path="/my-products" element={<RoleGuard requiredRole="seller"><MyProductsPage /></RoleGuard>} />
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/settings/become-seller" element={<BecomeSellerForm />} />
             <Route path="/profile/edit" element={<EditProfile />} />
             <Route path="/seller/:sellerId" element={<SellerProfilePage />} />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/metrics" element={<ProductMetricsPage />} />
-            <Route path="/metrics/product/:productId" element={<ProductMetricsPage />} />
+            <Route path="/metrics" element={<RoleGuard requiredRole="seller"><ProductMetricsPage /></RoleGuard>} />
+            <Route path="/metrics/product/:productId" element={<RoleGuard requiredRole="seller"><ProductMetricsPage /></RoleGuard>} />
             <Route path="/my-orders" element={<MyOrdersPage />} />
             <Route path="/my-orders/:orderId" element={<MyOrderDetailView />} />
             <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-            <Route path="/order-management" element={<UserOrdersManagement />} />
+            <Route path="/order-management" element={<RoleGuard requiredRole="seller"><UserOrdersManagement /></RoleGuard>} />
             <Route path="/checkout" element={<SimpleCheckoutPage />} />
             <Route path="/checkout-success" element={<CheckoutSuccess />} />
             <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/stripe-onboarding" element={<StripeOnboarding />} />
-            <Route path="/stripe-holds" element={<StripeHolds />} />
-            <Route path="/payouts" element={<Payouts />} />
+            <Route path="/stripe-onboarding" element={<RoleGuard requiredRole="seller"><StripeOnboarding /></RoleGuard>} />
+            <Route path="/stripe-holds" element={<RoleGuard requiredRole="seller"><StripeHolds /></RoleGuard>} />
+            <Route path="/payouts" element={<RoleGuard requiredRole="seller"><Payouts /></RoleGuard>} />
 
             {/* Chat routes */}
             <Route path="/chat" element={<ChatPage />} />
 
             {/* Admin routes */}
-            <Route path="/admin/seller-applications" element={<SellerApplicationList />} />
-            <Route path="/admin/payouts" element={<AdminPayouts />} />
-            <Route path="/admin/transactions" element={<AdminTransactions />} />
+            <Route path="/admin/seller-applications" element={<RoleGuard requiredRole="admin"><SellerApplicationList /></RoleGuard>} />
+            <Route path="/admin/payouts" element={<RoleGuard requiredRole="admin"><AdminPayouts /></RoleGuard>} />
+            <Route path="/admin/transactions" element={<RoleGuard requiredRole="admin"><AdminTransactions /></RoleGuard>} />
 
             {/* 404 catch-all route */}
             <Route path="*" element={<NotFound />} />
