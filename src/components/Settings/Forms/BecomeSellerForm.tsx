@@ -16,12 +16,15 @@ const sellerTypeOptions = [
 
 const BecomeSellerForm: React.FC = () => {
   const navigate = useNavigate();
-  const { submitSellerApplication } = useAuth();
+  const { submitSellerApplication, user } = useAuth();
   const [workshopFiles, setWorkshopFiles] = useState<File[]>([]);
   const [sellerType, setSellerType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Check if user has 2FA enabled
+  const has2FAEnabled = user?.two_factor_enabled || false;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +32,11 @@ const BecomeSellerForm: React.FC = () => {
     setError(null);
 
     try {
+      // Check if 2FA is enabled before proceeding
+      if (!has2FAEnabled) {
+        throw new Error('Two-factor authentication (2FA) must be enabled before applying to become a seller. Please enable 2FA in your settings.');
+      }
+
       const formData = new FormData(e.target as HTMLFormElement);
 
       // Validate required fields
@@ -71,11 +79,36 @@ const BecomeSellerForm: React.FC = () => {
     <Layout>
       <div className="become-seller-page">
         <div className="seller-form-header">
-          <h1 className="heading-lg">Become a Verified Seller</h1>
+          <h1 className="heading-lg">Become a Seller</h1>
           <p className="body-lg">
             Tell us about your business. Your application will be reviewed by our team to ensure the quality of our marketplace.
           </p>
         </div>
+
+        {!has2FAEnabled && (
+          <div className="alert alert-error" style={{ marginBottom: '20px' }}>
+            <strong>⚠️ Two-Factor Authentication Required</strong>
+            <p style={{ marginTop: '8px', marginBottom: '8px' }}>
+              You must enable two-factor authentication (2FA) before applying to become a seller.
+              This additional security measure helps protect your account and your customers.
+            </p>
+            <button
+              onClick={() => navigate('/settings')}
+              style={{
+                marginTop: '8px',
+                padding: '8px 16px',
+                backgroundColor: '#fff',
+                color: '#d32f2f',
+                border: '2px solid #d32f2f',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              Go to Settings to Enable 2FA
+            </button>
+          </div>
+        )}
 
         {error && (
           <div className="alert alert-error" style={{ marginBottom: '20px' }}>
@@ -180,9 +213,15 @@ const BecomeSellerForm: React.FC = () => {
             <button
               type="submit"
               className="seller-btn seller-btn-primary"
-              disabled={isLoading || success}
+              disabled={isLoading || success || !has2FAEnabled}
             >
-              {isLoading ? 'Submitting...' : success ? 'Submitted!' : 'Submit Application'}
+              {!has2FAEnabled
+                ? 'Enable 2FA to Submit'
+                : isLoading
+                ? 'Submitting...'
+                : success
+                ? 'Submitted!'
+                : 'Submit Application'}
             </button>
           </div>
         </form>

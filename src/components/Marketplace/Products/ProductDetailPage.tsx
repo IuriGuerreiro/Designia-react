@@ -226,9 +226,15 @@ const ProductDetailPage: React.FC = () => {
             <div className="product-header">
               <h1 className="product-title">{product.name}</h1>
               <div className="product-meta">
-                <span className="product-seller">
-                  By {product.seller?.username || 'Designia'}
-                </span>
+                {product.seller?.id ? (
+                  <Link to={`/seller/${product.seller.id}`} className="product-seller">
+                    By {product.seller.username}
+                  </Link>
+                ) : (
+                  <span className="product-seller">
+                    By Designia
+                  </span>
+                )}
                 {product.is_in_stock && (
                   <span className="stock-status in-stock">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

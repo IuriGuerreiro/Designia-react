@@ -112,8 +112,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
       </Link>
       
       <div className={styles.info}>
-        <div className={styles.seller}>{product.seller?.username || 'Designia'}</div>
-        
+        {product.seller?.id ? (
+          <Link to={`/seller/${product.seller.id}`} className={styles.seller}>
+            {product.seller.username}
+          </Link>
+        ) : (
+          <div className={styles.seller}>Designia</div>
+        )}
+
         <Link to={`/products/${product.slug}`} className={styles.nameLink} onClick={handleTrackClick}>
           <h3 className={styles.name}>{product.name}</h3>
         </Link>
