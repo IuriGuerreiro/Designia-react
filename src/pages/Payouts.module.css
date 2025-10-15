@@ -1,0 +1,229 @@
+.page {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  margin-bottom: var(--space-sm);
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  margin: 0 auto;
+  max-width: 32rem;
+}
+
+.tabs {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem;
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-2xl);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.tab:hover {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+  transform: translateY(-1px);
+}
+
+.tabActive {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+.content {
+  display: grid;
+  gap: var(--space-2xl);
+}
+
+.historyCard {
+  background: var(--color-surface);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-xl);
+}
+
+.createSection {
+  display: grid;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+.createCard {
+  background: var(--color-surface);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-xl);
+}
+
+.createHeader {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.iconShell {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1) 0%, rgba(44, 62, 80, 0.05) 100%);
+  color: var(--color-primary);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.cardDescription {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-muted);
+}
+
+.infoGrid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.actionButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.actionButton:disabled {
+  opacity: 0.7;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.infoPanel {
+  border: 1px dashed var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--space-lg);
+  background: var(--color-surface-alt);
+}
+
+.infoHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+.infoList {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--color-text-muted);
+  display: grid;
+  gap: 0.4rem;
+}
+
+.viewLink {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-lg);
+}
+
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.linkButton svg {
+  transition: transform 0.2s ease;
+}
+
+.linkButton:hover svg {
+  transform: translateX(4px);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 960px) {
+  .content {
+    grid-template-columns: 1.5fr 1fr;
+  }
+
+  .historyCard {
+    height: fit-content;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: var(--space-xl) var(--space-md);
+  }
+
+  .tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tab {
+    flex: 1;
+  }
+}

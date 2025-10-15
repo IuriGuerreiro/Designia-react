@@ -1,12 +1,6 @@
-// Always use the backend server URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.3.2:8001';
-
-console.log('=== API BASE URL DEBUG ===');
-console.log('VITE_API_BASE_URL env var:', import.meta.env.VITE_API_BASE_URL);
-console.log('Final API_BASE_URL:', API_BASE_URL);
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://192.168.3.2:8001';
 
 export const API_ENDPOINTS = {
-  // Authentication endpoints (matching Django authentication/urls.py)
   LOGIN: `${API_BASE_URL}/api/auth/login/`,
   LOGIN_VERIFY_2FA: `${API_BASE_URL}/api/auth/login/verify-2fa/`,
   REGISTER: `${API_BASE_URL}/api/auth/register/`,
@@ -16,55 +10,33 @@ export const API_ENDPOINTS = {
   RESEND_VERIFICATION: `${API_BASE_URL}/api/auth/resend-verification/`,
   CHECK_EMAIL_RATE_LIMIT: `${API_BASE_URL}/api/auth/check-rate-limit/`,
   RESEND_2FA_CODE: `${API_BASE_URL}/api/auth/resend-2fa-code/`,
-  
-  // Google OAuth endpoints (YummiAI style)
   GOOGLE_LOGIN: `${API_BASE_URL}/api/auth/google/login/`,
   GOOGLE_REGISTER: `${API_BASE_URL}/api/auth/google/register/`,
-  GOOGLE_OAUTH: `${API_BASE_URL}/api/auth/google-oauth/`, // Legacy endpoint
-  
-  // User endpoints  
+  GOOGLE_OAUTH: `${API_BASE_URL}/api/auth/google-oauth/`,
   USER_PROFILE: `${API_BASE_URL}/api/auth/profile/`,
   CHANGE_LANGUAGE: `${API_BASE_URL}/api/auth/change-language/`,
-  
-  // 2FA endpoints
   TWO_FACTOR_TOGGLE: `${API_BASE_URL}/api/auth/2fa/toggle/`,
   TWO_FACTOR_VERIFY: `${API_BASE_URL}/api/auth/2fa/verify/`,
   TWO_FACTOR_STATUS: `${API_BASE_URL}/api/auth/2fa/status/`,
-  
-  // Password setup endpoints (OAuth users only)
   PASSWORD_SETUP_REQUEST: `${API_BASE_URL}/api/auth/password/request/`,
   PASSWORD_SETUP_SET: `${API_BASE_URL}/api/auth/password/set/`,
-  
-  // Password reset endpoints (all users)
   PASSWORD_RESET_REQUEST: `${API_BASE_URL}/api/auth/password/reset/request/`,
   PASSWORD_RESET: `${API_BASE_URL}/api/auth/password/reset/`,
-  
-  // Todo endpoints (future)
   TODOS: `${API_BASE_URL}/api/todos/`,
-
-  // Marketplace endpoints
-  // Categories
   CATEGORIES: `${API_BASE_URL}/api/marketplace/categories/`,
   CATEGORY_DETAIL: (slug: string) => `${API_BASE_URL}/api/marketplace/categories/${slug}/`,
   CATEGORY_PRODUCTS: (slug: string) => `${API_BASE_URL}/api/marketplace/categories/${slug}/products/`,
-
-  // Products
   PRODUCTS: `${API_BASE_URL}/api/marketplace/products/`,
   PRODUCT_DETAIL: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/`,
   PRODUCT_FAVORITE: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/favorite/`,
   PRODUCT_CLICK: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/click/`,
   PRODUCT_REVIEWS: (slug: string) => `${API_BASE_URL}/api/marketplace/reviews/?product_slug=${slug}`,
-  PRODUCT_ADD_REVIEW: (slug: string) => `${API_BASE_URL}/api/marketplace/reviews/`,
-  PRODUCT_REVIEW_DETAIL: (slug: string, reviewId: number) => `${API_BASE_URL}/api/marketplace/reviews/${reviewId}/`,
+  PRODUCT_ADD_REVIEW: `${API_BASE_URL}/api/marketplace/reviews/`,
+  PRODUCT_REVIEW_DETAIL: (reviewId: number) => `${API_BASE_URL}/api/marketplace/reviews/${reviewId}/`,
   MY_PRODUCTS: `${API_BASE_URL}/api/marketplace/products/my_products/`,
   FAVORITES: `${API_BASE_URL}/api/marketplace/products/favorites/`,
-
-  // Product Images
   PRODUCT_IMAGES: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/images/`,
-  PRODUCT_IMAGE_DETAIL: (slug: string, id: number) => 
-    `${API_BASE_URL}/api/marketplace/products/${slug}/images/${id}/`,
-
-  // Cart
+  PRODUCT_IMAGE_DETAIL: (slug: string, id: number) => `${API_BASE_URL}/api/marketplace/products/${slug}/images/${id}/`,
   CART: `${API_BASE_URL}/api/marketplace/cart/`,
   CART_ADD_ITEM: `${API_BASE_URL}/api/marketplace/cart/add_item/`,
   CART_UPDATE_ITEM: `${API_BASE_URL}/api/marketplace/cart/update_item/`,
@@ -72,14 +44,10 @@ export const API_ENDPOINTS = {
   CART_CLEAR: `${API_BASE_URL}/api/marketplace/cart/clear/`,
   CART_UPDATE_ITEM_STATUS: `${API_BASE_URL}/api/marketplace/cart/update_item_status/`,
   CART_VALIDATE_STOCK: `${API_BASE_URL}/api/marketplace/cart/validate_stock/`,
-
-  // Orders
   ORDERS: `${API_BASE_URL}/api/marketplace/orders/`,
   ORDER_DETAIL: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/`,
   UPDATE_ORDER_STATUS: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/update_status/`,
   UPDATE_ORDER_STATUS_VALIDATED: (id: string) => `${API_BASE_URL}/api/marketplace/orders/${id}/update_order_status/`,
-
-  // Payment System
   CREATE_CHECKOUT_SESSION: `${API_BASE_URL}/api/payments/checkout_session/`,
   CREATE_RETRY_CHECKOUT_SESSION: (orderId: string) => `${API_BASE_URL}/api/payments/checkout_session/retry/${orderId}/`,
   CHECKOUT_SESSION_STATUS: `${API_BASE_URL}/api/payments/session_status/`,
@@ -90,42 +58,28 @@ export const API_ENDPOINTS = {
   STRIPE_ACCOUNT_STATUS: `${API_BASE_URL}/api/payments/stripe-account/status/`,
   SELLER_PAYOUTS: `${API_BASE_URL}/api/payments/seller-payouts/`,
   REQUEST_REFUND: `${API_BASE_URL}/api/payments/refund/request/`,
-  
-  // Stripe Connect (Seller Onboarding)
   STRIPE_ACCOUNT: `${API_BASE_URL}/api/payments/stripe/account/`,
   STRIPE_CREATE_SESSION: `${API_BASE_URL}/api/payments/stripe/create-session/`,
   STRIPE_VALIDATE_ELIGIBILITY: `${API_BASE_URL}/api/payments/stripe/validate-eligibility/`,
   STRIPE_ACCOUNT_STATUS_CONNECT: `${API_BASE_URL}/api/payments/stripe/account-status/`,
   STRIPE_PAYMENT_HOLDS: `${API_BASE_URL}/api/payments/stripe/holds/`,
   STRIPE_TRANSFER_PAYMENT: `${API_BASE_URL}/api/payments/transfer/`,
-  
-  // Payout endpoints
   SELLER_PAYOUT: `${API_BASE_URL}/api/payments/payout/`,
   GET_PAYOUT: (payoutId: string) => `${API_BASE_URL}/api/payments/payout/${payoutId}/`,
   LIST_PAYOUTS: `${API_BASE_URL}/api/payments/payouts/`,
   PAYOUT_DETAIL: (payoutId: string) => `${API_BASE_URL}/api/payments/payouts/${payoutId}/`,
   PAYOUT_ORDERS: (payoutId: string) => `${API_BASE_URL}/api/payments/payouts/${payoutId}/orders/`,
   ELIGIBLE_TRANSFERS: `${API_BASE_URL}/api/payments/eligible-transfers/`,
-
-  // Admin payment oversight endpoints
   ADMIN_PAYOUTS: `${API_BASE_URL}/api/payments/admin/payouts/`,
   ADMIN_TRANSACTIONS: `${API_BASE_URL}/api/payments/admin/transactions/`,
-
-  // Metrics
   METRICS: `${API_BASE_URL}/api/marketplace/metrics/`,
-
-  // Seller endpoints
   SELLER_PROFILE: (sellerId: number) => `${API_BASE_URL}/api/marketplace/sellers/${sellerId}/`,
   SELLER_APPLICATION_APPLY: `${API_BASE_URL}/api/auth/seller/apply/`,
   SELLER_APPLICATION_STATUS: `${API_BASE_URL}/api/auth/seller/application/status/`,
   USER_ROLE_INFO: `${API_BASE_URL}/api/auth/user/role/`,
-
-  // Admin seller management endpoints
   ADMIN_SELLER_APPLICATIONS: `${API_BASE_URL}/api/auth/admin/seller/applications/`,
   ADMIN_APPROVE_SELLER: (applicationId: number) => `${API_BASE_URL}/api/auth/admin/seller/approve/${applicationId}/`,
   ADMIN_REJECT_SELLER: (applicationId: number) => `${API_BASE_URL}/api/auth/admin/seller/reject/${applicationId}/`,
-
-  // Chat endpoints
   CHAT: `${API_BASE_URL}/api/chat/`,
   CHAT_DETAIL: (chatId: number) => `${API_BASE_URL}/api/chat/${chatId}/`,
   CHAT_CREATE: `${API_BASE_URL}/api/chat/`,
@@ -134,131 +88,123 @@ export const API_ENDPOINTS = {
   CHAT_MARK_READ: (chatId: number) => `${API_BASE_URL}/api/chat/${chatId}/messages/mark-read/`,
   CHAT_UPLOAD_IMAGE: `${API_BASE_URL}/api/chat/upload-image/`,
   CHAT_SEARCH_USERS: `${API_BASE_URL}/api/chat/search-users/`,
+} as const;
+
+type JsonRecord = Record<string, unknown>;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const parseJsonSafely = async (response: Response): Promise<JsonRecord | null> => {
+  const text = await response.text();
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
 };
 
-// API utility functions
-export const apiRequest = async (
-  url: string, 
+const parseResponse = async <T>(response: Response): Promise<T> => {
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    return undefined as T;
+  }
+
+  const data = await response.json();
+  return data as T;
+};
+
+const refreshAccessToken = async (): Promise<string | null> => {
+  const refreshToken = localStorage.getItem('refresh_token');
+  if (!refreshToken) {
+    return null;
+  }
+
+  const response = await fetch(API_ENDPOINTS.REFRESH_TOKEN, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh: refreshToken }),
+  });
+
+  if (!response.ok) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    return null;
+  }
+
+  const data = await response.json();
+  localStorage.setItem('access_token', data.access);
+  return data.access;
+};
+
+const shouldRetry = (error: unknown) => error instanceof TypeError;
+
+export const apiRequest = async <T = any>(
+  url: string,
   options: RequestInit = {},
-  maxRetries: number = 5
-): Promise<any> => {
-  let attempt = 0;
-  
-  while (attempt < maxRetries) {
-    attempt++;
-    console.log(`=== API REQUEST START (Attempt ${attempt}/${maxRetries}) ===`);
-    console.log('URL:', url);
-    console.log('Method:', options.method || 'GET');
-    
-    const token = localStorage.getItem('access_token');
-    console.log('Has token:', !!token);
-    
-    // Don't set Content-Type for FormData - let the browser set it with boundary
-    const isFormData = options.body instanceof FormData;
-    console.log('Is FormData:', isFormData);
-    
-    const defaultHeaders: Record<string, string> = {
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-      // Only set Content-Type if it's not FormData
-      ...(!isFormData && { 'Content-Type': 'application/json' }),
-    };
-
-    const config: RequestInit = {
-      ...options,
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
-    };
-
-    console.log('Request config:', {
-      method: config.method || 'GET',
-      headers: config.headers,
-      hasBody: !!config.body
-    });
-
+  maxRetries: number = 3,
+): Promise<T> => {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const response = await fetch(url, config);
-      console.log('Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-      
+      const token = localStorage.getItem('access_token');
+      const isFormData = options.body instanceof FormData;
+
+      const headers: HeadersInit = {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
+        ...(options.headers ?? {}),
+      };
+
+      const response = await fetch(url, { ...options, headers });
+
       if (response.status === 401) {
-        // Token expired, try to refresh
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (refreshToken) {
-          const refreshResponse = await fetch(API_ENDPOINTS.REFRESH_TOKEN, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh: refreshToken }),
-          });
-          
-          if (refreshResponse.ok) {
-            const data = await refreshResponse.json();
-            localStorage.setItem('access_token', data.access);
-            
-            // Retry original request with new token
-            config.headers = {
-              ...config.headers,
-              'Authorization': `Bearer ${data.access}`,
-            };
-            const retryResponse = await fetch(url, config);
-            if (!retryResponse.ok) {
-              throw new Error(`HTTP error! status: ${retryResponse.status}`);
-            }
-            return retryResponse.json();
-          } else {
-            // Refresh failed, redirect to login
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            window.location.href = '/login';
-            return Promise.reject('Authentication failed');
-          }
+        const refreshedToken = await refreshAccessToken();
+        if (!refreshedToken) {
+          throw new Error('Authentication failed');
         }
+
+        const retryResponse = await fetch(url, {
+          ...options,
+          headers: {
+            ...(options.headers ?? {}),
+            ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
+            Authorization: `Bearer ${refreshedToken}`,
+          },
+        });
+
+        if (!retryResponse.ok) {
+          const errorData = await parseJsonSafely(retryResponse);
+          const message = typeof errorData?.message === 'string' ? errorData.message : undefined;
+          throw new Error(message ?? `HTTP error! status: ${retryResponse.status}`);
+        }
+
+        return parseResponse<T>(retryResponse);
       }
-      
+
       if (!response.ok) {
-        console.log('Response not OK, parsing error...');
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Error data:', errorData);
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const errorData = await parseJsonSafely(response);
+        const message = typeof errorData?.message === 'string' ? errorData.message : undefined;
+        throw new Error(message ?? `HTTP error! status: ${response.status}`);
       }
-      
-      console.log('Parsing response JSON...');
-      const data = await response.json();
-      console.log('Parsed data:', {
-        hasData: !!data,
-        dataType: typeof data,
-        dataKeys: data && typeof data === 'object' ? Object.keys(data) : 'Not an object',
-        isArray: Array.isArray(data),
-        dataLength: Array.isArray(data) ? data.length : 'Not an array'
-      });
-      console.log('=== API REQUEST SUCCESS ===');
-      return data;
+
+      return parseResponse<T>(response);
     } catch (error) {
-      console.error(`=== API REQUEST FAILED (Attempt ${attempt}/${maxRetries}) ===`);
-      console.error('API request failed:', error);
-      
-      // Check if we should retry
-      const shouldRetry = attempt < maxRetries && 
-        (error instanceof TypeError || // Network errors
-         (error instanceof Error && error.message.includes('fetch')));
-      
-      if (shouldRetry) {
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Exponential backoff, max 5s
-        console.log(`Retrying in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        // Continue to next iteration of while loop
-      } else {
-        // Final attempt failed or non-retryable error
-        throw error;
+      if (attempt === maxRetries - 1 || !shouldRetry(error)) {
+        throw error instanceof Error ? error : new Error('Request failed');
       }
+
+      const delayMs = Math.min(1000 * 2 ** attempt, 5000);
+      await delay(delayMs);
     }
   }
-  
-  // This should never be reached, but just in case
+
   throw new Error('Max retries exceeded');
 };
 

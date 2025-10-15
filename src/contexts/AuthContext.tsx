@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { apiRequest, API_ENDPOINTS } from '../config/api';
 
 interface User {
@@ -170,7 +171,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = async (email: string, password: string): Promise<{requires2FA?: boolean, userId?: number, message?: string, emailNotVerified?: boolean, email?: string, warningType?: string, actionRequired?: string}> => {
+  const login = async (email: string, password: string): Promise<{requires2FA?: boolean, userId?: number, message?: string, codeAlreadySent?: boolean, emailNotVerified?: boolean, email?: string, warningType?: string, actionRequired?: string}> => {
     try {
       setIsLoading(true);
       
