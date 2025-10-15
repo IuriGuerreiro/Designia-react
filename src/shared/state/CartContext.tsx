@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { cartService } from '../../features/marketplace/api';
-import { type Cart } from '../../types/marketplace';
+import { cartService } from '@/features/marketplace/api';
+import { type Cart } from '@/features/marketplace/model';
 
 interface Product {
   id: number | string;

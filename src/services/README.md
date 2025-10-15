@@ -8,7 +8,7 @@ The services have been restructured to follow a **single responsibility principl
 
 - **Centralized Endpoints**: All API endpoints are defined in `shared/api`
 - **Feature Modules**: Each domain lives under `features/<domain>/api`
-- **Type Safety**: Shared types are centralized in `types/marketplace.ts`
+- **Type Safety**: Shared types are centralized in `features/marketplace/model`
 - **Singleton Pattern**: Each service uses a singleton pattern for consistency
 
 ## Service Structure
@@ -77,7 +77,7 @@ The services have been restructured to follow a **single responsibility principl
 import { productService, categoryService, favoriteService } from '../features/marketplace/api';
 
 // Import types
-import { Product, Category, ProductListItem } from '../types/marketplace';
+import { Product, Category, ProductListItem } from '@/features/marketplace/model';
 ```
 
 ### Use Services
@@ -127,7 +127,7 @@ import { type Product } from '../services/marketplaceService';
 **After (new architecture)**:
 ```typescript
 import { productService, categoryService } from '../features/marketplace/api';
-import { type Product } from '../types/marketplace';
+import { type Product } from '@/features/marketplace/model';
 ```
 
 ## Configuration
@@ -152,6 +152,6 @@ All API endpoints are centralized in `shared/api`:
 The `services/index.ts` file provides:
 - Individual service exports
 - Legacy `marketplaceService` object for backward compatibility
-- All type exports from `types/marketplace.ts`
+- All type exports from `features/marketplace/model`
 
 This ensures existing code continues to work while new code can use the improved architecture.

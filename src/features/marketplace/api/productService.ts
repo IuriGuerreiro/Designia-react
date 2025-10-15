@@ -5,7 +5,7 @@ import type {
   ProductFilters,
   ProductListItem,
   ProductReview,
-} from '../../../types/marketplace';
+} from '@/features/marketplace/model';
 import { buildQueryString, normalizeProduct, normalizeProductCollection } from './utils';
 
 export type ProductListResponse = PaginatedResponse<ProductListItem> | ProductListItem[];

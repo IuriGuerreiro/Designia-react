@@ -35,7 +35,7 @@ export {
   UserService,
 };
 
-export * from '../types/marketplace';
+export * from '@/features/marketplace/model';
 
 export const marketplaceService = {
   categories: categoryService,

@@ -1,5 +1,5 @@
 import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
-import type { Category, ProductFilters, ProductListItem } from '../../../types/marketplace';
+import type { Category, ProductFilters, ProductListItem } from '@/features/marketplace/model';
 import { buildQueryString, normalizeProductCollection } from './utils';
 
 export class CategoryService {

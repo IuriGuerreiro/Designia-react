@@ -1,102 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-  is_email_verified?: boolean;
-  two_factor_enabled?: boolean;
-  is_oauth_only_user?: boolean;
-  is_verified_seller?: boolean;
-  seller_type?: string;
-  language?: string;
-  role?: 'user' | 'seller' | 'admin';
-  profile?: {
-    // Basic Profile Information
-    bio?: string;
-    location?: string;
-    birth_date?: string;
-    gender?: string;
-    pronouns?: string;
-    
-    // Contact Information
-    phone_number?: string;
-    country_code?: string;
-    website?: string;
-    
-    // Professional Information
-    job_title?: string;
-    company?: string;
-    
-    // Address Information
-    street_address?: string;
-    city?: string;
-    state_province?: string;
-    country?: string;
-    postal_code?: string;
-    
-    // Social Media Links
-    instagram_url?: string;
-    twitter_url?: string;
-    linkedin_url?: string;
-    facebook_url?: string;
-    
-    // Preferences
-    timezone?: string;
-    language_preference?: string;
-    currency_preference?: string;
-    
-    // Account Settings
-    account_type?: string;
-    profile_visibility?: string;
-    
-    // Verification & Status
-    is_verified?: boolean;
-    is_verified_seller?: boolean;
-    seller_type?: string;
-    
-    // Metadata
-    created_at?: string;
-    updated_at?: string;
-    profile_completion_percentage?: number;
-    
-    // Marketing Preferences
-    marketing_emails_enabled?: boolean;
-    newsletter_enabled?: boolean;
-    notifications_enabled?: boolean;
-  }
-}
-
-interface RateLimitStatus {
-  can_send: boolean;
-  time_remaining: number;
-}
-
-interface SellerApplicationRequest {
-  businessName: string;
-  sellerType: string;
-  motivation: string;
-  portfolio: string;
-  socialMedia?: string;
-  workshopPhotos: File[];
-}
-
-interface SellerApplicationStatus {
-  has_application: boolean;
-  is_seller: boolean;
-  status?: 'pending' | 'under_review' | 'approved' | 'rejected' | 'revision_requested';
-  application_id?: number;
-  submitted_at?: string;
-  admin_notes?: string;
-  rejection_reason?: string;
-}
+import { apiRequest, API_ENDPOINTS } from '@/shared/api';
+import type {
+  AuthUser,
+  RateLimitStatus,
+  RegisterData,
+  SellerApplicationRequest,
+  SellerApplicationStatus,
+} from '../model';
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{requires2FA?: boolean, userId?: number, message?: string, codeAlreadySent?: boolean, emailNotVerified?: boolean, email?: string, warningType?: string, actionRequired?: string}>;
@@ -107,7 +21,7 @@ interface AuthContextType {
   resendVerification: (email: string) => Promise<{success: boolean, message: string}>;
   checkEmailRateLimit: (email: string, requestType?: string) => Promise<RateLimitStatus>;
   googleLogin: (googleUserData: any) => Promise<void>;
-  updateProfile: (userData: Partial<User>) => Promise<void>;
+  updateProfile: (userData: Partial<AuthUser>) => Promise<void>;
   refreshUserData: () => Promise<void>;
   changeLanguage: (languageCode: string) => Promise<void>;
   logout: () => void;
@@ -120,15 +34,6 @@ interface AuthContextType {
   isSeller: () => boolean;
   isAdmin: () => boolean;
   canSellProducts: () => boolean;
-}
-
-interface RegisterData {
-  username: string;
-  email: string;
-  password: string;
-  password_confirm: string;
-  first_name?: string;
-  last_name?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -146,7 +51,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = !!user;
@@ -583,7 +488,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const updateProfile = async (userData: Partial<User>) => {
+  const updateProfile = async (userData: Partial<AuthUser>) => {
     try {
         const response = await apiRequest(API_ENDPOINTS.USER_PROFILE, {
             method: 'PUT',

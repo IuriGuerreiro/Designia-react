@@ -1,4 +1,4 @@
-import type { PaginatedResponse, Product, ProductImage, ProductListItem } from '../../../types/marketplace';
+import type { PaginatedResponse, Product, ProductImage, ProductListItem } from '@/features/marketplace/model';
 
 export type WithProductMedia = {
   primary_image?: ProductImage | null;

@@ -1,8 +1,8 @@
-import RoleGuard from '../../components/Auth/RoleGuard';
-import AdminPayouts from '../../components/Admin/AdminPayouts';
-import AdminTransactions from '../../components/Admin/AdminTransactions';
-import SellerApplicationList from '../../components/Admin/SellerApplicationList';
-import type { AppRoute } from '../../app/router/types';
+import { RoleGuard } from '../auth/ui';
+import AdminPayouts from '@/components/Admin/AdminPayouts';
+import AdminTransactions from '@/components/Admin/AdminTransactions';
+import SellerApplicationList from '@/components/Admin/SellerApplicationList';
+import type { AppRoute } from '@/app/router/types';
 
 export const adminRoutes: AppRoute[] = [
   {

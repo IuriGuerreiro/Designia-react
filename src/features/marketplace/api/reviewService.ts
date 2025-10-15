@@ -1,5 +1,5 @@
 import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
-import type { ProductReview } from '../../../types/marketplace';
+import type { ProductReview } from '@/features/marketplace/model';
 
 export class ReviewService {
   private static instance: ReviewService;

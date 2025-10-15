@@ -1,13 +1,13 @@
 import { Route, Routes } from 'react-router-dom';
-import { useAuth } from '../../features/auth/state/AuthContext';
-import { ActivityProvider } from '../../shared/state/ActivityContext';
-import { CartProvider } from '../../shared/state/CartContext';
-import { authProtectedRoutes, authPublicRoutes } from '../../features/auth/routes';
-import { marketplaceRoutes } from '../../features/marketplace/routes';
-import { paymentRoutes } from '../../features/payments/routes';
-import { chatRoutes } from '../../features/chat/routes';
-import { adminRoutes } from '../../features/admin/routes';
-import NotFound from '../../components/NotFound/NotFound';
+import { useAuth } from '@/features/auth/state/AuthContext';
+import { ActivityProvider } from '@/shared/state/ActivityContext';
+import { CartProvider } from '@/shared/state/CartContext';
+import { authProtectedRoutes, authPublicRoutes } from '@/features/auth/routes';
+import { marketplaceRoutes } from '@/features/marketplace/routes';
+import { paymentRoutes } from '@/features/payments/routes';
+import { chatRoutes } from '@/features/chat/routes';
+import { adminRoutes } from '@/features/admin/routes';
+import NotFound from '@/components/NotFound/NotFound';
 import type { AppRoute } from './types';
 
 const LoadingScreen = () => (

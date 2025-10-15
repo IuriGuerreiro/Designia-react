@@ -1,11 +1,11 @@
-import RoleGuard from '../../components/Auth/RoleGuard';
-import CheckoutSuccess from '../../components/Marketplace/Checkout/CheckoutSuccess';
-import PaymentPage from '../../components/Marketplace/Checkout/PaymentPage';
-import SimpleCheckoutPage from '../../components/Marketplace/Checkout/SimpleCheckoutPage';
-import StripeOnboarding from '../../components/Marketplace/Stripe/StripeOnboarding';
-import StripeHolds from '../../pages/StripeHolds';
-import Payouts from '../../pages/Payouts';
-import type { AppRoute } from '../../app/router/types';
+import { RoleGuard } from '../auth/ui';
+import CheckoutSuccess from '../marketplace/ui/checkout/CheckoutSuccess';
+import PaymentPage from '../marketplace/ui/checkout/PaymentPage';
+import SimpleCheckoutPage from '../marketplace/ui/checkout/SimpleCheckoutPage';
+import StripeOnboarding from '../marketplace/ui/stripe/StripeOnboarding';
+import Payouts from '@/pages/Payouts';
+import StripeHolds from '@/pages/StripeHolds';
+import type { AppRoute } from '@/app/router/types';
 
 export const paymentRoutes: AppRoute[] = [
   { path: '/checkout', element: <SimpleCheckoutPage /> },

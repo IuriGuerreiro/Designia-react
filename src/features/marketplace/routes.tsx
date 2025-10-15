@@ -1,20 +1,20 @@
-import RoleGuard from '../../components/Auth/RoleGuard';
-import FavoritesPage from '../../components/Marketplace/Products/FavoritesPage';
-import ProductDetailPage from '../../components/Marketplace/Products/ProductDetailPage';
-import ProductForm from '../../components/Marketplace/Products/ProductForm';
-import ProductList from '../../components/Marketplace/Products/ProductList';
-import MyProductsPage from '../../components/Marketplace/Products/MyProductsPage';
-import Settings from '../../components/Settings/Settings';
-import BecomeSellerForm from '../../components/Settings/Forms/BecomeSellerForm';
-import EditProfile from '../../components/Pages/Profile/EditProfile';
-import SellerProfilePage from '../../components/Marketplace/Seller/SellerProfilePage';
-import CartPage from '../../components/Marketplace/Cart/CartPage';
-import ProductMetricsPage from '../../components/Marketplace/Metrics/ProductMetricsPage';
-import MyOrdersPage from '../../components/Marketplace/Orders/MyOrdersPage';
-import MyOrderDetailView from '../../components/Marketplace/Orders/MyOrderDetailView';
-import OrderSuccessPage from '../../components/Marketplace/Orders/OrderSuccessPage';
-import UserOrdersManagement from '../../components/Marketplace/Orders/UserOrdersManagement';
-import type { AppRoute } from '../../app/router/types';
+import { RoleGuard } from '../auth/ui';
+import CartPage from './ui/cart/CartPage';
+import ProductMetricsPage from './ui/metrics/ProductMetricsPage';
+import BecomeSellerForm from '@/components/Settings/Forms/BecomeSellerForm';
+import EditProfile from '@/components/Pages/Profile/EditProfile';
+import MyOrderDetailView from './ui/orders/MyOrderDetailView';
+import MyOrdersPage from './ui/orders/MyOrdersPage';
+import OrderSuccessPage from './ui/orders/OrderSuccessPage';
+import UserOrdersManagement from './ui/orders/UserOrdersManagement';
+import FavoritesPage from './ui/products/FavoritesPage';
+import MyProductsPage from './ui/products/MyProductsPage';
+import ProductDetailPage from './ui/products/ProductDetailPage';
+import ProductForm from './ui/products/ProductForm';
+import ProductList from './ui/products/ProductList';
+import SellerProfilePage from './ui/seller/SellerProfilePage';
+import Settings from '@/components/Settings/Settings';
+import type { AppRoute } from '@/app/router/types';
 
 export const marketplaceRoutes: AppRoute[] = [
   { path: '/', element: <ProductList /> },
