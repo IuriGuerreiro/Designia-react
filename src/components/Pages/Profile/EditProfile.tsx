@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../../Layout/Layout';
-import ImageUpload from '../../Common/ImageUpload';
+import Layout from '@/app/layout/Layout';
+import ImageUpload from '@/components/Common/ImageUpload';
 import { useAuth } from '../../../features/auth/state/AuthContext';
 import styles from './Profile.module.css';
 

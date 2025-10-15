@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import ViewSellerAccount from '@/components/Common/ViewSellerAccount';
 import { productService } from '@/features/marketplace/api';
-import { userService } from '../../../features/users/api';
+import { userService } from '@/features/users/api';
 import './SellerProfilePage.css';
 
 interface SellerProfile {

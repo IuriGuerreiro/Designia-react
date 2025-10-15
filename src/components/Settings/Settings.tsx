@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../Layout/Layout';
+import Layout from '@/app/layout/Layout';
 import { useAuth } from '../../features/auth/state/AuthContext';
-import TwoFactorAuth from '../Settings/TwoFactorAuth';
-import PasswordSetup from '../Settings/PasswordSetup';
+import TwoFactorAuth from './TwoFactorAuth';
+import PasswordSetup from './PasswordSetup';
 import './SettingsMain.css';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../../shared/state/LanguageContext';

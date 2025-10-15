@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import Navbar from '../Layout/Navbar';
+import Navbar from '@/app/layout/Navbar';
 import './UserProfileScreen.css';
 
 // SVGs for tab icons

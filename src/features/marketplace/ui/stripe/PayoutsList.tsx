@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { paymentService, type PayoutSummary, type PayoutOrdersResponse } from '../../../features/payments/api';
+import { paymentService, type PayoutSummary, type PayoutOrdersResponse } from '@/features/payments/api';
 import PayoutDetailModal from './PayoutDetailModal';
 import './PayoutsList.css';
 

@@ -1,6 +1,6 @@
 export { Chat } from './Chat';
 export { ChatList } from './ChatList';
-export { ChatPage } from './ChatPage';
+export { default as ChatPage } from './ChatPage';
 export {
   ChatNotificationBadge,
   AnimatedChatBadge,
