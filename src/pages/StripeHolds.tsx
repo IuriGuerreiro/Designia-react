@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { paymentService, type PaymentHoldsResponse, type PaymentTransaction, type HoldsSummary } from '../services/paymentService';
-import '../styles/StripeHolds.css';
+import styles from '../styles/StripeHolds.module.css';
+import { paymentService, type HoldsSummary, type PaymentHoldsResponse, type PaymentTransaction } from '../features/payments/api';
+
+void styles;
 
 
 const StripeHolds: React.FC = () => {

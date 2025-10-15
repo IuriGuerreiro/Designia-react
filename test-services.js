@@ -20,7 +20,7 @@ try {
 
 // Test types import
 try {
-  const types = require('./src/types/marketplace.ts');
+  const types = require('./src/features/marketplace/model/types.ts');
   console.log('✓ Types imported successfully');
 } catch (error) {
   console.error('✗ Error importing types:', error.message);
