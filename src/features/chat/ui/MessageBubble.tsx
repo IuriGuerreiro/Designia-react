@@ -1,32 +1,14 @@
-import React from 'react';
+import { type FC } from 'react';
+import type { ChatMessage } from '@/features/chat/model';
 import styles from './MessageBubble.module.css';
 
-interface Message {
-  id: number;
-  sender: {
-    id: number;
-    username: string;
-    first_name?: string;
-    last_name?: string;
-  };
-  message_type: 'text' | 'image';
-  text_content?: string;
-  image_url?: string;
-  image_temp_url?: string;
-  created_at: string;
-  is_read: boolean;
-  // Local states for instant messaging
-  status?: 'sending' | 'sent' | 'delivered' | 'read' | 'error';
-  error?: string;
-}
-
 interface MessageBubbleProps {
-  message: Message;
+  message: ChatMessage;
   isOwnMessage: boolean;
   showSenderName?: boolean;
 }
 
-export const MessageBubble: React.FC<MessageBubbleProps> = ({
+export const MessageBubble: FC<MessageBubbleProps> = ({
   message,
   isOwnMessage,
   showSenderName = false

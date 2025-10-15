@@ -1,135 +1,93 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../features/auth/state/AuthContext';
-import { apiRequest, API_ENDPOINTS } from '../../shared/api';
+import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/features/auth/state/AuthContext';
+import { useSellerApplications } from '@/features/admin/hooks';
+import type { SellerApplicationStatus } from '@/features/admin/model';
 import styles from './SellerApplicationList.module.css';
 
-interface SellerApplication {
-  id: number;
-  business_name: string;
-  seller_type: string;
-  motivation: string;
-  portfolio_url: string;
-  social_media_url?: string;
-  status: 'pending' | 'under_review' | 'approved' | 'rejected' | 'revision_requested';
-  submitted_at: string;
-  user_email: string;
-  user_name: string;
-  admin_notes?: string;
-  rejection_reason?: string;
-  approved_by_name?: string;
-  rejected_by_name?: string;
-  images: Array<{
-    id: number;
-    image: string;
-    image_type: string;
-    description: string;
-  }>;
-}
-
-const SellerApplicationList: React.FC = () => {
+const SellerApplicationList = () => {
   const { user, isAdmin } = useAuth();
-  const [applications, setApplications] = useState<SellerApplication[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>('all');
+  const [filter, setFilter] = useState<SellerApplicationStatus | 'all'>('all');
   const [processingId, setProcessingId] = useState<number | null>(null);
 
-  // Redirect if not admin
+  const {
+    applications,
+    loading,
+    error,
+    fetchApplications,
+    updateStatus,
+    filterByStatus,
+  } = useSellerApplications();
+
   useEffect(() => {
     if (user && !isAdmin()) {
       window.location.href = '/';
     }
   }, [user, isAdmin]);
 
-  // Fetch applications
-  const fetchApplications = async () => {
-    try {
-      setIsLoading(true);
-      const response = await apiRequest(API_ENDPOINTS.ADMIN_SELLER_APPLICATIONS);
-      setApplications(response);
-      setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch applications');
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (user && isAdmin()) {
+      fetchApplications().catch(() => null);
+    }
+  }, [user, isAdmin, fetchApplications]);
+
+  const filteredApplications = useMemo(
+    () => filterByStatus(filter),
+    [filter, filterByStatus],
+  );
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+  const getStatusBadge = (status: SellerApplicationStatus) => {
+    const baseClass = styles.statusBadge;
+    switch (status) {
+      case 'pending':
+        return `${baseClass} ${styles.statusPending}`;
+      case 'under_review':
+        return `${baseClass} ${styles.statusReview}`;
+      case 'approved':
+        return `${baseClass} ${styles.statusApproved}`;
+      case 'rejected':
+        return `${baseClass} ${styles.statusRejected}`;
+      case 'revision_requested':
+        return `${baseClass} ${styles.statusRevision}`;
+      default:
+        return baseClass;
     }
   };
 
-  useEffect(() => {
-    if (user && isAdmin()) {
-      fetchApplications();
-    }
-  }, [user, isAdmin]);
-
-  // Handle approve application
   const handleApprove = async (applicationId: number) => {
     if (!window.confirm('Are you sure you want to approve this application?')) return;
 
     try {
       setProcessingId(applicationId);
-      await apiRequest(API_ENDPOINTS.ADMIN_APPROVE_SELLER(applicationId), {
-        method: 'POST',
-      });
-
-      // Refresh the list
-      await fetchApplications();
+      await updateStatus(applicationId, 'approve');
       alert('Application approved successfully!');
     } catch (err: any) {
-      alert(err.message || 'Failed to approve application');
+      alert(err?.message || 'Failed to approve application');
     } finally {
       setProcessingId(null);
     }
   };
 
-  // Handle reject application
   const handleReject = async (applicationId: number) => {
     const reason = prompt('Please provide a reason for rejection (optional):');
-    if (reason === null) return; // User cancelled
+    if (reason === null) return;
 
     try {
       setProcessingId(applicationId);
-      await apiRequest(API_ENDPOINTS.ADMIN_REJECT_SELLER(applicationId), {
-        method: 'POST',
-        body: JSON.stringify({ reason }),
-      });
-
-      // Refresh the list
-      await fetchApplications();
+      await updateStatus(applicationId, 'reject', { reason: reason || undefined });
       alert('Application rejected successfully!');
     } catch (err: any) {
-      alert(err.message || 'Failed to reject application');
+      alert(err?.message || 'Failed to reject application');
     } finally {
       setProcessingId(null);
-    }
-  };
-
-  // Filter applications
-  const filteredApplications = applications.filter(app => {
-    if (filter === 'all') return true;
-    return app.status === filter;
-  });
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  // Get status badge class
-  const getStatusBadge = (status: string) => {
-    const baseClass = styles.statusBadge;
-    switch (status) {
-      case 'pending': return `${baseClass} ${styles.statusPending}`;
-      case 'under_review': return `${baseClass} ${styles.statusReview}`;
-      case 'approved': return `${baseClass} ${styles.statusApproved}`;
-      case 'rejected': return `${baseClass} ${styles.statusRejected}`;
-      case 'revision_requested': return `${baseClass} ${styles.statusRevision}`;
-      default: return baseClass;
     }
   };
 
@@ -142,7 +100,7 @@ const SellerApplicationList: React.FC = () => {
     );
   }
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className={styles.adminLoading}>
         <div className={styles.loadingSpinner}></div>
@@ -171,7 +129,7 @@ const SellerApplicationList: React.FC = () => {
       {error && (
         <div className={styles.errorMessage}>
           {error}
-          <button onClick={fetchApplications}>Retry</button>
+          <button onClick={() => fetchApplications()}>Retry</button>
         </div>
       )}
 
@@ -180,7 +138,7 @@ const SellerApplicationList: React.FC = () => {
         <select
           id="status-filter"
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={(e) => setFilter(e.target.value as SellerApplicationStatus | 'all')}
           className={styles.filterSelect}
         >
           <option value="all">All Applications</option>

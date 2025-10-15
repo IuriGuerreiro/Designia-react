@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import './Checkout.css';
 
 const PaymentPage: React.FC = () => {

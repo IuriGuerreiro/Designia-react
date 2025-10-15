@@ -1,109 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import adminService from '../../features/admin/api/adminService';
+import { useEffect, useState } from 'react';
+import { useAdminTransactions } from '@/features/admin/hooks';
 import styles from './AdminTransactions.module.css';
 
-interface UserInfo {
-  id: string;
-  username: string;
-  email: string;
-}
+const DEFAULT_PAGE_SIZE = 50;
 
-interface Transaction {
-  id: string;
-  order_id: string | null;
-  stripe_payment_intent_id: string;
-  status: string;
-  seller: UserInfo;
-  buyer: UserInfo | null;
-  amounts: {
-    gross_amount: string;
-    platform_fee: string;
-    stripe_fee: string;
-    net_amount: string;
-    currency: string;
-  };
-  hold_info: {
-    status: string;
-    hold_reason: string;
-    days_to_hold: number;
-    hold_start_date: string | null;
-    planned_release_date: string | null;
-    actual_release_date: string | null;
-  };
-  payout_info: {
-    payed_out: boolean;
-  };
-  timestamps: {
-    created_at: string;
-    updated_at: string;
-    purchase_date: string | null;
-  };
-}
-
-interface TransactionSummary {
-  total_gross: string;
-  total_net: string;
-  total_platform_fees: string;
-  total_stripe_fees: string;
-  average_transaction: string;
-  status_breakdown: Record<string, number>;
-}
-
-interface TransactionsResponse {
-  transactions: Transaction[];
-  pagination: {
-    total_count: number;
-    offset: number;
-    page_size: number;
-    has_next: boolean;
-    has_previous: boolean;
-  };
-  summary: TransactionSummary;
-}
-
-const AdminTransactions: React.FC = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [summary, setSummary] = useState<TransactionSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const AdminTransactions = () => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
-  const [pageSize] = useState(50);
-
-  // Filters
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
+  const {
+    transactions,
+    summary,
+    pagination,
+    loading,
+    error,
+    fetchTransactions,
+  } = useAdminTransactions(DEFAULT_PAGE_SIZE);
+
   useEffect(() => {
-    fetchTransactions();
-  }, [currentPage, statusFilter, searchQuery, fromDate, toDate]);
+    fetchTransactions(currentPage, {
+      status: statusFilter || undefined,
+      search: searchQuery || undefined,
+      fromDate: fromDate || undefined,
+      toDate: toDate || undefined,
+    });
+  }, [currentPage, statusFilter, searchQuery, fromDate, toDate, fetchTransactions]);
 
-  const fetchTransactions = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await adminService.getAllTransactions({
-        offset: currentPage * pageSize,
-        page_size: pageSize,
-        status: statusFilter || undefined,
-        search: searchQuery || undefined,
-        from_date: fromDate || undefined,
-        to_date: toDate || undefined,
-      });
-
-      setTransactions(response.transactions);
-      setSummary(response.summary);
-      setTotalCount(response.pagination.total_count);
-    } catch (err: any) {
-      console.error('Error fetching transactions:', err);
-      setError(err.message || 'Failed to load transactions');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const totalCount = pagination?.total_count ?? 0;
+  const pageSize = pagination?.page_size ?? DEFAULT_PAGE_SIZE;
 
   const formatCurrency = (amount: string, currency: string) => {
     const numAmount = parseFloat(amount);
@@ -150,7 +77,12 @@ const AdminTransactions: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(0);
-    fetchTransactions();
+    fetchTransactions(0, {
+      status: statusFilter || undefined,
+      search: searchQuery || undefined,
+      fromDate: fromDate || undefined,
+      toDate: toDate || undefined,
+    });
   };
 
   if (loading && transactions.length === 0) {

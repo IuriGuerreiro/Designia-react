@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
 import { useCart } from '@/shared/state/CartContext';
 

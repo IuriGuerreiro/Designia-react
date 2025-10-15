@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
@@ -6,8 +6,8 @@ import {
 } from '@stripe/react-stripe-js';
 import { paymentService } from '../../../features/payments/api';
 import { useCart } from '@/shared/state/CartContext';
-import Layout from "@/components/Layout/Layout";
-import { useSearchParams } from "react-router-dom";
+import { Layout } from '@/app/layout';
+import { useSearchParams } from 'react-router-dom';
 import './Checkout.css';
 
 // Make sure to call `loadStripe` outside of a component's render to avoid

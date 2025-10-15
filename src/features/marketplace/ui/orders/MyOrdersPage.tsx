@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { orderService } from '@/features/marketplace/api';

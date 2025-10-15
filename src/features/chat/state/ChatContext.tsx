@@ -1,96 +1,27 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
-import { useAuth } from '../../features/auth/state/AuthContext';
-import { API_ENDPOINTS } from '../../shared/api';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { useAuth } from '@/features/auth/state/AuthContext';
+import { API_ENDPOINTS } from '@/shared/api';
+import type {
+  ChatContextValue,
+  ChatMessage,
+  ChatMessageType,
+  ChatSummary,
+  ChatUser,
+  ChatWebSocketMessage,
+} from '@/features/chat/model';
 
-// Chat interfaces
-interface Chat {
-  id: number;
-  other_user: {
-    id: number;
-    username: string;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-  };
-  last_message?: Message;
-  created_at: string;
-  updated_at: string;
-  unread_count?: number; // From backend
-}
-
-interface Message {
-  id: number | string; // Allow temporary string IDs for instant messages
-  chat: number;
-  sender: {
-    id: number;
-    username: string;
-    first_name?: string;
-    last_name?: string;
-  };
-  message_type: 'text' | 'image';
-  text_content?: string;
-  image_url?: string;
-  image_temp_url?: string;
-  created_at: string;
-  is_read: boolean;
-  read_at?: string;
-  // Local states for instant messaging
-  status?: 'sending' | 'sent' | 'delivered' | 'read' | 'error';
-  error?: string;
-  isTemp?: boolean; // Mark as temporary message
-}
-
-interface ChatUser {
-  id: number;
-  username: string;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-}
-
-// WebSocket message types
-interface WebSocketMessage {
-  type: 'connection_success' | 'new_message' | 'new_chat' | 'message_read' | 'user_typing' | 'error' | 'pong';
-  message?: string;
-  user_id?: number;
-  chat_data?: Chat;
-  message_data?: Message;
-  chat_id?: number;
-}
-
-// Context interface
-interface ChatContextType {
-  // Connection state
-  isConnected: boolean;
-  connectionError: string | null;
-  
-  // Chat management
-  chats: Chat[];
-  currentChat: Chat | null;
-  messages: { [chatId: number]: Message[] };
-  
-  // WebSocket methods
-  connect: () => void;
-  disconnect: () => void;
-  sendMessage: (chatId: number, content: string, messageType?: 'text' | 'image') => Promise<void>;
-  
-  // Chat operations
-  loadChats: () => Promise<void>;
-  selectChat: (chat: Chat) => Promise<void>;
-  createChat: (userId: number) => Promise<Chat>;
-  loadMessages: (chatId: number, page?: number) => Promise<void>;
-  markMessagesAsRead: (chatId: number) => Promise<void>;
-  markChatAsViewed: (chatId: number) => Promise<void>;
-  searchUsers: (query: string) => Promise<ChatUser[]>;
-  
-  // Unread message functionality
-  getUnreadCount: (chatId: number) => number;
-  getTotalUnreadCount: () => number;
-  
-  // State management
-  setCurrentChat: (chat: Chat | null) => void;
-  clearMessages: (chatId: number) => void;
-}
+type Chat = ChatSummary;
+type Message = ChatMessage;
+type WebSocketMessage = ChatWebSocketMessage;
+type ChatContextType = ChatContextValue;
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
@@ -106,7 +37,7 @@ interface ChatProviderProps {
   children: ReactNode;
 }
 
-export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
+export const ChatProvider = ({ children }: ChatProviderProps) => {
   const { user, isAuthenticated } = useAuth();
   
   // WebSocket connection state

@@ -1,5 +1,5 @@
-import React, { useState, useRef, KeyboardEvent } from 'react';
-import { useChat } from './ChatContext';
+import { useRef, useState, type ChangeEvent, type KeyboardEvent, type FC } from 'react';
+import { useChat } from '@/features/chat/state/ChatContext';
 import styles from './MessageInput.module.css';
 
 interface MessageInputProps {
@@ -7,7 +7,7 @@ interface MessageInputProps {
   disabled?: boolean;
 }
 
-export const MessageInput: React.FC<MessageInputProps> = ({ chatId, disabled = false }) => {
+export const MessageInput: FC<MessageInputProps> = ({ chatId, disabled = false }) => {
   const { sendMessage, isConnected } = useChat();
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -43,7 +43,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ chatId, disabled = f
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
     
     // Auto-resize textarea

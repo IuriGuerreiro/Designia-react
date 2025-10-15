@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import ImageUpload from '@/components/Common/ImageUpload';
 import Select from '@/components/Common/Select';
 import { useTranslation } from 'react-i18next';

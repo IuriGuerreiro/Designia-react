@@ -7,7 +7,7 @@ import { marketplaceRoutes } from '@/features/marketplace/routes';
 import { paymentRoutes } from '@/features/payments/routes';
 import { chatRoutes } from '@/features/chat/routes';
 import { adminRoutes } from '@/features/admin/routes';
-import NotFound from '@/components/NotFound/NotFound';
+import NotFound from '@/app/error/NotFound';
 import type { AppRoute } from './types';
 
 const LoadingScreen = () => (

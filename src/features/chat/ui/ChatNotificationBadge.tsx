@@ -1,5 +1,5 @@
-import React from 'react';
-import { useChat } from './ChatContext';
+import { type FC } from 'react';
+import { useChat } from '@/features/chat/state/ChatContext';
 import styles from './ChatNotificationBadge.module.css';
 
 interface ChatNotificationBadgeProps {
@@ -29,7 +29,7 @@ interface ChatNotificationBadgeProps {
   variant?: 'default' | 'premium' | 'urgent';
 }
 
-export const ChatNotificationBadge: React.FC<ChatNotificationBadgeProps> = ({
+export const ChatNotificationBadge: FC<ChatNotificationBadgeProps> = ({
   size = 'medium',
   position = 'top-right',
   className = '',
@@ -101,7 +101,7 @@ export const useChatUnreadCount = () => {
 };
 
 // Animated badge for urgent notifications
-export const AnimatedChatBadge: React.FC<ChatNotificationBadgeProps> = (props) => {
+export const AnimatedChatBadge: FC<ChatNotificationBadgeProps> = (props) => {
   return (
     <div className={styles.animatedBadgeWrapper}>
       <ChatNotificationBadge {...props} variant="urgent" />

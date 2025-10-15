@@ -1,48 +1,14 @@
-import React, { useState } from 'react';
-import { useChat } from './ChatContext';
+import { useState, type FC } from 'react';
+import type { ChatSummary, ChatUser } from '@/features/chat/model';
+import { useChat } from '@/features/chat/state/ChatContext';
 import styles from './ChatList.module.css';
 
-interface Chat {
-  id: number;
-  other_user: {
-    id: number;
-    username: string;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-  };
-  last_message?: {
-    id: number;
-    sender: {
-      id: number;
-      username: string;
-      first_name?: string;
-      last_name?: string;
-    };
-    message_type: 'text' | 'image';
-    text_content?: string;
-    created_at: string;
-    is_read: boolean;
-  };
-  created_at: string;
-  updated_at: string;
-}
-
-interface ChatUser {
-  id: number;
-  username: string;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-}
-
 interface ChatListProps {
-  onChatSelect: (chat: Chat) => void;
+  onChatSelect: (chat: ChatSummary) => void;
   selectedChatId?: number;
 }
 
-// Skeleton Loading Component
-const ChatItemSkeleton: React.FC = () => {
+const ChatItemSkeleton: FC = () => {
   return (
     <div className={styles.chatItemSkeleton}>
       <div className={styles.skeletonAvatar}></div>
@@ -54,7 +20,7 @@ const ChatItemSkeleton: React.FC = () => {
   );
 };
 
-export const ChatList: React.FC<ChatListProps> = ({ onChatSelect, selectedChatId }) => {
+export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) => {
   const { chats, createChat, searchUsers, getUnreadCount, getTotalUnreadCount } = useChat();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<ChatUser[]>([]);
@@ -93,7 +59,7 @@ export const ChatList: React.FC<ChatListProps> = ({ onChatSelect, selectedChatId
     return user.username;
   };
 
-  const getLastMessagePreview = (chat: Chat) => {
+  const getLastMessagePreview = (chat: ChatSummary) => {
     if (!chat.last_message) {
       return 'No messages yet';
     }

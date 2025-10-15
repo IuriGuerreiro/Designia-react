@@ -1,9 +1,9 @@
-import React from 'react';
-import Layout from '../Layout/Layout';
+import { type FC } from 'react';
+import { Layout } from '@/app/layout';
+import { ChatProvider } from '@/features/chat/state/ChatContext';
 import { Chat } from './Chat';
-import { ChatProvider } from './ChatContext';
 
-const ChatPage: React.FC = () => {
+const ChatPage: FC = () => {
   return (
     <Layout maxWidth="full" padding="minimal">
       <ChatProvider>

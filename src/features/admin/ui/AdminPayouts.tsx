@@ -1,89 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import adminService from '../../features/admin/api/adminService';
+import { useEffect, useState } from 'react';
+import { useAdminPayouts } from '@/features/admin/hooks';
 import styles from './AdminPayouts.module.css';
 
-interface SellerInfo {
-  id: string;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  role: string;
-}
+const DEFAULT_PAGE_SIZE = 50;
 
-interface Payout {
-  id: string;
-  stripe_payout_id: string;
-  status: string;
-  payout_type: string;
-  amount: string;
-  currency: string;
-  created_at: string;
-  seller_info: SellerInfo;
-}
-
-interface PayoutSummary {
-  total_amount: string;
-  average_amount: string;
-  total_fees: string;
-  status_breakdown: Record<string, number>;
-}
-
-interface PayoutsResponse {
-  payouts: Payout[];
-  pagination: {
-    total_count: number;
-    offset: number;
-    page_size: number;
-    has_next: boolean;
-    has_previous: boolean;
-  };
-  summary: PayoutSummary;
-}
-
-const AdminPayouts: React.FC = () => {
-  const [payouts, setPayouts] = useState<Payout[]>([]);
-  const [summary, setSummary] = useState<PayoutSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const AdminPayouts = () => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
-  const [pageSize] = useState(50);
-
-  // Filters
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
+  const {
+    payouts,
+    summary,
+    pagination,
+    loading,
+    error,
+    fetchPayouts,
+  } = useAdminPayouts(DEFAULT_PAGE_SIZE);
+
   useEffect(() => {
-    fetchPayouts();
-  }, [currentPage, statusFilter, searchQuery, fromDate, toDate]);
+    fetchPayouts(currentPage, {
+      status: statusFilter || undefined,
+      search: searchQuery || undefined,
+      fromDate: fromDate || undefined,
+      toDate: toDate || undefined,
+    });
+  }, [currentPage, statusFilter, searchQuery, fromDate, toDate, fetchPayouts]);
 
-  const fetchPayouts = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await adminService.getAllPayouts({
-        offset: currentPage * pageSize,
-        page_size: pageSize,
-        status: statusFilter || undefined,
-        search: searchQuery || undefined,
-        from_date: fromDate || undefined,
-        to_date: toDate || undefined,
-      });
-
-      setPayouts(response.payouts);
-      setSummary(response.summary);
-      setTotalCount(response.pagination.total_count);
-    } catch (err: any) {
-      console.error('Error fetching payouts:', err);
-      setError(err.message || 'Failed to load payouts');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const totalCount = pagination?.total_count ?? 0;
+  const pageSize = pagination?.page_size ?? DEFAULT_PAGE_SIZE;
 
   const formatCurrency = (amount: string, currency: string) => {
     const numAmount = parseFloat(amount);
@@ -127,7 +74,12 @@ const AdminPayouts: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(0);
-    fetchPayouts();
+    fetchPayouts(0, {
+      status: statusFilter || undefined,
+      search: searchQuery || undefined,
+      fromDate: fromDate || undefined,
+      toDate: toDate || undefined,
+    });
   };
 
   if (loading && payouts.length === 0) {

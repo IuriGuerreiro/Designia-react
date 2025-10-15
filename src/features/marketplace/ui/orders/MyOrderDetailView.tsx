@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import { useTranslation } from 'react-i18next';
 import { orderService } from '@/features/marketplace/api';
 import { type Order } from '@/features/marketplace/model';

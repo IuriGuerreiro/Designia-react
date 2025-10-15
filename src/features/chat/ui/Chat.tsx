@@ -1,45 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useChat } from './ChatContext';
+import { Fragment, useEffect, useRef, useState, type FC } from 'react';
+import type { ChatMessage, ChatSummary } from '@/features/chat/model';
+import { useChat } from '@/features/chat/state/ChatContext';
+import { useAuth } from '@/features/auth/state/AuthContext';
 import { ChatList } from './ChatList';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
-import { useAuth } from '../../features/auth/state/AuthContext';
 import styles from './Chat.module.css';
 
-interface Chat {
-  id: number;
-  other_user: {
-    id: number;
-    username: string;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-  };
-  last_message?: any;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Message {
-  id: number;
-  chat: number;
-  sender: {
-    id: number;
-    username: string;
-    first_name?: string;
-    last_name?: string;
-  };
-  message_type: 'text' | 'image';
-  text_content?: string;
-  image_url?: string;
-  image_temp_url?: string;
-  created_at: string;
-  is_read: boolean;
-  read_at?: string;
-}
-
 // Date Separator Component
-const DateSeparator: React.FC<{ date: Date }> = ({ date }) => {
+const DateSeparator: FC<{ date: Date }> = ({ date }) => {
   const formatDate = (date: Date) => {
     const today = new Date();
     const yesterday = new Date(today);
@@ -72,7 +41,7 @@ const DateSeparator: React.FC<{ date: Date }> = ({ date }) => {
 };
 
 // Skeleton Loading Component
-const ChatSkeleton: React.FC = () => {
+const ChatSkeleton: FC = () => {
   return (
     <div className={styles.chatSkeleton}>
       <div className={styles.skeletonHeader}>
@@ -92,7 +61,7 @@ const ChatSkeleton: React.FC = () => {
   );
 };
 
-export const Chat: React.FC = () => {
+export const Chat: FC = () => {
   const { user } = useAuth();
   const { 
     currentChat, 
@@ -106,7 +75,7 @@ export const Chat: React.FC = () => {
     markChatAsViewed
   } = useChat();
   
-  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+  const [selectedChat, setSelectedChat] = useState<ChatSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [chatError, setChatError] = useState<{
     title: string;
@@ -278,18 +247,19 @@ export const Chat: React.FC = () => {
     return userObj.username;
   };
 
-  const getCurrentChatMessages = (): Message[] => {
+  const getCurrentChatMessages = (): ChatMessage[] => {
     if (!selectedChat) return [];
     return messages[selectedChat.id] || [];
   };
 
-  const isOwnMessage = (message: Message): boolean => {
-    return user?.id === message.sender.id;
-  };
+  const isOwnMessage = (message: ChatMessage): boolean => user?.id === message.sender.id;
 
-  const shouldShowDateSeparator = (currentMessage: Message, previousMessage?: Message): boolean => {
+  const shouldShowDateSeparator = (
+    currentMessage: ChatMessage,
+    previousMessage?: ChatMessage,
+  ): boolean => {
     if (!previousMessage) return true;
-    
+
     const currentDate = new Date(currentMessage.created_at);
     const previousDate = new Date(previousMessage.created_at);
     
@@ -326,7 +296,7 @@ export const Chat: React.FC = () => {
           const showDateSeparator = shouldShowDateSeparator(message, prevMessage);
 
           return (
-            <React.Fragment key={message.id}>
+            <Fragment key={message.id}>
               {showDateSeparator && (
                 <DateSeparator date={new Date(message.created_at)} />
               )}
@@ -335,7 +305,7 @@ export const Chat: React.FC = () => {
                 isOwnMessage={isOwnMessage(message)}
                 showSenderName={showSenderName}
               />
-            </React.Fragment>
+            </Fragment>
           );
         })}
         <div ref={messagesEndRef} />

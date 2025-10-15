@@ -7,7 +7,7 @@ import {
 import { useAuth } from '../../../features/auth/state/AuthContext';
 import { paymentService } from '../../../features/payments/api';
 import './StripeOnboarding.css';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 
 interface StripeOnboardingProps {
   onComplete?: () => void;

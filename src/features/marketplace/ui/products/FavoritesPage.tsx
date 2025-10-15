@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import ProductCard from './ProductCard';
 import { useFavorites } from '@/features/marketplace/hooks/useFavorites';
 import { useCart } from '@/shared/state/CartContext';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './ProductList.css';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import ProductCard from './ProductCard';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '@/shared/state/CartContext';

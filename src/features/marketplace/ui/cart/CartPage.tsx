@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import StockWarning from '@/components/Common/StockWarning';
 import { useCart } from '@/shared/state/CartContext';
 import styles from './Cart.module.css';

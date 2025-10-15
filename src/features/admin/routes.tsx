@@ -1,8 +1,6 @@
-import { RoleGuard } from '../auth/ui';
-import AdminPayouts from '@/components/Admin/AdminPayouts';
-import AdminTransactions from '@/components/Admin/AdminTransactions';
-import SellerApplicationList from '@/components/Admin/SellerApplicationList';
 import type { AppRoute } from '@/app/router/types';
+import { RoleGuard } from '@/features/auth/ui';
+import { AdminPayouts, AdminTransactions, SellerApplicationList } from '@/features/admin/ui';
 
 export const adminRoutes: AppRoute[] = [
   {

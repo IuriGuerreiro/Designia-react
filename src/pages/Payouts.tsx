@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Layout from '../components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import PayoutsList from '@/features/marketplace/ui/stripe/PayoutsList';
 import { paymentService, type PayoutRequest, type PayoutResponse } from '../features/payments/api';
 import styles from './Payouts.module.css';

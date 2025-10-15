@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Layout from '@/components/Layout/Layout';
+import { Layout } from '@/app/layout';
 import { orderService } from '@/features/marketplace/api';
 import { type Order } from '@/features/marketplace/model';
 import './Orders.css';
