@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../contexts/AuthContext';
-import Layout from '../../Layout/Layout';
-import ImageUpload from '../../Common/ImageUpload';
-import Select from '../../Common/Select';
+import { useAuth } from '../../../features/auth/state/AuthContext';
+import Layout from '@/app/layout/Layout';
+import ImageUpload from '@/components/Common/ImageUpload';
+import Select from '@/shared/ui/select/Select';
+import type { Option } from '@/shared/ui/select/Select';
 import './BecomeSellerForm.css';
 
 const sellerTypeOptions = [
