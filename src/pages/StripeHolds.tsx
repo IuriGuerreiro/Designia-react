@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../styles/StripeHolds.module.css';
-import { paymentService, type PaymentHoldsResponse, type PaymentTransaction, type HoldsSummary } from '../services/paymentService';
+import { paymentService, type HoldsSummary, type PaymentHoldsResponse, type PaymentTransaction } from '../features/payments/api';
 
 void styles;
 

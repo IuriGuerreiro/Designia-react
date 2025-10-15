@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type ProductReview } from '../../../types/marketplace';
-import { reviewService } from '../../../services';
-import { useAuth } from '../../../contexts/AuthContext';
+import { reviewService } from '../../../features/marketplace/api';
+import { useAuth } from '../../../features/auth/state/AuthContext';
 import ReviewList from './ReviewList';
 import ReviewForm from './ReviewForm';
 import './Reviews.css';

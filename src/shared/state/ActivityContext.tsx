@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { useAuth } from './AuthContext';
-import { ActivityWebSocketService } from '../services/ActivityWebSocketService';
-import { CartService } from '../services/CartService';
+import { useAuth } from '../../features/auth/state/AuthContext';
+import { ActivityWebSocketService } from '../../services/ActivityWebSocketService';
+import { CartService } from '../../features/marketplace/api/cartService';
 
 interface ActivityNotification {
   id: string;

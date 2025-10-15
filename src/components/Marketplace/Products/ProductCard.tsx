@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './ProductCard.module.css';
 import { useTranslation } from 'react-i18next';
-import { favoriteService, productService } from '../../../services';
+import { favoriteService, productService } from '../../../features/marketplace/api';
 import { type ProductListItem } from '../../../types/marketplace';
 
 interface ProductCardProps {

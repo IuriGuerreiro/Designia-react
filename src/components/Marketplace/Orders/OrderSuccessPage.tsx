@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
-import { orderService } from '../../../services';
+import { orderService } from '../../../features/marketplace/api';
 import { type Order } from '../../../types/marketplace';
 import './Orders.css';
 

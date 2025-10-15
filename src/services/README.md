@@ -6,15 +6,15 @@ This document describes the reorganized service architecture for the marketplace
 
 The services have been restructured to follow a **single responsibility principle** with one service per Django model/domain:
 
-- **Centralized Endpoints**: All API endpoints are defined in `config/api.ts`
-- **Dedicated Services**: Each service handles one specific domain
-- **Type Safety**: All types are centralized in `types/marketplace.ts`
-- **Singleton Pattern**: Each service uses singleton pattern for consistency
+- **Centralized Endpoints**: All API endpoints are defined in `shared/api`
+- **Feature Modules**: Each domain lives under `features/<domain>/api`
+- **Type Safety**: Shared types are centralized in `types/marketplace.ts`
+- **Singleton Pattern**: Each service uses a singleton pattern for consistency
 
 ## Service Structure
 
 ### 1. CategoryService
-**File**: `services/CategoryService.ts`
+**File**: `features/marketplace/api/categoryService.ts`
 **Responsibility**: Handle all category-related operations
 **Methods**:
 - `getCategories()` - Get all categories
@@ -22,7 +22,7 @@ The services have been restructured to follow a **single responsibility principl
 - `getCategoryProducts(slug, filters?)` - Get products in category
 
 ### 2. ProductService
-**File**: `services/ProductService.ts`
+**File**: `features/marketplace/api/productService.ts`
 **Responsibility**: Handle all product-related operations
 **Methods**:
 - `getProducts(filters?)` - Get products with pagination
@@ -36,7 +36,7 @@ The services have been restructured to follow a **single responsibility principl
 - `getMyProducts()` - Get user's products
 
 ### 3. FavoriteService
-**File**: `services/FavoriteService.ts`
+**File**: `features/marketplace/api/favoriteService.ts`
 **Responsibility**: Handle all favorite-related operations
 **Methods**:
 - `toggleFavorite(productSlug)` - Toggle product favorite status
@@ -46,7 +46,7 @@ The services have been restructured to follow a **single responsibility principl
 - `removeFromFavorites(productSlug)` - Remove product from favorites
 
 ### 4. CartService
-**File**: `services/CartService.ts`
+**File**: `features/marketplace/api/cartService.ts`
 **Responsibility**: Handle all cart-related operations
 **Methods**:
 - `getCart()` - Get user's cart
@@ -58,7 +58,7 @@ The services have been restructured to follow a **single responsibility principl
 - `getCartTotal()` - Get cart total amount
 
 ### 5. OrderService
-**File**: `services/OrderService.ts`
+**File**: `features/marketplace/api/orderService.ts`
 **Responsibility**: Handle all order-related operations
 **Methods**:
 - `getOrders()` - Get user's orders
@@ -74,7 +74,7 @@ The services have been restructured to follow a **single responsibility principl
 ### Import Services
 ```typescript
 // Import individual services
-import { productService, categoryService, favoriteService } from '../services';
+import { productService, categoryService, favoriteService } from '../features/marketplace/api';
 
 // Import types
 import { Product, Category, ProductListItem } from '../types/marketplace';
@@ -126,13 +126,13 @@ import { type Product } from '../services/marketplaceService';
 
 **After (new architecture)**:
 ```typescript
-import { productService, categoryService } from '../services';
+import { productService, categoryService } from '../features/marketplace/api';
 import { type Product } from '../types/marketplace';
 ```
 
 ## Configuration
 
-All API endpoints are centralized in `config/api.ts`:
+All API endpoints are centralized in `shared/api`:
 - Easy to maintain and update
 - Single source of truth for URLs
 - Function-based endpoints for parameterized URLs

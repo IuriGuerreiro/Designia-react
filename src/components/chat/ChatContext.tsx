@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { API_ENDPOINTS } from '../../config/api';
+import { useAuth } from '../../features/auth/state/AuthContext';
+import { API_ENDPOINTS } from '../../shared/api';
 
 // Chat interfaces
 interface Chat {

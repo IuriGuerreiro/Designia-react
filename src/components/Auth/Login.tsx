@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../features/auth/state/AuthContext';
 import ErrorMessage from './ErrorMessage';
 import GoogleOAuth from './GoogleOAuth';
 import styles from './Auth.module.css';

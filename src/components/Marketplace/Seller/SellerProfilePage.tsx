@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
 import ViewSellerAccount from '../../Common/ViewSellerAccount';
-import { productService, userService } from '../../../services';
+import { productService } from '../../../features/marketplace/api';
+import { userService } from '../../../features/users/api';
 import './SellerProfilePage.css';
 
 interface SellerProfile {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { apiRequest, API_ENDPOINTS } from '../config/api';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
 
 interface User {
   id: number;

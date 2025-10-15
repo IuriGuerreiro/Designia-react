@@ -1,5 +1,5 @@
-import { apiRequest, API_ENDPOINTS } from '../config/api';
-import type { Order } from '../types/marketplace';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
+import type { Order } from '../../../types/marketplace';
 
 const cancellableStatuses: Order['status'][] = ['pending_payment', 'payment_confirmed'];
 

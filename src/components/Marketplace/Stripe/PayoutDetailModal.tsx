@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { paymentService, type PayoutSummary, type PayoutOrdersResponse, type PayoutOrder } from '../../../services/paymentService';
+import {
+  paymentService,
+  type PayoutOrder,
+  type PayoutOrdersResponse,
+  type PayoutSummary,
+} from '../../../features/payments/api';
 import './PayoutDetailModal.css';
 
 interface PayoutDetailModalProps {

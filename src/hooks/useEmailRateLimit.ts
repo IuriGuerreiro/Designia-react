@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../features/auth/state/AuthContext';
 
 interface EmailRateLimitHook {
   canSend: boolean;

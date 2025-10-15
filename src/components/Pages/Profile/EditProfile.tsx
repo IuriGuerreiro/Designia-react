@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
 import ImageUpload from '../../Common/ImageUpload';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../../features/auth/state/AuthContext';
 import styles from './Profile.module.css';
 
 const EditProfile: React.FC = () => {

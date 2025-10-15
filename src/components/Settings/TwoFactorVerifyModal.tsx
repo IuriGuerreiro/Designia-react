@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiRequest, API_ENDPOINTS } from '../../config/api';
+import { apiRequest, API_ENDPOINTS } from '../../shared/api';
 import './TwoFactorVerifyModal.css';
 
 interface TwoFactorVerifyModalProps {

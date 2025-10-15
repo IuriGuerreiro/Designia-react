@@ -1,4 +1,4 @@
-import { apiRequest, API_ENDPOINTS } from '../config/api';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
 
 export interface SellerProfile {
   id: number;
@@ -70,7 +70,7 @@ export interface SellerApplicationRequest {
   workshopPhotos: File[];
 }
 
-class UserService {
+export class UserService {
   /**
    * Get user profile by ID
    */

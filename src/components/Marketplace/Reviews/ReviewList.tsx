@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type ProductReview } from '../../../types/marketplace';
-import { reviewService } from '../../../services';
+import { reviewService } from '../../../features/marketplace/api';
 import './Reviews.css';
 
 interface ReviewListProps {

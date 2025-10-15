@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useActivityContext } from '../../contexts/ActivityContext';
+import { useAuth } from '../../features/auth/state/AuthContext';
+import { useActivityContext } from '../../shared/state/ActivityContext';
 import { useTranslation } from 'react-i18next';
 import styles from './Navbar.module.css';
 

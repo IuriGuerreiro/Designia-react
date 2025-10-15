@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Layout/Layout';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../features/auth/state/AuthContext';
 import TwoFactorAuth from '../Settings/TwoFactorAuth';
 import PasswordSetup from '../Settings/PasswordSetup';
 import './SettingsMain.css';
 import { useTranslation } from 'react-i18next';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage } from '../../shared/state/LanguageContext';
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();

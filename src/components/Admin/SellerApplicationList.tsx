@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { apiRequest, API_ENDPOINTS } from '../../config/api';
+import { useAuth } from '../../features/auth/state/AuthContext';
+import { apiRequest, API_ENDPOINTS } from '../../shared/api';
 import styles from './SellerApplicationList.module.css';
 
 interface SellerApplication {

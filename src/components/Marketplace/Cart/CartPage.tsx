@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
-import { useCart } from '../../../contexts/CartContext';
+import { useCart } from '../../../shared/state/CartContext';
 import { useTranslation } from 'react-i18next';
 import StockWarning from '../../Common/StockWarning';
 import './Cart.css';

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { favoriteService } from '../services';
+import { favoriteService } from '../features/marketplace/api';
 import { type ProductListItem } from '../types/marketplace';
 
 interface UseFavoritesReturn {

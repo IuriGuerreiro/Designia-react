@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import adminService from '../../services/adminService';
+import adminService from '../../features/admin/api/adminService';
 import styles from './AdminTransactions.module.css';
 
 interface UserInfo {

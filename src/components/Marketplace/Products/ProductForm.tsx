@@ -4,7 +4,7 @@ import Layout from '../../Layout/Layout';
 import ImageUpload from '../../Common/ImageUpload';
 import Select from '../../Common/Select';
 import { useTranslation } from 'react-i18next';
-import { productService, categoryService } from '../../../services';
+import { categoryService, productService } from '../../../features/marketplace/api';
 import { type Category } from '../../../types/marketplace';
 import { processImagesForUpload, type ImageInfo } from '../../../utils/imageUtils';
 import './ProductForm.css';

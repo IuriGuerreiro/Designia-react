@@ -4,8 +4,8 @@ import {
   ConnectAccountOnboarding,
   ConnectComponentsProvider,
 } from '@stripe/react-connect-js';
-import { useAuth } from '../../../contexts/AuthContext';
-import { paymentService } from '../../../services/paymentService';
+import { useAuth } from '../../../features/auth/state/AuthContext';
+import { paymentService } from '../../../features/payments/api';
 import './StripeOnboarding.css';
 import Layout from '../../Layout/Layout';
 

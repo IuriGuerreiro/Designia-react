@@ -1,5 +1,5 @@
-import { apiRequest, API_ENDPOINTS } from '../config/api';
-import type { ProductListItem } from '../types/marketplace';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
+import type { ProductListItem } from '../../../types/marketplace';
 
 export class FavoriteService {
   private static instance: FavoriteService;

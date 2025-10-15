@@ -3,7 +3,7 @@ import { useChat } from './ChatContext';
 import { ChatList } from './ChatList';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../features/auth/state/AuthContext';
 import styles from './Chat.module.css';
 
 interface Chat {

@@ -1,4 +1,4 @@
-import { apiRequest, API_ENDPOINTS } from '../config/api';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
 
 // Admin Payout Interfaces
 export interface AdminPayoutSellerInfo {

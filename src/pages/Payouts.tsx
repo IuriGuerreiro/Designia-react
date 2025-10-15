@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout/Layout';
 import PayoutsList from '../components/Marketplace/Stripe/PayoutsList';
-import { paymentService, type PayoutRequest, type PayoutResponse } from '../services/paymentService';
+import { paymentService, type PayoutRequest, type PayoutResponse } from '../features/payments/api';
 import styles from './Payouts.module.css';
 
 type TabType = 'history' | 'create';

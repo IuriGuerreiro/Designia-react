@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Layout from '../../Layout/Layout';
 import ProductCard from './ProductCard';
 import { useFavorites } from '../../../hooks/useFavorites';
-import { useCart } from '../../../contexts/CartContext';
+import { useCart } from '../../../shared/state/CartContext';
 
 const FavoritesPage: React.FC = () => {
   const { t } = useTranslation();

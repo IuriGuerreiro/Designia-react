@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../features/auth/state/AuthContext';
 import AuthLayout from './AuthLayout';
 import styles from './Auth.module.css';
 

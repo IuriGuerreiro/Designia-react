@@ -1,16 +1,12 @@
-import { apiRequest, API_ENDPOINTS } from '../config/api';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
 import type {
   PaginatedResponse,
   Product,
   ProductFilters,
   ProductListItem,
   ProductReview,
-} from '../types/marketplace';
-import {
-  buildQueryString,
-  normalizeProduct,
-  normalizeProductCollection,
-} from './marketplace/utils';
+} from '../../../types/marketplace';
+import { buildQueryString, normalizeProduct, normalizeProductCollection } from './utils';
 
 export type ProductListResponse = PaginatedResponse<ProductListItem> | ProductListItem[];
 

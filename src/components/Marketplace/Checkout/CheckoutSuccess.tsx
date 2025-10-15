@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
-import { apiRequest, API_ENDPOINTS } from '../../../config/api';
-import { useCart } from '../../../contexts/CartContext';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
+import { useCart } from '../../../shared/state/CartContext';
 
 const CheckoutSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();

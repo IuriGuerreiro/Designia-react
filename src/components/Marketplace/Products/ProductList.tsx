@@ -3,9 +3,8 @@ import './ProductList.css';
 import Layout from '../../Layout/Layout';
 import ProductCard from './ProductCard';
 import { useTranslation } from 'react-i18next';
-import { useCart } from '../../../contexts/CartContext';
-import { productService } from '../../../services';
-import { categoryService } from '../../../services/CategoryService';
+import { useCart } from '../../../shared/state/CartContext';
+import { categoryService, productService } from '../../../features/marketplace/api';
 import { type ProductListItem, type ProductFilters } from '../../../types/marketplace';
 
 // Skeleton Loading Component

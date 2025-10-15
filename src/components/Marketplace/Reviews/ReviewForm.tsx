@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { reviewService } from '../../../services';
+import { reviewService } from '../../../features/marketplace/api';
 import styles from './Reviews.module.css';
 
 interface ReviewFormProps {

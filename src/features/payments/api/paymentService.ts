@@ -1,4 +1,4 @@
-import { apiRequest, API_ENDPOINTS } from '../config/api';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
 
 export interface PaymentProcessingRequest {
   payment_method_id: string;

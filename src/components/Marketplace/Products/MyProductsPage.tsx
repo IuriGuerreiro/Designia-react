@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
 import { useTranslation } from 'react-i18next';
-import { productService } from '../../../services';
+import { productService } from '../../../features/marketplace/api';
 import { type ProductListItem } from '../../../types/marketplace';
 import ProductCard from './ProductCard';
 import './MyProducts.css';

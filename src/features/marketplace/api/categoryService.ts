@@ -1,6 +1,6 @@
-import { apiRequest, API_ENDPOINTS } from '../config/api';
-import type { Category, ProductFilters, ProductListItem } from '../types/marketplace';
-import { buildQueryString, normalizeProductCollection } from './marketplace/utils';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
+import type { Category, ProductFilters, ProductListItem } from '../../../types/marketplace';
+import { buildQueryString, normalizeProductCollection } from './utils';
 
 export class CategoryService {
   private static instance: CategoryService;

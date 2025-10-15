@@ -1,5 +1,5 @@
-import { apiRequest, API_ENDPOINTS } from '../config/api';
-import type { Cart, CartItem } from '../types/marketplace';
+import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
+import type { Cart, CartItem } from '../../../types/marketplace';
 
 const ensureCart = (response: Cart | Cart[] | null | undefined): Cart => {
   if (!response) {
