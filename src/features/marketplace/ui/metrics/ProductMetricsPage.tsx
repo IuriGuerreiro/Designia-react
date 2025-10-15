@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import './Metrics.css';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../../features/auth/state/AuthContext';
+import { useAuth } from '@/features/auth/state/AuthContext';
 
 const ProductMetricsPage: React.FC = () => {
   const { t } = useTranslation();

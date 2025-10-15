@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { type ProductReview } from '@/features/marketplace/model';
 import { reviewService } from '@/features/marketplace/api';
-import { useAuth } from '../../../features/auth/state/AuthContext';
+import { useAuth } from '@/features/auth/state/AuthContext';
 import { useTranslation } from 'react-i18next';
 import './ProductReviews.css';
 
