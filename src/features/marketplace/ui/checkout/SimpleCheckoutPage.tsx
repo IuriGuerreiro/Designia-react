@@ -4,7 +4,7 @@ import {
   EmbeddedCheckoutProvider,
   EmbeddedCheckout
 } from '@stripe/react-stripe-js';
-import { paymentService } from '../../../features/payments/api';
+import { paymentService } from '@/features/payments/api';
 import { useCart } from '@/shared/state/CartContext';
 import { Layout } from '@/app/layout';
 import { useSearchParams } from 'react-router-dom';

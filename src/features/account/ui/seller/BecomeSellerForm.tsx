@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import { useAuth } from '@/features/auth/state/AuthContext';
 import ImageUpload from '@/shared/ui/image-upload/ImageUpload';
-import Select, { Option } from '@/shared/ui/select/Select';
+import Select from '@/shared/ui/select/Select';
+import type { Option } from '@/shared/ui/select/Select';
 import styles from './BecomeSellerForm.module.css';
 
 const sellerTypeOptions: Option[] = [

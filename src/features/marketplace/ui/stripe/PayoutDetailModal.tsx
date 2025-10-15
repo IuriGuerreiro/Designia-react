@@ -4,7 +4,7 @@ import {
   type PayoutOrder,
   type PayoutOrdersResponse,
   type PayoutSummary,
-} from '../../../features/payments/api';
+} from '@/features/payments/api';
 import './PayoutDetailModal.css';
 
 interface PayoutDetailModalProps {

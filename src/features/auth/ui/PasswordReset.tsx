@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { API_ENDPOINTS } from '../../shared/api';
+import { API_ENDPOINTS } from '@/shared/api';
 import ErrorMessage from './ErrorMessage';
 import styles from './Auth.module.css';
 

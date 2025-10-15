@@ -6,7 +6,7 @@ import Select from '@/shared/ui/select/Select';
 import { useTranslation } from 'react-i18next';
 import { categoryService, productService } from '@/features/marketplace/api';
 import { type Category } from '@/features/marketplace/model';
-import { processImagesForUpload, type ImageInfo } from '../../../utils/imageUtils';
+import { processImagesForUpload, type ImageInfo } from '@/utils/imageUtils';
 import './ProductForm.css';
 
 const ProductForm: React.FC = () => {
