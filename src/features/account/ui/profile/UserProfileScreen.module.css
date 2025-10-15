@@ -1,0 +1,227 @@
+.profilePage {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+.profileHero {
+  background: var(--color-surface);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.profileHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.avatarBlock {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.avatar {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--color-surface-alt);
+  box-shadow: var(--shadow-sm);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.name {
+  font-size: 2rem;
+  font-family: var(--font-serif);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.username {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  margin: 0;
+}
+
+.title {
+  color: var(--color-text-light);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.badgeRow {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.badge {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.actionButtonPrimary {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  border-color: var(--color-primary);
+}
+
+.actionButton:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-md);
+}
+
+.statCard {
+  background: var(--color-surface-alt);
+  border-radius: 16px;
+  padding: var(--space-md);
+  text-align: center;
+}
+
+.statLabel {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.bio {
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.tabs {
+  margin-top: var(--space-xl);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.tabButton {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tabButtonActive {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.tabIcon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.tabLabel {
+  font-size: 1rem;
+}
+
+.content {
+  margin-top: var(--space-xl);
+  background: var(--color-surface);
+  border-radius: 24px;
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-xl);
+}
+
+.gridPlaceholder {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-lg);
+}
+
+.placeholderCard {
+  border-radius: 16px;
+  border: 1px dashed var(--color-border);
+  padding: var(--space-lg);
+  background: var(--color-surface-alt);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .profilePage {
+    padding: var(--space-xl) var(--space-md);
+  }
+
+  .avatarBlock {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .actions {
+    justify-content: center;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tabButton {
+    width: 100%;
+  }
+}
