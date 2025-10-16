@@ -2,12 +2,14 @@
 .chatContainer {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 140px); /* Account for navbar and footer */
-  background: var(--designia-pure-white, #FFFFFF);
+  height: min(900px, calc(100vh - 140px)); /* Account for navbar and footer */
+  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(10, 10, 10, 0.08);
+  border-radius: 32px;
+  box-shadow: var(--shadow-elevated);
   overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  backdrop-filter: blur(18px);
 }
 
 /* Connection Error */
@@ -16,16 +18,17 @@
   align-items: center;
   gap: 12px;
   padding: 16px 24px;
-  background: var(--designia-error-red, #EF4444);
-  color: var(--designia-pure-white, #FFFFFF);
-  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-error) 80%, transparent);
+  color: var(--color-accent-contrast);
+  border-radius: 18px;
   margin: 16px;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 12px 28px rgba(220, 38, 38, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .connectionError.authError {
-  background: var(--designia-warning-orange, #F59E0B);
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+  background: color-mix(in srgb, var(--color-warning) 84%, transparent);
+  box-shadow: 0 12px 28px rgba(245, 158, 11, 0.28);
 }
 
 .errorIcon {
@@ -63,37 +66,36 @@
 
 .retryButton {
   background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: var(--designia-pure-white, #FFFFFF);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--color-accent-contrast);
   padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.retryButton:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.authButton {
-  background: var(--designia-pure-white, #FFFFFF);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: var(--designia-warning-orange, #F59E0B);
-  padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
+.retryButton:hover {
+  background: rgba(255, 255, 255, 0.32);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.authButton {
+  background: var(--color-accent-contrast);
+  border: none;
+  color: var(--color-warning);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
 .authButton:hover {
-  background: rgba(255, 255, 255, 0.9);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.18);
 }
 
 /* Chat Layout */
@@ -105,8 +107,8 @@
 
 .chatListPanel {
   width: 320px;
-  border-right: 1px solid var(--designia-platinum-gray, #F5F5F5);
-  background: var(--designia-pure-white, #FFFFFF);
+  border-right: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
   display: flex;
   flex-direction: column;
 }
@@ -115,7 +117,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--designia-pure-white, #FFFFFF);
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
 }
 
 /* Mobile Responsiveness */
@@ -145,9 +147,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--designia-platinum-gray, #F5F5F5);
-  background: var(--designia-pure-white, #FFFFFF);
+  padding: 20px 28px;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
+  background: color-mix(in srgb, var(--color-background-accent) 75%, transparent);
+  backdrop-filter: blur(16px);
 }
 
 .headerLeft {
@@ -160,18 +163,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: var(--designia-platinum-gray, #F5F5F5);
-  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  background: color-mix(in srgb, var(--color-background-accent) 80%, transparent);
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.backButton:hover {
-  background: var(--designia-steel-gray, #6B7280);
-  color: var(--designia-pure-white, #FFFFFF);
+.backButton:hover,
+.backButton:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.2);
 }
 
 .backButton svg {
@@ -191,13 +195,14 @@
   font-size: 18px;
   font-weight: 600;
   line-height: 24px;
-  color: var(--designia-deep-black, #0A0A0A);
+  color: var(--color-text-primary);
 }
 
 .connectionStatus {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: var(--color-text-muted);
 }
 
 .statusDot {
@@ -208,16 +213,16 @@
 }
 
 .statusDot.connected {
-  background: var(--designia-success-green, #10B981);
+  background: var(--color-success);
 }
 
 .statusDot.disconnected {
-  background: var(--designia-warning-orange, #F59E0B);
+  background: var(--color-warning);
 }
 
 .statusText {
   font-size: 12px;
-  color: var(--designia-steel-gray, #6B7280);
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
@@ -225,8 +230,8 @@
 .messagesContainer {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
-  background: var(--designia-platinum-gray, #F5F5F5);
+  padding: 32px clamp(1.5rem, 4vw, 2.5rem);
+  background: color-mix(in srgb, var(--color-background-accent) 85%, transparent);
 }
 
 .messagesList {
@@ -248,18 +253,18 @@
 .dateSeparatorLine {
   flex: 1;
   height: 1px;
-  background: var(--designia-steel-gray, #6B7280);
-  opacity: 0.3;
+  background: color-mix(in srgb, var(--color-text-muted) 55%, transparent);
+  opacity: 0.35;
 }
 
 .dateSeparatorText {
   font-size: 12px;
   font-weight: 600;
   line-height: 16px;
-  color: var(--designia-steel-gray, #6B7280);
-  background: var(--designia-platinum-gray, #F5F5F5);
+  color: var(--color-text-muted);
+  background: color-mix(in srgb, var(--color-background-accent) 75%, transparent);
   padding: 4px 12px;
-  border-radius: 12px;
+  border-radius: 999px;
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -275,6 +280,7 @@
   height: 100%;
   text-align: center;
   padding: 48px 24px;
+  gap: 1rem;
 }
 
 .emptyIcon {
@@ -283,10 +289,11 @@
   justify-content: center;
   width: 64px;
   height: 64px;
-  background: var(--designia-platinum-gray, #F5F5F5);
+  background: color-mix(in srgb, var(--color-background-accent) 80%, transparent);
   border-radius: 50%;
-  margin-bottom: 24px;
-  color: var(--designia-steel-gray, #6B7280);
+  margin-bottom: 0;
+  color: var(--color-text-muted);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
 }
 
 .emptyIcon svg {
@@ -297,11 +304,11 @@
 
 .emptyMessages h3,
 .emptyChatView h3 {
-  margin: 0 0 8px 0;
+  margin: 0;
   font-size: 20px;
   font-weight: 600;
   line-height: 28px;
-  color: var(--designia-deep-black, #0A0A0A);
+  color: var(--color-text-primary);
 }
 
 .emptyMessages p,
@@ -309,7 +316,7 @@
   margin: 0;
   font-size: 14px;
   line-height: 20px;
-  color: var(--designia-steel-gray, #6B7280);
+  color: var(--color-text-muted);
 }
 
 /* Skeleton Loading */

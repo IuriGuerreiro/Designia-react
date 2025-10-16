@@ -63,18 +63,18 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
   };
 
   return (
-    <div className={styles['modal-overlay']} onClick={onCancel}>
-      <div className={styles['modal-content']} onClick={(event) => event.stopPropagation()}>
-        <div className={styles['modal-header']}>
+    <div className={styles.modalOverlay} onClick={onCancel}>
+      <div className={styles.modalContent} onClick={(event) => event.stopPropagation()}>
+        <div className={styles.modalHeader}>
           <h3>{action === 'enable' ? 'Enable' : 'Disable'} Two-Factor Authentication</h3>
-          <button className={styles['modal-close']} onClick={onCancel} aria-label="Close verification modal">
+          <button className={styles.modalClose} onClick={onCancel} aria-label="Close verification modal">
             ×
           </button>
         </div>
 
-        <div className={styles['modal-body']}>
-          <div className={styles['verification-info']}>
-            <div className={styles['email-icon']}>📧</div>
+        <div className={styles.modalBody}>
+          <div className={styles.verificationInfo}>
+            <div className={styles.emailIcon}>📧</div>
             <p>
               We've sent a 6-digit verification code to your email address. Please enter it below to{' '}
               {action === 'enable' ? 'enable' : 'disable'} 2FA.
@@ -82,7 +82,7 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className={styles['code-input-container']}>
+            <div className={styles.codeInputContainer}>
               <label htmlFor="verification-code">Verification Code</label>
               <input
                 id="verification-code"
@@ -90,17 +90,17 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
                 value={code}
                 onChange={handleCodeChange}
                 placeholder="000000"
-                className={styles['code-input']}
+                className={styles.codeInput}
                 maxLength={6}
                 autoComplete="one-time-code"
                 autoFocus
               />
-              <div className={styles['code-hint']}>Enter the 6-digit code from your email</div>
+              <div className={styles.codeHint}>Enter the 6-digit code from your email</div>
             </div>
 
-            {error && <div className={styles['error-message']}>{error}</div>}
+            {error && <div className={styles.errorMessage}>{error}</div>}
 
-            <div className={styles['timer-info']}>
+            <div className={styles.timerInfo}>
               {timeLeft > 0 ? (
                 <p className={styles.timer}>
                   ⏰ Code expires in: <span className={styles.timeLeft}>{formatTime(timeLeft)}</span>
@@ -112,22 +112,22 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
               )}
             </div>
 
-            <div className={styles['modal-actions']}>
-              <button
-                type="button"
-                className={cx(styles['settings-btn'], styles['settings-btn-secondary'])}
-                onClick={onCancel}
-                disabled={loading}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className={cx(styles['settings-btn'], styles['settings-btn-primary'])}
-                disabled={loading || code.length !== 6 || timeLeft <= 0}
-              >
-                {loading ? 'Verifying...' : 'Verify Code'}
-              </button>
+            <div className={styles.modalActions}>
+                <button
+                  type="button"
+                  className={cx(styles.settingsBtn, styles.settingsBtnSecondary)}
+                  onClick={onCancel}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={styles.settingsBtn}
+                  disabled={loading || code.length !== 6 || timeLeft <= 0}
+                >
+                  {loading ? 'Verifying...' : 'Verify Code'}
+                </button>
             </div>
           </form>
         </div>

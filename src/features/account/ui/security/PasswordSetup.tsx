@@ -96,23 +96,23 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
   };
 
   return (
-    <div className={styles['password-setup']}>
-      <div className={styles['password-setup-header']}>
+    <div className={styles.passwordSetup}>
+      <div className={styles.passwordSetupHeader}>
         <h3>Password Setup</h3>
         <p>
           Your account is currently secured with Google OAuth only. Set up a password for additional login options.
         </p>
       </div>
 
-      {error && <div className={cx(styles.alert, styles['alert-error'])}>{error}</div>}
-      {success && <div className={cx(styles.alert, styles['alert-success'])}>{success}</div>}
+      {error && <div className={cx(styles.alert, styles.alertError)}>{error}</div>}
+      {success && <div className={cx(styles.alert, styles.alertSuccess)}>{success}</div>}
 
       {step === 'initial' && (
-        <div className={styles['password-setup-initial']}>
-          <div className={styles['oauth-info']}>
-            <div className={styles['oauth-indicator']}>
-              <span className={styles['oauth-icon']}>🔐</span>
-              <div className={styles['oauth-text']}>
+        <div className={styles.passwordSetupInitial}>
+          <div className={styles.oauthInfo}>
+            <div className={styles.oauthIndicator}>
+              <span className={styles.oauthIcon}>🔐</span>
+              <div className={styles.oauthText}>
                 <strong>Google OAuth Account</strong>
                 <p>You're currently using Google OAuth for authentication</p>
               </div>
@@ -120,21 +120,21 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
           </div>
 
           <button
-            className={cx(styles['settings-btn'], styles['settings-btn-primary'])}
+            className={styles.settingsBtn}
             onClick={handleRequestPasswordSetup}
             disabled={loading}
           >
             {loading ? 'Sending Code...' : 'Set Up Password'}
           </button>
 
-          <div className={styles['setup-info']}>
+          <div className={styles.setupInfo}>
             <h4>Why set up a password?</h4>
             <ul>
               <li>Alternative login method if Google OAuth is unavailable</li>
               <li>Enhanced account security with multiple authentication options</li>
               <li>Access to advanced security features</li>
             </ul>
-            <p className={styles['security-note']}>
+            <p className={styles.securityNote}>
               <strong>Security:</strong> Setting up a password requires email verification with a 6-digit code.
             </p>
           </div>
@@ -142,14 +142,14 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
       )}
 
       {step === 'verification' && (
-        <div className={styles['password-setup-verification']}>
-          <div className={styles['verification-header']}>
+        <div className={styles.passwordSetupVerification}>
+          <div className={styles.verificationHeader}>
             <h4>Verify and Set Password</h4>
             <p>Enter the 6-digit code sent to your email and your new password.</p>
           </div>
 
-          <form onSubmit={handleSetPassword} className={styles['password-setup-form']}>
-            <div className={styles['form-group']}>
+          <form onSubmit={handleSetPassword} className={styles.passwordSetupForm}>
+            <div className={styles.formGroup}>
               <label htmlFor="verificationCode">Verification Code</label>
               <input
                 type="text"
@@ -161,11 +161,11 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
                 placeholder="Enter 6-digit code"
                 maxLength={6}
                 required
-                className={cx(styles['form-control'], styles['code-input'])}
+                className={cx(styles.formControl, styles.codeInput)}
               />
             </div>
 
-            <div className={styles['form-group']}>
+            <div className={styles.formGroup}>
               <label htmlFor="password">New Password</label>
               <input
                 type="password"
@@ -175,11 +175,11 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
                 placeholder="Enter new password"
                 minLength={8}
                 required
-                className={styles['form-control']}
+                className={styles.formControl}
               />
             </div>
 
-            <div className={styles['form-group']}>
+            <div className={styles.formGroup}>
               <label htmlFor="confirmPassword">Confirm Password</label>
               <input
                 type="password"
@@ -189,14 +189,14 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
                 placeholder="Confirm new password"
                 minLength={8}
                 required
-                className={styles['form-control']}
+                className={styles.formControl}
               />
             </div>
 
-            <div className={styles['form-actions']}>
+            <div className={styles.formActions}>
               <button
                 type="button"
-                className={cx(styles['settings-btn'], styles['settings-btn-secondary'])}
+                className={cx(styles.settingsBtn, styles.settingsBtnSecondary)}
                 onClick={handleBack}
                 disabled={loading}
               >
@@ -204,7 +204,7 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
               </button>
               <button
                 type="submit"
-                className={cx(styles['settings-btn'], styles['settings-btn-primary'])}
+                className={styles.settingsBtn}
                 disabled={
                   loading || verificationCode.length !== 6 || !password || !confirmPassword
                 }
@@ -214,13 +214,13 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
             </div>
           </form>
 
-          <div className={styles['verification-info']}>
-            <p className={styles['code-info']}>
+          <div className={styles.verificationInfo}>
+            <p className={styles.codeInfo}>
               📧 Code expires in 10 minutes. Check your spam folder if you don't see the email.
             </p>
             <button
               type="button"
-              className={styles['btn-link']}
+              className={styles.resendLink}
               onClick={handleRequestPasswordSetup}
               disabled={loading}
             >

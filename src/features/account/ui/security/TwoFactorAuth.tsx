@@ -70,25 +70,25 @@ const TwoFactorAuth: React.FC = () => {
 
   if (loading && !twoFactorStatus) {
     return (
-      <div className={styles['two-factor-auth']}>
+      <div className={styles.twoFactorAuth}>
         <div className={styles.loading}>Loading 2FA settings...</div>
       </div>
     );
   }
 
   return (
-    <div className={styles['two-factor-auth']}>
-      <div className={styles['two-factor-simple']}>
-        <div className={styles['two-factor-info']}>
+    <div className={styles.twoFactorAuth}>
+      <div className={styles.twoFactorCard}>
+        <div className={styles.twoFactorInfo}>
           <span className={styles.email}>{twoFactorStatus?.email}</span>
           <span className={styles.status}>
             {twoFactorStatus?.two_factor_enabled ? '2FA Enabled' : '2FA Disabled'}
           </span>
         </div>
 
-        {error && <div className={styles['error-message']}>{error}</div>}
+        {error && <div className={styles.alertMessage}>{error}</div>}
 
-        <div className={styles['two-factor-actions']}>
+        <div className={styles.twoFactorActions}>
           <button
             className={cx(
               styles.twoFaButton,

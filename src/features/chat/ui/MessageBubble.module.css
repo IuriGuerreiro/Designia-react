@@ -2,9 +2,9 @@
 .messageBubble {
   display: flex;
   flex-direction: column;
-  max-width: 70%;
-  gap: 4px;
-  animation: fadeIn 0.3s ease-out;
+  max-width: min(68%, 520px);
+  gap: 6px;
+  animation: fadeIn 0.25s ease-out;
 }
 
 .messageBubble.ownMessage {
@@ -37,30 +37,31 @@
   font-size: 12px;
   font-weight: 600;
   line-height: 16px;
-  color: var(--designia-steel-gray, #6B7280);
+  color: var(--color-text-muted);
   text-transform: capitalize;
 }
 
 /* Message Content */
 .messageContent {
   position: relative;
-  border-radius: 16px;
-  padding: 12px 16px;
+  border-radius: 20px;
+  padding: 14px 18px;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
 }
 
 .messageBubble.ownMessage .messageContent {
-  background: var(--designia-deep-black, #0A0A0A);
-  color: var(--designia-pure-white, #FFFFFF);
-  border-bottom-right-radius: 4px;
+  background: var(--gradient-button);
+  color: var(--color-accent-contrast);
+  border-bottom-right-radius: 6px;
 }
 
 .messageBubble.otherMessage .messageContent {
-  background: var(--designia-pure-white, #FFFFFF);
-  color: var(--designia-deep-black, #0A0A0A);
-  border: 1px solid var(--designia-platinum-gray, #F5F5F5);
-  border-bottom-left-radius: 4px;
+  background: color-mix(in srgb, var(--color-surface) 95%, transparent);
+  color: var(--color-text-primary);
+  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  border-bottom-left-radius: 6px;
 }
 
 /* Text Message */
@@ -97,9 +98,9 @@
   justify-content: center;
   gap: 8px;
   padding: 24px;
-  background: var(--designia-platinum-gray, #F5F5F5);
-  border-radius: 8px;
-  color: var(--designia-steel-gray, #6B7280);
+  background: color-mix(in srgb, var(--color-background-accent) 85%, transparent);
+  border-radius: 12px;
+  color: var(--color-text-muted);
 }
 
 .imageIcon {
@@ -133,7 +134,7 @@
 .messageTime {
   font-size: 11px;
   line-height: 14px;
-  color: var(--designia-steel-gray, #6B7280);
+  color: color-mix(in srgb, var(--color-text-muted) 90%, transparent);
   font-weight: 500;
 }
 
@@ -160,11 +161,11 @@
 }
 
 .messageStatus.read {
-  color: var(--designia-success-green, #10B981);
+  color: var(--color-success);
 }
 
 .messageStatus.error {
-  color: var(--designia-error-red, #EF4444);
+  color: var(--color-error);
 }
 
 .messageStatus svg {
