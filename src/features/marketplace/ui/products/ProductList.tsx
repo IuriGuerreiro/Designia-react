@@ -27,7 +27,10 @@ const ProductFilters: React.FC<{
   filters: ProductFilters;
   onFilterChange: (filters: ProductFilters) => void;
   categories: any[];
-}> = ({ filters, onFilterChange, categories }) => {
+  isOpen: boolean;
+  onClose: () => void;
+  activeFiltersCount: number;
+}> = ({ filters, onFilterChange, categories, isOpen, onClose, activeFiltersCount }) => {
   const { t } = useTranslation();
 
   const handleFilterChange = (key: keyof ProductFilters, value: any) => {
@@ -39,12 +42,24 @@ const ProductFilters: React.FC<{
   };
 
   return (
-    <div className="product-filters">
+    <aside className={`product-filters ${isOpen ? 'open' : ''}`} aria-hidden={!isOpen}>
       <div className="filters-header">
-        <h3>Filters</h3>
-        <button onClick={clearFilters} className="clear-filters-btn">
-          Clear All
-        </button>
+        <div>
+          <p className="filters-eyebrow">Refine Results</p>
+          <h3>Filters</h3>
+        </div>
+        <div className="filters-actions">
+          <span className="filters-count">{activeFiltersCount} active</span>
+          <button onClick={clearFilters} className="clear-filters-btn" type="button">
+            Clear
+          </button>
+          <button className="filters-close" onClick={onClose} type="button" aria-label="Close filters">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
       </div>
       
       <div className="filter-section">
@@ -149,7 +164,7 @@ const ProductFilters: React.FC<{
           <option value="2">2+ Stars</option>
         </select>
       </div>
-    </div>
+    </aside>
   );
 };
 
@@ -157,14 +172,17 @@ const ProductFilters: React.FC<{
 const ProductSort: React.FC<{
   sortBy: string;
   onSortChange: (sortBy: string) => void;
-}> = ({ sortBy, onSortChange }) => {
+  disabled?: boolean;
+}> = ({ sortBy, onSortChange, disabled = false }) => {
   return (
     <div className="product-sort">
-      <label>Sort by:</label>
+      <label htmlFor="marketplace-sort">Sort</label>
       <select
+        id="marketplace-sort"
         value={sortBy}
         onChange={(e) => onSortChange(e.target.value)}
         className="sort-select"
+        disabled={disabled}
       >
         <option value="newest">Newest First</option>
         <option value="oldest">Oldest First</option>
@@ -200,7 +218,9 @@ const ProductList: React.FC = () => {
   
   // State for UI
   const [activeTab, setActiveTab] = useState('products');
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 1024 : false
+  );
   const [sortBy, setSortBy] = useState('newest');
   
   // State for filters
@@ -280,6 +300,48 @@ const ProductList: React.FC = () => {
     return filtered;
   }, [products, sortBy, filters.search]);
 
+  const activeFiltersCount = useMemo(() => {
+    const keys: Array<keyof ProductFilters> = [
+      'min_price',
+      'max_price',
+      'category_slug',
+      'condition',
+      'in_stock',
+      'is_featured',
+      'is_on_sale',
+      'min_rating'
+    ];
+
+    let count = 0;
+
+    keys.forEach((key) => {
+      const value = filters[key];
+
+      if (Array.isArray(value)) {
+        if (value.length > 0) count += 1;
+      } else if (typeof value === 'boolean') {
+        if (value) count += 1;
+      } else if (value !== undefined && value !== null && value !== '') {
+        count += 1;
+      }
+    });
+
+    if (filters.search && filters.search.trim()) {
+      count += 1;
+    }
+
+    return count;
+  }, [filters]);
+
+  const heroMetrics = useMemo(
+    () => [
+      { label: 'Pieces in view', value: processedProducts.length },
+      { label: 'Categories', value: categories.length },
+      { label: 'Active filters', value: activeFiltersCount }
+    ],
+    [processedProducts.length, categories.length, activeFiltersCount]
+  );
+
   const handleAddToCart = async (product: any) => {
     // Use presigned URL from primary image, fallback to regular image, then placeholder
     let imageUrl = '/placeholder-product.png';
@@ -337,57 +399,67 @@ const ProductList: React.FC = () => {
   };
 
   return (
-    <Layout padding="default" maxWidth="full">
+    <Layout padding="minimal" maxWidth="full">
       <div className="products-page">
-        <div className="products-header">
-          <h2>{t('products.collection_title')}</h2>
-          <div className="header-controls">
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder={t('products.search_placeholder')}
-                value={filters.search || ''}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
-                disabled={loading}
-              />
+        <section className="marketplace-hero">
+          <div className="hero-overlay" aria-hidden="true" />
+          <div className="hero-inner">
+            <div className="hero-copy">
+              <span className="hero-eyebrow">Designia Marketplace</span>
+              <h2 className="hero-title">{t('products.collection_title')}</h2>
+              <p className="hero-description">
+                Discover monochrome pieces, curated textures, and statement silhouettes crafted for contemporary homes and studios.
+              </p>
+              <div className="hero-metrics" role="list">
+                {heroMetrics.map((metric) => (
+                  <div className="hero-metric" role="listitem" key={metric.label}>
+                    <span className="metric-value">{metric.value}</span>
+                    <span className="metric-label">{metric.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="header-buttons">
-              <button
-                className={`filter-toggle-btn ${showFilters ? 'active' : ''}`}
-                onClick={() => setShowFilters(!showFilters)}
-                disabled={loading}
-              >
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 4H21V6.172L13.172 14H10.828L3 6.172V4ZM3 18V20H21V18L13.172 10H10.828L3 18Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Filters
-              </button>
+            <div className="hero-controls">
+              <div className="search-bar">
+                <label className="sr-only" htmlFor="marketplace-search">{t('products.search_placeholder')}</label>
+                <input
+                  id="marketplace-search"
+                  type="text"
+                  placeholder={t('products.search_placeholder')}
+                  value={filters.search || ''}
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
+                  disabled={loading}
+                />
+              </div>
+              <div className="hero-actions">
+                <button
+                  type="button"
+                  className={`filter-toggle-btn ${showFilters ? 'active' : ''}`}
+                  onClick={() => setShowFilters((prev) => !prev)}
+                  disabled={loading}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 4H21V6.172L13.172 14H10.828L3 6.172V4ZM3 18V20H21V18L13.172 10H10.828L3 18Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Filters
+                  {activeFiltersCount > 0 && <span className="filters-badge">{activeFiltersCount}</span>}
+                </button>
+                <ProductSort sortBy={sortBy} onSortChange={setSortBy} disabled={loading} />
+              </div>
             </div>
           </div>
-        </div>
-
-        {error && (
-          <div className="error-message">
-            <p>{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="retry-btn"
-            >
-              Retry
-            </button>
-          </div>
-        )}
+        </section>
 
         <div className="tabs">
-          <button 
-            className={`tab ${activeTab === 'products' ? 'active' : ''}`} 
+          <button
+            className={`tab ${activeTab === 'products' ? 'active' : ''}`}
             onClick={() => setActiveTab('products')}
             disabled={loading}
           >
             {t('products.products_tab')}
           </button>
-          <button 
-            className={`tab ${activeTab === 'services' ? 'active' : ''}`} 
+          <button
+            className={`tab ${activeTab === 'services' ? 'active' : ''}`}
             onClick={() => setActiveTab('services')}
             disabled={loading}
           >
@@ -395,55 +467,70 @@ const ProductList: React.FC = () => {
           </button>
         </div>
 
-        {activeTab === 'products' && (
-          <>
-            <div className="products-controls">
-              <div className="results-info">
-                <span>{processedProducts.length} product{processedProducts.length !== 1 ? 's' : ''} found</span>
-              </div>
-              <ProductSort sortBy={sortBy} onSortChange={setSortBy} />
-            </div>
-
-            <div className="products-content">
-              {showFilters && (
-                <ProductFilters
-                  filters={filters}
-                  onFilterChange={setFilters}
-                  categories={categories}
-                />
-              )}
-              
-              <div className="products-main">
-                {loading ? (
-                  renderLoadingSkeletons()
-                ) : processedProducts.length > 0 ? (
-                  <div className="products-flex">
-                    {processedProducts.map(product => (
-                      <ProductCard 
-                        key={product.id} 
-                        product={product} 
-                        onAddToCart={() => handleAddToCart(product)} 
-                        onFavoriteToggle={handleFavoriteToggle}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="no-results-message">
-                    <div className="no-results-icon">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <h3>No products found</h3>
-                    <p>{filters.search ? `No products match "${filters.search}"` : 'No products are currently available.'}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
+        {error && (
+          <div className="error-message">
+            <p>{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="retry-btn"
+            >
+              Retry
+            </button>
+          </div>
         )}
 
-        {activeTab === 'services' && <ServicesPlaceholder />}
+        {activeTab === 'products' ? (
+          <section className={`products-shell ${showFilters ? 'filters-visible' : ''}`}>
+            <ProductFilters
+              filters={filters}
+              onFilterChange={setFilters}
+              categories={categories}
+              isOpen={showFilters}
+              onClose={() => setShowFilters(false)}
+              activeFiltersCount={activeFiltersCount}
+            />
+
+            <div className="products-main">
+              <div className="products-controls">
+                <div className="results-info">
+                  <span>
+                    {processedProducts.length} curated piece{processedProducts.length !== 1 ? 's' : ''}
+                  </span>
+                  {activeFiltersCount > 0 && (
+                    <span className="results-filters">{activeFiltersCount} filters active</span>
+                  )}
+                </div>
+              </div>
+
+              {loading ? (
+                renderLoadingSkeletons()
+              ) : processedProducts.length > 0 ? (
+                <div className="products-flex">
+                  {processedProducts.map(product => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onAddToCart={() => handleAddToCart(product)}
+                      onFavoriteToggle={handleFavoriteToggle}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="no-results-message">
+                  <div className="no-results-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <h3>No products found</h3>
+                  <p>{filters.search ? `No products match "${filters.search}"` : 'No products are currently available.'}</p>
+                </div>
+              )}
+            </div>
+          </section>
+        ) : (
+          <ServicesPlaceholder />
+        )}
       </div>
     </Layout>
   );

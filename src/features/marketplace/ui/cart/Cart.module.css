@@ -4,18 +4,18 @@
 
 /* CSS Variables - Designia Design System */
 :root {
-  --deep-black: #0A0A0A;
-  --pure-white: #FFFFFF;
-  --charcoal-black: #1A1A1A;
-  --platinum-gray: #F5F5F5;
-  --steel-gray: #6B7280;
-  --slate-gray: #374151;
-  --premium-silver: #E5E7EB;
-  --dark-silver: #9CA3AF;
-  --success-green: #10B981;
-  --warning-orange: #F59E0B;
-  --error-red: #EF4444;
-  --info-gray: #6B7280;
+  --deep-black: var(--color-accent);
+  --pure-white: var(--color-surface);
+  --charcoal-black: var(--color-text-primary);
+  --platinum-gray: var(--color-background);
+  --steel-gray: var(--color-text-secondary);
+  --slate-gray: var(--color-text-secondary);
+  --premium-silver: var(--color-border);
+  --dark-silver: var(--color-text-muted);
+  --success-green: var(--color-success);
+  --warning-orange: var(--color-warning);
+  --error-red: var(--color-error);
+  --info-gray: var(--color-text-muted);
   
   /* Spacing Scale (8px base) */
   --space-xs: 4px;
@@ -37,6 +37,7 @@
   padding: var(--space-xl) var(--space-lg);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
+  color: var(--color-text-secondary);
 }
 
 /* Cart Header */
@@ -78,7 +79,7 @@
 .cart-empty-state {
   text-align: center;
   padding: var(--space-3xl) var(--space-lg);
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8F6F0 100%);
+  background: linear-gradient(135deg, var(--pure-white) 0%, color-mix(in srgb, var(--platinum-gray) 70%, transparent) 100%);
   border-radius: 20px;
   margin: var(--space-xl) auto;
   max-width: 500px;
@@ -189,7 +190,7 @@
   border: 1px solid var(--premium-silver);
   border-radius: 12px;
   margin-bottom: var(--space-md);
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8F6F0 100%);
+  background: linear-gradient(135deg, var(--pure-white) 0%, color-mix(in srgb, var(--platinum-gray) 70%, transparent) 100%);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -423,7 +424,7 @@
 }
 
 .order-summary-card {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8F6F0 100%);
+  background: linear-gradient(135deg, var(--pure-white) 0%, color-mix(in srgb, var(--platinum-gray) 70%, transparent) 100%);
   border-radius: 20px;
   border: 1px solid var(--premium-silver);
   box-shadow: 0 8px 32px rgba(26, 27, 46, 0.08);
