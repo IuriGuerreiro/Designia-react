@@ -384,16 +384,16 @@
 
 /* CSS Custom Properties for Design System Colors */
 :root {
-  --designia-deep: #0A0A0A;
-  --designia-white: #FFFFFF;
-  --designia-charcoal: #1A1A1A;
-  --designia-platinum: #F5F5F5;
-  --designia-steel: #6B7280;
-  --designia-slate: #374151;
-  --designia-silver: #9CA3AF;
-  --designia-success: #10B981;
-  --designia-warning: #F59E0B;
-  --designia-error: #EF4444;
+  --designia-deep: var(--color-accent);
+  --designia-white: var(--color-surface);
+  --designia-charcoal: var(--color-text-primary);
+  --designia-platinum: var(--color-background);
+  --designia-steel: var(--color-text-secondary);
+  --designia-slate: var(--color-text-secondary);
+  --designia-silver: var(--color-text-muted);
+  --designia-success: var(--color-success);
+  --designia-warning: var(--color-warning);
+  --designia-error: var(--color-error);
   
   /* Spacing Scale */
   --space-xs: 4px;

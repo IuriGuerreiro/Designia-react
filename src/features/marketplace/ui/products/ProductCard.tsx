@@ -14,14 +14,14 @@ interface ProductCardProps {
 }
 
 const FavoriteIcon: React.FC<{ isFavorited: boolean }> = ({ isFavorited }) => (
-  <svg 
-    width="22" 
-    height="22" 
-    viewBox="0 0 24 24" 
-    fill={isFavorited ? '#EF4444' : 'none'} 
-    stroke={isFavorited ? '#EF4444' : '#6B7280'} 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill={isFavorited ? 'var(--color-error)' : 'none'}
+    stroke={isFavorited ? 'var(--color-error)' : 'var(--color-text-muted)'}
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     className={styles.favoriteIcon}
   >
@@ -133,8 +133,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
                   width="14" 
                   height="14" 
                   viewBox="0 0 24 24" 
-                  fill={star <= product.average_rating ? "#F59E0B" : "none"}
-                  stroke="#F59E0B"
+                  fill={star <= product.average_rating ? 'var(--color-warning)' : 'none'}
+                  stroke="var(--color-warning)"
                   strokeWidth="1.5"
                 >
                   <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z"/>

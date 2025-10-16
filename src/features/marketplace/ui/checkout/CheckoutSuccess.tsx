@@ -96,12 +96,30 @@ const CheckoutSuccess: React.FC = () => {
             
             {/* Cart refresh status */}
             {cartRefreshed && (
-              <div style={{ backgroundColor: '#d1ecf1', padding: '0.75rem', borderRadius: '4px', margin: '0.5rem 0', fontSize: '0.9rem', color: '#0c5460' }}>
+              <div
+                style={{
+                  backgroundColor: 'color-mix(in srgb, var(--color-text-secondary) 12%, var(--color-surface) 88%)',
+                  padding: '0.75rem',
+                  borderRadius: '0.75rem',
+                  margin: '0.5rem 0',
+                  fontSize: '0.9rem',
+                  color: 'var(--color-text-secondary)'
+                }}
+              >
                 🛒 Your cart has been updated and is ready for your next purchase!
               </div>
             )}
-            
-            <div style={{ backgroundColor: '#d4edda', padding: '1rem', borderRadius: '4px', margin: '1rem 0', display: 'inline-block' }}>
+
+            <div
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--color-success) 18%, var(--color-surface) 82%)',
+                padding: '1rem',
+                borderRadius: '0.75rem',
+                margin: '1rem 0',
+                display: 'inline-block',
+                color: 'var(--color-success)'
+              }}
+            >
               <p><strong>Session ID:</strong> {sessionId}</p>
               <p><strong>Amount:</strong> ${(sessionStatus.amount_total / 100).toFixed(2)}</p>
               <p><strong>Email:</strong> {sessionStatus.customer_email}</p>
@@ -110,7 +128,17 @@ const CheckoutSuccess: React.FC = () => {
               <button onClick={() => navigate('/marketplace')} style={{ padding: '0.5rem 1rem', margin: '0.5rem' }}>
                 Continue Shopping
               </button>
-              <button onClick={() => navigate('/orders')} style={{ padding: '0.5rem 1rem', margin: '0.5rem', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
+              <button
+                onClick={() => navigate('/orders')}
+                style={{
+                  padding: '0.5rem 1rem',
+                  margin: '0.5rem',
+                  background: 'var(--gradient-button)',
+                  color: 'var(--color-accent-contrast)',
+                  border: 'none',
+                  borderRadius: '999px'
+                }}
+              >
                 View My Orders
               </button>
             </div>
@@ -119,7 +147,16 @@ const CheckoutSuccess: React.FC = () => {
           <>
             <h1>⚠️ Payment Processing</h1>
             <p>Your payment is being processed. Please check back shortly.</p>
-            <div style={{ backgroundColor: '#fff3cd', padding: '1rem', borderRadius: '4px', margin: '1rem 0', display: 'inline-block' }}>
+            <div
+              style={{
+                backgroundColor: 'color-mix(in srgb, var(--color-warning) 18%, var(--color-surface) 82%)',
+                padding: '1rem',
+                borderRadius: '0.75rem',
+                margin: '1rem 0',
+                display: 'inline-block',
+                color: 'var(--color-warning)'
+              }}
+            >
               <p><strong>Status:</strong> {sessionStatus.status}</p>
               <p><strong>Payment Status:</strong> {sessionStatus.payment_status}</p>
             </div>

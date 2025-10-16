@@ -164,12 +164,12 @@ const ProductMetricsPage: React.FC = () => {
                     return imageUrl;
                   })()} 
                   alt={productMetrics.product_info.name} 
-                  style={{ 
-                    width: '120px', 
-                    height: '120px', 
-                    objectFit: 'cover', 
+                  style={{
+                    width: '120px',
+                    height: '120px',
+                    objectFit: 'cover',
                     borderRadius: '8px',
-                    border: '1px solid #e0e0e0'
+                    border: '1px solid var(--color-border)'
                   }}
                 />
               </div>
@@ -179,19 +179,21 @@ const ProductMetricsPage: React.FC = () => {
                 <h4 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.4rem' }}>
                   {productMetrics.product_info.name}
                 </h4>
-                <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#2c5530', margin: '5px 0' }}>
+                <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--color-success)', margin: '5px 0' }}>
                   ${parseFloat(productMetrics.product_info.price).toFixed(2)}
                 </p>
-                <p style={{ margin: '5px 0', color: '#666' }}>
+                <p style={{ margin: '5px 0', color: 'var(--color-text-muted)' }}>
                   Stock: {productMetrics.product_info.stock_quantity} units
                 </p>
                 <p style={{ margin: '5px 0' }}>
-                  <span style={{ 
-                    padding: '4px 8px', 
-                    borderRadius: '4px', 
+                  <span style={{
+                    padding: '4px 8px',
+                    borderRadius: '4px',
                     fontSize: '0.9rem',
-                    backgroundColor: productMetrics.product_info.is_active ? '#d4edda' : '#f8d7da',
-                    color: productMetrics.product_info.is_active ? '#155724' : '#721c24'
+                    backgroundColor: productMetrics.product_info.is_active
+                      ? 'color-mix(in srgb, var(--color-success) 18%, var(--color-surface) 82%)'
+                      : 'color-mix(in srgb, var(--color-error) 18%, var(--color-surface) 82%)',
+                    color: productMetrics.product_info.is_active ? 'var(--color-success)' : 'var(--color-error)'
                   }}>
                     {productMetrics.product_info.is_active ? 'Active' : 'Inactive'}
                   </span>
