@@ -1,110 +1,91 @@
-.two-factor-auth {
+.twoFactorAuth {
   max-width: 600px;
+  display: grid;
+  gap: 1.5rem;
 }
 
-.two-factor-simple {
+.twoFactorCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
-  padding: 1.5rem;
-  background: var(--platinum-gray);
-  border-radius: 12px;
-  border: 1px solid var(--premium-silver);
+  gap: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--surface-glass);
+  border-radius: 20px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow);
 }
 
-.two-factor-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.twoFactorInfo {
   flex: 1;
+  display: grid;
+  gap: 0.5rem;
 }
 
-.two-factor-info .email {
+.twoFactorInfo .email {
   font-weight: 600;
-  color: var(--deep-black);
-  font-size: 1rem;
+  color: var(--color-text-primary);
 }
 
-.two-factor-info .status {
-  color: var(--slate-gray);
-  font-size: 0.9rem;
+.twoFactorInfo .status {
+  color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.18em;
+  font-size: 0.75rem;
 }
 
-.error-message {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 8px;
-  padding: 1rem;
-  color: var(--error-red);
+.twoFactorActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.alertMessage {
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-error) 30%, transparent);
+  background: color-mix(in srgb, var(--color-error) 12%, transparent);
+  color: var(--color-error);
   font-size: 0.9rem;
   text-align: center;
-  margin: 1rem 0;
 }
 
-.two-factor-actions {
-  display: flex;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-/* 2FA Specific Button Styles */
 .twoFaButton {
-  min-width: 120px;
-  text-align: center;
-  padding: 12px 20px;
-  border-radius: 8px;
+  min-width: 140px;
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--badge-radius);
+  border: 1px solid transparent;
   font-weight: 500;
   font-size: 0.95rem;
-  transition: all 0.2s ease;
   cursor: pointer;
-  border: none;
-  font-family: var(--font-primary);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 .twoFaButtonPrimary {
-  background: transparent;
-  color: var(--deep-black);
-  border: 2px solid var(--deep-black);
+  background: var(--gradient-button);
+  color: var(--color-accent-contrast);
 }
 
-.twoFaButtonPrimary:hover:not(:disabled) {
-  background: var(--error-red);
-  color: #FFFFFF;
-  border-color: var(--error-red);
+.twoFaButtonPrimary:hover,
+.twoFaButtonPrimary:focus-visible {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-.twoFaButtonPrimary:disabled {
-  background: var(--steel-gray);
-  border-color: var(--steel-gray);
-  color: #FFFFFF;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  box-shadow: var(--shadow);
+  outline: none;
 }
 
 .twoFaButtonDanger {
   background: transparent;
-  color: var(--deep-black);
-  border: 2px solid var(--deep-black);
+  color: var(--color-text-primary);
+  border-color: var(--border-soft);
 }
 
-.twoFaButtonDanger:hover:not(:disabled) {
-  background: var(--error-red);
-  color: #FFFFFF;
-  border-color: var(--error-red);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+.twoFaButtonDanger:hover,
+.twoFaButtonDanger:focus-visible {
+  background: var(--surface-highlight);
+  color: var(--color-error);
 }
 
-.twoFaButtonDanger:disabled {
-  background: var(--steel-gray);
-  border-color: var(--steel-gray);
-  color: #FFFFFF;
+.twoFaButton:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -112,33 +93,23 @@
 
 .loading {
   text-align: center;
-  color: var(--steel-gray);
+  color: var(--color-text-muted);
   font-style: italic;
   padding: 2rem;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .two-factor-simple {
+@media (max-width: 720px) {
+  .twoFactorCard {
     flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-    text-align: center;
+    align-items: flex-start;
   }
-  
-  .two-factor-actions {
-    justify-content: center;
-  }
-  
-  .twoFaButton {
+
+  .twoFactorActions {
     width: 100%;
-    max-width: 200px;
+    justify-content: stretch;
+  }
+
+  .twoFaButton {
+    flex: 1;
   }
 }
-
-/* Accessibility */
-  @media (prefers-reduced-motion: reduce) {
-    .twoFaButton:hover {
-      transform: none;
-    }
-  }

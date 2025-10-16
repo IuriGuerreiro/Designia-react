@@ -71,6 +71,19 @@
   border-color: transparent;
 }
 
+html[data-theme='dark'] .adminNavLink {
+  background: #ffffff;
+  color: var(--color-accent-contrast);
+  border-color: transparent;
+  box-shadow: var(--shadow-elevated);
+}
+
+html[data-theme='dark'] .adminNavLink:hover,
+html[data-theme='dark'] .adminNavLink:focus-visible {
+  background: color-mix(in srgb, #ffffff 80%, var(--color-background-accent) 20%);
+  color: var(--color-accent-contrast);
+}
+
 .actions {
   display: flex;
   align-items: center;
@@ -107,6 +120,18 @@
   transform: translateY(-1px);
   box-shadow: var(--shadow-elevated);
   border-color: transparent;
+}
+
+html[data-theme='dark'] .themeToggle {
+  background: #ffffff;
+  color: var(--color-accent-contrast);
+  border-color: transparent;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme='dark'] .themeToggle:hover,
+html[data-theme='dark'] .themeToggle:focus-visible {
+  box-shadow: var(--shadow-elevated);
 }
 
 .actionBtn {

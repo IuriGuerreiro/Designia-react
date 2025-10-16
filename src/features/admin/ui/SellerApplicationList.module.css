@@ -1,10 +1,12 @@
 /* Seller Applications Admin Styles */
 .sellerApplicationsAdmin {
-  padding: 2rem;
+  padding: clamp(2rem, 5vw, 3rem);
   max-width: 1400px;
   margin: 0 auto;
-  background: #f8fafc;
+  background: color-mix(in srgb, var(--color-background) 94%, transparent);
   min-height: 100vh;
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
 }
 
 /* Header */
@@ -12,57 +14,61 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0;
+  padding: clamp(1.5rem, 4vw, 2rem);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  border-radius: 24px;
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
 }
 
 .adminHeader h1 {
   margin: 0;
-  color: #1a202c;
-  font-size: 1.875rem;
+  color: var(--color-text-primary);
+  font-size: clamp(1.75rem, 3vw, 2.2rem);
   font-weight: 700;
 }
 
 .adminStats {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .stat {
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
   font-weight: 600;
-  font-size: 0.875rem;
-  background: #e2e8f0;
-  color: #4a5568;
+  font-size: 0.85rem;
+  background: color-mix(in srgb, var(--color-background-accent) 78%, transparent);
+  color: var(--color-text-muted);
+  border: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
 }
 
 .statPending {
-  background: #fef5e7;
-  color: #d69e2e;
+  background: color-mix(in srgb, var(--color-warning) 20%, transparent);
+  color: var(--color-warning);
 }
 
 .statApproved {
-  background: #f0fff4;
-  color: #38a169;
+  background: color-mix(in srgb, var(--color-success) 20%, transparent);
+  color: var(--color-success);
 }
 
 /* Access Denied */
 .adminAccessDenied {
   text-align: center;
   padding: 4rem 2rem;
-  background: white;
-  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  border-radius: 24px;
   margin: 2rem auto;
-  max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 520px;
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
 }
 
 .adminAccessDenied h2 {
-  color: #e53e3e;
+  color: var(--color-error);
   margin-bottom: 1rem;
 }
 
@@ -89,88 +95,98 @@
 
 /* Error Message */
 .errorMessage {
-  background: #fed7d7;
-  color: #c53030;
+  background: color-mix(in srgb, var(--color-error) 18%, transparent);
+  color: var(--color-error);
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 16px;
   margin-bottom: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border: 1px solid color-mix(in srgb, var(--color-error) 30%, transparent);
 }
 
 .errorMessage button {
-  background: #c53030;
-  color: white;
+  background: var(--color-error);
+  color: var(--color-accent-contrast);
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.errorMessage button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(220, 38, 38, 0.25);
 }
 
 /* Filters */
 .adminFilters {
-  background: white;
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
   padding: 1.5rem;
-  border-radius: 12px;
+  border-radius: 20px;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-elevated);
   display: flex;
   align-items: center;
   gap: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
 }
 
 .adminFilters label {
   font-weight: 600;
-  color: #4a5568;
+  color: var(--color-text-secondary);
 }
 
 .filterSelect {
-  padding: 0.5rem 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-  color: #2d3748;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+  color: var(--color-text-primary);
   font-weight: 500;
   min-width: 200px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .filterSelect:focus {
   outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.12);
 }
 
 /* Applications Grid */
 .applicationsGrid {
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
 }
 
 .noApplications {
   text-align: center;
   padding: 4rem 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  border-radius: 24px;
+  box-shadow: var(--shadow-elevated);
   grid-column: 1 / -1;
+  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
 }
 
 /* Application Card */
 .applicationCard {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+  border-radius: 24px;
+  padding: clamp(1.5rem, 4vw, 2rem);
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .applicationCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 32px 60px rgba(15, 23, 42, 0.22);
 }
 
 .applicationHeader {
@@ -182,13 +198,13 @@
 
 .businessInfo h3 {
   margin: 0 0 0.5rem 0;
-  color: #1a202c;
+  color: var(--color-text-primary);
   font-size: 1.25rem;
   font-weight: 700;
 }
 
 .applicationId {
-  color: #718096;
+  color: var(--color-text-muted);
   font-weight: 600;
   font-size: 0.875rem;
 }
@@ -196,37 +212,37 @@
 /* Status Badges */
 .statusBadge {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
 }
 
 .statusPending {
-  background: #fef5e7;
-  color: #d69e2e;
+  background: color-mix(in srgb, var(--color-warning) 18%, transparent);
+  color: var(--color-warning);
 }
 
 .statusReview {
-  background: #ebf8ff;
-  color: #3182ce;
+  background: color-mix(in srgb, var(--color-info) 18%, transparent);
+  color: var(--color-info);
 }
 
 .statusApproved {
-  background: #f0fff4;
-  color: #38a169;
+  background: color-mix(in srgb, var(--color-success) 18%, transparent);
+  color: var(--color-success);
 }
 
 .statusRejected {
-  background: #fed7d7;
-  color: #e53e3e;
+  background: color-mix(in srgb, var(--color-error) 18%, transparent);
+  color: var(--color-error);
 }
 
 .statusRevision {
-  background: #faf5ff;
-  color: #805ad5;
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--color-accent);
 }
 
 /* Application Details */
@@ -239,7 +255,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #f7fafc;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
 }
 
 .detailRow:last-child {
@@ -247,7 +263,7 @@
 }
 
 .detailRow strong {
-  color: #4a5568;
+  color: var(--color-text-secondary);
   font-weight: 600;
   min-width: 120px;
 }

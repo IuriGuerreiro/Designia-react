@@ -85,6 +85,8 @@ const palettes: Record<ThemeMode, ThemePalette> = {
   dark: darkPalette
 };
 
+const STORAGE_KEY = 'designia-theme';
+
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 const cssVariableMap: Array<[keyof ThemePalette, string]> = [
@@ -110,18 +112,54 @@ const cssVariableMap: Array<[keyof ThemePalette, string]> = [
   ['shadow', '--shadow-elevated']
 ];
 
+const resolveInitialMode = (): ThemeMode => {
+  if (typeof window === 'undefined') {
+    return 'light';
+  }
+
+  const stored = window.localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
+  if (stored === 'light' || stored === 'dark') {
+    return stored;
+  }
+
+  const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+  return prefersDark ? 'dark' : 'light';
+};
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [mode, setMode] = useState<ThemeMode>('light');
+  const [mode, setMode] = useState<ThemeMode>(() => resolveInitialMode());
 
   useEffect(() => {
     const root = document.documentElement;
     const palette = palettes[mode];
 
+    root.dataset.theme = mode;
+
     cssVariableMap.forEach(([tokenKey, variableName]) => {
       const value = palette[tokenKey];
       root.style.setProperty(variableName, value);
     });
+
+    window.localStorage.setItem(STORAGE_KEY, mode);
   }, [mode]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) {
+      return;
+    }
+
+    const listener = (event: MediaQueryListEvent) => {
+      setMode((prev) => {
+        const next = event.matches ? 'dark' : 'light';
+        return prev === next ? prev : next;
+      });
+    };
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', listener);
+
+    return () => mediaQuery.removeEventListener('change', listener);
+  }, []);
 
   const toggleMode = () => {
     setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
