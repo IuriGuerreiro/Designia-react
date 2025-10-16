@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../state/AuthContext';
 import { useEmailRateLimit } from '../hooks/useEmailRateLimit';
+import styles from './Auth.module.css';
 
 interface EmailVerificationWarningProps {
   email: string;
@@ -62,16 +63,16 @@ const EmailVerificationWarning: React.FC<EmailVerificationWarningProps> = ({
   };
 
   return (
-    <div className="email-verification-warning">
-      <div className="warning-header">
-        <div className="warning-icon">⚠️</div>
-        <div className="warning-content">
+    <div className={styles['verification-warning']}>
+      <div className={styles['warning-header']}>
+        <div className={styles['warning-icon']}>⚠️</div>
+        <div className={styles['warning-content']}>
           <h4>Email Verification Required</h4>
-          <p className="warning-message">{message}</p>
+          <p className={styles['warning-message']}>{message}</p>
         </div>
         {onClose && (
-          <button 
-            className="warning-close" 
+          <button
+            className={styles['warning-close']}
             onClick={onClose}
             aria-label="Close warning"
           >
@@ -80,13 +81,13 @@ const EmailVerificationWarning: React.FC<EmailVerificationWarningProps> = ({
         )}
       </div>
 
-      <div className="warning-details">
-        <div className="email-info">
-          <span className="email-label">Account email:</span>
-          <span className="email-display">{email}</span>
+      <div className={styles['warning-details']}>
+        <div className={styles['email-info']}>
+          <span className={styles['email-label']}>Account email:</span>
+          <span className={styles['email-display']}>{email}</span>
         </div>
 
-        <div className="warning-instructions">
+        <div className={styles['warning-instructions']}>
           <p>
             <strong>What you need to do:</strong>
           </p>
@@ -98,37 +99,37 @@ const EmailVerificationWarning: React.FC<EmailVerificationWarningProps> = ({
         </div>
 
         {resendMessage && (
-          <div className="message success">
-            <div className="message-icon">✅</div>
-            <div className="message-text">{resendMessage}</div>
+          <div className={`${styles['message']} ${styles['success']}`}>
+            <div className={styles['message-icon']}>✅</div>
+            <div className={styles['message-text']}>{resendMessage}</div>
           </div>
         )}
 
         {resendError && (
-          <div className="message error">
-            <div className="message-icon">❌</div>
-            <div className="message-text">{resendError}</div>
+          <div className={`${styles['message']} ${styles['error']}`}>
+            <div className={styles['message-icon']}>❌</div>
+            <div className={styles['message-text']}>{resendError}</div>
           </div>
         )}
 
-        <div className="warning-actions">
+        <div className={styles['warning-actions']}>
           <button
             type="button"
-            className="auth-button"
+            className={`${styles['auth-button']} ${styles['primary']}`}
             onClick={handleResendVerification}
             disabled={isResending || !canSend}
           >
-            {isResending 
-              ? 'Resending...' 
-              : !canSend 
+            {isResending
+              ? 'Resending...'
+              : !canSend
                 ? `Resend in ${timeRemaining}s`
                 : 'Resend Verification Email'
             }
           </button>
         </div>
 
-        <div className="help-section">
-          <p className="help-text">
+        <div className={styles['help-section']}>
+          <p className={styles['help-text']}>
             <strong>Didn't receive the email?</strong> Check your spam folder or try resending the verification email.
           </p>
         </div>

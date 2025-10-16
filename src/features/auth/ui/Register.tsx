@@ -91,24 +91,30 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     return (
       <div className={styles['auth-card']}>
         <div className={styles['auth-header']}>
-          <h2 className={styles['auth-title']}>Account Created Successfully!</h2>
-          <p className={styles['auth-subtitle']}>Please check your email to verify your account</p>
+          <h2 className={styles['auth-title']}>You&apos;re almost there!</h2>
+          <p className={styles['auth-subtitle']}>
+            We&apos;ve sent a confirmation email so you can activate your new workspace.
+          </p>
         </div>
 
         <div className={styles['verification-pending-content']}>
           <div className={`${styles['message']} ${styles['success']}`}>
             {successMessage}
           </div>
-          
+
           <div className={styles['verification-actions']}>
-            <button 
-              onClick={onSwitchToLogin} 
+            <button
+              onClick={onSwitchToLogin}
               className={`${styles['auth-button']} ${styles['primary']}`}
             >
-              Continue to Sign In
+              Continue to sign in
             </button>
           </div>
         </div>
+
+        <p className={styles['auth-disclaimer']}>
+          Didn&apos;t get the email? Check your spam folder or request another from the sign-in screen.
+        </p>
       </div>
     );
   }
@@ -116,8 +122,13 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   return (
     <div className={styles['auth-card']}>
       <div className={styles['auth-header']}>
-        <h2 className={styles['auth-title']}>{t('auth.register_title') || 'Create Your Account'}</h2>
-        <p className={styles['auth-subtitle']}>{t('auth.register_subtitle') || 'Join Designia and transform your space with premium furniture'}</p>
+        <h2 className={styles['auth-title']}>{t('auth.register_title') || 'Create your Designia ID'}</h2>
+        <p className={styles['auth-subtitle']}>
+          {t('auth.register_subtitle') || 'Unlock personalized design workflows, real-time designer chat, and AR previews for every project.'}
+        </p>
+        <p className={styles['auth-meta']}>
+          {t('auth.register_meta') || 'Use your best email so we can send collaboration invites and project updates.'}
+        </p>
       </div>
 
       <form className={styles['auth-form']} onSubmit={handleSubmit}>
@@ -217,6 +228,10 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
         <button type="submit" className={`${styles['auth-button']} ${styles['primary']}`} disabled={isLoading}>
           {isLoading ? (t('auth.creating_account_button') || 'Creating Account...') : (t('auth.register_button') || 'Create Account')}
         </button>
+
+        <p className={styles['auth-meta']}>
+          {t('auth.password_hint') || 'Passwords must be at least 8 characters and include a number for designer security.'}
+        </p>
       </form>
 
       <div className={styles['auth-divider']}>
@@ -224,6 +239,10 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
       </div>
 
       <GoogleOAuth onError={setError} />
+
+      <p className={styles['auth-disclaimer']}>
+        {t('auth.register_disclaimer') || 'By creating an account you agree to our Terms and Privacy Policy.'}
+      </p>
 
       <div className={styles['auth-switch']}>
         <p className={styles['switch-text']}>

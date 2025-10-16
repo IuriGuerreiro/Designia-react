@@ -41,8 +41,11 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordRes
   return (
     <div className={styles['auth-card']}>
       <div className={styles['auth-header']}>
-        <h2 className={styles['auth-title']}>Welcome Back</h2>
-        <p className={styles['auth-subtitle']}>Sign in to access your premium Designia experience</p>
+        <h2 className={styles['auth-title']}>Welcome back to Designia</h2>
+        <p className={styles['auth-subtitle']}>
+          Pick up right where you left off, continue collaborating with your designer, and manage every order in one place.
+        </p>
+        <p className={styles['auth-meta']}>New to Designia? Switch to sign up in seconds.</p>
       </div>
 
       <div className={styles['auth-form']}>
@@ -77,23 +80,27 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordRes
         </div>
 
         <div className={styles['form-actions']}>
-          <button 
-            type="button" 
-            className={styles['link-button']} 
+          <button
+            type="button"
+            className={styles['link-button']}
             onClick={onSwitchToPasswordReset}
           >
-            Forgot Password?
+            Forgot your password?
           </button>
         </div>
 
-        <button 
-          type="button" 
-          className={`${styles['auth-button']} ${styles['primary']}`} 
+        <button
+          type="button"
+          className={`${styles['auth-button']} ${styles['primary']}`}
           disabled={isLoading}
           onClick={handleLogin}
         >
           {isLoading ? 'Signing In...' : 'Sign In'}
         </button>
+
+        <p className={styles['auth-meta']}>
+          Tip: enable two-factor authentication once you’re in for faster designer approvals.
+        </p>
       </div>
 
       <div className={styles['auth-divider']}>
@@ -102,11 +109,15 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordRes
 
       <GoogleOAuth onError={setError} />
 
+      <p className={styles['auth-disclaimer']}>
+        By continuing you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.
+      </p>
+
       <div className={styles['auth-switch']}>
         <p className={styles['switch-text']}>
           Don't have an account?{' '}
-          <button 
-            type="button" 
+          <button
+            type="button"
             className={styles['link-button']} 
             onClick={onSwitchToRegister}
           >
