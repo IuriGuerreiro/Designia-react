@@ -40,7 +40,10 @@ const EmailVerification: React.FC = () => {
     <AuthLayout>
       <div className={styles['auth-card']}>
         <div className={styles['auth-header']}>
-          <h2 className={styles['auth-title']}>Email Verification</h2>
+          <h2 className={styles['auth-title']}>Email verification</h2>
+          <p className={styles['auth-meta']}>
+            We&apos;re validating your invite and securing your workspace. Hang tight — this only takes a moment.
+          </p>
         </div>
 
         <div className={styles['verification-content']}>
@@ -53,17 +56,17 @@ const EmailVerification: React.FC = () => {
 
           {verificationStatus === 'success' && (
             <div className={styles['success-state']}>
-              <h3>Email Verified!</h3>
+              <h3>Email verified!</h3>
               <p>{message}</p>
-              <p>Redirecting to login...</p>
+              <p>You&apos;ll be redirected to sign in so you can start designing.</p>
             </div>
           )}
 
           {verificationStatus === 'error' && (
             <div className={styles['error-state']}>
-              <h3>Verification Failed</h3>
-              <p className={styles['error-message']}>{message}</p>
-              <button 
+              <h3>Verification failed</h3>
+              <p className={`${styles['message']} ${styles['error']}`}>{message}</p>
+              <button
                 onClick={() => window.location.href = '/'}
                 className={`${styles['auth-button']} ${styles['primary']}`}
               >

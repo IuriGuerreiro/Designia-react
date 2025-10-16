@@ -166,9 +166,6 @@ const GoogleOAuth: React.FC<GoogleOAuthProps> = ({ onError }) => {
   if (!isGoogleLoaded) {
     return (
       <div className={styles['google-oauth-container']}>
-        <div className={styles['auth-divider']}>
-          <span>{t('auth.google_oauth_or') || 'or'}</span>
-        </div>
         <div className={styles['google-oauth-loading']}>
           <div className={styles['spinner']}></div>
         </div>

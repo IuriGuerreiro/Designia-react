@@ -57,7 +57,12 @@ const EmailVerificationPending: React.FC = () => {
       <div className={styles['auth-card']}>
         <div className={styles['auth-header']}>
           <h2 className={styles['auth-title']}>{t('auth.check_email_title')}</h2>
-          <p className={styles['auth-subtitle']}>{fromLogin ? t('auth.verification_required') : t('auth.verify_email_continue')}</p>
+          <p className={styles['auth-subtitle']}>
+            {fromLogin ? t('auth.verification_required') : t('auth.verify_email_continue')}
+          </p>
+          <p className={styles['auth-meta']}>
+            {t('auth.verification_meta') || 'Look for a message from Designia Concierge — it may land in spam on the first go.'}
+          </p>
         </div>
 
         <div className={styles['verification-pending-content']}>

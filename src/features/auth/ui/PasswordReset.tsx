@@ -89,8 +89,17 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
   return (
     <div className={styles['auth-card']}>
       <div className={styles['auth-header']}>
-        <h2 className={styles['auth-title']}>{t('auth.password_reset_title')}</h2>
-        <p className={styles['auth-subtitle']}>{step === 'email' ? t('auth.password_reset_description_email') : t('auth.password_reset_description_verify', { email })}</p>
+        <h2 className={styles['auth-title']}>{t('auth.password_reset_title') || 'Reset your access'}</h2>
+        <p className={styles['auth-subtitle']}>
+          {step === 'email'
+            ? t('auth.password_reset_description_email') || 'Enter the email linked to your account and we will send a secure reset link.'
+            : t('auth.password_reset_description_verify', { email }) || `Enter the 6-digit code sent to ${email} and choose a new password.`}
+        </p>
+        <p className={styles['auth-meta']}>
+          {step === 'email'
+            ? 'We use reset codes that expire after 10 minutes to keep your studio safe.'
+            : 'Codes refresh with every request. Resend if you need a fresh one.'}
+        </p>
       </div>
 
       <div className={styles['auth-form']}>
@@ -154,9 +163,9 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
           </>
         )}
 
-        <button 
-          type="button" 
-          className={`${styles['auth-button']} ${styles['primary']}`} 
+        <button
+          type="button"
+          className={`${styles['auth-button']} ${styles['primary']}`}
           disabled={isLoading}
           onClick={step === 'email' ? handleRequestReset : handleResetPassword}
         >
@@ -164,9 +173,13 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
         </button>
       </div>
 
+      <p className={styles['auth-disclaimer']}>
+        Having trouble? Reach our support team at <a href="mailto:support@designia.com">support@designia.com</a> and we&apos;ll help you get back in.
+      </p>
+
       <div className={styles['auth-switch']}>
         <p className={styles['switch-text']}>
-          <button 
+          <button
             type="button" 
             className={styles['link-button']} 
             onClick={onBackToLogin}
