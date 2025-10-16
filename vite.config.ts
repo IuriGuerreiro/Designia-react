@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
+  const env = loadEnv(mode, process.cwd())
 
   return {
     plugins: [react()],
@@ -24,18 +24,31 @@ export default defineConfig(({ mode }) => {
         ...(env.VITE_DOCKER_HOST ? [env.VITE_DOCKER_HOST] : [])
       ],
       headers: {
-        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+        //'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
         'Cross-Origin-Embedder-Policy': 'unsafe-none',
-        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://connect-js.stripe.com https://accounts.google.com https://apis.google.com; script-src-elem 'self' 'unsafe-inline' https://js.stripe.com https://connect-js.stripe.com https://accounts.google.com https://apis.google.com; connect-src 'self' https://api.stripe.com https://connect-js.stripe.com https://accounts.google.com http://192.168.3.2:8001 http://localhost:8001 ws://192.168.3.2:8001 ws://localhost:8001; frame-src 'self' https://js.stripe.com https://connect-js.stripe.com https://hooks.stripe.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:;",
         'Permissions-Policy': 'identity-credentials-get=*, publickey-credentials-get=*, storage-access=*',
-        'Referrer-Policy': 'strict-origin-when-cross-origin'
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Content-Security-Policy':
+          "default-src 'self'; " +
+          "worker-src 'self' blob:; " +
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://connect-js.stripe.com https://accounts.google.com https://apis.google.com; " +
+          "script-src-elem 'self' 'unsafe-inline' https://js.stripe.com https://connect-js.stripe.com https://accounts.google.com https://apis.google.com; " +
+          `connect-src 'self' https://api.stripe.com https://connect-js.stripe.com https://accounts.google.com ${env.VITE_API_BASE_URL} ${env.VITE_WS_BASE_URL}; ` +
+          "frame-src 'self' https://js.stripe.com https://connect-js.stripe.com https://hooks.stripe.com https://accounts.google.com; " +
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; " +
+          "font-src 'self' https://fonts.gstatic.com; " +
+          "img-src 'self' data: blob: https:;",
       },
       proxy: {
         '/api': {
-          target: 'http://192.168.3.2:8001',
+          target: process.env.VITE_API_URL,
           changeOrigin: true,
-          secure: false
-        }
+        },
+        '/ws': {
+          target: process.env.VITE_WS_URL,
+          ws: true,
+        },
+
       }
     }
   }
