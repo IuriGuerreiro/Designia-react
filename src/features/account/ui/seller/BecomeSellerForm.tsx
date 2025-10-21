@@ -90,7 +90,7 @@ const BecomeSellerForm: React.FC = () => {
             </p>
             <button
               type="button"
-              className={styles['seller-btn-secondary']}
+              className={cx(styles['seller-btn'], styles['seller-btn-secondary'])}
               onClick={() => navigate('/settings')}
             >
               Go to Settings to Enable 2FA
@@ -189,7 +189,7 @@ const BecomeSellerForm: React.FC = () => {
           <div className={styles['seller-form-actions']}>
             <button
               type="button"
-              className={styles['seller-btn-secondary']}
+              className={cx(styles['seller-btn'], styles['seller-btn-secondary'])}
               onClick={() => navigate(-1)}
               disabled={isLoading}
             >
@@ -197,7 +197,7 @@ const BecomeSellerForm: React.FC = () => {
             </button>
             <button
               type="submit"
-              className={styles['seller-btn-primary']}
+              className={cx(styles['seller-btn'], styles['seller-btn-primary'])}
               disabled={isLoading}
             >
               {isLoading ? 'Submitting...' : 'Submit Application'}

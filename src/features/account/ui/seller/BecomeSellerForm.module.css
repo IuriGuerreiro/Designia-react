@@ -1,66 +1,72 @@
-/* BecomeSellerForm.css - Designia Design System Implementation */
-
 .become-seller-page {
-  max-width: 800px;
+  max-width: 880px;
   margin: 0 auto;
-  padding: var(--space-2xl) var(--space-lg);
+  padding: var(--space-2xl, 3rem) var(--space-lg, 1.5rem) var(--space-3xl, 4rem);
+  display: grid;
+  gap: var(--space-2xl, 3rem);
 }
 
 .seller-form-header {
+  background: var(--surface-glass, rgba(255, 255, 255, 0.85));
+  border-radius: calc(var(--border-radius, 12px) * 1.1);
+  padding: var(--space-2xl, 3rem) var(--space-2xl, 3rem) var(--space-xl, 2rem);
+  box-shadow: var(--shadow, 0 8px 24px rgba(15, 23, 42, 0.12));
+  border: 1px solid var(--border-soft, rgba(229, 231, 235, 0.45));
   text-align: center;
-  margin-bottom: var(--space-3xl);
-  padding: var(--space-2xl) 0;
+  backdrop-filter: blur(18px);
 }
 
 .seller-form-header h1 {
-  color: var(--designia-deep, #0A0A0A);
-  margin-bottom: var(--space-md);
-  font-family: 'Playfair Display', serif;
-  font-weight: 600;
+  margin-bottom: var(--space-sm, 0.5rem);
 }
 
 .seller-form-header p {
-  color: var(--designia-slate, #374151);
-  max-width: 600px;
+  color: var(--color-text-muted, #6b7280);
+  max-width: 540px;
   margin: 0 auto;
-  line-height: 1.6;
-}
-
-.premium-form {
-  background: var(--designia-white, #FFFFFF);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(107, 114, 128, 0.15);
-  border: 1px solid var(--designia-silver, #9CA3AF);
-  overflow: hidden;
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
 .alertError,
 .alertSuccess {
-  border-radius: 12px;
-  padding: var(--space-lg);
-  margin-bottom: var(--space-xl);
+  border-radius: var(--border-radius-sm, 8px);
+  padding: var(--space-lg, 1.5rem);
   font-weight: 500;
+  display: grid;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(15, 23, 42, 0.12));
+  border: 1px solid transparent;
 }
 
 .alertError {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  color: #991b1b;
-  border: 1px solid #f87171;
-}
-
-.alertError button {
-  margin-top: var(--space-md);
+  background: color-mix(in srgb, var(--color-error, #dc2626) 16%, transparent);
+  border-color: color-mix(in srgb, var(--color-error, #dc2626) 32%, transparent);
+  color: color-mix(in srgb, var(--color-error, #dc2626) 88%, #ffffff 12%);
 }
 
 .alertSuccess {
-  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-  color: #166534;
-  border: 1px solid #22c55e;
+  background: color-mix(in srgb, var(--color-success, #16a34a) 14%, transparent);
+  border-color: color-mix(in srgb, var(--color-success, #16a34a) 28%, transparent);
+  color: color-mix(in srgb, var(--color-success, #16a34a) 80%, #ffffff 20%);
+}
+
+.premium-form {
+  background: var(--surface-glass, rgba(255, 255, 255, 0.88));
+  border-radius: calc(var(--border-radius, 12px) * 1.05);
+  overflow: hidden;
+  border: 1px solid var(--border-soft, rgba(229, 231, 235, 0.45));
+  box-shadow: var(--shadow-lg, 0 16px 40px rgba(15, 23, 42, 0.16));
+  backdrop-filter: blur(22px);
+  display: grid;
 }
 
 .form-section {
-  padding: var(--space-2xl);
-  border-bottom: 1px solid var(--designia-platinum, #F5F5F5);
+  padding: var(--space-2xl, 3rem);
+  display: grid;
+  gap: var(--space-xl, 2rem);
+  border-bottom: 1px solid var(--border-soft, rgba(229, 231, 235, 0.45));
+  background: var(--surface-subtle, rgba(241, 243, 244, 0.65));
 }
 
 .form-section:last-of-type {
@@ -68,208 +74,148 @@
 }
 
 .seller-section-header {
-  margin-bottom: var(--space-xl);
-  text-align: center;
+  display: grid;
+  gap: 0.5rem;
+  text-align: left;
 }
 
 .seller-section-header h2 {
-  color: var(--designia-deep, #0A0A0A);
-  margin-bottom: var(--space-sm);
-  font-family: 'Playfair Display', serif;
-  font-weight: 600;
-}
-
-.seller-section-header p {
-  color: var(--designia-steel, #6B7280);
-  font-size: var(--body-md, 16px);
   margin: 0;
 }
 
-
-.seller-form-group {
-  margin-bottom: var(--space-xl);
+.seller-section-header p {
+  color: var(--color-text-muted, #6b7280);
+  margin: 0;
+  font-size: 0.95rem;
 }
 
+.seller-form-group,
 .formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xl);
+  display: grid;
+  gap: 0.65rem;
 }
 
 .form-label {
-  display: block;
-  color: var(--designia-deep, #0A0A0A);
-  font-weight: 500;
-  margin-bottom: var(--space-sm);
-  font-size: var(--label, 14px);
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--color-text-secondary, #374151);
 }
 
 .input-field {
   width: 100%;
-  background: var(--designia-white, #FFFFFF);
-  border: 2px solid var(--designia-platinum, #E5E7EB);
-  border-radius: 8px;
-  padding: var(--space-md);
-  font-size: var(--body-md, 16px);
-  font-family: 'Inter', sans-serif;
-  transition: all 0.2s ease;
-  color: var(--designia-deep, #0A0A0A);
+  border: 1px solid var(--border-soft, rgba(229, 231, 235, 0.45));
+  border-radius: var(--border-radius-sm, 8px);
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  background: var(--surface-highlight, rgba(255, 255, 255, 0.94));
+  color: var(--color-text-primary, #111827);
+  transition: border-color var(--transition-base, 0.2s ease), box-shadow var(--transition-base, 0.2s ease),
+    transform var(--transition-base, 0.2s ease);
 }
 
 .input-field:focus {
-  border-color: var(--designia-deep, #0A0A0A);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.1);
+  border-color: var(--color-accent, #111827);
+  box-shadow: var(--focus-ring-shadow, 0 0 0 3px rgba(17, 24, 39, 0.12));
   transform: translateY(-1px);
 }
 
 .input-field::placeholder {
-  color: var(--designia-steel, #6B7280);
+  color: var(--color-text-muted, #6b7280);
   opacity: 0.7;
 }
 
 .textarea-field {
-  resize: vertical;
-  min-height: 120px;
+  min-height: 140px;
   line-height: 1.6;
+  resize: vertical;
 }
 
 .form-hint {
-  color: var(--designia-steel, #6B7280);
-  font-size: var(--body-sm, 14px);
-  margin-top: var(--space-xs);
-  margin-bottom: var(--space-md);
-  font-style: italic;
+  color: var(--color-text-muted, #6b7280);
+  font-size: 0.85rem;
+  margin: -0.25rem 0 0;
 }
 
 .upload-container {
-  background: var(--designia-platinum, #F5F5F5);
-  border: 2px dashed var(--designia-silver, #9CA3AF);
-  border-radius: 8px;
-  padding: var(--space-lg);
-  text-align: center;
-  transition: all 0.2s ease;
-}
-
-.upload-container:hover {
-  border-color: var(--designia-deep, #0A0A0A);
-  background: var(--designia-white, #FFFFFF);
+  border-radius: var(--border-radius-sm, 8px);
+  background: var(--surface-muted, rgba(229, 231, 235, 0.18));
+  border: 1px dashed var(--border-soft, rgba(229, 231, 235, 0.45));
+  padding: var(--space-lg, 1.5rem);
 }
 
 .seller-form-actions {
   display: flex;
-  gap: var(--space-md);
-  justify-content: center;
-  padding: var(--space-2xl);
-  background: var(--designia-platinum, #F5F5F5);
+  flex-wrap: wrap;
+  gap: var(--space-md, 1rem);
+  justify-content: flex-end;
+  padding: var(--space-xl, 2rem) var(--space-2xl, 3rem);
+  background: var(--surface-highlight, rgba(255, 255, 255, 0.92));
 }
 
 .seller-btn {
-  padding: var(--space-md) var(--space-xl);
-  border-radius: 8px;
-  font-size: var(--button, 16px);
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
-  border: none;
+  padding: 0.85rem 1.8rem;
+  border-radius: var(--border-radius-sm, 8px);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: var(--font-sans, 'Inter', sans-serif);
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 48px;
+  transition: transform var(--transition-base, 0.2s ease), box-shadow var(--transition-base, 0.2s ease),
+    background var(--transition-base, 0.2s ease), color var(--transition-base, 0.2s ease);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
-  min-width: 140px;
+  min-width: 160px;
 }
 
 .seller-btn-primary {
-  background: var(--designia-deep, #0A0A0A);
-  color: var(--designia-white, #FFFFFF);
-  box-shadow: 0 2px 8px rgba(10, 10, 10, 0.2);
+  composes: seller-btn;
+  background: var(--gradient-button, linear-gradient(135deg, #1f2937 0%, #111827 100%));
+  color: var(--color-accent-contrast, #ffffff);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(15, 23, 42, 0.12));
+  border: none;
 }
 
 .seller-btn-primary:hover {
-  background: var(--designia-charcoal, #1A1A1A);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.3);
+  box-shadow: var(--shadow, 0 8px 24px rgba(15, 23, 42, 0.18));
 }
 
 .seller-btn-secondary {
+  composes: seller-btn;
   background: transparent;
-  color: var(--designia-deep, #0A0A0A);
-  border: 2px solid var(--designia-deep, #0A0A0A);
+  border: 1px solid var(--border-soft, rgba(229, 231, 235, 0.45));
+  color: var(--color-text-secondary, #374151);
 }
 
 .seller-btn-secondary:hover {
-  background: var(--designia-deep, #0A0A0A);
-  color: var(--designia-white, #FFFFFF);
   transform: translateY(-2px);
+  color: var(--color-accent, #111827);
+  border-color: var(--color-accent, #111827);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .become-seller-page {
-    padding: var(--space-lg) var(--space-md);
+    padding: var(--space-xl, 2rem) var(--space-md, 1rem) var(--space-2xl, 3rem);
   }
-  
-  .form-section {
-    padding: var(--space-xl) var(--space-lg);
-  }
-  
-  .seller-form-actions {
-    flex-direction: column;
-    gap: var(--space-sm);
-  }
-  
-  .seller-btn {
-    width: 100%;
-  }
-}
 
-@media (max-width: 480px) {
   .seller-form-header {
-    margin-bottom: var(--space-2xl);
-    padding: var(--space-xl) 0;
+    padding: var(--space-xl, 2rem) var(--space-lg, 1.5rem);
   }
-  
-  .seller-form-header h1 {
-    font-size: 32px;
-    line-height: 40px;
-  }
-  
-  .seller-form-header p {
-    font-size: var(--body-md, 16px);
-  }
-}
 
-/* CSS Custom Properties for Design System Colors */
-:root {
-  --designia-deep: #0A0A0A;
-  --designia-white: #FFFFFF;
-  --designia-charcoal: #1A1A1A;
-  --designia-platinum: #F5F5F5;
-  --designia-steel: #6B7280;
-  --designia-slate: #374151;
-  --designia-silver: #9CA3AF;
-  --designia-success: #10B981;
-  --designia-warning: #F59E0B;
-  --designia-error: #EF4444;
-  
-  /* Spacing Scale */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
-  --space-3xl: 64px;
-  
-  /* Typography Scale */
-  --body-sm: 14px;
-  --body-md: 16px;
-  --body-lg: 18px;
-  --label: 14px;
-  --button: 16px;
+  .form-section {
+    padding: var(--space-xl, 2rem) var(--space-lg, 1.5rem);
+  }
+
+  .seller-form-actions {
+    justify-content: center;
+    padding: var(--space-lg, 1.5rem);
+  }
+
+  .seller-btn {
+    flex: 1 1 100%;
+  }
 }
