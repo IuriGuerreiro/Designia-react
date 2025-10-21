@@ -1,0 +1,100 @@
+.wrapper {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+  background: var(--gradient-canvas);
+}
+
+.surface {
+  width: min(640px, 100%);
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(2rem, 5vw, 3rem);
+  border-radius: clamp(18px, 2vw, 28px);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-glass);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: var(--surface-highlight);
+  border: 1px solid var(--border-soft);
+  font-size: 2rem;
+  color: var(--color-accent);
+  margin: 0 auto;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.75rem, 3.5vw, 2.4rem);
+  font-family: var(--font-serif);
+  color: var(--color-text-primary);
+}
+
+.copy {
+  margin: 0 auto;
+  max-width: 460px;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.details {
+  text-align: left;
+  padding: 1rem 1.25rem;
+  border-radius: var(--border-radius);
+  border: 1px dashed var(--border-soft);
+  background: var(--surface-muted);
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.details[open] {
+  border-style: solid;
+  border-color: var(--border-stronger);
+}
+
+.details pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'Fira Code', 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+}
+
+.actions a {
+  text-decoration: none;
+}
+
+@media (max-width: 600px) {
+  .surface {
+    text-align: left;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

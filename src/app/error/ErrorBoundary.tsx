@@ -1,4 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+
+import styles from './ErrorFallback.module.css';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -31,17 +34,33 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
-          <h2>Something went wrong.</h2>
-          <p>Please refresh the page or try again later.</p>
-          {this.state.error && (
-            <details style={{ marginTop: '1rem', whiteSpace: 'pre-wrap' }}>
-              {this.state.error.toString()}
-            </details>
-          )}
-          <button type="button" onClick={this.handleReload} style={{ marginTop: '1.5rem' }}>
-            Reload page
-          </button>
+        <div className={styles.wrapper} role="alert">
+          <div className={styles.surface}>
+            <span className={styles.icon} aria-hidden="true">
+              ⚠️
+            </span>
+            <h1 className={styles.title}>Something went wrong.</h1>
+            <p className={styles.copy}>
+              We hit an unexpected issue while loading this experience. Try refreshing the page or
+              return to the marketplace overview.
+            </p>
+
+            <div className={styles.actions}>
+              <button type="button" onClick={this.handleReload} className="btn btn-primary">
+                Reload page
+              </button>
+              <Link to="/" className="btn btn-secondary">
+                Go to homepage
+              </Link>
+            </div>
+
+            {this.state.error && (
+              <details className={styles.details}>
+                <summary>Technical details</summary>
+                <pre>{`${this.state.error.message}\n${this.state.error.stack ?? ''}`}</pre>
+              </details>
+            )}
+          </div>
         </div>
       );
     }
