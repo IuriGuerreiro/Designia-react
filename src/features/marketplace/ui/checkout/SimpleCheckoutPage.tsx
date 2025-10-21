@@ -8,7 +8,7 @@ import { paymentService } from '@/features/payments/api';
 import { useCart } from '@/shared/state/CartContext';
 import { Layout } from '@/app/layout';
 import { useSearchParams } from 'react-router-dom';
-import './Checkout.css';
+import styles from './Checkout.module.css';
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
@@ -65,57 +65,86 @@ const SimpleCheckoutPage = () => {
 
   return (
     <Layout maxWidth="full">
-      <div className="checkout-container">
-
-        {/* Error Display */}
-        {error && (
-          <div className="checkout-error">
-            <div className="error-icon">⚠️</div>
-            <div className="error-content">
-              <h3 className="error-title">Checkout Error</h3>
-              <p className="error-message">{error}</p>
+      <div className={styles.checkoutShell}>
+        <section className={styles.hero}>
+          <div className={styles.heroContent}>
+            <span className={styles.heroEyebrow}>Designia Checkout</span>
+            <h1 className={styles.heroTitle}>Secure monochrome checkout, designed to feel effortless.</h1>
+            <p className={styles.heroSubtitle}>
+              Review your order and complete payment with our encrypted checkout powered by Stripe. Switch themes at any time—
+              your experience stays consistent and calm.
+            </p>
+            <div className={styles.heroMeta}>
+              <div className={styles.heroStat}>
+                <span>Average completion</span>
+                <strong>2m 15s</strong>
+              </div>
+              <div className={styles.heroStat}>
+                <span>Protection</span>
+                <strong>3D Secure</strong>
+              </div>
+              <div className={styles.heroStat}>
+                <span>Support</span>
+                <strong>24/7</strong>
+              </div>
             </div>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="retry-checkout-btn"
+            {retryOrderId && (
+              <div className={styles.retryBanner}>
+                <div className={styles.retryBadge}>↻</div>
+                <div className={styles.retryCopy}>
+                  <strong>Retrying payment for order #{retryOrderId.slice(-8)}</strong>
+                  <span>We have everything ready. Confirm the payment below to continue.</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {error && (
+          <div className={styles.errorBanner}>
+            <div className={styles.errorIcon}>!</div>
+            <div className={styles.errorCopy}>
+              <h3 className={styles.errorTitle}>We couldn&apos;t start checkout</h3>
+              <p className={styles.errorMessage}>{error}</p>
+            </div>
+            <button
+              type="button"
+              className={styles.errorAction}
+              onClick={() => window.location.reload()}
             >
-              🔄 Try Again
+              Try again
             </button>
           </div>
         )}
-        <EmbeddedCheckoutProvider
-                stripe={stripePromise}
-                options={options}
-        >
-          <EmbeddedCheckout />
-        </EmbeddedCheckoutProvider>
 
-        {/* Help Section */}
-        <div className="checkout-help">
-          <div className="help-card">
-            <h3 className="help-title">Need Help?</h3>
-            <p className="help-description">
-              If you encounter any issues during checkout, our support team is here to help.
-            </p>
-            <div className="help-actions">
-              <a href="mailto:support@designia.com" className="help-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-                Contact Support
-              </a>
-              <a href="/faq" className="help-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-                FAQ
-              </a>
-            </div>
-          </div>
+        <div className={styles.embeddedCard}>
+          <EmbeddedCheckoutProvider stripe={stripePromise} options={options}>
+            <EmbeddedCheckout />
+          </EmbeddedCheckoutProvider>
         </div>
+
+        <section className={styles.supportCard}>
+          <div>
+            <h2 className={styles.supportTitle}>Need a hand?</h2>
+            <p className={styles.supportCopy}>
+              Our concierge team is ready to help with payment questions, invoices, or delivery updates. Reach out anytime.
+            </p>
+          </div>
+          <div className={styles.supportActions}>
+            <a className={styles.supportLink} href="mailto:support@designia.com">
+              <span aria-hidden>✉️</span>
+              Contact support
+            </a>
+            <a className={styles.supportLink} href="/faq">
+              <span aria-hidden>📘</span>
+              Explore FAQs
+            </a>
+            <a className={styles.supportLink} href="/policies/security">
+              <span aria-hidden>🛡️</span>
+              Security policy
+            </a>
+          </div>
+        </section>
       </div>
     </Layout>
   );

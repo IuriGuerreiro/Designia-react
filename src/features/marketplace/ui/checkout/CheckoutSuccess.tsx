@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import { apiRequest, API_ENDPOINTS } from '@/shared/api';
 import { useCart } from '@/shared/state/CartContext';
+import styles from './CheckoutSuccess.module.css';
 
 const CheckoutSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -63,8 +64,14 @@ const CheckoutSuccess: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <div>🔄 Verifying your payment...</div>
+        <div className={styles.page}>
+          <div className={styles.card}>
+            <div className={`${styles.stateIcon} ${styles.pending}`} aria-hidden>
+              ⏳
+            </div>
+            <h1 className={styles.title}>Verifying your payment</h1>
+            <p className={styles.subtitle}>We&apos;re confirming details with Stripe. This only takes a moment.</p>
+          </div>
         </div>
       </Layout>
     );
@@ -73,98 +80,98 @@ const CheckoutSuccess: React.FC = () => {
   if (error || !sessionStatus) {
     return (
       <Layout>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <h1>❌ Payment Verification Failed</h1>
-          <p>{error || 'Unable to verify payment status'}</p>
-          <button onClick={() => navigate('/cart')} style={{ padding: '0.5rem 1rem', marginTop: '1rem' }}>
-            Return to Cart
-          </button>
+        <div className={styles.page}>
+          <div className={styles.card}>
+            <div className={`${styles.stateIcon} ${styles.pending}`} aria-hidden>
+              ⚠️
+            </div>
+            <h1 className={styles.title}>We couldn&apos;t verify the payment</h1>
+            <p className={styles.subtitle}>{error || 'Unable to confirm your session. Try again from your cart.'}</p>
+            <div className={styles.actions}>
+              <button type="button" className={styles.primary} onClick={() => navigate('/cart')}>
+                Return to cart
+              </button>
+              <button type="button" className={styles.secondary} onClick={() => window.location.reload()}>
+                Retry verification
+              </button>
+            </div>
+          </div>
         </div>
       </Layout>
     );
   }
 
   const isPaymentSuccessful = sessionStatus.payment_status === 'paid';
+  const formattedAmount = sessionStatus.amount_total ? (sessionStatus.amount_total / 100).toFixed(2) : '0.00';
 
   return (
     <Layout>
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        {isPaymentSuccessful ? (
-          <>
-            <h1>🎉 Payment Successful!</h1>
-            <p>Thank you for your purchase!</p>
-            
-            {/* Cart refresh status */}
-            {cartRefreshed && (
-              <div
-                style={{
-                  backgroundColor: 'color-mix(in srgb, var(--color-text-secondary) 12%, var(--color-surface) 88%)',
-                  padding: '0.75rem',
-                  borderRadius: '0.75rem',
-                  margin: '0.5rem 0',
-                  fontSize: '0.9rem',
-                  color: 'var(--color-text-secondary)'
-                }}
-              >
-                🛒 Your cart has been updated and is ready for your next purchase!
-              </div>
-            )}
+      <div className={styles.page}>
+        <div className={styles.card}>
+          <div
+            className={`${styles.stateIcon} ${isPaymentSuccessful ? '' : styles.pending}`.trim()}
+            aria-hidden
+          >
+            {isPaymentSuccessful ? '🎉' : '⏳'}
+          </div>
+          <h1 className={styles.title}>
+            {isPaymentSuccessful ? 'Payment confirmed!' : 'Payment is still processing'}
+          </h1>
+          <p className={styles.subtitle}>
+            {isPaymentSuccessful
+              ? 'Thank you for choosing Designia. Your order details are on their way to your inbox.'
+              : 'Your payment is being finalised with Stripe. We will email you as soon as the confirmation arrives.'}
+          </p>
 
-            <div
-              style={{
-                backgroundColor: 'color-mix(in srgb, var(--color-success) 18%, var(--color-surface) 82%)',
-                padding: '1rem',
-                borderRadius: '0.75rem',
-                margin: '1rem 0',
-                display: 'inline-block',
-                color: 'var(--color-success)'
-              }}
-            >
-              <p><strong>Session ID:</strong> {sessionId}</p>
-              <p><strong>Amount:</strong> ${(sessionStatus.amount_total / 100).toFixed(2)}</p>
-              <p><strong>Email:</strong> {sessionStatus.customer_email}</p>
-            </div>
-            <div>
-              <button onClick={() => navigate('/marketplace')} style={{ padding: '0.5rem 1rem', margin: '0.5rem' }}>
-                Continue Shopping
-              </button>
-              <button
-                onClick={() => navigate('/orders')}
-                style={{
-                  padding: '0.5rem 1rem',
-                  margin: '0.5rem',
-                  background: 'var(--gradient-button)',
-                  color: 'var(--color-accent-contrast)',
-                  border: 'none',
-                  borderRadius: '999px'
-                }}
-              >
-                View My Orders
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <h1>⚠️ Payment Processing</h1>
-            <p>Your payment is being processed. Please check back shortly.</p>
-            <div
-              style={{
-                backgroundColor: 'color-mix(in srgb, var(--color-warning) 18%, var(--color-surface) 82%)',
-                padding: '1rem',
-                borderRadius: '0.75rem',
-                margin: '1rem 0',
-                display: 'inline-block',
-                color: 'var(--color-warning)'
-              }}
-            >
-              <p><strong>Status:</strong> {sessionStatus.status}</p>
-              <p><strong>Payment Status:</strong> {sessionStatus.payment_status}</p>
-            </div>
-            <button onClick={() => window.location.reload()} style={{ padding: '0.5rem 1rem', margin: '0.5rem' }}>
-              Refresh Status
+          <div className={styles.metaCard}>
+            <ul className={styles.metaList}>
+              <li className={styles.metaItem}>
+                <span>Session ID</span>
+                <strong>{sessionId}</strong>
+              </li>
+              <li className={styles.metaItem}>
+                <span>Amount</span>
+                <strong>${formattedAmount}</strong>
+              </li>
+              {sessionStatus.customer_email && (
+                <li className={styles.metaItem}>
+                  <span>Receipt sent to</span>
+                  <strong>{sessionStatus.customer_email}</strong>
+                </li>
+              )}
+              <li className={styles.metaItem}>
+                <span>Stripe status</span>
+                <strong>{sessionStatus.payment_status}</strong>
+              </li>
+            </ul>
+          </div>
+
+          {cartRefreshed && (
+            <p className={styles.note}>
+              🛒 Your cart has been refreshed and is ready for your next styling session.
+            </p>
+          )}
+
+          {!isPaymentSuccessful && (
+            <p className={`${styles.note} ${styles.pendingNote}`}>
+              We&apos;re still waiting for confirmation. Feel free to stay on this page or refresh in a few seconds.
+            </p>
+          )}
+
+          <div className={styles.actions}>
+            <button type="button" className={styles.primary} onClick={() => navigate('/marketplace')}>
+              Continue shopping
             </button>
-          </>
-        )}
+            <button type="button" className={styles.secondary} onClick={() => navigate('/orders')}>
+              View my orders
+            </button>
+            {!isPaymentSuccessful && (
+              <button type="button" className={styles.secondary} onClick={() => window.location.reload()}>
+                Refresh status
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </Layout>
   );
