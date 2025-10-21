@@ -1,33 +1,42 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/app/layout';
-import './Checkout.css';
+import styles from './Checkout.module.css';
 
 const PaymentPage: React.FC = () => {
   return (
     <Layout>
-      <div className="checkout-page-container">
-        <h2>Payment</h2>
-        <div className="standard-form">
-          <div className="form-group">
-            <label htmlFor="cardNumber">Card Number</label>
-            <input type="text" id="cardNumber" name="cardNumber" placeholder="**** **** **** ****" required />
+      <div className={styles.checkoutShell}>
+        <section className={styles.formShell}>
+          <div>
+            <span className={styles.heroEyebrow}>Manual payment</span>
+            <h2>Enter your card details</h2>
+            <p className={styles.supportCopy}>
+              Prefer a manual checkout? Add your card securely below. Payments are processed with industry-standard
+              encryption and never stored on Designia servers.
+            </p>
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="expiry">Expiry Date</label>
-              <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required />
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel} htmlFor="cardNumber">Card number</label>
+              <input className={styles.formInput} type="text" id="cardNumber" name="cardNumber" placeholder="•••• •••• •••• ••••" required />
             </div>
-            <div className="form-group">
-              <label htmlFor="cvc">CVC</label>
-              <input type="text" id="cvc" name="cvc" placeholder="***" required />
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel} htmlFor="expiry">Expiry</label>
+                <input className={styles.formInput} type="text" id="expiry" name="expiry" placeholder="MM / YY" required />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel} htmlFor="cvc">CVC</label>
+                <input className={styles.formInput} type="text" id="cvc" name="cvc" placeholder="•••" required />
+              </div>
             </div>
           </div>
-          <div className="form-actions">
-            <Link to="/checkout" className="btn btn-secondary">Back to Shipping</Link>
-            <button className="btn btn-primary">Pay Now</button>
+          <div className={styles.formActions}>
+            <Link to="/checkout" className={styles.secondaryAction}>Back to checkout</Link>
+            <button type="submit" className={styles.primaryAction}>Pay now</button>
           </div>
-        </div>
+        </section>
       </div>
     </Layout>
   );

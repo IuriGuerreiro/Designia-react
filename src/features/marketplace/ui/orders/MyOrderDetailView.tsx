@@ -4,7 +4,7 @@ import { Layout } from '@/app/layout';
 import { useTranslation } from 'react-i18next';
 import { orderService } from '@/features/marketplace/api';
 import { type Order } from '@/features/marketplace/model';
-import './OrderDetail.css';
+import './Orders.css';
 
 const MyOrderDetailView: React.FC = () => {
   const { t } = useTranslation();
