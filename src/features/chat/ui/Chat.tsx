@@ -85,10 +85,16 @@ export const Chat: FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom when new messages arrive (within container only)
   useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      return;
+    }
+    // Fallback for safety
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [messages, selectedChat?.id]);
 

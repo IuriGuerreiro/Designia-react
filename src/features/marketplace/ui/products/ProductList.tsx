@@ -58,10 +58,9 @@ const ProductFilters: React.FC<{
             Clear
           </button>
           <button className="filters-close" onClick={onClose} type="button" aria-label="Close filters">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <span className="material-symbols-outlined" aria-hidden="true">
+              close
+            </span>
           </button>
         </div>
       </div>
@@ -72,16 +71,40 @@ const ProductFilters: React.FC<{
           <input
             type="number"
             placeholder="Min"
-            value={filters.min_price || ''}
-            onChange={(e) => handleFilterChange('min_price', e.target.value ? Number(e.target.value) : undefined)}
+            min={0}
+            step={1}
+            value={filters.min_price ?? ''}
+            onKeyDown={(e) => {
+              if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === '') return handleFilterChange('min_price', undefined);
+              const n = Math.max(0, Number(val));
+              handleFilterChange('min_price', Number.isNaN(n) ? undefined : n);
+            }}
             className="price-input"
           />
           <span>-</span>
           <input
             type="number"
             placeholder="Max"
-            value={filters.max_price || ''}
-            onChange={(e) => handleFilterChange('max_price', e.target.value ? Number(e.target.value) : undefined)}
+            min={0}
+            step={1}
+            value={filters.max_price ?? ''}
+            onKeyDown={(e) => {
+              if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === '') return handleFilterChange('max_price', undefined);
+              const n = Math.max(0, Number(val));
+              handleFilterChange('max_price', Number.isNaN(n) ? undefined : n);
+            }}
             className="price-input"
           />
         </div>
@@ -443,11 +466,23 @@ const ProductList: React.FC = () => {
                   disabled={loading}
                   aria-controls="marketplace-filters"
                   aria-expanded={showFilters}
+                  aria-label={showFilters ? 'Close filters' : 'Open filters'}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 4H21V6.172L13.172 14H10.828L3 6.172V4ZM3 18V20H21V18L13.172 10H10.828L3 18Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Filters
+                  {showFilters ? (
+                    <>
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        close
+                      </span>
+                      Close
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        tune
+                      </span>
+                      Filters
+                    </>
+                  )}
                   {activeFiltersCount > 0 && <span className="filters-badge">{activeFiltersCount}</span>}
                 </button>
                 <ProductSort sortBy={sortBy} onSortChange={setSortBy} disabled={loading} />

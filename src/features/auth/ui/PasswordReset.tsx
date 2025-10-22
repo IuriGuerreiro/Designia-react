@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { API_ENDPOINTS } from '@/shared/api';
 import ErrorMessage from './ErrorMessage';
 import styles from './Auth.module.css';
+import settingsStyles from '@/features/account/ui/settings/Settings.module.css';
 
 interface PasswordResetProps {
   onBackToLogin: () => void;
@@ -34,13 +35,23 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({} as any));
       if (response.ok) {
         setSuccess(data.message);
         setUserId(data.user_id);
         setStep('verify');
+      } else if (response.status === 429) {
+        // Too many requests — show verify screen anyway (code likely already sent)
+        setSuccess(
+          (data && data.message) || 'A recent code was already sent. Please check your email and enter the code.'
+        );
+        // Keep existing userId if already set from a previous successful request
+        if (typeof data.user_id === 'number') {
+          setUserId(data.user_id);
+        }
+        setStep('verify');
       } else {
-        setError(data.error || 'Failed to send reset code.');
+        setError((data && data.error) || 'Failed to send reset code.');
       }
     } catch (err) {
       setError('Network error. Please try again.');
@@ -121,56 +132,73 @@ const PasswordReset: React.FC<PasswordResetProps> = ({ onBackToLogin }) => {
             />
           </div>
         ) : (
-          <>
-            <div className={styles['form-group']}>
-              <label htmlFor="code" className={styles['form-label']}>{t('auth.verification_code_label')}</label>
-              <input
-                id="code"
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="000000"
-                maxLength={6}
-                disabled={isLoading}
-                className={`${styles['form-input']} ${styles['code-input']} ${styles['auth-input-verification']}`}
-              />
+          <div className={settingsStyles.settingsCard}>
+            <div className={settingsStyles.accountInfo}>
+              <div className={settingsStyles.infoGroup}>
+                <label htmlFor="code">{t('auth.verification_code_label')}</label>
+                <input
+                  id="code"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  title="Enter 6 digits"
+                  autoComplete="one-time-code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="000000"
+                  maxLength={6}
+                  disabled={isLoading}
+                />
+              </div>
+              <div className={settingsStyles.infoGroup}>
+                <label htmlFor="password">{t('auth.new_password_label')}</label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t('auth.password_placeholder')}
+                  disabled={isLoading}
+                  minLength={8}
+                  required
+                />
+              </div>
+              <div className={settingsStyles.infoGroup}>
+                <label htmlFor="confirmPassword">{t('auth.confirm_password_label')}</label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={t('auth.confirm_password_placeholder')}
+                  disabled={isLoading}
+                  minLength={8}
+                  required
+                  onKeyPress={(e) => e.key === 'Enter' && handleResetPassword()}
+                />
+              </div>
             </div>
-            <div className={styles['form-group']}>
-              <label htmlFor="password" className={styles['form-label']}>{t('auth.new_password_label')}</label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t('auth.password_placeholder')}
-                disabled={isLoading}
-                className={`${styles['form-input']} ${styles['auth-input-password']}`}
-              />
-            </div>
-            <div className={styles['form-group']}>
-              <label htmlFor="confirmPassword" className={styles['form-label']}>{t('auth.confirm_password_label')}</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder={t('auth.confirm_password_placeholder')}
-                disabled={isLoading}
-                className={`${styles['form-input']} ${styles['auth-input-confirm-password']}`}
-                onKeyPress={(e) => e.key === 'Enter' && handleResetPassword()}
-              />
-            </div>
-          </>
+          </div>
         )}
 
-        <button
-          type="button"
-          className={`${styles['auth-button']} ${styles['primary']}`}
-          disabled={isLoading}
-          onClick={step === 'email' ? handleRequestReset : handleResetPassword}
-        >
-          {isLoading ? t('auth.processing_button') : (step === 'email' ? t('auth.send_reset_code_button') : t('auth.reset_password_button'))}
-        </button>
+        <div className={settingsStyles.accountActions}>
+          <button
+            type="button"
+            className={`${settingsStyles.settingsBtn} ${settingsStyles.settingsBtnSecondary}`}
+            disabled={isLoading}
+            onClick={step === 'email' ? onBackToLogin : () => setStep('email')}
+          >
+            {step === 'email' ? t('auth.back_to_login_link') : 'Back'}
+          </button>
+          <button
+            type="button"
+            className={settingsStyles.settingsBtn}
+            disabled={isLoading}
+            onClick={step === 'email' ? handleRequestReset : handleResetPassword}
+          >
+            {isLoading ? t('auth.processing_button') : (step === 'email' ? t('auth.send_reset_code_button') : t('auth.reset_password_button'))}
+          </button>
+        </div>
       </div>
 
       <p className={styles['auth-disclaimer']}>
