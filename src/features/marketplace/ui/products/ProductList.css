@@ -401,7 +401,7 @@
 .filters-close {
   border: none;
   background: var(--color-surface);
-  color: var(--color-text-muted);
+  color: var(--color-text-primary);
   border-radius: 12px;
   border: 1px solid var(--color-border);
   width: 38px;
@@ -412,9 +412,15 @@
   cursor: pointer;
 }
 
+/* Ensure Material icon inherits color and size */
+.filters-close .material-symbols-outlined {
+  font-size: 20px;
+  line-height: 1;
+}
+
 .filters-close:hover,
 .filters-close:focus-visible {
-  color: var(--color-text-primary);
+  color: var(--color-accent);
   border-color: color-mix(in srgb, var(--color-border) 55%, var(--color-accent) 45%);
 }
 
@@ -566,6 +572,14 @@
   gap: clamp(1.5rem, 3vw, 2.25rem);
 }
 
+/* Keep product card size similar when filters are closed by increasing
+   the minimum card width on wider screens (prevents too many narrow columns) */
+@media (min-width: 1024px) {
+  .products-shell:not(.filters-visible) .products-flex {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+}
+
 .product-card-skeleton {
   background: var(--color-surface);
   border-radius: 20px;
@@ -685,7 +699,8 @@
 }
 
 @media (min-width: 1024px) {
-  .products-shell {
+  /* Only reserve the sidebar column when filters are visible */
+  .products-shell.filters-visible {
     grid-template-columns: 320px 1fr;
   }
 

@@ -21,7 +21,7 @@ const ProductDetailPage: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [activeTab, setActiveTab] = useState<'details' | 'specifications'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'specifications' | 'seller'>('details');
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -387,7 +387,7 @@ const ProductDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Product Details Tabs */}
+        {/* Product Information Tabs (Details / Specifications / Seller) */}
         <div className="product-details-tabs">
           <div className="tab-navigation">
             <button 
@@ -401,6 +401,12 @@ const ProductDetailPage: React.FC = () => {
               onClick={() => setActiveTab('specifications')}
             >
               Specifications
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'seller' ? 'active' : ''}`}
+              onClick={() => setActiveTab('seller')}
+            >
+              Seller
             </button>
           </div>
 
@@ -486,97 +492,67 @@ const ProductDetailPage: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {activeTab === 'seller' && (
+              <div className="seller-tab-content">
+                {product.seller && product.seller.id ? (
+                  <>
+                    <ViewSellerAccount 
+                      seller={{
+                        id: product.seller.id,
+                        username: product.seller.username,
+                        first_name: product.seller.first_name,
+                        last_name: product.seller.last_name,
+                        avatar: product.seller.profile?.profile_picture_url,
+                        bio: product.seller.profile?.bio || 'Professional furniture designer with expertise in creating beautiful, functional pieces.',
+                        location: product.seller.profile?.location || 'Location not specified',
+                        website: product.seller.profile?.website,
+                        job_title: product.seller.profile?.job_title,
+                        company: product.seller.profile?.company,
+                        instagram_url: product.seller.profile?.instagram_url,
+                        twitter_url: product.seller.profile?.twitter_url,
+                        linkedin_url: product.seller.profile?.linkedin_url,
+                        facebook_url: product.seller.profile?.facebook_url,
+                        is_verified_seller: product.seller.is_verified_seller || false,
+                        seller_type: product.seller.profile?.seller_type,
+                        created_at: product.seller.profile?.created_at || product.seller.profile?.updated_at
+                      }}
+                      showContactInfo={false}
+                      showSocialMedia={false}
+                      showProfessionalInfo={true}
+                      className="compact-seller-view"
+                    />
+                  </>
+                ) : (
+                  <div className="no-seller-info">
+                    <p>Seller information not available</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Seller Profile Section */}
-        {product.seller && product.seller.id ? (
-          <div className="seller-profile-section">
-            <div className="section-header">
-              <h2 className="section-title">About the Seller</h2>
-              <Link 
-                to={`/seller/${product.seller.id}`} 
-                className="view-full-profile-btn"
-                aria-label={`View full profile of ${product.seller.first_name || product.seller.username}`}
-              >
-                View Full Profile
-              </Link>
-            </div>
-            <ViewSellerAccount 
-              seller={{
-                id: product.seller.id,
-                username: product.seller.username,
-                first_name: product.seller.first_name,
-                last_name: product.seller.last_name,
-                avatar: product.seller.profile?.profile_picture_url,
-                bio: product.seller.profile?.bio || 'Professional furniture designer with expertise in creating beautiful, functional pieces.',
-                location: product.seller.profile?.location || 'Location not specified',
-                website: product.seller.profile?.website,
-                job_title: product.seller.profile?.job_title,
-                company: product.seller.profile?.company,
-                instagram_url: product.seller.profile?.instagram_url,
-                twitter_url: product.seller.profile?.twitter_url,
-                linkedin_url: product.seller.profile?.linkedin_url,
-                facebook_url: product.seller.profile?.facebook_url,
-                is_verified_seller: product.seller.is_verified_seller || false,
-                seller_type: product.seller.profile?.seller_type,
-                created_at: product.seller.profile?.created_at || product.seller.profile?.updated_at
-              }}
-              showContactInfo={false}
-              showSocialMedia={false}
-              showProfessionalInfo={true}
-              className="compact-seller-view"
-            />
-          </div>
-        ) : (
-          <div className="seller-profile-section">
-            <div className="section-header">
-              <h2 className="section-title">About the Seller</h2>
-            </div>
-            <div className="no-seller-info">
-              <p>Seller information not available</p>
-            </div>
-          </div>
-        )}
         
         {/* Product Reviews Section */}
         {product.slug && (
           <div className="reviews-section">
             <div className="reviews-header">
               <h2 className="reviews-title">Customer Reviews</h2>
+              {/* Simple summary header only */}
               <div className="reviews-summary">
-                {product.average_rating > 0 ? (
-                  <div className="rating-display">
-                    <div className="rating-stars">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <svg 
-                          key={star} 
-                          viewBox="0 0 24 24" 
-                          fill={star <= product.average_rating ? "currentColor" : "none"}
-                          className={`star ${star <= product.average_rating ? 'filled' : 'empty'}`}
-                        >
-                          <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="rating-text">
-                      {product.average_rating.toFixed(1)} out of 5
-                    </span>
-                    <span className="review-count">
-                      Based on {product.review_count} review{product.review_count !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="no-reviews">
-                    <span>No reviews yet</span>
-                  </div>
-                )}
+                <span className="rating-text">
+                  {product.average_rating > 0 ? `${product.average_rating.toFixed(1)} / 5` : 'No ratings yet'}
+                </span>
+                <span className="review-count">
+                  {product.review_count} review{product.review_count !== 1 ? 's' : ''}
+                </span>
               </div>
             </div>
             <ProductReviews 
               productSlug={product.slug} 
               productId={product.id} 
-              reviews={[]} // Reviews will be loaded by the ProductReviews component
+              reviews={[]}
+              variant="simple"
             />
           </div>
         )}

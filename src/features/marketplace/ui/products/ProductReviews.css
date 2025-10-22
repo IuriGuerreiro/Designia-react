@@ -21,7 +21,7 @@
   font-size: 24px;
   font-weight: 600;
   line-height: 32px;
-  color: #0A0A0A;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
@@ -40,12 +40,12 @@
 .rating-number {
   font-size: 20px;
   font-weight: 600;
-  color: #0A0A0A;
+  color: var(--color-text-primary);
 }
 
 .reviews-count {
   font-size: 14px;
-  color: #6B7280;
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
@@ -76,12 +76,12 @@
 }
 
 .star.filled {
-  color: #F59E0B;
-  fill: #F59E0B;
+  color: var(--color-warning);
+  fill: var(--color-warning);
 }
 
 .star.empty {
-  color: #E5E7EB;
+  color: var(--color-border);
 }
 
 /* Loading State */
@@ -96,14 +96,14 @@
 
 .reviews-loading p {
   font-size: 16px;
-  color: #6B7280;
+  color: var(--color-text-muted);
   margin: 16px 0 0 0;
 }
 
 /* Error Message */
 .error-message {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: color-mix(in srgb, var(--color-error) 12%, var(--color-surface) 88%);
+  border: 1px solid color-mix(in srgb, var(--color-error) 28%, var(--color-border) 72%);
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 24px;
@@ -111,14 +111,14 @@
 }
 
 .error-message p {
-  color: #EF4444;
+  color: var(--color-error);
   margin: 0 0 12px 0;
   font-weight: 500;
 }
 
 .retry-btn {
-  background: #EF4444;
-  color: #FFFFFF;
+  background: var(--color-error);
+  color: var(--color-accent-contrast);
   border: none;
   border-radius: 6px;
   padding: 8px 16px;
@@ -129,30 +129,30 @@
 }
 
 .retry-btn:hover {
-  background: #DC2626;
+  background: color-mix(in srgb, var(--color-error) 86%, transparent);
   transform: translateY(-1px);
 }
 
 /* Review Prompt */
 .review-prompt {
-  background: #FFFFFF;
-  border: 1px solid #E5E7EB;
+  background: var(--surface-glass);
+  border: 1px solid var(--border-soft);
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 24px;
   margin-top: 24px;
   text-align: center;
-  box-shadow: 0 2px 12px rgba(10, 10, 10, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .review-prompt p {
   margin: 0 0 16px 0;
-  color: #6B7280;
+  color: var(--color-text-muted);
   font-size: 16px;
 }
 
 .review-prompt a {
-  color: #0A0A0A;
+  color: var(--color-accent);
   text-decoration: none;
   font-weight: 600;
 }
@@ -163,8 +163,8 @@
 
 .write-review-btn,
 .edit-review-btn {
-  background: #0A0A0A;
-  color: #FFFFFF;
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
   border: none;
   border-radius: 8px;
   padding: 12px 24px;
@@ -176,7 +176,7 @@
 
 .write-review-btn:hover,
 .edit-review-btn:hover {
-  background: #1A1A1A;
+  background: var(--color-accent-strong);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(10, 10, 10, 0.2);
 }
@@ -190,10 +190,11 @@
 }
 
 .review-card {
-  background: #FFFFFF;
+  background: var(--surface-glass);
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(10, 10, 10, 0.08);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -221,8 +222,8 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0A0A0A 0%, #374151 100%);
-  color: #FFFFFF;
+  background: var(--gradient-button);
+  color: var(--color-accent-contrast);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -239,7 +240,7 @@
 .reviewer-name {
   font-size: 16px;
   font-weight: 600;
-  color: #0A0A0A;
+  color: var(--color-text-primary);
 }
 
 .review-meta {
@@ -255,8 +256,8 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10B981;
+  background: color-mix(in srgb, var(--color-success) 18%, transparent);
+  color: var(--color-success);
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
@@ -278,10 +279,10 @@
 .action-btn {
   width: 32px;
   height: 32px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: #FFFFFF;
-  color: #6B7280;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -291,18 +292,18 @@
 }
 
 .action-btn:hover {
-  background: #E5E7EB;
-  color: #374151;
+  background: var(--surface-highlight);
+  color: var(--color-text-secondary);
 }
 
 .action-btn.edit-btn:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3B82F6;
+  background: color-mix(in srgb, var(--color-info, #38bdf8) 14%, transparent);
+  color: var(--color-info, #38bdf8);
 }
 
 .action-btn.delete-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #EF4444;
+  background: color-mix(in srgb, var(--color-error) 14%, transparent);
+  color: var(--color-error);
 }
 
 .action-btn svg {
@@ -327,20 +328,20 @@
 .review-title {
   font-size: 18px;
   font-weight: 600;
-  color: #0A0A0A;
+  color: var(--color-text-primary);
   margin: 0 0 12px 0;
 }
 
 .review-comment {
   font-size: 16px;
   line-height: 24px;
-  color: #374151;
+  color: var(--color-text-secondary);
   margin: 0 0 12px 0;
 }
 
 .review-date {
   font-size: 14px;
-  color: #9CA3AF;
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
@@ -348,32 +349,33 @@
 .no-reviews {
   text-align: center;
   padding: 48px 24px;
-  background: #FFFFFF;
+  background: var(--surface-glass);
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(10, 10, 10, 0.08);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
 }
 
 .no-reviews h4 {
   font-family: 'Playfair Display', serif;
   font-size: 20px;
   font-weight: 600;
-  color: #0A0A0A;
+  color: var(--color-text-primary);
   margin: 0 0 8px 0;
 }
 
 .no-reviews p {
   font-size: 16px;
-  color: #6B7280;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 /* Review Form */
 .review-form-container {
-  background: #FFFFFF;
+  background: var(--surface-glass);
   border-radius: 12px;
   padding: 32px;
-  box-shadow: 0 2px 12px rgba(10, 10, 10, 0.08);
-  border: 1px solid #E5E7EB;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-soft);
   margin-bottom: 32px;
 }
 
@@ -387,13 +389,13 @@
   font-size: 20px;
   font-weight: 600;
   line-height: 28px;
-  color: #0A0A0A;
+  color: var(--color-text-primary);
   margin: 0 0 8px 0;
 }
 
 .form-subtitle {
   font-size: 14px;
-  color: #6B7280;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -413,7 +415,7 @@
 .rating-label {
   font-size: 14px;
   font-weight: 600;
-  color: #0A0A0A;
+  color: var(--color-text-primary);
 }
 
 .rating-stars {
@@ -443,13 +445,13 @@
 .rating-star-button .star {
   width: 24px;
   height: 24px;
-  color: #E5E7EB;
+  color: var(--color-border);
   transition: all 0.2s ease;
 }
 
 .rating-text {
   font-size: 14px;
-  color: #6B7280;
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
@@ -463,39 +465,39 @@
 .form-label {
   font-size: 14px;
   font-weight: 600;
-  color: #0A0A0A;
+  color: var(--color-text-primary);
 }
 
 .form-input {
-  background: #FFFFFF;
-  border: 2px solid #E5E7EB;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   padding: 12px 16px;
   font-size: 16px;
   font-family: 'Inter', sans-serif;
-  color: #374151;
+  color: var(--color-text-secondary);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #0A0A0A;
-  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: var(--focus-ring-shadow);
 }
 
 .form-input::placeholder {
-  color: #9CA3AF;
+  color: var(--color-text-muted);
 }
 
 .form-textarea {
-  background: #FFFFFF;
-  border: 2px solid #E5E7EB;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   padding: 12px 16px;
   font-size: 16px;
   font-family: 'Inter', sans-serif;
   line-height: 24px;
-  color: #374151;
+  color: var(--color-text-secondary);
   resize: vertical;
   min-height: 120px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -503,12 +505,12 @@
 
 .form-textarea:focus {
   outline: none;
-  border-color: #0A0A0A;
-  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: var(--focus-ring-shadow);
 }
 
 .form-textarea::placeholder {
-  color: #9CA3AF;
+  color: var(--color-text-muted);
 }
 
 /* Form Actions */
@@ -520,9 +522,9 @@
 }
 
 .cancel-btn {
-  background: transparent;
-  color: #6B7280;
-  border: 2px solid #E5E7EB;
+  background: var(--surface-highlight);
+  color: var(--color-text-secondary);
+  border: 2px solid var(--color-border);
   border-radius: 8px;
   padding: 12px 24px;
   font-size: 16px;
@@ -533,15 +535,15 @@
 }
 
 .cancel-btn:hover {
-  background: #F5F5F5;
-  border-color: #9CA3AF;
-  color: #374151;
+  background: var(--color-muted);
+  border-color: var(--border-soft);
+  color: var(--color-text-primary);
 }
 
 /* Submit Button */
 .submit-button {
-  background: #0A0A0A;
-  color: #FFFFFF;
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
   border: none;
   border-radius: 8px;
   padding: 12px 24px;
@@ -558,9 +560,9 @@
 }
 
 .submit-button:hover:not(:disabled) {
-  background: #1A1A1A;
+  background: var(--color-accent-strong);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.2);
+  box-shadow: var(--shadow);
 }
 
 .submit-button:disabled {
@@ -570,7 +572,7 @@
 }
 
 .submit-button.loading {
-  background: #6B7280;
+  background: var(--color-text-muted);
 }
 
 /* Loading Spinner */
@@ -578,7 +580,7 @@
   width: 16px;
   height: 16px;
   border: 2px solid transparent;
-  border-top: 2px solid #FFFFFF;
+  border-top: 2px solid var(--color-accent-contrast);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

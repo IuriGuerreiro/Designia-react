@@ -23,6 +23,7 @@ import type {
   SellerApplicationRequest,
   SellerApplicationStatus,
 } from '../model';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -68,7 +69,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  const navigate = useNavigate();
   const isAuthenticated = !!user;
 
   // Check if user is already logged in on app start
@@ -397,6 +398,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('access_token', data.tokens.access);
       localStorage.setItem('refresh_token', data.tokens.refresh);
       setUser(data.user);
+      navigate('/')
     } catch (error) {
       const httpError = ensureHttpError(error);
       if (httpError) {

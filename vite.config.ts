@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
           "worker-src 'self' blob:; " +
           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://connect-js.stripe.com https://accounts.google.com https://apis.google.com; " +
           "script-src-elem 'self' 'unsafe-inline' https://js.stripe.com https://connect-js.stripe.com https://accounts.google.com https://apis.google.com; " +
-          `connect-src 'self' https://api.stripe.com https://connect-js.stripe.com https://accounts.google.com ${env.VITE_API_BASE_URL} ${env.VITE_WS_BASE_URL}; ` +
+          `connect-src 'self' https://api.stripe.com https://connect-js.stripe.com https://accounts.google.com ${env.VITE_API_BASE_URL} ${env.VITE_WS_BASE_URL} wss://${env.VITE_API_BASE_URL.replace(/^https?:\/\//, '')}; ` +
           "frame-src 'self' https://js.stripe.com https://connect-js.stripe.com https://hooks.stripe.com https://accounts.google.com; " +
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; " +
           "font-src 'self' https://fonts.gstatic.com; " +

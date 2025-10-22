@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './ViewSellerAccount.module.css';
 
 interface SellerProfile {
@@ -78,7 +79,7 @@ const ViewSellerAccount: React.FC<ViewSellerAccountProps> = ({
     <div className={cx(styles['seller-account-view'], className)}>
       <div className={styles['seller-header']}>
         <div className={styles['seller-avatar-section']}>
-          <div className={styles['seller-avatar']}>
+          <Link to={`/seller/${seller.id}`} className={styles['seller-avatar']} aria-label={`View ${seller.username} profile`}>
             {seller.avatar ? (
               <img src={seller.avatar} alt={`${seller.first_name || seller.username} avatar`} />
             ) : (
@@ -86,7 +87,7 @@ const ViewSellerAccount: React.FC<ViewSellerAccountProps> = ({
                 {(seller.first_name?.[0] || seller.username[0]).toUpperCase()}
               </div>
             )}
-          </div>
+          </Link>
           <div className={styles['seller-verification-badge']}>
             {seller.is_verified_seller && <span className={styles['verified-badge']}>✓ Verified Seller</span>}
           </div>
@@ -94,9 +95,11 @@ const ViewSellerAccount: React.FC<ViewSellerAccountProps> = ({
 
         <div className={styles['seller-info']}>
           <h2 className={styles['seller-name']}>
-            {seller.first_name && seller.last_name
-              ? `${seller.first_name} ${seller.last_name}`
-              : seller.username}
+            <Link to={`/seller/${seller.id}`} aria-label={`View ${seller.username} profile`} className={styles['info-link']}>
+              {seller.first_name && seller.last_name
+                ? `${seller.first_name} ${seller.last_name}`
+                : seller.username}
+            </Link>
           </h2>
           {seller.username !== (seller.first_name || '') && (
             <p className={styles['seller-username']}>@{seller.username}</p>

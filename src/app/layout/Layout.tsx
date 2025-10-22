@@ -8,6 +8,7 @@ interface LayoutProps {
   showBackToTop?: boolean;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   padding?: 'default' | 'minimal';
+  showFooter?: boolean;
 }
 
 const Layout: React.FC<LayoutProps> = ({ 
@@ -15,7 +16,8 @@ const Layout: React.FC<LayoutProps> = ({
   className = '',
   showBackToTop = true,
   maxWidth = 'xl',
-  padding = 'default'
+  padding = 'default',
+  showFooter = true
 }) => {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -58,6 +60,7 @@ const Layout: React.FC<LayoutProps> = ({
         </div>
       </main>
       
+      {showFooter && (
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={`${styles.footerSection} ${styles.footerBrand}`}>
@@ -138,6 +141,7 @@ const Layout: React.FC<LayoutProps> = ({
           </div>
         </div>
       </footer>
+      )}
       
       {showBackToTop && showScrollTop && (
         <button 

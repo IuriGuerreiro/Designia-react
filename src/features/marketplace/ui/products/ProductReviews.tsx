@@ -9,6 +9,7 @@ interface ProductReviewsProps {
   productSlug?: string;
   productId: string;
   reviews: ProductReview[];
+  variant?: 'default' | 'simple';
 }
 
 // Star Rating Component
@@ -72,7 +73,7 @@ const RatingSelector: React.FC<{ value: number; onChange: (rating: number) => vo
   );
 };
 
-const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId, reviews: initialReviews }) => {
+const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId, reviews: initialReviews, variant = 'default' }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   
@@ -271,6 +272,122 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
         <div className="reviews-loading">
           <div className="loading-spinner"></div>
           <p>Loading reviews...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Simple list (Amazon-like): condensed, no form/prompt, just list
+  if (variant === 'simple') {
+    return (
+      <div className="product-reviews simple">
+        {/* Simple composer trigger */}
+        {user && canReview && !showReviewForm && (
+          <div className="review-prompt" style={{ textAlign: 'left' }}>
+            <button
+              type="button"
+              className="write-review-btn"
+              onClick={() => setShowReviewForm(true)}
+            >
+              Write a Review
+            </button>
+          </div>
+        )}
+
+        {/* Simple inline form */}
+        {showReviewForm && (
+          <div className="review-form-container">
+            <div className="form-header">
+              <h4 className="form-title">Share Your Experience</h4>
+              <p className="form-subtitle">Help other customers make informed decisions</p>
+            </div>
+            <form className="review-form" onSubmit={handleSubmit}>
+              <RatingSelector value={rating} onChange={setRating} />
+              <div className="form-group">
+                <label htmlFor="review-title" className="form-label">Review Title</label>
+                <input
+                  id="review-title"
+                  type="text"
+                  className="form-input"
+                  placeholder="Summarize your experience..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="review-comment" className="form-label">Your Review</label>
+                <textarea
+                  id="review-comment"
+                  rows={4}
+                  className="form-textarea"
+                  placeholder="Tell us about your experience with this product..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => {
+                    setShowReviewForm(false);
+                    setEditingReview(null);
+                    setRating(5);
+                    setTitle('');
+                    setComment('');
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className={`submit-button ${isSubmitting ? 'loading' : ''}`}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Review'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+        <div className="reviews-list">
+          {reviews.length === 0 ? (
+            <div className="no-reviews">
+              <h4>No reviews yet</h4>
+              <p>Be the first to share your experience with this product.</p>
+            </div>
+          ) : (
+            reviews.map((review) => (
+              <div key={review.id} className="review-card">
+                <div className="review-header">
+                  <div className="reviewer-info">
+                    <div className="reviewer-avatar">
+                      {review.reviewer_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="reviewer-details">
+                      <span className="reviewer-name">{review.reviewer_name}</span>
+                      <StarRating rating={review.rating} size="sm" />
+                    </div>
+                  </div>
+                  <div className="review-meta">
+                    {review.is_verified_purchase && (
+                      <div className="verified-badge">Verified Purchase</div>
+                    )}
+                    <div className="review-date">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+                <div className="review-content">
+                  <h5 className="review-title">{review.title}</h5>
+                  <p className="review-comment">{review.comment}</p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     );
