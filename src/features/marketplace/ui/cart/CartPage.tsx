@@ -153,21 +153,23 @@ const CartPage: React.FC = () => {
                           className={styles['quantity-btn']}
                           onClick={() => updateQuantity(item.id, item.quantity - 1)} 
                           disabled={item.quantity <= 1 || !item.isActive}
+                          aria-label="Decrease quantity"
+                          title="Decrease"
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                          </svg>
+                          <span className="material-symbols-outlined" aria-hidden="true">remove</span>
                         </button>
                         <span className={styles['quantity-display']}>{item.quantity}</span>
                         <button
                           className={styles['quantity-btn']}
                           onClick={() => updateQuantity(item.id, item.quantity + 1)} 
-                          disabled={!item.isActive}
+                          disabled={
+                            !item.isActive ||
+                            (item.availableStock !== undefined && item.quantity >= item.availableStock)
+                          }
+                          aria-label="Increase quantity"
+                          title="Increase"
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                          </svg>
+                          <span className="material-symbols-outlined" aria-hidden="true">add</span>
                         </button>
                       </div>
                     </div>

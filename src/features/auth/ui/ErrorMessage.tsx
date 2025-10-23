@@ -4,9 +4,10 @@ import styles from './Auth.module.css';
 interface ErrorMessageProps {
   message: string;
   onClose?: () => void;
+  center?: boolean;
 }
 
-const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onClose }) => {
+const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onClose, center }) => {
   // Determine error type based on message content
   const getErrorType = (msg: string): string => {
     if (msg.includes('Service may be unavailable') || msg.includes('Service unavailable') || msg.includes('try again later')) {
@@ -21,7 +22,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onClose }) => {
   const errorType = getErrorType(message);
 
   return (
-    <div className={`${styles['error-message']} ${errorType ? styles[errorType] : ''}`}>
+    <div className={`${styles['error-message']} ${errorType ? styles[errorType] : ''} ${center ? styles['error-centered'] : ''}`}>
       <span className={styles['error-text']}>{message}</span>
       {onClose && (
         <button 

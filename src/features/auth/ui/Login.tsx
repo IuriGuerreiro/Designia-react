@@ -29,8 +29,21 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordRes
     setError('');
 
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const result = await login(email, password);
+
+      // Handle cases where login does not throw but requires user action
+      if (result?.emailNotVerified) {
+        setError(result.message || 'Please verify your email address before logging in.');
+        return;
+      }
+
+      if (result?.requires2FA) {
+        navigate('/login/2fa', { state: { userId: result.userId, email } });
+        return;
+      }
+
+      // Successful login
+      navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -49,7 +62,21 @@ const Login: React.FC<LoginProps> = ({ onSwitchToRegister, onSwitchToPasswordRes
       </div>
 
       <div className={styles['auth-form']}>
-        {error && <ErrorMessage message={error} onClose={() => setError('')} />}
+        {error && (
+          error === 'Please fill in all fields' ? (
+            <div className={styles['error-vertical-center']}>
+              <ErrorMessage
+                message={error}
+                onClose={() => setError('')}
+              />
+            </div>
+          ) : (
+            <ErrorMessage
+              message={error}
+              onClose={() => setError('')}
+            />
+          )
+        )}
         
         <div className={styles['form-group']}>
           <label htmlFor="email" className={styles['form-label']}>Email Address</label>
