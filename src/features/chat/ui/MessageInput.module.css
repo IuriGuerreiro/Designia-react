@@ -7,6 +7,9 @@
   border-top: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
   gap: 16px;
   backdrop-filter: blur(12px);
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
 }
 
 /* Input Wrapper */
@@ -133,6 +136,13 @@
   width: 20px;
   height: 20px;
   stroke: currentColor;
+}
+
+/* Support Material Symbols as icon as well */
+.sendButton .material-symbols-outlined {
+  font-size: 20px;
+  font-variation-settings: 'wght' 600, 'opsz' 24;
+  line-height: 1;
 }
 
 /* Spinner */

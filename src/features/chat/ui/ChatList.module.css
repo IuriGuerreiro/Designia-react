@@ -74,6 +74,13 @@
   stroke: currentColor;
 }
 
+/* Support Material Symbols as icon as well */
+.newChatButton .material-symbols-outlined {
+  font-size: 20px;
+  font-variation-settings: 'wght' 600, 'opsz' 24;
+  line-height: 1;
+}
+
 /* Search Section */
 .searchSection {
   padding: 20px 24px;
