@@ -17,7 +17,7 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   
-  const { verifyTwoFactor, resendTwoFactorCode } = useAuth();
+  const { loginVerify2FA, resend2FACode } = useAuth();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
     setError('');
 
     try {
-      await verifyTwoFactor(userId, code);
+      await loginVerify2FA(userId, code);
       // Success - user will be redirected by the auth context
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed');
@@ -51,7 +51,7 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
     setError('');
 
     try {
-      await resendTwoFactorCode(userId);
+      await resend2FACode(userId, 'login');
       setResendCooldown(60); // 60 second cooldown
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to resend code');

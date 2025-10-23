@@ -53,6 +53,9 @@ const ProductDetailPage: React.FC = () => {
         quantity,
         slug: product.slug,
         imageUrl: product.images?.[0]?.presigned_url || '/placeholder-product.png',
+        // Provide stock info so client-side guard can prevent exceeding stock
+        availableStock: product.stock_quantity,
+        isActive: product.is_in_stock,
       });
     } finally {
       setIsAddingToCart(false);

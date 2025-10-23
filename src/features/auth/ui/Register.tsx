@@ -21,8 +21,12 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
+  const [resendError, setResendError] = useState('');
   
-  const { register } = useAuth();
+  const { register, resendVerification } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -67,6 +71,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
         // Registration successful - show success message
         setIsSuccess(true);
         setSuccessMessage(result.message || 'Account created successfully! Please check your email to verify your account.');
+        setRegisteredEmail(result.email || email);
         
         // Clear form
         setFirstName('');
@@ -87,34 +92,65 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     }
   };
 
+  const handleResendVerification = async () => {
+    try {
+      setIsResending(true);
+      setResendError('');
+      setResendMessage('');
+      const result = await resendVerification(registeredEmail || email);
+      if (result.success) {
+        setResendMessage('A new verification email has been sent.');
+      } else {
+        setResendError(result.message || 'Failed to resend verification email.');
+      }
+    } catch (e) {
+      setResendError('Failed to resend verification email. Please try again.');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   if (isSuccess) {
     return (
       <div className={styles['auth-card']}>
         <div className={styles['auth-header']}>
-          <h2 className={styles['auth-title']}>You&apos;re almost there!</h2>
+          <h2 className={styles['auth-title']}>Confirm your email</h2>
           <p className={styles['auth-subtitle']}>
-            We&apos;ve sent a confirmation email so you can activate your new workspace.
+            {successMessage || "We've sent a verification link to your inbox. Please confirm your email to finish creating your account."}
           </p>
         </div>
 
         <div className={styles['verification-pending-content']}>
-          <div className={`${styles['message']} ${styles['success']}`}>
-            {successMessage}
+          <div className={styles['email-info']}>
+            <span className={styles['email-label']}>Sent to:</span>
+            <span className={styles['email-display']}>{registeredEmail || email}</span>
           </div>
+
+          {resendMessage && (
+            <div className={`${styles['message']} ${styles['success']}`}>{resendMessage}</div>
+          )}
+          {resendError && (
+            <div className={`${styles['message']} ${styles['error']}`}>{resendError}</div>
+          )}
 
           <div className={styles['verification-actions']}>
             <button
-              onClick={onSwitchToLogin}
+              type="button"
+              onClick={handleResendVerification}
               className={`${styles['auth-button']} ${styles['primary']}`}
+              disabled={isResending}
             >
-              Continue to sign in
+              {isResending ? 'Resending...' : 'Resend verification email'}
+            </button>
+            <button
+              type="button"
+              onClick={onSwitchToLogin}
+              className={`${styles['link-button']} ${styles['back-link']}`}
+            >
+              Back to sign in
             </button>
           </div>
         </div>
-
-        <p className={styles['auth-disclaimer']}>
-          Didn&apos;t get the email? Check your spam folder or request another from the sign-in screen.
-        </p>
       </div>
     );
   }

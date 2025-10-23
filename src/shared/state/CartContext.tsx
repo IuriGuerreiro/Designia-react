@@ -287,6 +287,21 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       throw new Error(error);
     }
 
+    // Local stock guard: prevent exceeding available stock when known (helps guest carts too)
+    const targetItem = cartItems.find(item => item.id === productId);
+    if (targetItem && targetItem.availableStock !== undefined && quantity > targetItem.availableStock) {
+      const stockErr = `Only ${targetItem.availableStock} items available in stock.`;
+      const guardedItems = cartItems.map(item =>
+        item.id === productId
+          ? { ...item, stockError: stockErr, isActive: false, quantity: Math.min(quantity, targetItem.availableStock) }
+          : item
+      );
+      setCartItems(guardedItems);
+      saveCartToLocalStorage(guardedItems);
+      setError(stockErr);
+      throw new Error(stockErr);
+    }
+
     setError(null); // Clear any previous errors
 
     // Optimistic update - clear any previous item errors

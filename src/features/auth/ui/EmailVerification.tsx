@@ -57,7 +57,7 @@ const EmailVerification: React.FC = () => {
           {verificationStatus === 'success' && (
             <div className={styles['success-state']}>
               <h3>Email verified!</h3>
-              <p>{message}</p>
+              <div className={`${styles['verification-banner']} ${styles['success']}`}>{message}</div>
               <p>You&apos;ll be redirected to sign in so you can start designing.</p>
             </div>
           )}

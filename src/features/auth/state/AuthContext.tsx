@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
+  isBootstrapping: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{requires2FA?: boolean, userId?: number, message?: string, codeAlreadySent?: boolean, emailNotVerified?: boolean, email?: string, warningType?: string, actionRequired?: string}>;
   loginVerify2FA: (userId: number, code: string) => Promise<void>;
@@ -69,6 +70,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
   const navigate = useNavigate();
   const isAuthenticated = !!user;
 
@@ -87,6 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
       setIsLoading(false);
+      setIsBootstrapping(false);
     };
 
     checkAuthStatus();
@@ -97,6 +100,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
 
       const response = await loginRequest(email, password);
+
+      console.log('Login response:', response);
 
       if ('requires_2fa' in response && response.requires_2fa) {
         return {
@@ -172,6 +177,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
       setUser(data.user);
+      // Redirect to home after successful 2FA verification
+      navigate('/');
     } catch (error) {
       const httpError = ensureHttpError(error);
       if (httpError) {
@@ -230,11 +237,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
 
       const response = await registerRequest(userData);
-
+      const success = typeof (response as any).success === 'boolean' ? (response as any).success : true;
       return {
-        success: response.success,
-        message: response.message,
-        email: response.email,
+        success,
+        message: (response as any).message,
+        email: (response as any).email,
       };
     } catch (error) {
       const httpError = ensureHttpError(error);
@@ -311,9 +318,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const verifyEmail = async (token: string): Promise<{success: boolean, message: string}> => {
     try {
       const response = await verifyEmailRequest(token);
+      const success = typeof (response as any).success === 'boolean' ? (response as any).success : true;
       return {
-        success: response.success,
-        message: response.message,
+        success,
+        message: (response as any).message,
       };
     } catch (error) {
       const httpError = ensureHttpError(error);
@@ -544,6 +552,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     isLoading,
+    isBootstrapping,
     isAuthenticated,
     login,
     loginVerify2FA,
