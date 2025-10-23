@@ -9,6 +9,7 @@ interface LayoutProps {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   padding?: 'default' | 'minimal';
   showFooter?: boolean;
+  noMainPadding?: boolean;
 }
 
 const Layout: React.FC<LayoutProps> = ({ 
@@ -17,7 +18,8 @@ const Layout: React.FC<LayoutProps> = ({
   showBackToTop = true,
   maxWidth = 'xl',
   padding = 'default',
-  showFooter = true
+  showFooter = true,
+  noMainPadding = false
 }) => {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -54,7 +56,7 @@ const Layout: React.FC<LayoutProps> = ({
     <div className={`${styles.layout} ${className}`}>
       <Navbar />
       
-      <main className={styles.mainContent}>
+      <main className={`${styles.mainContent} ${noMainPadding ? styles.mainNoPad : ''}`}>
         <div className={`${styles.container} ${maxWidthClasses[maxWidth]} ${paddingClasses[padding]}`}>
           {children}
         </div>

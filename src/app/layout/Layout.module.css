@@ -12,6 +12,10 @@
   padding: clamp(3rem, 6vw, 4.5rem) 0;
 }
 
+.mainNoPad {
+  padding: 0; /* Used on pages that handle their own layout (e.g., Chat) */
+}
+
 .container {
   width: 100%;
   margin: 0 auto;
