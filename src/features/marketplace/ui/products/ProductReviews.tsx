@@ -277,7 +277,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
     );
   }
 
-  // Simple list (Amazon-like): condensed, no form/prompt, just list
+  // Simple list (Amazon-like): condensed, with basic actions
   if (variant === 'simple') {
     return (
       <div className="product-reviews simple">
@@ -379,6 +379,26 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                     <div className="review-date">
                       {new Date(review.created_at).toLocaleDateString()}
                     </div>
+                    {user && review.reviewer.id === user.id && (
+                      <div className="review-actions" style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          className="action-btn edit-btn"
+                          aria-label="Edit review"
+                          onClick={() => handleEditReview(review)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="action-btn delete-btn"
+                          aria-label="Delete review"
+                          onClick={() => handleDeleteReview(review.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="review-content">

@@ -1,5 +1,8 @@
 {
   "translation": {
+    "common": {
+      "refresh": "Atualizar"
+    },
     "layout": {
       "products": "Produtos",
       "my_products": "Meus Produtos",
@@ -158,6 +161,16 @@
           "save_product": "Falha ao guardar o produto. Por favor, tente novamente."
         }
       }
+    },
+    "favorites": {
+      "loading_favorites": "A carregar os seus favoritos...",
+      "my_favorites": "Meus Favoritos",
+      "subtitle": "Produtos que você guardou para mais tarde.",
+      "total_count": "{{count}} itens",
+      "remove_from_favorites": "Remover dos favoritos",
+      "no_favorites_title": "Ainda sem favoritos",
+      "no_favorites_message": "Navegue e toque no coração para guardar itens.",
+      "browse_products": "Procurar Produtos"
     },
     "orders": {
       "title": "Meus Pedidos",

@@ -27,6 +27,7 @@ export class ReviewService {
     reviewData: { rating: number; title: string; comment: string; images?: File[] },
   ): Promise<ProductReview> {
     const formData = new FormData();
+    // Always include product_slug for legacy endpoints; nested route will ignore it
     formData.append('product_slug', productSlug);
     formData.append('rating', reviewData.rating.toString());
     formData.append('title', reviewData.title);
@@ -34,11 +35,23 @@ export class ReviewService {
 
     reviewData.images?.forEach((file) => formData.append('images', file));
 
-    return apiRequest<ProductReview>(API_ENDPOINTS.PRODUCT_ADD_REVIEW, {
-      method: 'POST',
-      body: formData,
-      headers: {},
-    });
+    // Try product action endpoint first; fallback to legacy on 404/405
+    try {
+      return await apiRequest<ProductReview>(API_ENDPOINTS.PRODUCT_ADD_REVIEW(productSlug), {
+        method: 'POST',
+        body: formData,
+        headers: {},
+      });
+    } catch (err) {
+      if (err instanceof Error && /(404|405)/.test(err.message)) {
+        return await apiRequest<ProductReview>(API_ENDPOINTS.PRODUCT_ADD_REVIEW_LEGACY, {
+          method: 'POST',
+          body: formData,
+          headers: {},
+        });
+      }
+      throw err;
+    }
   }
 
   async updateReview(
@@ -66,7 +79,11 @@ export class ReviewService {
     });
   }
 
-  async deleteReview(reviewId: number): Promise<void> {
+  // Support both signatures for convenience
+  async deleteReview(reviewId: number): Promise<void>;
+  async deleteReview(productSlug: string, reviewId: number): Promise<void>;
+  async deleteReview(arg1: number | string, arg2?: number): Promise<void> {
+    const reviewId = typeof arg1 === 'number' ? arg1 : (arg2 as number);
     await apiRequest<void>(API_ENDPOINTS.PRODUCT_REVIEW_DETAIL(reviewId), { method: 'DELETE' });
   }
 

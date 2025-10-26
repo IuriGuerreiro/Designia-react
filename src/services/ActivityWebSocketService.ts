@@ -5,18 +5,27 @@ export interface ActivityWebSocketMessage {
   cart_count?: number;
   unread_messages_count?: number;
   action?: string;
-  product_id?: number;
+  product_id?: string; // backend sends UUID as string
   message?: string;
   notification_type?: string;
   title?: string;
   data?: any;
   error?: string;
+  quantity_change?: number; // negative for decreases/removals
 }
 
 export interface ActivityWebSocketCallbacks {
   onConnect?: () => void;
   onDisconnect?: () => void;
   onCartUpdate?: (cartCount: number) => void;
+  // Notifies about a specific cart change event (e.g., decrease/remove)
+  onCartChange?: (event: {
+    action?: string;
+    productId?: string;
+    cartCount?: number;
+    quantityChange?: number;
+    message?: string;
+  }) => void;
   onUnreadMessagesUpdate?: (unreadCount: number) => void;
   onActivityNotification?: (notification: any) => void;
   onError?: (error: string) => void;
@@ -245,6 +254,14 @@ export class ActivityWebSocketService {
           if (message.cart_count !== undefined) {
             this.callbacks.onCartUpdate?.(message.cart_count);
           }
+          // Emit granular cart change details when provided
+          this.callbacks.onCartChange?.({
+            action: message.action,
+            productId: message.product_id,
+            cartCount: message.cart_count,
+            quantityChange: message.quantity_change,
+            message: message.message
+          });
           break;
 
         case 'cart_count_update':

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type ProductReview } from '@/features/marketplace/model';
 import { reviewService } from '@/features/marketplace/api';
-import { useAuth } from '../../../features/auth/state/AuthContext';
+import { useAuth } from '@/features/auth/state/AuthContext';
 import ReviewList from './ReviewList';
 import ReviewForm from './ReviewForm';
 import './Reviews.css';
