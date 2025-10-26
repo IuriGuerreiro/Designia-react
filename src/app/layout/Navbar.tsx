@@ -148,6 +148,7 @@ const Navbar = () => {
                   )}
 
                   {/* Everyone can access these */}
+                  <Link to="/favorites" className={styles.dropdownLink}>{t('layout.my_favorites')}</Link>
                   <Link to="/my-orders" className={styles.dropdownLink}>My Orders</Link>
                   <Link to="/settings" className={styles.dropdownLink}>{t('layout.settings')}</Link>
                 </div>

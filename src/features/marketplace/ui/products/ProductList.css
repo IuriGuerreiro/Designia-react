@@ -568,16 +568,23 @@
 
 .products-flex {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: clamp(1.5rem, 3vw, 2.25rem);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 300px));
+  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+  justify-content: center;
 }
 
 /* Keep product card size similar when filters are closed by increasing
    the minimum card width on wider screens (prevents too many narrow columns) */
 @media (min-width: 1024px) {
   .products-shell:not(.filters-visible) .products-flex {
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 320px));
   }
+}
+
+/* Favorites page: make container/cards bigger */
+.favorites-wide .products-flex {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 380px));
+  gap: clamp(1.5rem, 3vw, 2rem);
 }
 
 .product-card-skeleton {
@@ -613,7 +620,7 @@
 }
 
 .skeleton-image {
-  height: 220px;
+  height: 180px;
 }
 
 .skeleton-content {

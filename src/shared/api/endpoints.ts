@@ -30,8 +30,13 @@ export const API_ENDPOINTS = {
   PRODUCT_DETAIL: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/`,
   PRODUCT_FAVORITE: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/favorite/`,
   PRODUCT_CLICK: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/click/`,
-  PRODUCT_REVIEWS: (slug: string) => `${API_BASE_URL}/api/marketplace/reviews/?product_slug=${slug}`,
-  PRODUCT_ADD_REVIEW: `${API_BASE_URL}/api/marketplace/reviews/`,
+  // Product reviews
+  // GET list: ProductViewSet.reviews action
+  PRODUCT_REVIEWS: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/reviews/`,
+  // POST create: ProductViewSet.add_review action (avoids 405 due to GET-only reviews action conflict)
+  PRODUCT_ADD_REVIEW: (slug: string) => `${API_BASE_URL}/api/marketplace/products/${slug}/add_review/`,
+  // Legacy review routes (fallbacks for environments without nested routes)
+  PRODUCT_ADD_REVIEW_LEGACY: `${API_BASE_URL}/api/marketplace/reviews/`,
   PRODUCT_REVIEW_DETAIL: (reviewId: number) => `${API_BASE_URL}/api/marketplace/reviews/${reviewId}/`,
   MY_PRODUCTS: `${API_BASE_URL}/api/marketplace/products/my_products/`,
   FAVORITES: `${API_BASE_URL}/api/marketplace/products/favorites/`,

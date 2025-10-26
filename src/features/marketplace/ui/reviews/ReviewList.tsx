@@ -7,7 +7,7 @@ import './Reviews.css';
 interface ReviewListProps {
   reviews: ProductReview[];
   productSlug: string;
-  currentUserId?: string;
+  currentUserId?: string | number;
   onReviewDeleted?: () => void;
   onReviewEdit?: (review: ProductReview) => void;
   loading?: boolean;

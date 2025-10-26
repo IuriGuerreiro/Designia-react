@@ -1,5 +1,8 @@
 {
   "translation": {
+    "common": {
+      "refresh": "Refresh"
+    },
     "layout": {
       "products": "Products",
       "my_products": "My Products",
@@ -158,6 +161,16 @@
           "save_product": "Failed to save product. Please try again."
         }
       }
+    },
+    "favorites": {
+      "loading_favorites": "Loading your favorites...",
+      "my_favorites": "My Favorites",
+      "subtitle": "Products you’ve saved for later.",
+      "total_count": "{{count}} items",
+      "remove_from_favorites": "Remove from favorites",
+      "no_favorites_title": "No favorites yet",
+      "no_favorites_message": "Browse and tap the heart to save items.",
+      "browse_products": "Browse Products"
     },
     "orders": {
       "title": "My Orders",
