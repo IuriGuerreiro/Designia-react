@@ -339,6 +339,9 @@
   flex-direction: column;
   gap: 1.5rem;
   z-index: 9;
+  /* Prevent horizontal scroll/overflow within the filters panel */
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 .product-filters.open {

@@ -250,6 +250,11 @@ const ProductList: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(20);
   const [hasNext, setHasNext] = useState<boolean>(false);
   const [nextStart, setNextStart] = useState<number | null>(null);
+
+  // Debounced search input to avoid firing requests on every keystroke
+  const [searchInput, setSearchInput] = useState<string>('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestSeq = useRef(0);
   
   // State for UI
   const [activeTab, setActiveTab] = useState('products');
@@ -267,6 +272,7 @@ const ProductList: React.FC = () => {
   // Load products and categories from API
   useEffect(() => {
     const loadData = async () => {
+      const mySeq = ++requestSeq.current;
       setLoading(true);
       setError(null);
 
@@ -282,14 +288,15 @@ const ProductList: React.FC = () => {
         const respPageSize = (productsResponse as any).pageSize ?? filters.pageSize ?? pageSize;
         const hasN = (productsResponse as any).hasNext ?? Boolean((productsResponse as any).next);
         const nextS = (productsResponse as any).nextStartIndex ?? null;
-
-        setProducts(Array.isArray(results) ? results : []);
-        setCategories(categoriesResponse);
-        setTotalCount(typeof count === 'number' ? count : 0);
-        setPageSize(typeof respPageSize === 'number' ? respPageSize : 20);
-        setCurrentStart(0);
-        setHasNext(Boolean(hasN));
-        setNextStart(typeof nextS === 'number' ? nextS : null);
+        if (mySeq === requestSeq.current) {
+          setProducts(Array.isArray(results) ? results : []);
+          setCategories(categoriesResponse);
+          setTotalCount(typeof count === 'number' ? count : 0);
+          setPageSize(typeof respPageSize === 'number' ? respPageSize : 20);
+          setCurrentStart(0);
+          setHasNext(Boolean(hasN));
+          setNextStart(typeof nextS === 'number' ? nextS : null);
+        }
       } catch (err) {
         console.error('Failed to load data:', err);
         setError('Failed to load products. Please check your connection and try again.');
@@ -303,6 +310,21 @@ const ProductList: React.FC = () => {
 
     loadData();
   }, [filters]);
+
+  // Debounce search updates to filters so we don't block typing
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: searchInput || undefined, startIndex: 0 }));
+    }, 350);
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [searchInput]);
 
   // Load more handler
   const loadMore = useCallback(async () => {
@@ -510,9 +532,8 @@ const ProductList: React.FC = () => {
                   id="marketplace-search"
                   type="text"
                   placeholder={t('products.search_placeholder')}
-                  value={filters.search || ''}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value, startIndex: 0 })}
-                  disabled={loading}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                 />
               </div>
               <div className="hero-actions">
