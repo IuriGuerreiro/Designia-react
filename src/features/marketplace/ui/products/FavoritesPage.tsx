@@ -73,7 +73,7 @@ const FavoritesPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Layout>
+      <Layout maxWidth="full">
         <div className="products-page">
           <div className="error-message">
             <p>{t('favorites.loading_favorites')}</p>
@@ -84,7 +84,7 @@ const FavoritesPage: React.FC = () => {
   }
 
   return (
-    <Layout>
+    <Layout maxWidth="full">
       <div className="products-page favorites-wide">
         <section className="products-main">
           <div className="products-controls">

@@ -18,6 +18,7 @@ const ProductForm: React.FC = () => {
   // State management
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [categories, setCategories] = useState<Category[]>([]);
   
   const [formData, setFormData] = useState({
@@ -80,29 +81,37 @@ const ProductForm: React.FC = () => {
       setLoading(true);
       try {
         const product = await productService.getProduct(slug);
-        
+
+        // Safely determine category id from various backend shapes
+        const rawCategory: any = (product as any).category;
+        const categoryId = rawCategory && typeof rawCategory === 'object'
+          ? String(rawCategory.id ?? '')
+          : rawCategory != null
+            ? String(rawCategory)
+            : '';
+
         setFormData({
           name: product.name,
           description: product.description,
           short_description: product.short_description || '',
-          price: product.price.toString(),
-          original_price: product.original_price?.toString() || '',
-          stock_quantity: product.stock_quantity,
-          category: product.category.id.toString(),
-          condition: product.condition,
-          brand: product.brand,
-          model: product.model,
-          weight: product.weight?.toString() || '',
-          dimensions_length: product.dimensions_length?.toString() || '',
-          dimensions_width: product.dimensions_width?.toString() || '',
-          dimensions_height: product.dimensions_height?.toString() || '',
-          materials: product.materials,
-          tags: product.tags,
-          is_featured: product.is_featured,
-          is_digital: product.is_digital,
+          price: product.price?.toString?.() ?? String(product.price ?? ''),
+          original_price: product.original_price != null ? String(product.original_price) : '',
+          stock_quantity: Number(product.stock_quantity ?? 0),
+          category: categoryId,
+          condition: (product as any).condition ?? 'new',
+          brand: (product as any).brand ?? '',
+          model: (product as any).model ?? '',
+          weight: product.weight != null ? String(product.weight) : '',
+          dimensions_length: product.dimensions_length != null ? String(product.dimensions_length) : '',
+          dimensions_width: product.dimensions_width != null ? String(product.dimensions_width) : '',
+          dimensions_height: product.dimensions_height != null ? String(product.dimensions_height) : '',
+          materials: (product as any).materials ?? '',
+          tags: Array.isArray((product as any).tags) ? (product as any).tags : [],
+          is_featured: Boolean((product as any).is_featured),
+          is_digital: Boolean((product as any).is_digital),
         });
-        
-        setSelectedColors(product.colors);
+
+        setSelectedColors(Array.isArray((product as any).colors) ? (product as any).colors : []);
       } catch (err) {
         console.error('Failed to load product for editing:', err);
         setError(t('products.form.errors.load_product'));
@@ -143,8 +152,26 @@ const ProductForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    setFieldErrors({});
+
+    // Client-side validation: original_price must be greater than price if provided
+    const priceNum = parseFloat(formData.price);
+    const originalNum = parseFloat(formData.original_price);
+    if (
+      formData.original_price &&
+      !Number.isNaN(priceNum) &&
+      !Number.isNaN(originalNum) &&
+      originalNum <= priceNum
+    ) {
+      setFieldErrors(prev => ({
+        ...prev,
+        original_price: 'Original price must be higher than current price',
+      }));
+      return;
+    }
+
+    setLoading(true);
     setIsProcessingImages(true);
 
     try {
@@ -399,7 +426,22 @@ const ProductForm: React.FC = () => {
       navigate('/my-products');
     } catch (err) {
       console.error('Failed to save product:', err);
-      setError(t('products.form.errors.save_product'));
+      // Try to surface field-level validation errors from backend (DRF style)
+      const anyErr = err as any;
+      const data = anyErr?.data as Record<string, unknown> | undefined;
+      if (data && typeof data === 'object') {
+        // Handle original_price validation message, e.g. ["Original price must be higher than current price"]
+        const op = (data as any).original_price;
+        if (op) {
+          const message = Array.isArray(op) ? String(op[0]) : String(op);
+          setFieldErrors(prev => ({ ...prev, original_price: message }));
+          setError('Product creation validation errors');
+        } else {
+          setError(t('products.form.errors.save_product'));
+        }
+      } else {
+        setError(t('products.form.errors.save_product'));
+      }
     } finally {
       setLoading(false);
       setIsProcessingImages(false);
@@ -598,8 +640,14 @@ const ProductForm: React.FC = () => {
                       min="0.01"
                       step="0.01"
                       placeholder="0.00"
+                      aria-invalid={Boolean(fieldErrors.original_price) || undefined}
                     />
                   </div>
+                  {fieldErrors.original_price && (
+                    <p style={{ color: 'var(--error-red)', margin: '4px 0 0', fontSize: 13 }}>
+                      {fieldErrors.original_price}
+                    </p>
+                  )}
                 </div>
 
                 <div className="product-form-group">

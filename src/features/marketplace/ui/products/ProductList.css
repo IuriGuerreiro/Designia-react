@@ -581,10 +581,17 @@
   }
 }
 
-/* Favorites page: make container/cards bigger */
+/* Favorites page: allow wider layout while keeping card sizing consistent */
+.favorites-wide {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .favorites-wide .products-flex {
-  grid-template-columns: repeat(auto-fill, minmax(280px, 380px));
-  gap: clamp(1.5rem, 3vw, 2rem);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 300px));
+  gap: clamp(1.25rem, 2.5vw, 1.75rem);
+  justify-content: flex-start;
 }
 
 .product-card-skeleton {

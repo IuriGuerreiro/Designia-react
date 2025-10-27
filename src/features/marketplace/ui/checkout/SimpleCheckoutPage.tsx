@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
@@ -23,10 +23,61 @@ const SimpleCheckoutPage = () => {
   // Check if this is a retry for a specific order
   const retryOrderId = searchParams.get('retry_order');
 
+  // Storage helpers (sessionStorage keeps state per-tab and clears on browser close)
+  const storageKey = useMemo(() => {
+    return retryOrderId
+      ? `designia:checkout:retry:${retryOrderId}`
+      : 'designia:checkout:new';
+  }, [retryOrderId]);
+
+  const saveClientSecret = (clientSecret: string) => {
+    try {
+      const payload = {
+        clientSecret,
+        createdAt: Date.now(),
+        type: retryOrderId ? 'retry' : 'new',
+        orderId: retryOrderId ?? null,
+      };
+      sessionStorage.setItem(storageKey, JSON.stringify(payload));
+    } catch (_) {
+      // ignore storage issues
+    }
+  };
+
+  const readStoredClientSecret = (): string | null => {
+    try {
+      // Optional kill-switch via query: /checkout?reset_checkout=1
+      const reset = searchParams.get('reset_checkout');
+      if (reset === '1') {
+        Object.keys(sessionStorage)
+          .filter((k) => k.startsWith('designia:checkout:'))
+          .forEach((k) => sessionStorage.removeItem(k));
+        return null;
+      }
+
+      const raw = sessionStorage.getItem(storageKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.clientSecret === 'string' && parsed.clientSecret.length > 0) {
+        return parsed.clientSecret as string;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  };
+
   const fetchClientSecret = useCallback(async () => {
     console.log('🚀 Creating checkout session...');
     
     try {
+      // If we already have an active clientSecret (e.g., after a page reload), reuse it
+      const existing = readStoredClientSecret();
+      if (existing) {
+        console.log('♻️ Reusing stored checkout clientSecret');
+        return existing;
+      }
+
       let response;
       
       if (retryOrderId) {
@@ -51,6 +102,9 @@ const SimpleCheckoutPage = () => {
       if (!response.clientSecret) {
         throw new Error('No clientSecret in response');
       }
+      
+      // Persist so that reloads can rehydrate the same Embedded Checkout session
+      saveClientSecret(response.clientSecret);
       
       return response.clientSecret;
       

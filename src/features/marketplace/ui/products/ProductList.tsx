@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import './ProductList.css';
 import { Layout } from '@/app/layout';
 import ProductCard from './ProductCard';
@@ -34,11 +34,11 @@ const ProductFilters: React.FC<{
   const { t } = useTranslation();
 
   const handleFilterChange = (key: keyof ProductFilters, value: any) => {
-    onFilterChange({ ...filters, [key]: value, page: 1 }); // Reset to first page
+    onFilterChange({ ...filters, [key]: value, startIndex: 0 }); // Reset to first slice
   };
 
   const clearFilters = () => {
-    onFilterChange({ page: 1 });
+    onFilterChange({ startIndex: 0, pageSize: filters.pageSize ?? 20 });
   };
 
   return (
@@ -241,7 +241,15 @@ const ProductList: React.FC = () => {
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Pagination (offset-based) state for infinite scroll
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [currentStart, setCurrentStart] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(20);
+  const [hasNext, setHasNext] = useState<boolean>(false);
+  const [nextStart, setNextStart] = useState<number | null>(null);
   
   // State for UI
   const [activeTab, setActiveTab] = useState('products');
@@ -252,8 +260,8 @@ const ProductList: React.FC = () => {
   
   // State for filters
   const [filters, setFilters] = useState<ProductFilters>({
-    page: 1,
-    page_size: 20
+    startIndex: 0,
+    pageSize: 20,
   });
 
   // Load products and categories from API
@@ -264,19 +272,30 @@ const ProductList: React.FC = () => {
 
       try {
         const [productsResponse, categoriesResponse] = await Promise.all([
-          productService.getProducts(filters),
+          productService.getProducts({ ...filters, startIndex: 0 }),
           categoryService.getCategories()
         ]);
-        
-        // Handle both paginated and direct array responses
-        const apiProducts = productsResponse.results || productsResponse;
-        // Ensure apiProducts is an array
-        setProducts(Array.isArray(apiProducts) ? apiProducts : []);
+
+        // Extract results array and pagination metadata
+        const results = (productsResponse as any).results || productsResponse;
+        const count = (productsResponse as any).count ?? (Array.isArray(results) ? results.length : 0);
+        const respPageSize = (productsResponse as any).pageSize ?? filters.pageSize ?? pageSize;
+        const hasN = (productsResponse as any).hasNext ?? Boolean((productsResponse as any).next);
+        const nextS = (productsResponse as any).nextStartIndex ?? null;
+
+        setProducts(Array.isArray(results) ? results : []);
         setCategories(categoriesResponse);
+        setTotalCount(typeof count === 'number' ? count : 0);
+        setPageSize(typeof respPageSize === 'number' ? respPageSize : 20);
+        setCurrentStart(0);
+        setHasNext(Boolean(hasN));
+        setNextStart(typeof nextS === 'number' ? nextS : null);
       } catch (err) {
         console.error('Failed to load data:', err);
         setError('Failed to load products. Please check your connection and try again.');
         setProducts([]);
+        setHasNext(false);
+        setNextStart(null);
       } finally {
         setLoading(false);
       }
@@ -284,6 +303,44 @@ const ProductList: React.FC = () => {
 
     loadData();
   }, [filters]);
+
+  // Load more handler
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasNext || nextStart === null) return;
+    setLoadingMore(true);
+    try {
+      const resp = await productService.getProducts({ ...filters, startIndex: nextStart, pageSize });
+      const nextResults = (resp as any).results || resp;
+      const hasN = (resp as any).hasNext ?? Boolean((resp as any).next);
+      const nextS = (resp as any).nextStartIndex ?? null;
+      setProducts((prev) => prev.concat(Array.isArray(nextResults) ? nextResults : []));
+      setCurrentStart(nextStart);
+      setHasNext(Boolean(hasN));
+      setNextStart(typeof nextS === 'number' ? nextS : null);
+    } catch (err) {
+      console.error('Failed to load more products:', err);
+      // Keep hasNext as-is but stop further auto-trigger on this attempt
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [filters, loadingMore, hasNext, nextStart, pageSize]);
+
+  // IntersectionObserver to auto-load more when reaching the sentinel
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!hasNext) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          loadMore();
+        }
+      });
+    }, { root: null, rootMargin: '200px', threshold: 0 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNext, loadMore]);
 
   // Sort and filter products
   const processedProducts = useMemo(() => {
@@ -454,7 +511,7 @@ const ProductList: React.FC = () => {
                   type="text"
                   placeholder={t('products.search_placeholder')}
                   value={filters.search || ''}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value, startIndex: 0 })}
                   disabled={loading}
                 />
               </div>
@@ -565,6 +622,31 @@ const ProductList: React.FC = () => {
                   </div>
                   <h3>No products found</h3>
                   <p>{filters.search ? `No products match "${filters.search}"` : 'No products are currently available.'}</p>
+                </div>
+              )}
+
+              {/* Infinite scroll sentinel and fallback load more button */}
+              {!loading && processedProducts.length > 0 && (
+                <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  {hasNext && (
+                    <>
+                      <div ref={sentinelRef} style={{ height: 1, width: '100%' }} />
+                      <button
+                        type="button"
+                        className="load-more-btn"
+                        onClick={loadMore}
+                        disabled={loadingMore}
+                        style={{ marginTop: '12px' }}
+                      >
+                        {loadingMore ? 'Loading…' : `Load more (${pageSize})`}
+                      </button>
+                    </>
+                  )}
+                  {!hasNext && (
+                    <div className="end-of-results" style={{ color: '#666', fontSize: 14, padding: '8px' }}>
+                      You’ve reached the end
+                    </div>
+                  )}
                 </div>
               )}
             </div>

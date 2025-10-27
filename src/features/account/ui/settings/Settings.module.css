@@ -358,6 +358,198 @@
   color: var(--color-text-primary);
 }
 
+/* Password reset redesign */
+.pwSection {
+  display: grid;
+  gap: 1rem;
+}
+
+.pwStart {
+  display: grid;
+  gap: 1rem;
+}
+
+.pwHelp {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+}
+
+.pwBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 0.6rem;
+  border-radius: var(--badge-radius);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-glass);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.08em;
+}
+
+.pwHint {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.pwActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pwForm {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.pwHeaderRow {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.pwGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: clamp(1rem, 3vw, 1.5rem);
+}
+
+.pwField {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.pwField label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+}
+
+.pwInputWrap {
+  position: relative;
+}
+
+.pwInput {
+  width: 100%;
+  padding: 0.75rem 2.75rem 0.75rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-glass);
+  color: var(--color-text-primary);
+}
+
+.pwToggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid var(--border-soft);
+  background: var(--surface-highlight);
+  color: var(--color-text-secondary);
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.pwInlineRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pwResend {
+  background: transparent;
+  border: none;
+  color: var(--color-accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pwResend[aria-disabled='true'] {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.pwStrength {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pwStrengthBar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-highlight);
+  transition: width var(--transition-base);
+}
+
+.pwStrength_weak { background: linear-gradient(90deg, #ff6b6b, #ffa07a); }
+.pwStrength_medium { background: linear-gradient(90deg, #ffd166, #fca311); }
+.pwStrength_strong { background: linear-gradient(90deg, #3ddc97, #06d6a0); }
+
+.pwStrengthLabel {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.pwErrorText {
+  font-size: 0.85rem;
+  color: var(--color-warning);
+}
+
+.alertWarning {
+  border: 1px solid var(--color-warning);
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 8%, transparent);
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+}
+
+.alertSuccess {
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 8%, transparent);
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+}
+
+.pwSuccessPanel {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.pwSuccessIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--surface-glass);
+  border: 1px solid var(--border-soft);
+  color: var(--color-success);
+  font-weight: 700;
+}
+
 @media (max-width: 768px) {
   .settingsPage {
     padding: clamp(2rem, 8vw, 3rem) clamp(1rem, 6vw, 1.5rem);
