@@ -33,6 +33,15 @@ const CheckoutSuccess: React.FC = () => {
         );
         setSessionStatus(response);
 
+        // Clear any persisted checkout clientSecret so a new checkout starts clean
+        try {
+          Object.keys(sessionStorage)
+            .filter((k) => k.startsWith('designia:checkout:'))
+            .forEach((k) => sessionStorage.removeItem(k));
+        } catch (_) {
+          // ignore storage issues
+        }
+
         // If payment was successful, refresh the cart to get updated information
         if (response.payment_status === 'paid' && !cartRefreshed) {
           console.log('✅ Payment successful! Refreshing cart...');

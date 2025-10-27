@@ -145,6 +145,9 @@ export interface ProductFilters {
   ordering?: string;
   page?: number;
   page_size?: number;
+  // New offset-based pagination for search endpoint
+  startIndex?: number;
+  pageSize?: number;
 }
 
 export interface ProductFavorite {
