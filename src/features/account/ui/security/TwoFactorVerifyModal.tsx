@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ensureHttpError, verifyTwoFactorAction } from '@/features/auth/api';
 import styles from './TwoFactorVerifyModal.module.css';
 
@@ -15,6 +16,7 @@ const formatTime = (seconds: number) => {
 };
 
 const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onSuccess, onCancel }) => {
+  const { t } = useTranslation();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -38,7 +40,7 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
     event.preventDefault();
 
     if (code.length !== 6) {
-      setError('Please enter a 6-digit code');
+      setError(t('account.security.2fa_verify.errors.code_required'));
       return;
     }
 
@@ -51,7 +53,7 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
       onSuccess();
     } catch (err) {
       const httpError = ensureHttpError(err);
-      setError(httpError?.message ?? 'Invalid or expired code');
+      setError(httpError?.message ?? t('account.security.2fa_verify.errors.invalid_code'));
     } finally {
       setLoading(false);
     }
@@ -66,8 +68,10 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
     <div className={styles.modalOverlay} onClick={onCancel}>
       <div className={styles.modalContent} onClick={(event) => event.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h3>{action === 'enable' ? 'Enable' : 'Disable'} Two-Factor Authentication</h3>
-          <button className={styles.modalClose} onClick={onCancel} aria-label="Close verification modal">
+          <h3>
+            {action === 'enable' ? t('account.security.2fa_verify.title_enable') : t('account.security.2fa_verify.title_disable')}
+          </h3>
+          <button className={styles.modalClose} onClick={onCancel} aria-label={t('account.security.2fa_verify.a11y.close_modal')}>
             ×
           </button>
         </div>
@@ -76,26 +80,27 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
           <div className={styles.verificationInfo}>
             <div className={styles.emailIcon}>📧</div>
             <p>
-              We've sent a 6-digit verification code to your email address. Please enter it below to{' '}
-              {action === 'enable' ? 'enable' : 'disable'} 2FA.
+              {action === 'enable'
+                ? t('account.security.2fa_verify.description_enable')
+                : t('account.security.2fa_verify.description_disable')}
             </p>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className={styles.codeInputContainer}>
-              <label htmlFor="verification-code">Verification Code</label>
+              <label htmlFor="verification-code">{t('account.security.2fa_verify.form.code_label')}</label>
               <input
                 id="verification-code"
                 type="text"
                 value={code}
                 onChange={handleCodeChange}
-                placeholder="000000"
+                placeholder={t('account.security.2fa_verify.form.code_placeholder')}
                 className={styles.codeInput}
                 maxLength={6}
                 autoComplete="one-time-code"
                 autoFocus
               />
-              <div className={styles.codeHint}>Enter the 6-digit code from your email</div>
+              <div className={styles.codeHint}>{t('account.security.2fa_verify.form.code_hint')}</div>
             </div>
 
             {error && <div className={styles.errorMessage}>{error}</div>}
@@ -103,11 +108,11 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
             <div className={styles.timerInfo}>
               {timeLeft > 0 ? (
                 <p className={styles.timer}>
-                  ⏰ Code expires in: <span className={styles.timeLeft}>{formatTime(timeLeft)}</span>
+                  ⏰ {t('account.security.2fa_verify.timer.expires_in')} <span className={styles.timeLeft}>{formatTime(timeLeft)}</span>
                 </p>
               ) : (
                 <p className={cx(styles.timer, styles.timerExpired)}>
-                  ⚠️ Code has expired. Please try again.
+                  ⚠️ {t('account.security.2fa_verify.timer.expired')}
                 </p>
               )}
             </div>
@@ -119,14 +124,14 @@ const TwoFactorVerifyModal: React.FC<TwoFactorVerifyModalProps> = ({ action, onS
                   onClick={onCancel}
                   disabled={loading}
                 >
-                  Cancel
+                  {t('account.security.2fa_verify.actions.cancel')}
                 </button>
                 <button
                   type="submit"
                   className={styles.settingsBtn}
                   disabled={loading || code.length !== 6 || timeLeft <= 0}
                 >
-                  {loading ? 'Verifying...' : 'Verify Code'}
+                  {loading ? t('account.security.2fa_verify.actions.verifying') : t('account.security.2fa_verify.actions.verify_code')}
                 </button>
             </div>
           </form>

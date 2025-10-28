@@ -1,4 +1,5 @@
-import type { AuthUser, RateLimitStatus, SellerApplicationStatus } from '../model';
+import type { AuthUser, RateLimitStatus } from '../model';
+import type { SellerApplicationStatus } from '@/features/account/model/types';
 
 export interface LoginSuccessResponse {
   access: string;

@@ -144,8 +144,7 @@ export const submitSellerApplication = (payload: SellerApplicationPayload) => {
   });
 };
 
-export const fetchSellerApplicationStatus = () =>
-  apiRequest<SellerApplicationStatusResponse>('SELLER_APPLICATION_STATUS');
+// Moved to features/account/api/sellerService.ts to align with HOW_TO_DEVELOP.md
 
 export const ensureHttpError = (error: unknown) => {
   if (error instanceof HttpError) {

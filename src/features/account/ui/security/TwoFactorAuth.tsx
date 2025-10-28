@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   fetchTwoFactorStatus as fetchTwoFactorStatusApi,
   toggleTwoFactor,
@@ -13,6 +14,7 @@ interface TwoFactorStatus {
 }
 
 const TwoFactorAuth: React.FC = () => {
+  const { t } = useTranslation();
   const [twoFactorStatus, setTwoFactorStatus] = useState<TwoFactorStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -30,7 +32,7 @@ const TwoFactorAuth: React.FC = () => {
       setTwoFactorStatus(response);
     } catch (err) {
       const httpError = ensureHttpError(err);
-      setError(httpError?.message ?? 'Failed to fetch 2FA status');
+      setError(httpError?.message ?? t('account.security.errors.fetch_status_failed'));
     } finally {
       setLoading(false);
     }
@@ -51,7 +53,7 @@ const TwoFactorAuth: React.FC = () => {
       }
     } catch (err) {
       const httpError = ensureHttpError(err);
-      setError(httpError?.message ?? 'Failed to toggle 2FA');
+      setError(httpError?.message ?? t('account.security.errors.toggle_failed'));
     } finally {
       setLoading(false);
     }
@@ -71,7 +73,7 @@ const TwoFactorAuth: React.FC = () => {
   if (loading && !twoFactorStatus) {
     return (
       <div className={styles.twoFactorAuth}>
-        <div className={styles.loading}>Loading 2FA settings...</div>
+        <div className={styles.loading}>{t('account.security.loading')}</div>
       </div>
     );
   }
@@ -82,7 +84,7 @@ const TwoFactorAuth: React.FC = () => {
         <div className={styles.twoFactorInfo}>
           <span className={styles.email}>{twoFactorStatus?.email}</span>
           <span className={styles.status}>
-            {twoFactorStatus?.two_factor_enabled ? '2FA Enabled' : '2FA Disabled'}
+            {twoFactorStatus?.two_factor_enabled ? t('account.security.status.enabled') : t('account.security.status.disabled')}
           </span>
         </div>
 
@@ -98,10 +100,10 @@ const TwoFactorAuth: React.FC = () => {
             disabled={loading}
           >
             {loading
-              ? 'Processing...'
+              ? t('account.security.actions.processing')
               : twoFactorStatus?.two_factor_enabled
-                ? 'Disable'
-                : 'Enable'}
+                ? t('account.security.actions.disable')
+                : t('account.security.actions.enable')}
           </button>
         </div>
       </div>

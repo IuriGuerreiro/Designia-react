@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import styles from './UserProfileScreen.module.css';
 
 const tabConfig = [
-  { key: 'posts', label: 'Posts', icon: '🪑' },
-  { key: 'favorites', label: 'Favorites', icon: '❤️' },
-  { key: 'groups', label: 'Groups', icon: '👥' },
+  { key: 'posts', labelKey: 'account.profile.tabs.posts', icon: '🪑' },
+  { key: 'favorites', labelKey: 'account.profile.tabs.favorites', icon: '❤️' },
+  { key: 'groups', labelKey: 'account.profile.tabs.groups', icon: '👥' },
 ] as const;
 
 type TabKey = typeof tabConfig[number]['key'];
@@ -26,6 +27,7 @@ const defaultProfile = {
 };
 
 const UserProfileScreen: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { userId } = useParams<{ userId?: string }>();
   const [activeTab, setActiveTab] = useState<TabKey>('posts');
@@ -40,23 +42,23 @@ const UserProfileScreen: React.FC = () => {
       case 'posts':
         return (
           <div className={styles.gridPlaceholder}>
-            <div className={styles.placeholderCard}>Projects and posts will appear here.</div>
-            <div className={styles.placeholderCard}>Share behind-the-scenes looks at your workshop.</div>
-            <div className={styles.placeholderCard}>Highlight your best-selling furniture collections.</div>
+            <div className={styles.placeholderCard}>{t('account.profile.placeholders.posts_1')}</div>
+            <div className={styles.placeholderCard}>{t('account.profile.placeholders.posts_2')}</div>
+            <div className={styles.placeholderCard}>{t('account.profile.placeholders.posts_3')}</div>
           </div>
         );
       case 'favorites':
         return (
           <div className={styles.gridPlaceholder}>
-            <div className={styles.placeholderCard}>Save marketplace items to revisit them later.</div>
-            <div className={styles.placeholderCard}>Curate inspiration boards for upcoming collections.</div>
+            <div className={styles.placeholderCard}>{t('account.profile.placeholders.fav_1')}</div>
+            <div className={styles.placeholderCard}>{t('account.profile.placeholders.fav_2')}</div>
           </div>
         );
       case 'groups':
         return (
           <div className={styles.gridPlaceholder}>
-            <div className={styles.placeholderCard}>Join communities of designers and restorers.</div>
-            <div className={styles.placeholderCard}>Participate in seller-only discussions and workshops.</div>
+            <div className={styles.placeholderCard}>{t('account.profile.placeholders.groups_1')}</div>
+            <div className={styles.placeholderCard}>{t('account.profile.placeholders.groups_2')}</div>
           </div>
         );
       default:
@@ -88,10 +90,10 @@ const UserProfileScreen: React.FC = () => {
 
             <div className={styles.actions}>
               <button className={styles.actionButton} onClick={() => navigate('/profile/edit')}>
-                Edit Profile
+                {t('account.profile.actions.edit_profile')}
               </button>
               <button className={`${styles.actionButton} ${styles.actionButtonPrimary}`} onClick={() => navigate('/settings')}>
-                Account Settings
+                {t('account.profile.actions.account_settings')}
               </button>
             </div>
           </div>
@@ -108,7 +110,7 @@ const UserProfileScreen: React.FC = () => {
           <p className={styles.bio}>{profile.bio}</p>
 
           <div className={styles.tabs}>
-            {tabConfig.map(({ key, label, icon }) => (
+            {tabConfig.map(({ key, labelKey, icon }) => (
               <button
                 key={key}
                 type="button"
@@ -118,7 +120,7 @@ const UserProfileScreen: React.FC = () => {
                 <span className={styles.tabIcon} aria-hidden>
                   {icon}
                 </span>
-                <span className={styles.tabLabel}>{label}</span>
+                <span className={styles.tabLabel}>{t(labelKey)}</span>
               </button>
             ))}
           </div>

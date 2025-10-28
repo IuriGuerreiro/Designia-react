@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './ChangePasswordModal.module.css';
 import { API_ENDPOINTS } from '@/shared/api';
 
@@ -13,6 +14,7 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
 
 const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userEmail, userId, onClose }) => {
+  const { t } = useTranslation();
   const [step, setStep] = useState<'initial' | 'verify' | 'success'>('initial');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -58,9 +60,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
     const lengthScore = pw.length >= 12 ? 2 : pw.length >= 8 ? 1 : 0;
     const variety = [/[a-z]/, /[A-Z]/, /\d/, /[^\w]/].reduce((acc, r) => acc + (r.test(pw) ? 1 : 0), 0);
     const score = lengthScore + (variety >= 3 ? 2 : variety >= 2 ? 1 : 0);
-    if (score >= 4) return { label: 'Strong', level: 'strong' as const, pct: 100 };
-    if (score >= 2) return { label: 'Medium', level: 'medium' as const, pct: 66 };
-    if (pw.length > 0) return { label: 'Weak', level: 'weak' as const, pct: 33 };
+    if (score >= 4) return { label: t('account.security.change_password.strength.strong'), level: 'strong' as const, pct: 100 };
+    if (score >= 2) return { label: t('account.security.change_password.strength.medium'), level: 'medium' as const, pct: 66 };
+    if (pw.length > 0) return { label: t('account.security.change_password.strength.weak'), level: 'weak' as const, pct: 33 };
     return { label: ' ', level: 'empty' as const, pct: 0 };
   };
   const strength = getStrength(password);
@@ -80,17 +82,17 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
         setStep('verify');
         setCooldown(60);
         setCpUserId(typeof data.user_id === 'number' ? data.user_id : (userId ?? null));
-        setInfo(data.message || 'Code sent. Check your inbox.');
+        setInfo(data.message || t('account.security.change_password.messages.code_sent'));
       } else if (response.status === 429) {
         setStep('verify');
         setCooldown(60);
         setCpUserId(userId ?? null);
-        setInfo((data && data.message) || 'A recent code was already sent. Please check your email.');
+        setInfo((data && data.message) || t('account.security.change_password.messages.code_recently_sent'));
       } else {
-        setError((data && data.error) || 'Failed to send verification code.');
+        setError((data && data.error) || t('account.security.change_password.errors.send_failed'));
       }
     } catch {
-      setError('Network error. Please try again.');
+      setError(t('account.security.change_password.errors.network'));
     } finally {
       setLoading(false);
     }
@@ -106,10 +108,10 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
         body: JSON.stringify({ email: userEmail }),
       });
       await response.json().catch(() => ({}));
-      setInfo('If an account exists, a new code was sent.');
+      setInfo(t('account.security.change_password.messages.code_resent'));
       setCooldown(60);
     } catch {
-      setError('Unable to resend code right now.');
+      setError(t('account.security.change_password.errors.resend_failed'));
     } finally {
       setLoading(false);
     }
@@ -118,11 +120,11 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
   const submitNewPassword = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!code || !password || !confirm) {
-      setError('Please fill in all fields.');
+      setError(t('account.security.change_password.errors.fill_all_fields'));
       return;
     }
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      setError(t('account.security.change_password.errors.passwords_mismatch'));
       return;
     }
     try {
@@ -146,10 +148,10 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
         setPassword('');
         setConfirm('');
       } else {
-        setError((data && data.error) || 'Failed to update password.');
+        setError((data && data.error) || t('account.security.change_password.errors.update_failed'));
       }
     } catch {
-      setError('Network error. Please try again.');
+      setError(t('account.security.change_password.errors.network'));
     } finally {
       setLoading(false);
     }
@@ -161,62 +163,62 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="change-pw-title">
         <div className={styles.modalHeader}>
-          <h3 id="change-pw-title">Change Password</h3>
-          <button className={styles.modalClose} onClick={onClose} aria-label="Close change password modal">×</button>
+          <h3 id="change-pw-title">{t('account.security.change_password.title')}</h3>
+          <button className={styles.modalClose} onClick={onClose} aria-label={t('account.security.change_password.a11y.close_modal')}>×</button>
         </div>
         <div className={styles.modalBody}>
           {step === 'initial' && (
             <div className={styles.stepContainer}>
               <div className={styles.stepIntro}>
-                <span className={styles.stepBadge}>Step 1</span>
+                <span className={styles.stepBadge}>{t('account.security.change_password.step_1')}</span>
                 <div>
-                  <strong>Send a verification code</strong>
-                  <p>We will email a 6-digit code to {maskedEmail}.</p>
+                  <strong>{t('account.security.change_password.send_code_title')}</strong>
+                  <p>{t('account.security.change_password.send_code_description', { email: maskedEmail })}</p>
                 </div>
               </div>
               {error && <div className={styles.alertWarning} role="alert" aria-live="assertive">{error}</div>}
               {info && <div className={styles.alertSuccess} role="status" aria-live="polite">{info}</div>}
               <div className={styles.modalActions}>
                 <button className={styles.settingsBtn} onClick={requestCode} disabled={loading}>
-                  {loading ? 'Sending Code…' : 'Send Code'}
+                  {loading ? t('account.security.change_password.actions.sending_code') : t('account.security.change_password.actions.send_code')}
                 </button>
                 <button className={cx(styles.settingsBtn, styles.settingsBtnSecondary)} onClick={onClose} disabled={loading}>
-                  Cancel
+                  {t('account.security.change_password.actions.cancel')}
                 </button>
               </div>
-              <p className={styles.hint}>Having trouble? Check spam or promotions folders.</p>
+              <p className={styles.hint}>{t('account.security.change_password.hints.check_spam')}</p>
             </div>
           )}
 
           {step === 'verify' && (
             <form onSubmit={submitNewPassword} className={styles.stepContainer}>
               <div className={styles.stepIntro}>
-                <span className={styles.stepBadge}>Step 2</span>
+                <span className={styles.stepBadge}>{t('account.security.change_password.step_2')}</span>
                 <div>
-                  <strong>Verify and update password</strong>
-                  <p>Enter the 6‑digit code and your new password.</p>
+                  <strong>{t('account.security.change_password.verify_title')}</strong>
+                  <p>{t('account.security.change_password.verify_description')}</p>
                 </div>
               </div>
               {error && <div className={styles.alertWarning} role="alert" aria-live="assertive">{error}</div>}
               {info && <div className={styles.alertSuccess} role="status" aria-live="polite">{info}</div>}
               <div className={styles.grid}> 
                 <div className={styles.field}>
-                  <label htmlFor="pw-code">Verification Code</label>
+                  <label htmlFor="pw-code">{t('account.security.change_password.form.code_label')}</label>
                   <input
                     id="pw-code"
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]{6}"
-                    title="Enter 6 digits"
+                    title={t('account.security.change_password.form.code_title')}
                     autoComplete="one-time-code"
                     maxLength={6}
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    placeholder="6-digit code"
+                    placeholder={t('account.security.change_password.form.code_placeholder')}
                     className={styles.input}
                   />
                   <div className={styles.inlineRow}>
-                    <span className={styles.hint}>Sent to {maskedEmail}</span>
+                    <span className={styles.hint}>{t('account.security.change_password.hints.sent_to', { email: maskedEmail })}</span>
                     <button
                       type="button"
                       className={styles.resend}
@@ -224,20 +226,20 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
                       disabled={loading || cooldown > 0}
                       aria-disabled={loading || cooldown > 0}
                     >
-                      {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}
+                      {cooldown > 0 ? t('account.security.change_password.actions.resend_in', { seconds: cooldown }) : t('account.security.change_password.actions.resend_code')}
                     </button>
                   </div>
                 </div>
 
                 <div className={styles.field}>
-                  <label htmlFor="pw-new">New Password</label>
+                  <label htmlFor="pw-new">{t('account.security.change_password.form.new_label')}</label>
                   <div className={styles.inputWrap}>
                     <input
                       id="pw-new"
                       type={showPw ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter new password"
+                      placeholder={t('account.security.change_password.form.new_placeholder')}
                       minLength={8}
                       required
                       className={styles.input}
@@ -246,9 +248,9 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
                       type="button"
                       className={styles.toggle}
                       onClick={() => setShowPw((s) => !s)}
-                      aria-label={showPw ? 'Hide password' : 'Show password'}
+                      aria-label={showPw ? t('account.security.change_password.a11y.hide_password') : t('account.security.change_password.a11y.show_password')}
                     >
-                      {showPw ? 'Hide' : 'Show'}
+                      {showPw ? t('account.security.change_password.actions.hide') : t('account.security.change_password.actions.show')}
                     </button>
                   </div>
                   <div className={styles.strength} aria-hidden={strength.level === 'empty'}>
@@ -258,14 +260,14 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
                 </div>
 
                 <div className={styles.field}>
-                  <label htmlFor="pw-confirm">Confirm Password</label>
+                  <label htmlFor="pw-confirm">{t('account.security.change_password.form.confirm_label')}</label>
                   <div className={styles.inputWrap}>
                     <input
                       id="pw-confirm"
                       type={showConfirm ? 'text' : 'password'}
                       value={confirm}
                       onChange={(e) => setConfirm(e.target.value)}
-                      placeholder="Re-enter new password"
+                      placeholder={t('account.security.change_password.form.confirm_placeholder')}
                       minLength={8}
                       required
                       className={styles.input}
@@ -274,26 +276,26 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
                       type="button"
                       className={styles.toggle}
                       onClick={() => setShowConfirm((s) => !s)}
-                      aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                      aria-label={showConfirm ? t('account.security.change_password.a11y.hide_password') : t('account.security.change_password.a11y.show_password')}
                     >
-                      {showConfirm ? 'Hide' : 'Show'}
+                      {showConfirm ? t('account.security.change_password.actions.hide') : t('account.security.change_password.actions.show')}
                     </button>
                   </div>
                   {!!confirm && confirm !== password && (
-                    <span className={styles.errorText}>Passwords do not match</span>
+                    <span className={styles.errorText}>{t('account.security.change_password.errors.passwords_mismatch')}</span>
                   )}
                 </div>
               </div>
               <div className={styles.modalActions}>
                 <button type="button" className={cx(styles.settingsBtn, styles.settingsBtnSecondary)} onClick={onClose} disabled={loading}>
-                  Cancel
+                  {t('account.security.change_password.actions.cancel')}
                 </button>
                 <button
                   type="submit"
                   className={styles.settingsBtn}
                   disabled={loading || code.length !== 6 || !password || !confirm || password !== confirm}
                 >
-                  {loading ? 'Updating…' : 'Update Password'}
+                  {loading ? t('account.security.change_password.actions.updating') : t('account.security.change_password.actions.update_password')}
                 </button>
               </div>
             </form>
@@ -302,11 +304,11 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
           {step === 'success' && (
             <div className={styles.successPanel} role="status" aria-live="polite">
               <div className={styles.successIcon}>✓</div>
-              <h4>Password updated</h4>
-              <p>You can now sign in with your new password.</p>
+              <h4>{t('account.security.change_password.success.title')}</h4>
+              <p>{t('account.security.change_password.success.description')}</p>
               <div className={styles.modalActions}>
                 <button className={cx(styles.settingsBtn, styles.settingsBtnSecondary)} onClick={onClose}>
-                  Close
+                  {t('account.security.change_password.actions.close')}
                 </button>
               </div>
             </div>
@@ -318,4 +320,3 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, userE
 };
 
 export default ChangePasswordModal;
-

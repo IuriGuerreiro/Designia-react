@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import StockWarning from '@/features/marketplace/ui/common/StockWarning';
@@ -7,6 +8,7 @@ import styles from './Cart.module.css';
 
 const CartPage: React.FC = () => {
   const { cartItems, removeFromCart, updateQuantity, error, clearError, clearItemError } = useCart();
+  const { t } = useTranslation();
   const [adjustingItems, setAdjustingItems] = useState<Set<string | number>>(new Set());
 
   const handleClearItemError = async (itemId: string | number) => {
@@ -40,11 +42,11 @@ const CartPage: React.FC = () => {
       <div className={styles['cart-container']}>
         {/* Header Section - Premium Design System */}
         <div className={styles['cart-header']}>
-          <h1 className={styles['cart-title']}>Shopping Cart</h1>
+          <h1 className={styles['cart-title']}>{t('cart.title')}</h1>
           <p className={styles['cart-subtitle']}>
-            {cartItems.length} item{cartItems.length !== 1 ? 's' : ''} in your cart
+            {cartItems.length} item{cartItems.length !== 1 ? 's' : ''} {t('layout.cart') ? t('layout.cart') : ''}
             {inactiveItemsCount > 0 && (
-              <span className={styles['inactive-count']}> + {inactiveItemsCount} unavailable</span>
+              <span className={styles['inactive-count']}> + {inactiveItemsCount} {t('cart.inactive_items')}</span>
             )}
           </p>
           {error && (
@@ -59,14 +61,14 @@ const CartPage: React.FC = () => {
         </div>
         
         {cartItems.length === 0 ? (
-          <div className={styles['cart-empty-state']}>
-            <div className={styles['empty-icon']}>🛒</div>
-            <h3 className={styles['empty-title']}>Your Cart is Empty</h3>
+            <div className={styles['cart-empty-state']}>
+              <div className={styles['empty-icon']}>🛒</div>
+            <h3 className={styles['empty-title']}>{t('cart.empty_cart')}</h3>
             <p className={styles['empty-description']}>
-              Looks like you haven't added any furniture to your cart yet. Start shopping to discover amazing pieces!
+              {t('cart.empty_cart_prompt')}
             </p>
             <Link to="/" className={styles['start-shopping-btn']}>
-              🛍️ Start Shopping
+              🛍️ {t('cart.continue_shopping')}
             </Link>
           </div>
         ) : (
@@ -74,7 +76,7 @@ const CartPage: React.FC = () => {
             {/* Cart Items Section */}
             <div className={styles['cart-items-section']}>
               <div className={styles['cart-items-header']}>
-                <h2 className={styles['section-title']}>Cart Items</h2>
+                <h2 className={styles['section-title']}>{t('cart.title')}</h2>
                 <span className={styles['items-count']}>
                   {cartItems.length} item{cartItems.length !== 1 ? 's' : ''}
                 </span>
@@ -100,7 +102,7 @@ const CartPage: React.FC = () => {
                       />
                       {!item.isActive && (
                         <div className={styles['inactive-overlay']}>
-                          <span className={styles['inactive-label']}>Unavailable</span>
+                          <span className={styles['inactive-label']}>{t('cart.item_unavailable')}</span>
                         </div>
                       )}
                     </div>
@@ -153,8 +155,8 @@ const CartPage: React.FC = () => {
                           className={styles['quantity-btn']}
                           onClick={() => updateQuantity(item.id, item.quantity - 1)} 
                           disabled={item.quantity <= 1 || !item.isActive}
-                          aria-label="Decrease quantity"
-                          title="Decrease"
+                          aria-label={t('products.detail.decrease_qty')}
+                          title={t('products.detail.decrease_qty')}
                         >
                           <span className="material-symbols-outlined" aria-hidden="true">remove</span>
                         </button>
@@ -166,8 +168,8 @@ const CartPage: React.FC = () => {
                             !item.isActive ||
                             (item.availableStock !== undefined && item.quantity >= item.availableStock)
                           }
-                          aria-label="Increase quantity"
-                          title="Increase"
+                          aria-label={t('products.detail.increase_qty')}
+                          title={t('products.detail.increase_qty')}
                         >
                           <span className="material-symbols-outlined" aria-hidden="true">add</span>
                         </button>
@@ -187,7 +189,7 @@ const CartPage: React.FC = () => {
                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
                           <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </svg>
-                        Remove
+                        {t('cart.remove')}
                       </button>
                     </div>
                   </div>
@@ -199,21 +201,21 @@ const CartPage: React.FC = () => {
             <div className={styles['order-summary-section']}>
               <div className={styles['order-summary-card']}>
                 <div className={styles['summary-header']}>
-                  <h3 className={styles['summary-title']}>Order Summary</h3>
+                  <h3 className={styles['summary-title']}>{t('checkout.order_summary_title')}</h3>
                 </div>
                 
                 <div className={styles['summary-content']}>
                   <div className={styles['summary-row']}>
-                    <span className={styles['summary-label']}>Subtotal</span>
+                    <span className={styles['summary-label']}>{t('checkout.subtotal_label')}</span>
                     <span className={styles['summary-value']}>${subtotal.toFixed(2)}</span>
                   </div>
                   <div className={styles['summary-row']}>
-                    <span className={styles['summary-label']}>Shipping</span>
-                    <span className={styles['summary-value']}>Calculated at checkout</span>
+                    <span className={styles['summary-label']}>{t('checkout.shipping_label')}</span>
+                    <span className={styles['summary-value']}>{t('checkout.shipping_calculated_text')}</span>
                   </div>
                   <div className={styles['summary-divider']}></div>
                   <div className={styles['summary-total']}>
-                    <span className={styles['total-label']}>Total</span>
+                    <span className={styles['total-label']}>{t('checkout.total_label')}</span>
                     <span className={styles['total-amount']}>${subtotal.toFixed(2)}</span>
                   </div>
                 </div>
@@ -224,10 +226,10 @@ const CartPage: React.FC = () => {
                       <path d="M5 12h14"></path>
                       <path d="M12 5l7 7-7 7"></path>
                     </svg>
-                    Proceed to Checkout
+                    {t('cart.checkout_button')}
                   </Link>
                   <Link to="/" className={styles['continue-shopping-btn']}>
-                    Continue Shopping
+                    {t('cart.continue_shopping')}
                   </Link>
                 </div>
               </div>

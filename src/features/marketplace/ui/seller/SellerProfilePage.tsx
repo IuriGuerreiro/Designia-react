@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/app/layout';
-import ViewSellerAccount from '@/features/marketplace/ui/seller/ViewSellerAccount';
+import ProductCard from '@/features/marketplace/ui/products/ProductCard';
 import { productService } from '@/features/marketplace/api';
+import { useCart } from '@/shared/state/CartContext';
+import type { ProductListItem } from '@/features/marketplace/model';
 import { userService } from '@/features/users/api';
 import './SellerProfilePage.css';
+import '@/features/marketplace/ui/products/ProductList.css';
 
 interface SellerProfile {
   id: number;
@@ -28,49 +32,80 @@ interface SellerProfile {
 
 const SellerProfilePage: React.FC = () => {
   const { sellerId } = useParams<{ sellerId: string }>();
+  const { t } = useTranslation();
   const [seller, setSeller] = useState<SellerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sellerProducts, setSellerProducts] = useState<any[]>([]);
+  const [sellerProducts, setSellerProducts] = useState<ProductListItem[]>([]);
+  const { addToCart } = useCart();
 
-  useEffect(() => {
-    const loadSellerProfile = async () => {
-      if (!sellerId) return;
-      
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Fetch seller profile from API
-        const sellerProfile = await userService.getSellerProfile(parseInt(sellerId));
-        setSeller(sellerProfile);
-        
-        // Load seller's products
-        try {
-          const products = await productService.getProducts({ seller: sellerId });
-          setSellerProducts(products.results || []);
-        } catch (productError) {
-          console.warn('Could not load seller products:', productError);
-          setSellerProducts([]);
-        }
-        
-      } catch (err: any) {
-        console.error('Error loading seller profile:', err);
-        
-                 // Provide more specific error messages
-         if (err.message?.includes('not found') || err.message?.includes('404')) {
-           setError('User profile not found. This user may no longer be active.');
-         } else if (err.message?.includes('Failed to fetch')) {
-           setError('Unable to load user profile. Please check your connection and try again.');
-         } else {
-           setError('Failed to load user profile. Please try again later.');
-         }
-      } finally {
-        setLoading(false);
-      }
+  const handleAddToCart = async (product: ProductListItem) => {
+    // Prefer presigned_url → image_url → image → placeholder
+    let imageUrl = '/placeholder-product.png';
+    const img = product.primary_image;
+    if (img) {
+      if (img.presigned_url && img.presigned_url !== 'null') imageUrl = img.presigned_url;
+      else if (img.image_url && img.image_url !== 'null') imageUrl = img.image_url;
+      else if (img.image && img.image !== 'null') imageUrl = img.image;
+    }
+
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: typeof product.price === 'string' ? product.price : String(product.price),
+      imageUrl,
+      quantity: 1,
+      availableStock: product.stock_quantity,
+      isActive: product.is_in_stock,
     };
 
-    loadSellerProfile();
+    try {
+      await addToCart(cartItem as any);
+    } catch (e) {
+      console.error('Failed to add to cart', e);
+    }
+  };
+
+  useEffect(() => {
+    if (!sellerId) {
+      setLoading(false);
+      return;
+    }
+
+    const sellerIdNum = parseInt(sellerId, 10);
+    setLoading(true);
+    setError(null);
+
+    Promise.allSettled([
+      userService.getSellerProfile(sellerIdNum),
+      productService.getProducts({ seller_id: sellerIdNum }),
+    ])
+      .then(([profileRes, productsRes]) => {
+        // Profile
+        if (profileRes.status === 'fulfilled') {
+          setSeller(profileRes.value);
+        } else {
+          console.error('Error loading seller profile:', profileRes.reason);
+          const msg = profileRes.reason?.message || t('seller_page.errors.load_profile');
+          setError(
+            msg.includes('not found') || msg.includes('404')
+              ? t('seller_page.errors.not_found')
+              : msg,
+          );
+          setSeller(null);
+        }
+
+        // Products
+        if (productsRes.status === 'fulfilled') {
+          const p: any = productsRes.value as any;
+          const list = Array.isArray(p) ? p : p?.results ?? [];
+          setSellerProducts(list);
+        } else {
+          console.warn('Could not load seller products:', productsRes.reason);
+          setSellerProducts([]);
+        }
+      })
+      .finally(() => setLoading(false));
   }, [sellerId]);
 
   if (loading) {
@@ -125,50 +160,125 @@ const SellerProfilePage: React.FC = () => {
           </Link>
         </nav>
 
-        {/* Seller Profile */}
+        {/* Seller Profile - compact header */}
         <div className="seller-profile-section">
-          <ViewSellerAccount 
-            seller={seller}
-            showContactInfo={true}
-            showSocialMedia={true}
-            showProfessionalInfo={true}
-          />
+          <div className="seller-header-card">
+            <div className="seller-header-inner">
+              <div className="seller-avatar-block">
+                {seller.avatar ? (
+                  <img className="seller-avatar-img" src={seller.avatar} alt={`${seller.first_name || seller.username} avatar`} />
+                ) : (
+                  <div className="seller-avatar-fallback">{(seller.first_name?.[0] || seller.username[0]).toUpperCase()}</div>
+                )}
+              </div>
+              <div className="seller-header-info">
+                <h1 className="seller-title">
+                  {seller.company?.trim() || (seller.first_name && seller.last_name ? `${seller.first_name} ${seller.last_name}` : seller.username)}
+                </h1>
+                <div className="seller-sub">
+                  <span className="seller-username">@{seller.username}</span>
+                  {seller.is_verified_seller && <span className="seller-badge verified">Verified Seller</span>}
+                  {(!seller.is_verified_seller && (seller as any).role === 'admin') && (
+                    <span className="seller-badge admin">Admin</span>
+                  )}
+                </div>
+                <div className="seller-links">
+                  {seller.website && (
+                    <a className="seller-link" href={seller.website.startsWith('http') ? seller.website : `https://${seller.website}`} target="_blank" rel="noreferrer">
+                      🌐 Website
+                    </a>
+                  )}
+                  {seller.location && (
+                    <a
+                      className="seller-link"
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(seller.location)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      📍 {seller.location}
+                    </a>
+                  )}
+                </div>
+                <div className="seller-metrics">
+                  <div className="metric"><span className="metric-value">{sellerProducts.length}</span><span className="metric-label">{t('seller_page.metrics.products')}</span></div>
+                  <div className="metric"><span className="metric-value">{new Date(seller.created_at || '').toLocaleDateString()}</span><span className="metric-label">{t('seller_page.metrics.member_since')}</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Seller details (bio, professional info, socials) */}
+          {(seller.bio || seller.instagram_url || seller.twitter_url || seller.linkedin_url || seller.facebook_url || seller.website || (seller as any)?.email || (seller as any)?.profile?.phone_number) && (
+            <div className="seller-details-card">
+              {seller.bio && <p className="seller-bio-text">{seller.bio}</p>}
+              <div className="seller-details-grid">
+                {/* Contact Info */}
+                {(seller.website || (seller as any)?.email || (seller as any)?.profile?.phone_number) && (
+                  <div className="seller-detail">
+                    <h4 className="detail-title">{t('seller_page.contact')}</h4>
+                    <ul className="detail-list">
+                      {seller.website && (
+                        <li>
+                          <span className="detail-key">{t('seller_page.website')}:</span>
+                          <a className="detail-link" href={seller.website.startsWith('http') ? seller.website : `https://${seller.website}`} target="_blank" rel="noreferrer">{seller.website}</a>
+                        </li>
+                      )}
+                      {(seller as any)?.email && (
+                        <li>
+                          <span className="detail-key">{t('seller_page.email')}:</span>
+                          <a className="detail-link" href={`mailto:${(seller as any).email}`}>{(seller as any).email}</a>
+                        </li>
+                      )}
+                      {(seller as any)?.profile?.phone_number && (
+                        <li>
+                          <span className="detail-key">{t('seller_page.phone')}:</span>
+                          <a className="detail-link" href={`tel:${(seller as any).profile?.phone_number}`}>{(seller as any).profile?.phone_number}</a>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+                {(seller.instagram_url || seller.twitter_url || seller.linkedin_url || seller.facebook_url) && (
+                  <div className="seller-detail">
+                    <h4 className="detail-title">{t('seller_page.social')}</h4>
+                    <ul className="detail-list">
+                      {seller.instagram_url && (
+                        <li><a className="detail-link" href={seller.instagram_url.startsWith('http') ? seller.instagram_url : `https://${seller.instagram_url}`} target="_blank" rel="noreferrer">📷 Instagram</a></li>
+                      )}
+                      {seller.twitter_url && (
+                        <li><a className="detail-link" href={seller.twitter_url.startsWith('http') ? seller.twitter_url : `https://${seller.twitter_url}`} target="_blank" rel="noreferrer">🐦 Twitter</a></li>
+                      )}
+                      {seller.linkedin_url && (
+                        <li><a className="detail-link" href={seller.linkedin_url.startsWith('http') ? seller.linkedin_url : `https://${seller.linkedin_url}`} target="_blank" rel="noreferrer">💼 LinkedIn</a></li>
+                      )}
+                      {seller.facebook_url && (
+                        <li><a className="detail-link" href={seller.facebook_url.startsWith('http') ? seller.facebook_url : `https://${seller.facebook_url}`} target="_blank" rel="noreferrer">📘 Facebook</a></li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
                  {/* User's Products */}
-         {sellerProducts.length > 0 && (
-           <div className="seller-products-section">
-             <h2 className="section-title">Products by {seller.first_name || seller.username}</h2>
-            <div className="products-grid">
+        {sellerProducts.length > 0 && (
+          <div className="seller-products-section">
+            <h2 className="section-title">{t('seller_page.products_by', { name: seller.first_name || seller.username })}</h2>
+            <div className="products-flex">
               {sellerProducts.slice(0, 6).map((product) => (
-                <Link 
-                  key={product.id} 
-                  to={`/products/${product.slug}`}
-                  className="product-card"
-                >
-                  <div className="product-image">
-                    <img 
-                      src={product.images?.[0]?.presigned_url || '/placeholder-product.svg'} 
-                      alt={product.name}
-                    />
-                  </div>
-                  <div className="product-info">
-                    <h3 className="product-name">{product.name}</h3>
-                    <p className="product-price">${product.price}</p>
-                    <div className="product-meta">
-                      <span className="product-condition">{product.condition}</span>
-                      {product.is_featured && (
-                        <span className="featured-badge">Featured</span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={() => handleAddToCart(product)}
+                  displayMode="customer"
+                />
               ))}
             </div>
             {sellerProducts.length > 6 && (
               <div className="view-all-products">
-                <Link to={`/products?seller=${seller.id}`} className="view-all-btn">
-                  View All {sellerProducts.length} Products
+                <Link to={`/products?seller_id=${seller.id}`} className="view-all-btn">
+                  {t('seller_page.view_all_products', { count: sellerProducts.length })}
                 </Link>
               </div>
             )}
@@ -179,8 +289,8 @@ const SellerProfilePage: React.FC = () => {
          {sellerProducts.length === 0 && (
            <div className="no-products-section">
              <div className="no-products-icon">📦</div>
-             <h3>No Products Available</h3>
-             <p>This user hasn't listed any products yet.</p>
+             <h3>{t('seller_page.no_products_title')}</h3>
+             <p>{t('seller_page.no_products_message')}</p>
            </div>
          )}
       </div>

@@ -30,7 +30,7 @@ const ProductDetailPage: React.FC = () => {
         const data = await productService.getProduct(slug);
         setProduct(data);
       } catch (err) {
-        setError('Failed to load product.');
+        setError(t('products.detail.not_found_message'));
       } finally {
         setLoading(false);
       }
@@ -157,10 +157,10 @@ const ProductDetailPage: React.FC = () => {
               <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <h3>Product Not Found</h3>
-          <p>{error || 'The product you\'re looking for doesn\'t exist.'}</p>
+          <h3>{t('products.detail.not_found_title')}</h3>
+          <p>{error || t('products.detail.not_found_message')}</p>
           <Link to="/products" className="back-to-products-btn">
-            Browse Products
+            {t('products.detail.browse_products')}
           </Link>
         </div>
       </Layout>
@@ -174,7 +174,7 @@ const ProductDetailPage: React.FC = () => {
       <div className="product-detail-page">
         {/* Breadcrumb Navigation */}
         <nav className="breadcrumb-nav">
-          <Link to="/products" className="breadcrumb-link">Products</Link>
+          <Link to="/products" className="breadcrumb-link">{t('layout.products')}</Link>
           <span className="breadcrumb-separator">/</span>
           <span className="breadcrumb-current">{product.name}</span>
         </nav>
@@ -191,7 +191,7 @@ const ProductDetailPage: React.FC = () => {
               />
               {!product.is_in_stock && (
                 <div className="out-of-stock-overlay">
-                  <span>Out of Stock</span>
+                  <span>{t('products.out_of_stock')}</span>
                 </div>
               )}
               {product.is_featured && (
@@ -199,7 +199,7 @@ const ProductDetailPage: React.FC = () => {
                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Featured
+                  {t('products.featured_badge')}
                 </div>
               )}
             </div>
@@ -231,11 +231,11 @@ const ProductDetailPage: React.FC = () => {
               <div className="product-meta">
                 {product.seller?.id ? (
                   <Link to={`/seller/${product.seller.id}`} className="product-seller">
-                    By {product.seller.username}
+                    {t('products.detail.by')} {product.seller.username}
                   </Link>
                 ) : (
                   <span className="product-seller">
-                    By Designia
+                    {t('products.detail.by')} Designia
                   </span>
                 )}
                 {product.is_in_stock && (
@@ -243,7 +243,7 @@ const ProductDetailPage: React.FC = () => {
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    In Stock
+                    {t('products.in_stock')}
                   </span>
                 )}
                 {!product.is_in_stock && (
@@ -251,7 +251,7 @@ const ProductDetailPage: React.FC = () => {
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M18.364 18.364A9 9 0 1 1 5.636 5.636a9 9 0 0 1 12.728 12.728zM12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    Out of Stock
+                    {t('products.out_of_stock')}
                   </span>
                 )}
               </div>
@@ -274,7 +274,7 @@ const ProductDetailPage: React.FC = () => {
                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Only {product.stock_quantity} left in stock
+                  {t('products.only_left_in_stock', { count: product.stock_quantity })}
                 </div>
               )}
             </div>
@@ -286,7 +286,7 @@ const ProductDetailPage: React.FC = () => {
             {/* Color Selection */}
             {product.colors && product.colors.length > 0 && (
               <div className="color-selection">
-                <label className="color-label">Select Color</label>
+                <label className="color-label">{t('products.detail.select_color')}</label>
                 <div className="color-options">
                   {product.colors.map((color, index) => (
                     <button
@@ -295,7 +295,7 @@ const ProductDetailPage: React.FC = () => {
                       style={{ backgroundColor: color.toLowerCase() }}
                       onClick={() => setSelectedColor(color)}
                       title={color}
-                      aria-label={`Select ${color} color`}
+                      aria-label={t('products.detail.select_color_aria', { color })}
                     />
                   ))}
                 </div>
@@ -305,13 +305,13 @@ const ProductDetailPage: React.FC = () => {
             {/* Add to Cart Section */}
             <div className="product-actions">
               <div className="quantity-selector">
-                <label htmlFor="quantity" className="quantity-label">Quantity</label>
+                <label htmlFor="quantity" className="quantity-label">{t('products.detail.quantity')}</label>
                 <div className="quantity-controls">
                   <button 
                     className="quantity-btn"
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
-                    aria-label="Decrease quantity"
+                    aria-label={t('products.detail.decrease_qty')}
                   >
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
                       <path d="M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -325,13 +325,13 @@ const ProductDetailPage: React.FC = () => {
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     min="1"
                     max={product.stock_quantity}
-                    aria-label="Product quantity"
+                    aria-label={t('products.detail.qty_input_aria')}
                   />
                   <button 
                     className="quantity-btn"
                     onClick={() => setQuantity(q => Math.min(product.stock_quantity, q + 1))}
                     disabled={quantity >= product.stock_quantity}
-                    aria-label="Increase quantity"
+                    aria-label={t('products.detail.increase_qty')}
                   >
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
                       <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -348,7 +348,7 @@ const ProductDetailPage: React.FC = () => {
                 {isAddingToCart ? (
                   <>
                     <div className="spinner"></div>
-                    Adding...
+                    {t('products.detail.adding_to_cart')}
                   </>
                 ) : product.is_in_stock ? (
                   <>
@@ -540,14 +540,14 @@ const ProductDetailPage: React.FC = () => {
         {product.slug && (
           <div className="reviews-section">
             <div className="reviews-header">
-              <h2 className="reviews-title">Customer Reviews</h2>
+              <h2 className="reviews-title">{t('products.detail.customer_reviews')}</h2>
               {/* Simple summary header only */}
               <div className="reviews-summary">
                 <span className="rating-text">
-                  {product.average_rating > 0 ? `${product.average_rating.toFixed(1)} / 5` : 'No ratings yet'}
+                  {product.average_rating > 0 ? `${product.average_rating.toFixed(1)} / 5` : t('products.detail.no_ratings_yet')}
                 </span>
                 <span className="review-count">
-                  {product.review_count} review{product.review_count !== 1 ? 's' : ''}
+                  {t('products.detail.reviews_count', { count: product.review_count, suffix: product.review_count !== 1 ? 's' : '' })}
                 </span>
               </div>
             </div>

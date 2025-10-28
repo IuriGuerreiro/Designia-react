@@ -61,7 +61,7 @@ const Reviews: React.FC<ReviewsProps> = ({
         }
       } catch (err) {
         console.error('Failed to load reviews data:', err);
-        setError('Failed to load reviews. Please try again.');
+        setError(t('reviews.errors.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -160,7 +160,11 @@ const Reviews: React.FC<ReviewsProps> = ({
     if (!user) {
       return (
         <div className="review-prompt">
-          <p>Please <a href="/login">log in</a> to leave a review.</p>
+          <p>
+            {t('reviews.prompts.login_prefix')}{' '}
+            <a href="/login">{t('auth.login_button')}</a>{' '}
+            {t('reviews.prompts.login_suffix')}
+          </p>
         </div>
       );
     }
@@ -168,7 +172,7 @@ const Reviews: React.FC<ReviewsProps> = ({
     if (!hasPurchased) {
       return (
         <div className="review-prompt">
-          <p>You need to purchase this product before you can leave a review.</p>
+          <p>{t('reviews.prompts.purchase_required')}</p>
         </div>
       );
     }
@@ -176,12 +180,9 @@ const Reviews: React.FC<ReviewsProps> = ({
     if (existingReview && !showReviewForm) {
       return (
         <div className="review-prompt">
-          <p>You have already reviewed this product.</p>
-          <button
-            onClick={() => handleEditReview(existingReview)}
-            className="btn btn-secondary"
-          >
-            Edit Your Review
+          <p>{t('reviews.prompts.already_reviewed')}</p>
+          <button onClick={() => handleEditReview(existingReview)} className="btn btn-secondary">
+            {t('reviews.actions.edit_review')}
           </button>
         </div>
       );
@@ -190,11 +191,8 @@ const Reviews: React.FC<ReviewsProps> = ({
     if (canReview && !showReviewForm) {
       return (
         <div className="review-prompt">
-          <button
-            onClick={() => setShowReviewForm(true)}
-            className="btn btn-primary"
-          >
-            Write a Review
+          <button onClick={() => setShowReviewForm(true)} className="btn btn-primary">
+            {t('reviews.actions.write_review')}
           </button>
         </div>
       );
@@ -207,7 +205,7 @@ const Reviews: React.FC<ReviewsProps> = ({
     return (
       <div className="reviews-section">
         <div className="loading-message">
-          <p>Loading reviews...</p>
+          <p>{t('reviews.loading')}</p>
         </div>
       </div>
     );
@@ -216,18 +214,15 @@ const Reviews: React.FC<ReviewsProps> = ({
   return (
     <div className="reviews-section">
       <div className="reviews-header">
-        <h3>Customer Reviews</h3>
+        <h3>{t('reviews.title')}</h3>
         {renderAverageRating()}
       </div>
 
       {error && (
         <div className="error-message">
           <p>{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="btn btn-secondary"
-          >
-            Retry
+          <button onClick={() => window.location.reload()} className="btn btn-secondary">
+            {t('reviews.actions.retry')}
           </button>
         </div>
       )}

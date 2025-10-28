@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './StockErrorModal.module.css';
 
 interface StockError {
@@ -42,9 +43,10 @@ const StockErrorModal: React.FC<StockErrorModalProps> = ({
   unavailableProducts = [],
   failedItems = [],
   warnings = [],
-  title = 'Stock Issues Detected',
+  title = undefined,
   showUpdateButton = true,
 }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   const hasStockErrors = stockErrors.length > 0;
@@ -58,7 +60,7 @@ const StockErrorModal: React.FC<StockErrorModalProps> = ({
         <div className={styles['stock-error-modal-header']}>
           <h2 className={styles['stock-error-modal-title']}>
             <span className={styles['warning-icon']}>⚠️</span>
-            {title}
+            {title || t('cart.stock.title')}
           </h2>
           <button
             className={styles['stock-error-modal-close']}
@@ -82,7 +84,7 @@ const StockErrorModal: React.FC<StockErrorModalProps> = ({
 
           {hasStockErrors && (
             <div className={styles['stock-error-section']}>
-              <h3 className={styles['section-title']}>Stock Issues</h3>
+              <h3 className={styles['section-title']}>{t('cart.stock.issues')}</h3>
               {stockErrors.map((error, index) => (
                 <div key={index} className={styles['stock-error-item']}>
                   <div className={styles['product-info']}>
@@ -92,12 +94,12 @@ const StockErrorModal: React.FC<StockErrorModalProps> = ({
                     {error.error === 'OUT_OF_STOCK' ? (
                       <span className={styles['out-of-stock']}>
                         <span className={styles['error-icon']}>🚫</span>
-                        Currently out of stock
+                        {t('cart.stock.out_of_stock')}
                       </span>
                     ) : (
                       <span className={styles['insufficient-stock']}>
                         <span className={styles['error-icon']}>📦</span>
-                        Only {error.available_stock} available (you requested {error.requested_quantity})
+                        {t('cart.stock.only_available', { count: error.available_stock, requested: error.requested_quantity })}
                       </span>
                     )}
                   </div>
@@ -108,7 +110,7 @@ const StockErrorModal: React.FC<StockErrorModalProps> = ({
 
           {hasUnavailableProducts && (
             <div className={styles['stock-error-section']}>
-              <h3 className={styles['section-title']}>Unavailable Products</h3>
+              <h3 className={styles['section-title']}>{t('cart.stock.unavailable_products')}</h3>
               {unavailableProducts.map((product, index) => (
                 <div key={index} className={styles['unavailable-item']}>
                   <div className={styles['product-info']}>
@@ -125,7 +127,7 @@ const StockErrorModal: React.FC<StockErrorModalProps> = ({
 
           {hasFailedItems && (
             <div className={styles['stock-error-section']}>
-              <h3 className={styles['section-title']}>Processing Issues</h3>
+              <h3 className={styles['section-title']}>{t('cart.stock.processing_issues')}</h3>
               {failedItems.map((item, index) => (
                 <div key={index} className={styles['failed-item']}>
                   <div className={styles['product-info']}>
@@ -150,14 +152,14 @@ const StockErrorModal: React.FC<StockErrorModalProps> = ({
                 onClose();
               }}
             >
-              Update Cart
+              {t('cart.update_cart')}
             </button>
           )}
           <button
             className={cx(styles.btn, styles['btn-secondary'], styles['close-btn'])}
             onClick={onClose}
           >
-            Close
+            {t('orders.actions.close')}
           </button>
         </div>
       </div>

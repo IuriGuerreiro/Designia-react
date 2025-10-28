@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
@@ -16,6 +17,7 @@ const publishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_5
 const stripePromise = loadStripe(publishableKey);
 
 const SimpleCheckoutPage = () => {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const { syncWithServer } = useCart();
   const [searchParams] = useSearchParams();
@@ -110,7 +112,7 @@ const SimpleCheckoutPage = () => {
       
     } catch (error: any) {
       console.error('❌ Error creating checkout session:', error);
-      setError(error.message || 'Failed to create checkout session');
+      setError(error.message || t('checkout.failed_to_start'));
       throw error;
     }
   }, [syncWithServer, retryOrderId]);
@@ -122,23 +124,20 @@ const SimpleCheckoutPage = () => {
       <div className={styles.checkoutShell}>
         <section className={styles.hero}>
           <div className={styles.heroContent}>
-            <span className={styles.heroEyebrow}>Designia Checkout</span>
-            <h1 className={styles.heroTitle}>Secure monochrome checkout, designed to feel effortless.</h1>
-            <p className={styles.heroSubtitle}>
-              Review your order and complete payment with our encrypted checkout powered by Stripe. Switch themes at any time—
-              your experience stays consistent and calm.
-            </p>
+            <span className={styles.heroEyebrow}>{t('checkout.designia_checkout')}</span>
+            <h1 className={styles.heroTitle}>{t('checkout.hero_title')}</h1>
+            <p className={styles.heroSubtitle}>{t('checkout.hero_subtitle')}</p>
             <div className={styles.heroMeta}>
               <div className={styles.heroStat}>
-                <span>Average completion</span>
+                <span>{t('checkout.stats.average_completion')}</span>
                 <strong>2m 15s</strong>
               </div>
               <div className={styles.heroStat}>
-                <span>Protection</span>
+                <span>{t('checkout.stats.protection')}</span>
                 <strong>3D Secure</strong>
               </div>
               <div className={styles.heroStat}>
-                <span>Support</span>
+                <span>{t('checkout.stats.support')}</span>
                 <strong>24/7</strong>
               </div>
             </div>
@@ -146,8 +145,8 @@ const SimpleCheckoutPage = () => {
               <div className={styles.retryBanner}>
                 <div className={styles.retryBadge}>↻</div>
                 <div className={styles.retryCopy}>
-                  <strong>Retrying payment for order #{retryOrderId.slice(-8)}</strong>
-                  <span>We have everything ready. Confirm the payment below to continue.</span>
+                  <strong>{t('checkout.retry_banner.title', { id: retryOrderId.slice(-8) })}</strong>
+                  <span>{t('checkout.retry_banner.subtitle')}</span>
                 </div>
               </div>
             )}
@@ -158,7 +157,7 @@ const SimpleCheckoutPage = () => {
           <div className={styles.errorBanner}>
             <div className={styles.errorIcon}>!</div>
             <div className={styles.errorCopy}>
-              <h3 className={styles.errorTitle}>We couldn&apos;t start checkout</h3>
+              <h3 className={styles.errorTitle}>{t('checkout.error_title')}</h3>
               <p className={styles.errorMessage}>{error}</p>
             </div>
             <button
@@ -166,7 +165,7 @@ const SimpleCheckoutPage = () => {
               className={styles.errorAction}
               onClick={() => window.location.reload()}
             >
-              Try again
+              {t('orders.actions.try_again')}
             </button>
           </div>
         )}
@@ -179,23 +178,21 @@ const SimpleCheckoutPage = () => {
 
         <section className={styles.supportCard}>
           <div>
-            <h2 className={styles.supportTitle}>Need a hand?</h2>
-            <p className={styles.supportCopy}>
-              Our concierge team is ready to help with payment questions, invoices, or delivery updates. Reach out anytime.
-            </p>
+            <h2 className={styles.supportTitle}>{t('checkout.support.title')}</h2>
+            <p className={styles.supportCopy}>{t('checkout.support.copy')}</p>
           </div>
           <div className={styles.supportActions}>
             <a className={styles.supportLink} href="mailto:support@designia.com">
               <span aria-hidden>✉️</span>
-              Contact support
+              {t('checkout.support.contact_support')}
             </a>
             <a className={styles.supportLink} href="/faq">
               <span aria-hidden>📘</span>
-              Explore FAQs
+              {t('checkout.support.explore_faqs')}
             </a>
             <a className={styles.supportLink} href="/policies/security">
               <span aria-hidden>🛡️</span>
-              Security policy
+              {t('checkout.support.security_policy')}
             </a>
           </div>
         </section>

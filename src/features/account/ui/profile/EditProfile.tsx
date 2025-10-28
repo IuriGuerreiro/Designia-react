@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import ImageUpload from '@/shared/ui/image-upload/ImageUpload';
@@ -6,7 +7,8 @@ import { useAuth } from '@/features/auth/state/AuthContext';
 import styles from './Profile.module.css';
 
 const EditProfile: React.FC = () => {
-  const { user, updateProfile } = useAuth();
+  const { t } = useTranslation();
+  const { user, updateProfile, isSeller, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState<File[]>([]);
   const [activeTab, setActiveTab] = useState('basic');
@@ -44,29 +46,25 @@ const EditProfile: React.FC = () => {
       linkedin_url: user?.profile?.linkedin_url || '',
       facebook_url: user?.profile?.facebook_url || '',
       
-      // Preferences
-      timezone: user?.profile?.timezone || 'UTC',
-      language_preference: user?.profile?.language_preference || 'en',
-      currency_preference: user?.profile?.currency_preference || 'USD',
-      
-      // Account Settings
-      account_type: user?.profile?.account_type || 'personal',
-      profile_visibility: user?.profile?.profile_visibility || 'public',
-      
-      // Marketing Preferences
-      marketing_emails_enabled: user?.profile?.marketing_emails_enabled ?? true,
-      newsletter_enabled: user?.profile?.newsletter_enabled ?? true,
-      notifications_enabled: user?.profile?.notifications_enabled ?? true
+      // Account Settings (preferences moved to Settings)
+      account_type: user?.profile?.account_type || 'personal'
     }
   });
 
-  // Effect to handle tab switching when seller status changes
+  // Helper: determine if user has full access to all profile fields
+  const hasFullAccess = Boolean(
+    (typeof isSeller === 'function' && isSeller()) ||
+    (typeof isAdmin === 'function' && isAdmin()) ||
+    user?.profile?.is_verified_seller
+  );
+
+  // Effect to handle tab switching when access level changes
   useEffect(() => {
-    // If user is not a verified seller and is on a restricted tab, switch to basic
-    if (!user?.profile?.is_verified_seller && ['contact', 'professional', 'social'].includes(activeTab)) {
+    // If user lacks access and is on a restricted tab, switch to basic
+    if (!hasFullAccess && ['contact', 'professional', 'social'].includes(activeTab)) {
       setActiveTab('basic');
     }
-  }, [user?.profile?.is_verified_seller, activeTab]);
+  }, [hasFullAccess, activeTab]);
 
   // Utility function to format URLs
   const formatUrl = (url: string, fieldName?: string): string => {
@@ -191,13 +189,13 @@ const EditProfile: React.FC = () => {
         
         // Only submit if there are actual changes
         if (Object.keys(changedFields).length === 0) {
-          alert('No changes to save.');
+          alert(t('account.profile.edit.messages.no_changes'));
           return;
         }
         
         console.log('Submitting changed fields:', changedFields);
         await updateProfile(changedFields);
-        alert('Profile updated successfully.');
+        alert(t('account.profile.edit.messages.update_success'));
         
         // Update the form data with any formatted URLs to keep UI in sync
         if (changedFields.profile) {
@@ -226,9 +224,9 @@ const EditProfile: React.FC = () => {
               errorMessages.push(`${field}: ${messages}`);
             }
           });
-          alert(`Validation errors:\n${errorMessages.join('\n')}`);
+          alert(`${t('account.profile.edit.messages.validation_errors')}\n${errorMessages.join('\n')}`);
         } else {
-          alert(error.message || 'Failed to update profile.');
+          alert(error.message || t('account.profile.edit.messages.update_failed'));
         }
     }
   };
@@ -236,13 +234,13 @@ const EditProfile: React.FC = () => {
   const renderBasicTab = () => (
     <div className={styles.tabContent}>
               <div className={`${styles.profileFormGroup} ${styles.profilePictureSection}`}>
-          <label className={styles.profileFormLabel}>Profile Picture</label>
+          <label className={styles.profileFormLabel}>{t('account.profile.edit.fields.profile_picture')}</label>
         <ImageUpload files={profileImage} setFiles={setProfileImage} />
       </div>
 
       <div className={styles.profileFormRow}>
         <div className={styles.profileFormGroup}>
-          <label htmlFor="first_name" className={styles.profileFormLabel}>First Name</label>
+          <label htmlFor="first_name" className={styles.profileFormLabel}>{t('account.profile.edit.fields.first_name')}</label>
           <input 
             type="text" 
             id="first_name" 
@@ -253,7 +251,7 @@ const EditProfile: React.FC = () => {
           />
         </div>
         <div className={styles.profileFormGroup}>
-          <label htmlFor="last_name" className={styles.profileFormLabel}>Last Name</label>
+          <label htmlFor="last_name" className={styles.profileFormLabel}>{t('account.profile.edit.fields.last_name')}</label>
           <input 
             type="text" 
             id="last_name" 
@@ -266,7 +264,7 @@ const EditProfile: React.FC = () => {
       </div>
 
       <div className={styles.profileFormGroup}>
-        <label htmlFor="username" className={styles.profileFormLabel}>Username</label>
+        <label htmlFor="username" className={styles.profileFormLabel}>{t('account.profile.edit.fields.username')}</label>
         <input 
           type="text" 
           id="username" 
@@ -279,7 +277,7 @@ const EditProfile: React.FC = () => {
 
       <div className={styles.profileFormRow}>
         <div className={styles.profileFormGroup}>
-          <label htmlFor="gender" className={styles.profileFormLabel}>Gender</label>
+          <label htmlFor="gender" className={styles.profileFormLabel}>{t('account.profile.edit.fields.gender')}</label>
           <select 
             id="gender" 
             name="gender" 
@@ -287,30 +285,30 @@ const EditProfile: React.FC = () => {
             onChange={handleChange}
             className={styles.profileInputField}
           >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="non_binary">Non-binary</option>
-            <option value="prefer_not_to_say">Prefer not to say</option>
-            <option value="other">Other</option>
+            <option value="">{t('account.profile.edit.fields.gender_select')}</option>
+            <option value="male">{t('account.profile.edit.fields.gender_options.male')}</option>
+            <option value="female">{t('account.profile.edit.fields.gender_options.female')}</option>
+            <option value="non_binary">{t('account.profile.edit.fields.gender_options.non_binary')}</option>
+            <option value="prefer_not_to_say">{t('account.profile.edit.fields.gender_options.prefer_not_to_say')}</option>
+            <option value="other">{t('account.profile.edit.fields.gender_options.other')}</option>
           </select>
         </div>
         <div className={styles.profileFormGroup}>
-          <label htmlFor="pronouns" className={styles.profileFormLabel}>Pronouns</label>
+          <label htmlFor="pronouns" className={styles.profileFormLabel}>{t('account.profile.edit.fields.pronouns')}</label>
           <input 
             type="text" 
             id="pronouns" 
             name="pronouns" 
             value={formData.profile.pronouns} 
             onChange={handleChange} 
-            placeholder="e.g., they/them"
+            placeholder={t('account.profile.edit.placeholders.pronouns')}
             className={styles.profileInputField}
           />
         </div>
       </div>
 
       <div className={styles.profileFormGroup}>
-        <label htmlFor="birth_date" className={styles.profileFormLabel}>Birth Date</label>
+        <label htmlFor="birth_date" className={styles.profileFormLabel}>{t('account.profile.edit.fields.birth_date')}</label>
         <input 
           type="date" 
           id="birth_date" 
@@ -322,7 +320,7 @@ const EditProfile: React.FC = () => {
       </div>
 
       <div className={styles.profileFormGroup}>
-        <label htmlFor="bio" className={styles.profileFormLabel}>Bio</label>
+        <label htmlFor="bio" className={styles.profileFormLabel}>{t('account.profile.edit.fields.bio')}</label>
         <textarea 
           id="bio" 
           name="bio" 
@@ -330,34 +328,34 @@ const EditProfile: React.FC = () => {
           onChange={handleChange} 
           rows={4} 
           maxLength={500} 
-          placeholder="Tell us a little about yourself..."
+          placeholder={t('account.profile.edit.placeholders.bio')}
           className={`${styles.profileInputField} ${styles.profileTextareaField}`}
         />
-        <small className={styles.profileFormHint}>{formData.profile.bio.length}/500 characters</small>
+        <small className={styles.profileFormHint}>{formData.profile.bio.length}/500 {t('account.profile.edit.misc.characters')}</small>
       </div>
     </div>
   );
 
   const renderContactTab = () => (
     <div className={styles.tabContent}>
-      {!user?.profile?.is_verified_seller ? (
+      {!hasFullAccess ? (
         <div className={styles.restrictedTabMessage}>
-          <h3 className={styles.restrictedTabTitle}>Contact Information Restricted</h3>
+          <h3 className={styles.restrictedTabTitle}>{t('account.profile.edit.restricted.contact_title')}</h3>
           <p className={styles.restrictedTabText}>
-            Contact information fields are only available to verified sellers. This helps maintain the quality of our marketplace.
+            {t('account.profile.edit.restricted.contact_text')}
           </p>
           <button 
             className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
             onClick={() => navigate('/settings/become-seller')}
           >
-            Become a Verified Seller
+            {t('account.profile.edit.actions.become_verified_seller')}
           </button>
         </div>
       ) : (
         <>
           <div className={styles.profileFormRow}>
             <div className={styles.profileFormGroup} style={{flex: '0 0 120px'}}>
-              <label htmlFor="country_code" className={styles.profileFormLabel}>Country Code</label>
+              <label htmlFor="country_code" className={styles.profileFormLabel}>{t('account.profile.edit.fields.country_code')}</label>
               <select 
                 id="country_code" 
                 name="country_code" 
@@ -377,21 +375,21 @@ const EditProfile: React.FC = () => {
               </select>
             </div>
             <div className={styles.profileFormGroup}>
-              <label htmlFor="phone_number" className={styles.profileFormLabel}>Phone Number</label>
+              <label htmlFor="phone_number" className={styles.profileFormLabel}>{t('account.profile.edit.fields.phone_number')}</label>
               <input 
                 type="tel" 
                 id="phone_number" 
                 name="phone_number" 
                 value={formData.profile.phone_number} 
                 onChange={handleChange} 
-                placeholder="(555) 123-4567"
+                placeholder={t('account.profile.edit.placeholders.phone')}
                 className={styles.profileInputField}
               />
             </div>
           </div>
 
           <div className={styles.profileFormGroup}>
-            <label htmlFor="website" className={styles.profileFormLabel}>Website</label>
+            <label htmlFor="website" className={styles.profileFormLabel}>{t('account.profile.edit.fields.website')}</label>
             <input 
               type="url" 
               id="website" 
@@ -399,20 +397,20 @@ const EditProfile: React.FC = () => {
               value={formData.profile.website} 
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
-              placeholder="yourwebsite.com"
+              placeholder={t('account.profile.edit.placeholders.website')}
               className={styles.profileInputField}
             />
           </div>
 
           <div className={styles.profileFormGroup}>
-            <label htmlFor="location" className={styles.profileFormLabel}>Location</label>
+            <label htmlFor="location" className={styles.profileFormLabel}>{t('account.profile.edit.fields.location')}</label>
             <input 
               type="text" 
               id="location" 
               name="location" 
               value={formData.profile.location} 
               onChange={handleChange} 
-              placeholder="City, State"
+              placeholder={t('account.profile.edit.placeholders.location')}
               className={styles.profileInputField}
             />
           </div>
@@ -423,49 +421,49 @@ const EditProfile: React.FC = () => {
 
   const renderProfessionalTab = () => (
     <div className={styles.tabContent}>
-      {!user?.profile?.is_verified_seller ? (
+      {!hasFullAccess ? (
         <div className={styles.restrictedTabMessage}>
-          <h3 className={styles.restrictedTabTitle}>Professional Information Restricted</h3>
+          <h3 className={styles.restrictedTabTitle}>{t('account.profile.edit.restricted.professional_title')}</h3>
           <p className={styles.restrictedTabText}>
-            Professional information fields are only available to verified sellers. This helps maintain the quality of our marketplace.
+            {t('account.profile.edit.restricted.professional_text')}
           </p>
           <button 
             className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
             onClick={() => navigate('/settings/become-seller')}
           >
-            Become a Verified Seller
+            {t('account.profile.edit.actions.become_verified_seller')}
           </button>
         </div>
       ) : (
         <>
           <div className={styles.profileFormGroup}>
-            <label htmlFor="job_title" className={styles.profileFormLabel}>Job Title</label>
+            <label htmlFor="job_title" className={styles.profileFormLabel}>{t('account.profile.edit.fields.job_title')}</label>
             <input 
               type="text" 
               id="job_title" 
               name="job_title" 
               value={formData.profile.job_title} 
               onChange={handleChange} 
-              placeholder="Software Engineer"
+              placeholder={t('account.profile.edit.placeholders.job_title')}
               className={styles.profileInputField}
             />
           </div>
 
           <div className={styles.profileFormGroup}>
-            <label htmlFor="company" className={styles.profileFormLabel}>Company</label>
+            <label htmlFor="company" className={styles.profileFormLabel}>{t('account.profile.edit.fields.company')}</label>
             <input 
               type="text" 
               id="company" 
               name="company" 
               value={formData.profile.company} 
               onChange={handleChange} 
-              placeholder="Company Name"
+              placeholder={t('account.profile.edit.placeholders.company')}
               className={styles.profileInputField}
             />
           </div>
 
           <div className={styles.profileFormGroup}>
-            <label htmlFor="account_type" className={styles.profileFormLabel}>Account Type</label>
+            <label htmlFor="account_type" className={styles.profileFormLabel}>{t('account.profile.edit.fields.account_type')}</label>
             <select 
               id="account_type" 
               name="account_type" 
@@ -473,9 +471,9 @@ const EditProfile: React.FC = () => {
               onChange={handleChange}
               className={styles.profileInputField}
             >
-              <option value="personal">Personal</option>
-              <option value="business">Business</option>
-              <option value="creator">Creator</option>
+              <option value="personal">{t('account.profile.edit.fields.account_type_options.personal')}</option>
+              <option value="business">{t('account.profile.edit.fields.account_type_options.business')}</option>
+              <option value="creator">{t('account.profile.edit.fields.account_type_options.creator')}</option>
             </select>
           </div>
         </>
@@ -486,40 +484,40 @@ const EditProfile: React.FC = () => {
   const renderAddressTab = () => (
     <div className={styles.tabContent}>
       <div className={styles.profileFormGroup}>
-        <label htmlFor="street_address" className={styles.profileFormLabel}>Street Address</label>
+        <label htmlFor="street_address" className={styles.profileFormLabel}>{t('account.profile.edit.fields.street_address')}</label>
         <input 
           type="text" 
           id="street_address" 
           name="street_address" 
           value={formData.profile.street_address} 
           onChange={handleChange} 
-          placeholder="123 Main St"
+          placeholder={t('account.profile.edit.placeholders.street_address')}
           className={styles.profileInputField}
         />
       </div>
 
       <div className={styles.profileFormRow}>
         <div className={styles.profileFormGroup}>
-          <label htmlFor="city" className={styles.profileFormLabel}>City</label>
+          <label htmlFor="city" className={styles.profileFormLabel}>{t('account.profile.edit.fields.city')}</label>
           <input 
             type="text" 
             id="city" 
             name="city" 
             value={formData.profile.city} 
             onChange={handleChange} 
-            placeholder="New York"
+            placeholder={t('account.profile.edit.placeholders.city')}
             className={styles.profileInputField}
           />
         </div>
         <div className={styles.profileFormGroup}>
-          <label htmlFor="state_province" className={styles.profileFormLabel}>State/Province</label>
+          <label htmlFor="state_province" className={styles.profileFormLabel}>{t('account.profile.edit.fields.state_province')}</label>
           <input 
             type="text" 
             id="state_province" 
             name="state_province" 
             value={formData.profile.state_province} 
             onChange={handleChange} 
-            placeholder="NY"
+            placeholder={t('account.profile.edit.placeholders.state_province')}
             className={styles.profileInputField}
           />
         </div>
@@ -527,26 +525,26 @@ const EditProfile: React.FC = () => {
 
       <div className={styles.profileFormRow}>
         <div className={styles.profileFormGroup}>
-          <label htmlFor="country" className={styles.profileFormLabel}>Country</label>
+          <label htmlFor="country" className={styles.profileFormLabel}>{t('account.profile.edit.fields.country')}</label>
           <input 
             type="text" 
             id="country" 
             name="country" 
             value={formData.profile.country} 
             onChange={handleChange} 
-            placeholder="United States"
+            placeholder={t('account.profile.edit.placeholders.country')}
             className={styles.profileInputField}
           />
         </div>
         <div className={styles.profileFormGroup}>
-          <label htmlFor="postal_code" className={styles.profileFormLabel}>Postal Code</label>
+          <label htmlFor="postal_code" className={styles.profileFormLabel}>{t('account.profile.edit.fields.postal_code')}</label>
                       <input 
               type="text" 
               id="postal_code" 
               name="postal_code" 
               value={formData.profile.postal_code} 
               onChange={handleChange} 
-              placeholder="10001"
+              placeholder={t('account.profile.edit.placeholders.postal_code')}
               className={styles.profileInputField}
             />
         </div>
@@ -556,23 +554,23 @@ const EditProfile: React.FC = () => {
 
   const renderSocialTab = () => (
     <div className={styles.tabContent}>
-      {!user?.profile?.is_verified_seller ? (
+      {!hasFullAccess ? (
         <div className={styles.restrictedTabMessage}>
-          <h3 className={styles.restrictedTabTitle}>Social Media Links Restricted</h3>
+          <h3 className={styles.restrictedTabTitle}>{t('account.profile.edit.restricted.social_title')}</h3>
           <p className={styles.restrictedTabText}>
-            Social media link fields are only available to verified sellers. This helps maintain the quality of our marketplace.
+            {t('account.profile.edit.restricted.social_text')}
           </p>
           <button 
             className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
             onClick={() => navigate('/settings/become-seller')}
           >
-            Become a Verified Seller
+            {t('account.profile.edit.actions.become_verified_seller')}
           </button>
         </div>
       ) : (
         <>
           <div className={styles.profileFormGroup}>
-            <label htmlFor="instagram_url" className={styles.profileFormLabel}>Instagram</label>
+            <label htmlFor="instagram_url" className={styles.profileFormLabel}>{t('account.profile.edit.fields.instagram')}</label>
             <input 
               type="url" 
               id="instagram_url" 
@@ -580,13 +578,13 @@ const EditProfile: React.FC = () => {
               value={formData.profile.instagram_url} 
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
-              placeholder="instagram.com/username"
+              placeholder={t('account.profile.edit.placeholders.instagram')}
               className={styles.profileInputField}
             />
           </div>
 
           <div className={styles.profileFormGroup}>
-            <label htmlFor="twitter_url" className={styles.profileFormLabel}>Twitter</label>
+            <label htmlFor="twitter_url" className={styles.profileFormLabel}>{t('account.profile.edit.fields.twitter')}</label>
             <input 
               type="url" 
               id="twitter_url" 
@@ -594,13 +592,13 @@ const EditProfile: React.FC = () => {
               value={formData.profile.twitter_url} 
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
-              placeholder="twitter.com/username"
+              placeholder={t('account.profile.edit.placeholders.twitter')}
               className={styles.profileInputField}
             />
           </div>
 
           <div className={styles.profileFormGroup}>
-            <label htmlFor="linkedin_url" className={styles.profileFormLabel}>LinkedIn</label>
+            <label htmlFor="linkedin_url" className={styles.profileFormLabel}>{t('account.profile.edit.fields.linkedin')}</label>
             <input 
               type="url" 
               id="linkedin_url" 
@@ -608,13 +606,13 @@ const EditProfile: React.FC = () => {
               value={formData.profile.linkedin_url} 
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
-              placeholder="linkedin.com/in/username"
+              placeholder={t('account.profile.edit.placeholders.linkedin')}
               className={styles.profileInputField}
             />
           </div>
 
           <div className={styles.profileFormGroup}>
-            <label htmlFor="facebook_url" className={styles.profileFormLabel}>Facebook</label>
+            <label htmlFor="facebook_url" className={styles.profileFormLabel}>{t('account.profile.edit.fields.facebook')}</label>
             <input 
               type="url" 
               id="facebook_url" 
@@ -622,7 +620,7 @@ const EditProfile: React.FC = () => {
               value={formData.profile.facebook_url} 
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
-              placeholder="facebook.com/username"
+              placeholder={t('account.profile.edit.placeholders.facebook')}
               className={styles.profileInputField}
             />
           </div>
@@ -631,124 +629,16 @@ const EditProfile: React.FC = () => {
     </div>
   );
 
-  const renderPreferencesTab = () => (
-    <div className={styles.tabContent}>
-      <div className={styles.profileFormRow}>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="timezone" className={styles.profileFormLabel}>Timezone</label>
-          <select 
-            id="timezone" 
-            name="timezone" 
-            value={formData.profile.timezone} 
-            onChange={handleChange}
-            className={styles.profileInputField}
-          >
-            <option value="UTC">UTC</option>
-            <option value="America/New_York">Eastern Time</option>
-            <option value="America/Chicago">Central Time</option>
-            <option value="America/Denver">Mountain Time</option>
-            <option value="America/Los_Angeles">Pacific Time</option>
-            <option value="Europe/London">London</option>
-            <option value="Europe/Paris">Paris</option>
-            <option value="Asia/Tokyo">Tokyo</option>
-          </select>
-        </div>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="language_preference" className={styles.profileFormLabel}>Language</label>
-          <select 
-            id="language_preference" 
-            name="language_preference" 
-            value={formData.profile.language_preference} 
-            onChange={handleChange}
-            className={styles.profileInputField}
-          >
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-            <option value="it">Italian</option>
-            <option value="pt">Portuguese</option>
-          </select>
-        </div>
-      </div>
-
-      <div className={styles.profileFormRow}>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="currency_preference" className={styles.profileFormLabel}>Currency</label>
-          <select 
-            id="currency_preference" 
-            name="currency_preference" 
-            value={formData.profile.currency_preference} 
-            onChange={handleChange}
-            className={styles.profileInputField}
-          >
-            <option value="USD">USD ($)</option>
-            <option value="EUR">EUR (€)</option>
-            <option value="GBP">GBP (£)</option>
-            <option value="JPY">JPY (¥)</option>
-            <option value="CAD">CAD (C$)</option>
-          </select>
-        </div>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="profile_visibility" className={styles.profileFormLabel}>Profile Visibility</label>
-          <select 
-            id="profile_visibility" 
-            name="profile_visibility" 
-            value={formData.profile.profile_visibility} 
-            onChange={handleChange}
-            className={styles.profileInputField}
-          >
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-            <option value="friends_only">Friends Only</option>
-          </select>
-        </div>
-      </div>
-
-      <div className={styles.profileFormGroup}>
-        <label className={styles.profileFormLabel}>Communication Preferences</label>
-        <div className={styles.profileCheckboxGroup}>
-          <label className={styles.profileCheckboxLabel}>
-            <input 
-              type="checkbox" 
-              name="marketing_emails_enabled" 
-              checked={formData.profile.marketing_emails_enabled} 
-              onChange={handleChange} 
-            />
-            Marketing Emails
-          </label>
-          <label className={styles.profileCheckboxLabel}>
-            <input 
-              type="checkbox" 
-              name="newsletter_enabled" 
-              checked={formData.profile.newsletter_enabled} 
-              onChange={handleChange} 
-            />
-            Newsletter
-          </label>
-          <label className={styles.profileCheckboxLabel}>
-            <input 
-              type="checkbox" 
-              name="notifications_enabled" 
-              checked={formData.profile.notifications_enabled} 
-              onChange={handleChange} 
-            />
-            Push Notifications
-          </label>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <Layout>
       <div className={styles.editProfilePage}>
         <div className={styles.profileFormHeader}>
-                      <h1 className={styles.headingLg}>Edit Profile</h1>
-            <p className={styles.bodyLg}>Keep your profile information up to date.</p>
+                      <h1 className={styles.headingLg}>{t('account.profile.edit.title')}</h1>
+            <p className={styles.bodyLg}>{t('account.profile.edit.subtitle')}</p>
           {user?.profile?.profile_completion_percentage !== undefined && (
             <div className={styles.profileCompletion}>
-              <span className={styles.completionText}>Profile completion: {user.profile.profile_completion_percentage}%</span>
+              <span className={styles.completionText}>{t('account.profile.edit.completion_label')} {user.profile.profile_completion_percentage}%</span>
               <div className={styles.profileProgressBar}>
                 <div 
                   className={styles.profileProgressFill} 
@@ -758,15 +648,15 @@ const EditProfile: React.FC = () => {
             </div>
           )}
           
-          {!user?.profile?.is_verified_seller && (
+          {!hasFullAccess && (
             <div className={styles.sellerRestrictionNote}>
               <p className={styles.restrictionText}>
-                <strong>Note:</strong> Professional, contact, and social media fields are only available to verified sellers. 
+                <strong>{t('account.profile.edit.note_label')}</strong> {t('account.profile.edit.restriction_note')}
                 <button 
                   className={styles.becomeSellerLink}
                   onClick={() => navigate('/settings/become-seller')}
                 >
-                  Become a Verified Seller
+                  {t('account.profile.edit.actions.become_verified_seller')}
                 </button>
               </p>
             </div>
@@ -780,24 +670,24 @@ const EditProfile: React.FC = () => {
               className={`${styles.profileTabBtn} ${activeTab === 'basic' ? styles.active : ''}`}
               onClick={() => setActiveTab('basic')}
             >
-              Basic Info
+              {t('account.profile.edit.tabs.basic')}
             </button>
-            {user?.profile?.is_verified_seller && (
+            {hasFullAccess && (
               <button 
                 type="button" 
                 className={`${styles.profileTabBtn} ${activeTab === 'contact' ? styles.active : ''}`}
                 onClick={() => setActiveTab('contact')}
               >
-                Contact
+                {t('account.profile.edit.tabs.contact')}
               </button>
             )}
-            {user?.profile?.is_verified_seller && (
+            {hasFullAccess && (
               <button 
                 type="button" 
                 className={`${styles.profileTabBtn} ${activeTab === 'professional' ? styles.active : ''}`}
                 onClick={() => setActiveTab('professional')}
               >
-                Professional
+                {t('account.profile.edit.tabs.professional')}
               </button>
             )}
             <button 
@@ -805,24 +695,18 @@ const EditProfile: React.FC = () => {
               className={`${styles.profileTabBtn} ${activeTab === 'address' ? styles.active : ''}`}
               onClick={() => setActiveTab('address')}
             >
-              Address
+              {t('account.profile.edit.tabs.address')}
             </button>
-            {user?.profile?.is_verified_seller && (
+            {hasFullAccess && (
               <button 
                 type="button" 
                 className={`${styles.profileTabBtn} ${activeTab === 'social' ? styles.active : ''}`}
                 onClick={() => setActiveTab('social')}
               >
-                Social
+                {t('account.profile.edit.tabs.social')}
               </button>
             )}
-            <button 
-              type="button" 
-              className={`${styles.profileTabBtn} ${activeTab === 'preferences' ? styles.active : ''}`}
-              onClick={() => setActiveTab('preferences')}
-            >
-              Preferences
-            </button>
+            {/* Preferences moved to Settings; tab removed */}
           </div>
 
           <div className={styles.profileTabContainer}>
@@ -831,7 +715,7 @@ const EditProfile: React.FC = () => {
             {activeTab === 'professional' && renderProfessionalTab()}
             {activeTab === 'address' && renderAddressTab()}
             {activeTab === 'social' && renderSocialTab()}
-            {activeTab === 'preferences' && renderPreferencesTab()}
+            {/* Preferences moved to Settings; no render in profile editor */}
           </div>
 
           <div className={styles.profileFormActions}>
@@ -840,13 +724,13 @@ const EditProfile: React.FC = () => {
               className={`${styles.profileBtn} ${styles.profileBtnSecondary}`} 
               onClick={() => navigate('/settings')}
             >
-              Cancel
+              {t('account.profile.edit.actions.cancel')}
             </button>
             <button 
               type="submit" 
               className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
             >
-              Save Profile
+              {t('account.profile.edit.actions.save')}
             </button>
           </div>
         </form>

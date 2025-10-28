@@ -12,17 +12,12 @@ import {
   fetchProfile,
   updateProfile as updateProfileRequest,
   changeLanguage as changeLanguageRequest,
-  submitSellerApplication as submitSellerApplicationRequest,
-  fetchSellerApplicationStatus,
+  fetchTwoFactorStatus as fetchTwoFactorStatusApi,
   ensureHttpError,
 } from '../api';
-import type {
-  AuthUser,
-  RateLimitStatus,
-  RegisterData,
-  SellerApplicationRequest,
-  SellerApplicationStatus,
-} from '../model';
+import { submitSellerApplication as submitSellerApplicationRequest, fetchSellerApplicationStatus } from '@/features/account/api/sellerService';
+import type { AuthUser, RateLimitStatus, RegisterData } from '../model';
+import type { SellerApplicationRequest, SellerApplicationStatus } from '@/features/account/model/types';
 import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
@@ -46,6 +41,9 @@ interface AuthContextType {
   // Seller application methods
   submitSellerApplication: (applicationData: SellerApplicationRequest) => Promise<{success: boolean, message: string, application_id?: number}>;
   getSellerApplicationStatus: () => Promise<SellerApplicationStatus>;
+
+  // 2FA helpers
+  getTwoFactorStatus: () => Promise<{ two_factor_enabled: boolean; email: string }>;
 
   // User role helpers
   isSeller: () => boolean;
@@ -536,6 +534,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const getTwoFactorStatus = async (): Promise<{ two_factor_enabled: boolean; email: string }> => {
+    return await fetchTwoFactorStatusApi();
+  };
+
   // User role helpers
   const isSeller = (): boolean => {
     return user?.role === 'seller' || false;
@@ -570,6 +572,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Seller application methods
     submitSellerApplication,
     getSellerApplicationStatus,
+    getTwoFactorStatus,
 
     // User role helpers
     isSeller,
