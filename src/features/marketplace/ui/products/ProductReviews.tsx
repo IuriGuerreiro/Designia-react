@@ -486,7 +486,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                 }}
                 className="cancel-btn"
               >
-                Cancel
+                {t('reviews.actions.cancel')}
               </button>
               <button 
                 type="submit" 
@@ -496,10 +496,10 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                 {isSubmitting ? (
                   <>
                     <div className="spinner"></div>
-                    {editingReview ? 'Updating...' : 'Submitting...'}
+                    {editingReview ? t('reviews.actions_extra.updating') : t('reviews.actions.submitting')}
                   </>
                 ) : (
-                  editingReview ? 'Update Review' : 'Submit Review'
+                  editingReview ? t('reviews.actions_extra.update_review') : t('reviews.actions.submit_review')
                 )}
               </button>
             </div>
@@ -511,8 +511,8 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
       <div className="reviews-list">
         {reviews.length === 0 ? (
           <div className="no-reviews">
-            <h4>No reviews yet</h4>
-            <p>Be the first to share your experience with this product!</p>
+            <h4>{t('reviews.empty_title')}</h4>
+            <p>{t('reviews.empty_message')}</p>
           </div>
         ) : (
           reviews.map((review) => (

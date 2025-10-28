@@ -1,0 +1,63 @@
+{
+  "translation": {
+    "chat": {
+      "list": {
+        "title": "Mensagens",
+        "new_conversation_title": "Nova Conversa",
+        "search_placeholder": "Procurar utilizadores para conversar...",
+        "searching": "A procurar...",
+        "no_users_title": "Nenhum utilizador encontrado",
+        "no_users_message": "Nenhum utilizador corresponde a \"{{query}}\"",
+        "empty_title": "Ainda sem conversas",
+        "empty_message": "Inicie um chat pesquisando utilizadores acima",
+        "last_message": {
+          "none": "Ainda sem mensagens",
+          "image": "Imagem",
+          "text_fallback": "Mensagem"
+        }
+      },
+      "a11y": {
+        "back_to_chats": "Voltar às conversas",
+        "close_search": "Fechar pesquisa"
+      },
+      "status": {
+        "online": "Online",
+        "connecting": "A ligar..."
+      },
+      "empty": {
+        "start_conversation": "Comece a sua conversa",
+        "begin_with": "Comece a falar com {{name}}",
+        "select_conversation_title": "Selecione uma conversa",
+        "select_conversation_hint": "Escolha um chat da lista para começar a conversar"
+      },
+      "errors": {
+        "session_expired_title": "Sessão expirada",
+        "session_expired_message": "A sua sessão expirou. Inicie sessão novamente para continuar a conversar.",
+        "connection_error_title": "Erro de ligação",
+        "connection_error_message": "Falha ao carregar o chat. Tente novamente."
+      },
+      "actions": {
+        "login": "Iniciar sessão",
+        "retry": "Tentar novamente",
+        "start_new_chat": "Iniciar novo chat"
+      },
+      "input": {
+        "connecting": "A ligar...",
+        "unavailable": "Chat indisponível",
+        "placeholder": "Escreva uma mensagem...",
+        "attach_file": "Anexar ficheiro",
+        "send_hint": "Enviar mensagem (Enter)",
+        "connecting_banner": "A ligar ao chat...",
+        "footer_hint": "Prima Enter para enviar, Shift+Enter para nova linha"
+      },
+      "date": {
+        "today": "Hoje",
+        "yesterday": "Ontem"
+      },
+      "message": {
+        "image_alt": "Imagem partilhada",
+        "image_label": "Imagem"
+      }
+    }
+  }
+}

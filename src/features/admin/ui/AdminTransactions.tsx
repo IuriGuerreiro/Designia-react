@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAdminTransactions } from '@/features/admin/hooks';
 import styles from './AdminTransactions.module.css';
 
 const DEFAULT_PAGE_SIZE = 50;
 
 const AdminTransactions = () => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,41 +88,41 @@ const AdminTransactions = () => {
   };
 
   if (loading && transactions.length === 0) {
-    return <div className={styles.loading}>Loading transactions...</div>;
+    return <div className={styles.loading}>{t('admin.transactions.loading')}</div>;
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Admin: All Transactions</h1>
-        <p>Monitor all payment transactions across the platform</p>
+        <h1>{t('admin.transactions.title')}</h1>
+        <p>{t('admin.transactions.subtitle')}</p>
       </div>
 
       {/* Summary Cards */}
       {summary && (
         <div className={styles.summaryCards}>
           <div className={styles.summaryCard}>
-            <h3>Total Gross</h3>
+            <h3>{t('admin.transactions.summary.total_gross')}</h3>
             <p className={styles.summaryValue}>{formatCurrency(summary.total_gross, 'USD')}</p>
           </div>
           <div className={styles.summaryCard}>
-            <h3>Total Net</h3>
+            <h3>{t('admin.transactions.summary.total_net')}</h3>
             <p className={styles.summaryValue}>{formatCurrency(summary.total_net, 'USD')}</p>
           </div>
           <div className={styles.summaryCard}>
-            <h3>Platform Fees</h3>
+            <h3>{t('admin.transactions.summary.platform_fees')}</h3>
             <p className={styles.summaryValue}>{formatCurrency(summary.total_platform_fees, 'USD')}</p>
           </div>
           <div className={styles.summaryCard}>
-            <h3>Stripe Fees</h3>
+            <h3>{t('admin.transactions.summary.stripe_fees')}</h3>
             <p className={styles.summaryValue}>{formatCurrency(summary.total_stripe_fees, 'USD')}</p>
           </div>
           <div className={styles.summaryCard}>
-            <h3>Average Transaction</h3>
+            <h3>{t('admin.transactions.summary.average_transaction')}</h3>
             <p className={styles.summaryValue}>{formatCurrency(summary.average_transaction, 'USD')}</p>
           </div>
           <div className={styles.summaryCard}>
-            <h3>Total Transactions</h3>
+            <h3>{t('admin.transactions.summary.total_transactions')}</h3>
             <p className={styles.summaryValue}>{totalCount}</p>
           </div>
         </div>
@@ -131,7 +133,7 @@ const AdminTransactions = () => {
         <form onSubmit={handleSearch} className={styles.filterForm}>
           <input
             type="text"
-            placeholder="Search by seller, buyer, or order ID"
+            placeholder={t('admin.transactions.filters.search_placeholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={styles.searchInput}
@@ -142,12 +144,12 @@ const AdminTransactions = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className={styles.filterSelect}
           >
-            <option value="">All Statuses</option>
-            <option value="held">Held</option>
-            <option value="completed">Completed</option>
-            <option value="released">Released</option>
-            <option value="failed">Failed</option>
-            <option value="refunded">Refunded</option>
+            <option value="">{t('admin.transactions.filters.status_all')}</option>
+            <option value="held">{t('admin.transactions.filters.status_options.held')}</option>
+            <option value="completed">{t('admin.transactions.filters.status_options.completed')}</option>
+            <option value="released">{t('admin.transactions.filters.status_options.released')}</option>
+            <option value="failed">{t('admin.transactions.filters.status_options.failed')}</option>
+            <option value="refunded">{t('admin.transactions.filters.status_options.refunded')}</option>
           </select>
 
           <input
@@ -155,7 +157,7 @@ const AdminTransactions = () => {
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
             className={styles.dateInput}
-            placeholder="From date"
+            placeholder={t('admin.transactions.filters.date_from')}
           />
 
           <input
@@ -163,11 +165,11 @@ const AdminTransactions = () => {
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
             className={styles.dateInput}
-            placeholder="To date"
+            placeholder={t('admin.transactions.filters.date_to')}
           />
 
           <button type="submit" className={styles.searchButton}>
-            Search
+            {t('admin.transactions.actions.search')}
           </button>
 
           <button
@@ -181,7 +183,7 @@ const AdminTransactions = () => {
             }}
             className={styles.clearButton}
           >
-            Clear
+            {t('admin.transactions.actions.clear')}
           </button>
         </form>
       </div>
@@ -193,15 +195,15 @@ const AdminTransactions = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Transaction ID</th>
-              <th>Seller</th>
-              <th>Buyer</th>
-              <th>Gross Amount</th>
-              <th>Net Amount</th>
-              <th>Status</th>
-              <th>Hold Days</th>
-              <th>Paid Out</th>
-              <th>Created</th>
+              <th>{t('admin.transactions.table.transaction_id')}</th>
+              <th>{t('admin.transactions.table.seller')}</th>
+              <th>{t('admin.transactions.table.buyer')}</th>
+              <th>{t('admin.transactions.table.gross_amount')}</th>
+              <th>{t('admin.transactions.table.net_amount')}</th>
+              <th>{t('admin.transactions.table.status')}</th>
+              <th>{t('admin.transactions.table.hold_days')}</th>
+              <th>{t('admin.transactions.table.paid_out')}</th>
+              <th>{t('admin.transactions.table.created')}</th>
             </tr>
           </thead>
           <tbody>
@@ -221,7 +223,7 @@ const AdminTransactions = () => {
                       <div className={styles.email}>{transaction.buyer.email}</div>
                     </div>
                   ) : (
-                    <span className={styles.na}>N/A</span>
+                    <span className={styles.na}>{t('admin.common.na')}</span>
                   )}
                 </td>
                 <td className={styles.amount}>
@@ -230,8 +232,8 @@ const AdminTransactions = () => {
                 <td className={styles.amountNet}>
                   {formatCurrency(transaction.amounts.net_amount, transaction.amounts.currency)}
                   <div className={styles.fees}>
-                    <span>Platform: {formatCurrency(transaction.amounts.platform_fee, transaction.amounts.currency)}</span>
-                    <span>Stripe: {formatCurrency(transaction.amounts.stripe_fee, transaction.amounts.currency)}</span>
+                    <span>{t('admin.transactions.table.platform_fee')}: {formatCurrency(transaction.amounts.platform_fee, transaction.amounts.currency)}</span>
+                    <span>{t('admin.transactions.table.stripe_fee')}: {formatCurrency(transaction.amounts.stripe_fee, transaction.amounts.currency)}</span>
                   </div>
                 </td>
                 <td>
@@ -240,14 +242,14 @@ const AdminTransactions = () => {
                   </span>
                 </td>
                 <td className={styles.holdDays}>
-                  {transaction.hold_info.days_to_hold} days
+                  {transaction.hold_info.days_to_hold} {t('admin.common.days')}
                   {transaction.hold_info.hold_reason && (
                     <div className={styles.holdReason}>{transaction.hold_info.hold_reason}</div>
                   )}
                 </td>
                 <td>
                   <span className={transaction.payout_info.payed_out ? styles.paidOutYes : styles.paidOutNo}>
-                    {transaction.payout_info.payed_out ? 'Yes' : 'No'}
+                    {transaction.payout_info.payed_out ? t('admin.common.yes') : t('admin.common.no')}
                   </span>
                 </td>
                 <td className={styles.date}>{formatDate(transaction.timestamps.created_at)}</td>
@@ -264,17 +266,17 @@ const AdminTransactions = () => {
           disabled={currentPage === 0}
           className={styles.paginationButton}
         >
-          Previous
+          {t('admin.common.previous')}
         </button>
         <span className={styles.paginationInfo}>
-          Page {currentPage + 1} of {Math.ceil(totalCount / pageSize)} ({totalCount} total)
+          {t('admin.common.page_info', { page: currentPage + 1, pages: Math.ceil(totalCount / pageSize), total: totalCount })}
         </span>
         <button
           onClick={handleNextPage}
           disabled={(currentPage + 1) * pageSize >= totalCount}
           className={styles.paginationButton}
         >
-          Next
+          {t('admin.common.next')}
         </button>
       </div>
     </div>

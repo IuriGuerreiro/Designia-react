@@ -1,0 +1,155 @@
+{
+  "translation": {
+    "admin": {
+      "common": {
+        "na": "N/D",
+        "yes": "Sim",
+        "no": "Não",
+        "days": "dias",
+        "previous": "Anterior",
+        "next": "Seguinte",
+        "page_info": "Página {{page}} de {{pages}} ({{total}} no total)"
+      },
+      "transactions": {
+        "loading": "A carregar transações...",
+        "title": "Admin: Todas as Transações",
+        "subtitle": "Monitore todas as transações de pagamento na plataforma",
+        "summary": {
+          "total_gross": "Total Bruto",
+          "total_net": "Total Líquido",
+          "platform_fees": "Taxas da Plataforma",
+          "stripe_fees": "Taxas Stripe",
+          "average_transaction": "Transação Média",
+          "total_transactions": "Total de Transações"
+        },
+        "filters": {
+          "search_placeholder": "Pesquisar por vendedor, comprador ou ID de encomenda",
+          "status_all": "Todos os estados",
+          "status_options": {
+            "held": "Retida",
+            "completed": "Concluída",
+            "released": "Liberada",
+            "failed": "Falhada",
+            "refunded": "Reembolsada"
+          },
+          "date_from": "Data de início",
+          "date_to": "Data de fim"
+        },
+        "actions": {
+          "search": "Pesquisar",
+          "clear": "Limpar"
+        },
+        "table": {
+          "transaction_id": "ID da Transação",
+          "seller": "Vendedor",
+          "buyer": "Comprador",
+          "gross_amount": "Valor Bruto",
+          "net_amount": "Valor Líquido",
+          "status": "Estado",
+          "hold_days": "Dias de retenção",
+          "paid_out": "Pago",
+          "created": "Criada",
+          "platform_fee": "Plataforma",
+          "stripe_fee": "Stripe"
+        }
+      },
+      "payouts": {
+        "loading": "A carregar pagamentos...",
+        "title": "Admin: Todos os Pagamentos",
+        "subtitle": "Supervisione todos os pagamentos a vendedores na plataforma",
+        "summary": {
+          "total_amount": "Montante Total",
+          "average_payout": "Pagamento Médio",
+          "total_fees": "Taxas Totais",
+          "total_payouts": "Total de Pagamentos"
+        },
+        "filters": {
+          "search_placeholder": "Pesquisar por utilizador ou email do vendedor",
+          "status_all": "Todos os estados",
+          "status_options": {
+            "pending": "Pendente",
+            "paid": "Pago",
+            "failed": "Falhado",
+            "in_transit": "Em trânsito"
+          },
+          "date_from": "Data de início",
+          "date_to": "Data de fim"
+        },
+        "actions": {
+          "search": "Pesquisar",
+          "clear": "Limpar"
+        },
+        "table": {
+          "payout_id": "ID do Pagamento",
+          "seller": "Vendedor",
+          "amount": "Montante",
+          "status": "Estado",
+          "type": "Tipo",
+          "created": "Criado",
+          "stripe_id": "ID Stripe"
+        }
+      },
+      "seller_applications": {
+        "access_denied_title": "Acesso Negado",
+        "access_denied_message": "Não tem permissão para aceder a esta página.",
+        "loading": "A carregar candidaturas...",
+        "title": "Gestão de Candidaturas a Vendedor",
+        "stats": {
+          "total": "Total: {{count}}",
+          "pending": "Pendentes: {{count}}",
+          "approved": "Aprovadas: {{count}}"
+        },
+        "error_retry": "Tentar novamente",
+        "filters": {
+          "label": "Filtrar por estado:",
+          "all": "Todas as candidaturas"
+        },
+        "status": {
+          "pending": "Pendente",
+          "under_review": "Em análise",
+          "approved": "Aprovada",
+          "rejected": "Rejeitada",
+          "revision_requested": "Revisão solicitada"
+        },
+        "empty": {
+          "none": "Nenhuma candidatura encontrada.",
+          "none_with_status": "Nenhuma candidatura encontrada com o estado \"{{status}}\"."
+        },
+        "labels": {
+          "applicant": "Candidato:",
+          "type": "Tipo:",
+          "submitted": "Submetida:",
+          "portfolio": "Portfólio:",
+          "social_media": "Redes Sociais:",
+          "motivation": "Motivação:",
+          "workshop_photos": "Fotos do atelier:",
+          "more_images": "{{count}} mais",
+          "admin_notes": "Notas do admin:",
+          "rejection_reason": "Motivo da rejeição:",
+          "approved_by": "Aprovado por: {{name}}",
+          "rejected_by": "Rejeitado por: {{name}}"
+        },
+        "links": {
+          "view_portfolio": "Ver Portfólio",
+          "view_profile": "Ver Perfil"
+        },
+        "actions": {
+          "approve": "Aprovar",
+          "approving": "A aprovar...",
+          "reject": "Rejeitar",
+          "rejecting": "A rejeitar..."
+        },
+        "confirm": {
+          "approve": "Tem a certeza de que pretende aprovar esta candidatura?",
+          "reject_reason": "Indique um motivo para a rejeição (opcional):"
+        },
+        "alerts": {
+          "approve_success": "Candidatura aprovada com sucesso!",
+          "approve_failed": "Falha ao aprovar a candidatura",
+          "reject_success": "Candidatura rejeitada com sucesso!",
+          "reject_failed": "Falha ao rejeitar a candidatura"
+        }
+      }
+    }
+  }
+}

@@ -163,9 +163,9 @@ const ReviewList: React.FC<ReviewListProps> = ({
                   <div className="reviewer-name-container">
                     <span className="reviewer-name">{review.reviewer_name}</span>
                     {review.is_verified_purchase && (
-                      <span className="verified-badge" title="Verified Purchase">
+                      <span className="verified-badge" title={t('reviews.verified_purchase')}>
                         <span className="verified-icon">✓</span>
-                        Verified Buyer
+                        {t('reviews.verified_purchase')}
                       </span>
                     )}
                   </div>

@@ -1,4 +1,5 @@
 import { useState, type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ChatSummary, ChatUser } from '@/features/chat/model';
 import { useChat } from '@/features/chat/state/ChatContext';
 import styles from './ChatList.module.css';
@@ -21,6 +22,7 @@ const ChatItemSkeleton: FC = () => {
 };
 
 export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) => {
+  const { t } = useTranslation();
   const { chats, createChat, searchUsers, getUnreadCount, getTotalUnreadCount } = useChat();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<ChatUser[]>([]);
@@ -61,15 +63,15 @@ export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) =>
 
   const getLastMessagePreview = (chat: ChatSummary) => {
     if (!chat.last_message) {
-      return 'No messages yet';
+      return t('chat.list.last_message.none');
     }
 
     const message = chat.last_message;
     if (message.message_type === 'image') {
-      return '📷 Image';
+      return `📷 ${t('chat.list.last_message.image')}`;
     }
     
-    return message.text_content || 'Message';
+    return message.text_content || t('chat.list.last_message.text_fallback');
   };
 
   const handleSearch = async (query: string) => {
@@ -132,7 +134,7 @@ export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) =>
     <div className={styles.chatListContainer}>
       <div className={styles.header}>
         <div className={styles.titleWrapper}>
-          <h2 className={styles.title}>Messages</h2>
+          <h2 className={styles.title}>{t('chat.list.title')}</h2>
           {getTotalUnreadCount() > 0 && (
             <span className={styles.totalUnreadBadge}>
               {getTotalUnreadCount()}
@@ -142,7 +144,7 @@ export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) =>
         <button
           className={styles.newChatButton}
           onClick={() => setShowSearch(!showSearch)}
-          title="Start new chat"
+          title={t('chat.actions.start_new_chat')}
         >
           <span className="material-symbols-outlined" aria-hidden="true">add</span>
         </button>
@@ -151,11 +153,11 @@ export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) =>
       {showSearch && (
         <div className={styles.searchSection}>
           <div className={styles.searchHeader}>
-            <h3>New Conversation</h3>
+            <h3>{t('chat.list.new_conversation_title')}</h3>
             <button 
               className={styles.closeSearchButton}
               onClick={clearSearch}
-              title="Close search"
+              title={t('chat.a11y.close_search')}
             >
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -171,7 +173,7 @@ export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) =>
             </div>
             <input
               type="text"
-              placeholder="Search users to chat with..."
+              placeholder={t('chat.list.search_placeholder')}
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className={styles.searchInput}
@@ -182,7 +184,7 @@ export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) =>
           {isSearching && (
             <div className={styles.searchStatus}>
               <div className={styles.searchSpinner}></div>
-              <span>Searching...</span>
+              <span>{t('chat.list.searching')}</span>
             </div>
           )}
           
@@ -222,8 +224,8 @@ export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) =>
                   <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h4>No users found</h4>
-              <p>No users match "{searchQuery}"</p>
+              <h4>{t('chat.list.no_users_title')}</h4>
+              <p>{t('chat.list.no_users_message', { query: searchQuery })}</p>
             </div>
           )}
         </div>
@@ -237,8 +239,8 @@ export const ChatList: FC<ChatListProps> = ({ onChatSelect, selectedChatId }) =>
                 <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h3>No conversations yet</h3>
-            <p>Start a new chat by searching for users above</p>
+            <h3>{t('chat.list.empty_title')}</h3>
+            <p>{t('chat.list.empty_message')}</p>
           </div>
         ) : (
           chats.map(chat => (
