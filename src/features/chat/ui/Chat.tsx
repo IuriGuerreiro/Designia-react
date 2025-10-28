@@ -85,11 +85,11 @@ export const Chat: FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom when new messages arrive (container scroll)
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
   }, [messages, selectedChat?.id]);
 
   // Mark messages as read when user scrolls or interacts with chat
@@ -109,24 +109,21 @@ export const Chat: FC = () => {
       }
     };
 
-    // Mark as read when messages container is scrolled (user is actively viewing)
+    // Mark as read when user scrolls inside the messages container
     const handleScroll = () => {
-      if (selectedChat && messagesContainerRef.current) {
-        // Debounce the mark as read call
-        clearTimeout((handleScroll as any).timeout);
-        (handleScroll as any).timeout = setTimeout(() => {
-          markChatAsViewed(selectedChat.id);
-        }, 1000);
-      }
+      if (!selectedChat) return;
+      clearTimeout((handleScroll as any).timeout);
+      (handleScroll as any).timeout = setTimeout(() => {
+        markChatAsViewed(selectedChat.id);
+      }, 500);
     };
 
     // Add event listeners
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleFocus);
     
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.addEventListener('scroll', handleScroll);
-    }
+    const container = messagesContainerRef.current;
+    container?.addEventListener('scroll', handleScroll as any, { passive: true } as any);
 
     // Mark as read immediately when chat is first opened
     const initialMarkTimeout = setTimeout(() => {
@@ -137,9 +134,7 @@ export const Chat: FC = () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleFocus);
       
-      if (messagesContainerRef.current) {
-        messagesContainerRef.current.removeEventListener('scroll', handleScroll);
-      }
+      container?.removeEventListener('scroll', handleScroll as any);
       
       clearTimeout(initialMarkTimeout);
       clearTimeout((handleScroll as any).timeout);

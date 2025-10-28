@@ -1,0 +1,428 @@
+.page {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(2.75rem, 6vw, 4.5rem) clamp(1.5rem, 5vw, 3.5rem) clamp(4.5rem, 8vw, 5.5rem);
+  display: grid;
+  gap: clamp(2.25rem, 4vw, 3.25rem);
+  color: var(--color-text-secondary);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2.1rem, 4vw, 2.9rem);
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.subtitle {
+  margin: 0 auto;
+  max-width: 46rem;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: clamp(1.25rem, 3vw, 1.9rem);
+}
+
+.summaryCard {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.4rem 1.6rem;
+  border-radius: 1.75rem;
+  background: color-mix(in srgb, var(--surface-glass) 96%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border-soft) 85%, transparent);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(14px);
+}
+
+.summaryIcon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1.2rem;
+  background: color-mix(in srgb, var(--surface-highlight) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border-soft) 82%, transparent);
+  font-size: 1.75rem;
+}
+
+.summaryMeta {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.summaryLabel {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.summaryValue {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.holdList {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 3vw, 2.25rem);
+}
+
+.holdCard {
+  border-radius: clamp(1.75rem, 4vw, 2.35rem);
+  border: 1px solid color-mix(in srgb, var(--border-soft) 82%, transparent);
+  background: color-mix(in srgb, var(--surface-glass) 96%, transparent);
+  box-shadow: var(--shadow-elevated);
+  overflow: hidden;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  backdrop-filter: blur(18px);
+}
+
+.holdCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 28px 58px rgba(15, 23, 42, 0.22);
+}
+
+.holdHeader {
+  padding: clamp(1.6rem, 3.5vw, 2.1rem);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--surface-highlight) 92%, transparent) 0%,
+    color-mix(in srgb, var(--surface-muted) 86%, transparent) 100%
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.holdHeadline {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.holdHeadline h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--color-text-primary);
+}
+
+.holdHeadline p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.holdActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  min-width: 220px;
+}
+
+.holdStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--badge-radius);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.holdStatusReady {
+  background: color-mix(in srgb, var(--color-success) 22%, transparent);
+  color: color-mix(in srgb, var(--color-success) 92%, var(--color-accent) 8%);
+}
+
+.holdStatusHeld {
+  background: color-mix(in srgb, var(--color-info) 22%, transparent);
+  color: color-mix(in srgb, var(--color-info) 86%, var(--color-accent) 14%);
+}
+
+.holdStatusFailed {
+  background: color-mix(in srgb, var(--color-error) 22%, transparent);
+  color: color-mix(in srgb, var(--color-error) 92%, var(--color-accent) 8%);
+}
+
+.holdStatusDefault {
+  background: color-mix(in srgb, var(--surface-muted) 88%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.holdAmount {
+  text-align: right;
+}
+
+.holdAmount strong {
+  display: block;
+  font-size: 1.35rem;
+  color: var(--color-success);
+}
+
+.holdAmount span {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.transferButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--gradient-button);
+  color: var(--color-accent-contrast);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform var(--transition-base), box-shadow var(--transition-base), opacity var(--transition-base);
+}
+
+.transferButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.transferButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.transferSpinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: var(--color-accent-contrast);
+  animation: spin 0.7s linear infinite;
+}
+
+.progressBlock {
+  width: 100%;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.progressStatusReady {
+  color: color-mix(in srgb, var(--color-success) 88%, var(--color-text-secondary) 12%);
+  font-weight: 600;
+}
+
+.progressStatusPending {
+  color: color-mix(in srgb, var(--color-info) 88%, var(--color-text-secondary) 12%);
+  font-weight: 600;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-highlight) 88%, transparent);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-info) 60%, transparent) 0%, color-mix(in srgb, var(--color-success) 55%, transparent) 100%);
+  transition: width 0.6s ease;
+}
+
+.progressTimeline {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.holdBody {
+  padding: clamp(1.6rem, 3.5vw, 2.2rem);
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2rem);
+}
+
+.infoTiles {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.infoTile {
+  padding: 1.2rem 1.4rem;
+  border-radius: 1.35rem;
+  background: color-mix(in srgb, var(--surface-highlight) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
+  display: grid;
+  gap: 0.6rem;
+}
+
+.tileTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tileRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.tileHighlight {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.itemsSection,
+.notesSection {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.itemsGrid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.itemCard {
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--surface-highlight) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border-soft) 78%, transparent);
+  color: var(--color-text-secondary);
+}
+
+.notesBody {
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--color-warning) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 30%, transparent);
+  color: color-mix(in srgb, var(--color-warning) 85%, var(--color-text-primary) 15%);
+  line-height: 1.6;
+}
+
+.emptyState {
+  text-align: center;
+  padding: clamp(2.5rem, 5vw, 3.5rem);
+  border-radius: 1.85rem;
+  background: color-mix(in srgb, var(--surface-glass) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border-soft) 82%, transparent);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-secondary);
+}
+
+.emptyIcon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-muted);
+}
+
+.refresh {
+  display: flex;
+  justify-content: center;
+}
+
+.refreshButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--gradient-button);
+  color: var(--color-accent-contrast);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform var(--transition-base), box-shadow var(--transition-base), opacity var(--transition-base);
+}
+
+.refreshButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refreshSpinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: var(--color-accent-contrast);
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .holdHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .holdActions {
+    align-items: flex-start;
+    min-width: unset;
+    width: 100%;
+  }
+
+  .progressTimeline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+}

@@ -21,9 +21,14 @@ export class ProductService {
   }
 
   async getProducts(filters?: ProductFilters): Promise<ProductListResponse> {
+    // Prefer the new search endpoint when using startIndex/pageSize, else fallback
+    const useSearch = !!(filters && ('startIndex' in (filters as any) || 'pageSize' in (filters as any)));
     const query = buildQueryString(filters);
-    const endpoint = query ? `${API_ENDPOINTS.PRODUCTS}?${query}` : API_ENDPOINTS.PRODUCTS;
-    const response = await apiRequest<ProductListResponse>(endpoint);
+    const endpoint = useSearch
+      ? (query ? `${API_ENDPOINTS.PRODUCT_SEARCH}?${query}` : API_ENDPOINTS.PRODUCT_SEARCH)
+      : (query ? `${API_ENDPOINTS.PRODUCTS}?${query}` : API_ENDPOINTS.PRODUCTS);
+
+    const response = await apiRequest<ProductListResponse | any>(endpoint);
     return normalizeProductCollection(response) ?? [];
   }
 

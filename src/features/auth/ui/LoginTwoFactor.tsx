@@ -17,7 +17,7 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   
-  const { verifyTwoFactor, resendTwoFactorCode } = useAuth();
+  const { loginVerify2FA, resend2FACode } = useAuth();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
     setError('');
 
     try {
-      await verifyTwoFactor(userId, code);
+      await loginVerify2FA(userId, code);
       // Success - user will be redirected by the auth context
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed');
@@ -51,7 +51,7 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
     setError('');
 
     try {
-      await resendTwoFactorCode(userId);
+      await resend2FACode(userId, 'login');
       setResendCooldown(60); // 60 second cooldown
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to resend code');
@@ -63,9 +63,12 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
   return (
     <div className={styles['auth-card']}>
       <div className={styles['auth-header']}>
-        <h2 className={styles['auth-title']}>{t('auth.two_factor_title') || 'Two-Factor Authentication'}</h2>
+        <h2 className={styles['auth-title']}>{t('auth.two_factor_title') || 'Two-factor check'}</h2>
         <p className={styles['auth-subtitle']}>
-          {t('auth.two_factor_description', { email }) || `We've sent a verification code to ${email}`}
+          {t('auth.two_factor_description', { email }) || `We just sent a 6-digit code to ${email}. Enter it below to keep your workspace secure.`}
+        </p>
+        <p className={styles['auth-meta']}>
+          Codes refresh every 60 seconds. Resend if the timer runs out.
         </p>
       </div>
 
@@ -100,18 +103,18 @@ const LoginTwoFactor: React.FC<LoginTwoFactorProps> = ({ userId, email, onBack }
         <div className={styles['auth-switch']}>
           <p className={styles['switch-text']}>
             {t('auth.didnt_receive_code') || "Didn't receive the code?"}{' '}
-            <button 
-              className={styles['link-button']} 
+            <button
+              className={styles['link-button']}
               onClick={handleResendCode}
               disabled={isResending || resendCooldown > 0}
             >
-              {isResending ? (t('auth.sending_button') || 'Sending...') : 
-               resendCooldown > 0 ? (t('auth.resend_in_button', { seconds: resendCooldown }) || `Resend in ${resendCooldown}s`) : 
-               (t('auth.resend_code_button') || 'Resend Code')}
+              {isResending ? (t('auth.sending_button') || 'Sending...') :
+               resendCooldown > 0 ? (t('auth.resend_in_button', { seconds: resendCooldown }) || `Resend in ${resendCooldown}s`) :
+               (t('auth.resend_code_button') || 'Resend code')}
             </button>
           </p>
           <button onClick={onBack} className={`${styles['link-button']} ${styles['back-link']}`}>
-            {t('auth.back_to_login_link') || 'Back to Login'}
+            {t('auth.back_to_login_link') || 'Back to login'}
           </button>
         </div>
       </div>

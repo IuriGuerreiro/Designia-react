@@ -33,9 +33,9 @@ const renderRoutes = (routes: AppRoute[]) =>
   routes.map((route) => <Route key={route.path} path={route.path} element={route.element} />);
 
 export const AppRouter = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isBootstrapping } = useAuth();
 
-  if (isLoading) {
+  if (isBootstrapping) {
     return <LoadingScreen />;
   }
 

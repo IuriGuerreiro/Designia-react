@@ -21,8 +21,12 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   const [error, setError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
+  const [resendError, setResendError] = useState('');
   
-  const { register } = useAuth();
+  const { register, resendVerification } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -67,6 +71,7 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
         // Registration successful - show success message
         setIsSuccess(true);
         setSuccessMessage(result.message || 'Account created successfully! Please check your email to verify your account.');
+        setRegisteredEmail(result.email || email);
         
         // Clear form
         setFirstName('');
@@ -87,25 +92,62 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
     }
   };
 
+  const handleResendVerification = async () => {
+    try {
+      setIsResending(true);
+      setResendError('');
+      setResendMessage('');
+      const result = await resendVerification(registeredEmail || email);
+      if (result.success) {
+        setResendMessage('A new verification email has been sent.');
+      } else {
+        setResendError(result.message || 'Failed to resend verification email.');
+      }
+    } catch (e) {
+      setResendError('Failed to resend verification email. Please try again.');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   if (isSuccess) {
     return (
       <div className={styles['auth-card']}>
         <div className={styles['auth-header']}>
-          <h2 className={styles['auth-title']}>Account Created Successfully!</h2>
-          <p className={styles['auth-subtitle']}>Please check your email to verify your account</p>
+          <h2 className={styles['auth-title']}>Confirm your email</h2>
+          <p className={styles['auth-subtitle']}>
+            {successMessage || "We've sent a verification link to your inbox. Please confirm your email to finish creating your account."}
+          </p>
         </div>
 
         <div className={styles['verification-pending-content']}>
-          <div className={`${styles['message']} ${styles['success']}`}>
-            {successMessage}
+          <div className={styles['email-info']}>
+            <span className={styles['email-label']}>Sent to:</span>
+            <span className={styles['email-display']}>{registeredEmail || email}</span>
           </div>
-          
+
+          {resendMessage && (
+            <div className={`${styles['message']} ${styles['success']}`}>{resendMessage}</div>
+          )}
+          {resendError && (
+            <div className={`${styles['message']} ${styles['error']}`}>{resendError}</div>
+          )}
+
           <div className={styles['verification-actions']}>
-            <button 
-              onClick={onSwitchToLogin} 
+            <button
+              type="button"
+              onClick={handleResendVerification}
               className={`${styles['auth-button']} ${styles['primary']}`}
+              disabled={isResending}
             >
-              Continue to Sign In
+              {isResending ? 'Resending...' : 'Resend verification email'}
+            </button>
+            <button
+              type="button"
+              onClick={onSwitchToLogin}
+              className={`${styles['link-button']} ${styles['back-link']}`}
+            >
+              Back to sign in
             </button>
           </div>
         </div>
@@ -116,8 +158,13 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   return (
     <div className={styles['auth-card']}>
       <div className={styles['auth-header']}>
-        <h2 className={styles['auth-title']}>{t('auth.register_title') || 'Create Your Account'}</h2>
-        <p className={styles['auth-subtitle']}>{t('auth.register_subtitle') || 'Join Designia and transform your space with premium furniture'}</p>
+        <h2 className={styles['auth-title']}>{t('auth.register_title') || 'Create your Designia ID'}</h2>
+        <p className={styles['auth-subtitle']}>
+          {t('auth.register_subtitle') || 'Unlock personalized design workflows, real-time designer chat, and AR previews for every project.'}
+        </p>
+        <p className={styles['auth-meta']}>
+          {t('auth.register_meta') || 'Use your best email so we can send collaboration invites and project updates.'}
+        </p>
       </div>
 
       <form className={styles['auth-form']} onSubmit={handleSubmit}>
@@ -217,6 +264,10 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
         <button type="submit" className={`${styles['auth-button']} ${styles['primary']}`} disabled={isLoading}>
           {isLoading ? (t('auth.creating_account_button') || 'Creating Account...') : (t('auth.register_button') || 'Create Account')}
         </button>
+
+        <p className={styles['auth-meta']}>
+          {t('auth.password_hint') || 'Passwords must be at least 8 characters and include a number for designer security.'}
+        </p>
       </form>
 
       <div className={styles['auth-divider']}>
@@ -224,6 +275,10 @@ const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
       </div>
 
       <GoogleOAuth onError={setError} />
+
+      <p className={styles['auth-disclaimer']}>
+        {t('auth.register_disclaimer') || 'By creating an account you agree to our Terms and Privacy Policy.'}
+      </p>
 
       <div className={styles['auth-switch']}>
         <p className={styles['switch-text']}>

@@ -1,0 +1,372 @@
+.checkoutShell {
+  display: grid;
+  gap: clamp(1.5rem, 2vw, 2.5rem);
+  padding: clamp(2rem, 4vw, 3rem);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.hero {
+  position: relative;
+  border-radius: 28px;
+  padding: clamp(2.25rem, 4vw, 3.5rem);
+  background: var(--gradient-hero);
+  color: var(--color-accent-contrast);
+  overflow: hidden;
+  box-shadow: var(--shadow-elevated);
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 1.5rem;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.heroSubtitle {
+  margin: 0;
+  max-width: 36rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: clamp(1rem, 1.8vw, 1.1rem);
+  line-height: 1.6;
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.heroStat {
+  min-width: 120px;
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.heroStat span:first-child {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.heroStat strong {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.retryBanner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--color-warning) 45%, transparent);
+  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface) 88%);
+  color: color-mix(in srgb, var(--color-warning) 55%, var(--color-text-primary) 45%);
+}
+
+.retryBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-warning) 55%, transparent);
+  color: var(--color-accent-contrast);
+  font-size: 1.1rem;
+}
+
+.retryCopy {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.retryCopy strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.embeddedCard {
+  padding: clamp(1.5rem, 3vw, 2rem);
+  border-radius: 26px;
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  position: relative;
+}
+
+.embeddedCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 5%, transparent);
+}
+
+.errorBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--color-error) 45%, transparent);
+  background: color-mix(in srgb, var(--color-error) 12%, var(--color-surface) 88%);
+  color: color-mix(in srgb, var(--color-error) 55%, var(--color-text-primary) 45%);
+}
+
+.errorIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-error) 55%, transparent);
+  color: var(--color-accent-contrast);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.errorCopy {
+  flex: 1;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.errorTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.errorMessage {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.errorAction {
+  align-self: center;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--button-gradient);
+  color: var(--color-accent-contrast);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.errorAction:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.supportCard {
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1.75rem, 3vw, 2.25rem);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--color-background-accent) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  box-shadow: var(--shadow-sm);
+}
+
+.supportTitle {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.supportCopy {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.supportActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.supportLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.supportLink:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  box-shadow: var(--shadow-sm);
+}
+
+.formShell {
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(2rem, 4vw, 3rem);
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  box-shadow: var(--shadow);
+}
+
+.formShell h2 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.formGrid {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.formGroup {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 75%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.secondaryAction {
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  color: var(--color-text-primary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--transition-base), color var(--transition-base);
+}
+
+.secondaryAction:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  color: color-mix(in srgb, var(--color-accent) 60%, var(--color-text-primary) 40%);
+}
+
+.primaryAction {
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--gradient-button);
+  color: var(--color-accent-contrast);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.primaryAction:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 720px) {
+  .checkoutShell {
+    padding: 1.5rem;
+  }
+
+  .hero {
+    border-radius: 22px;
+  }
+
+  .embeddedCard,
+  .supportCard,
+  .formShell {
+    border-radius: 22px;
+    padding: 1.5rem;
+  }
+
+  .formActions {
+    justify-content: stretch;
+  }
+
+  .formActions button,
+  .formActions a {
+    width: 100%;
+    text-align: center;
+  }
+}

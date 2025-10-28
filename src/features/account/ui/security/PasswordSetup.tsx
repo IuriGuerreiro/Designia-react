@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/state/AuthContext';
 import {
   requestPasswordSetup,
@@ -15,6 +16,7 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
 
 const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
+  const { t } = useTranslation();
   const { user, refreshUserData } = useAuth();
   const [step, setStep] = useState<'initial' | 'verification'>('initial');
   const [loading, setLoading] = useState(false);
@@ -39,7 +41,7 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
       setStep('verification');
     } catch (err) {
       const httpError = ensureHttpError(err);
-      setError(httpError?.message ?? 'Failed to send verification code');
+      setError(httpError?.message ?? t('account.security.password_setup.errors.send_code_failed'));
     } finally {
       setLoading(false);
     }
@@ -49,12 +51,12 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
     event.preventDefault();
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('account.security.password_setup.errors.passwords_mismatch'));
       return;
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError(t('account.security.password_setup.errors.password_min_length'));
       return;
     }
 
@@ -80,7 +82,7 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
       }
     } catch (err) {
       const httpError = ensureHttpError(err);
-      setError(httpError?.message ?? 'Failed to set password');
+      setError(httpError?.message ?? t('account.security.password_setup.errors.set_failed'));
     } finally {
       setLoading(false);
     }
@@ -96,61 +98,59 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
   };
 
   return (
-    <div className={styles['password-setup']}>
-      <div className={styles['password-setup-header']}>
-        <h3>Password Setup</h3>
-        <p>
-          Your account is currently secured with Google OAuth only. Set up a password for additional login options.
-        </p>
+    <div className={styles.passwordSetup}>
+      <div className={styles.passwordSetupHeader}>
+        <h3>{t('account.security.password_setup.title')}</h3>
+        <p>{t('account.security.password_setup.subtitle')}</p>
       </div>
 
-      {error && <div className={cx(styles.alert, styles['alert-error'])}>{error}</div>}
-      {success && <div className={cx(styles.alert, styles['alert-success'])}>{success}</div>}
+      {error && <div className={cx(styles.alert, styles.alertError)}>{error}</div>}
+      {success && <div className={cx(styles.alert, styles.alertSuccess)}>{success}</div>}
 
       {step === 'initial' && (
-        <div className={styles['password-setup-initial']}>
-          <div className={styles['oauth-info']}>
-            <div className={styles['oauth-indicator']}>
-              <span className={styles['oauth-icon']}>🔐</span>
-              <div className={styles['oauth-text']}>
-                <strong>Google OAuth Account</strong>
-                <p>You're currently using Google OAuth for authentication</p>
+        <div className={styles.passwordSetupInitial}>
+          <div className={styles.oauthInfo}>
+            <div className={styles.oauthIndicator}>
+              <span className={styles.oauthIcon}>🔐</span>
+              <div className={styles.oauthText}>
+                <strong>{t('account.security.password_setup.oauth_account_title')}</strong>
+                <p>{t('account.security.password_setup.oauth_account_description')}</p>
               </div>
             </div>
           </div>
 
           <button
-            className={cx(styles['settings-btn'], styles['settings-btn-primary'])}
+            className={styles.settingsBtn}
             onClick={handleRequestPasswordSetup}
             disabled={loading}
           >
-            {loading ? 'Sending Code...' : 'Set Up Password'}
+            {loading ? t('account.security.password_setup.actions.sending_code') : t('account.security.password_setup.actions.setup_password')}
           </button>
 
-          <div className={styles['setup-info']}>
-            <h4>Why set up a password?</h4>
+          <div className={styles.setupInfo}>
+            <h4>{t('account.security.password_setup.why_title')}</h4>
             <ul>
-              <li>Alternative login method if Google OAuth is unavailable</li>
-              <li>Enhanced account security with multiple authentication options</li>
-              <li>Access to advanced security features</li>
+              <li>{t('account.security.password_setup.why_points.alt_login')}</li>
+              <li>{t('account.security.password_setup.why_points.enhanced_security')}</li>
+              <li>{t('account.security.password_setup.why_points.advanced_features')}</li>
             </ul>
-            <p className={styles['security-note']}>
-              <strong>Security:</strong> Setting up a password requires email verification with a 6-digit code.
+            <p className={styles.securityNote}>
+              <strong>{t('account.security.password_setup.security_label')}</strong> {t('account.security.password_setup.security_note')}
             </p>
           </div>
         </div>
       )}
 
       {step === 'verification' && (
-        <div className={styles['password-setup-verification']}>
-          <div className={styles['verification-header']}>
-            <h4>Verify and Set Password</h4>
-            <p>Enter the 6-digit code sent to your email and your new password.</p>
+        <div className={styles.passwordSetupVerification}>
+          <div className={styles.verificationHeader}>
+            <h4>{t('account.security.password_setup.verify_title')}</h4>
+            <p>{t('account.security.password_setup.verify_description')}</p>
           </div>
 
-          <form onSubmit={handleSetPassword} className={styles['password-setup-form']}>
-            <div className={styles['form-group']}>
-              <label htmlFor="verificationCode">Verification Code</label>
+          <form onSubmit={handleSetPassword} className={styles.passwordSetupForm}>
+            <div className={styles.formGroup}>
+              <label htmlFor="verificationCode">{t('account.security.password_setup.form.code_label')}</label>
               <input
                 type="text"
                 id="verificationCode"
@@ -158,73 +158,71 @@ const PasswordSetup: React.FC<PasswordSetupProps> = ({ onPasswordSet }) => {
                 onChange={(event) =>
                   setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))
                 }
-                placeholder="Enter 6-digit code"
+                placeholder={t('account.security.password_setup.form.code_placeholder')}
                 maxLength={6}
                 required
-                className={cx(styles['form-control'], styles['code-input'])}
+                className={cx(styles.formControl, styles.codeInput)}
               />
             </div>
 
-            <div className={styles['form-group']}>
-              <label htmlFor="password">New Password</label>
+            <div className={styles.formGroup}>
+              <label htmlFor="password">{t('account.security.password_setup.form.password_label')}</label>
               <input
                 type="password"
                 id="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter new password"
+                placeholder={t('account.security.password_setup.form.password_placeholder')}
                 minLength={8}
                 required
-                className={styles['form-control']}
+                className={styles.formControl}
               />
             </div>
 
-            <div className={styles['form-group']}>
-              <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className={styles.formGroup}>
+              <label htmlFor="confirmPassword">{t('account.security.password_setup.form.confirm_label')}</label>
               <input
                 type="password"
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
-                placeholder="Confirm new password"
+                placeholder={t('account.security.password_setup.form.confirm_placeholder')}
                 minLength={8}
                 required
-                className={styles['form-control']}
+                className={styles.formControl}
               />
             </div>
 
-            <div className={styles['form-actions']}>
+            <div className={styles.formActions}>
               <button
                 type="button"
-                className={cx(styles['settings-btn'], styles['settings-btn-secondary'])}
+                className={cx(styles.settingsBtn, styles.settingsBtnSecondary)}
                 onClick={handleBack}
                 disabled={loading}
               >
-                Back
+                {t('account.security.password_setup.actions.back')}
               </button>
               <button
                 type="submit"
-                className={cx(styles['settings-btn'], styles['settings-btn-primary'])}
+                className={styles.settingsBtn}
                 disabled={
                   loading || verificationCode.length !== 6 || !password || !confirmPassword
                 }
               >
-                {loading ? 'Setting Password...' : 'Set Password'}
+                {loading ? t('account.security.password_setup.actions.setting_password') : t('account.security.password_setup.actions.set_password')}
               </button>
             </div>
           </form>
 
-          <div className={styles['verification-info']}>
-            <p className={styles['code-info']}>
-              📧 Code expires in 10 minutes. Check your spam folder if you don't see the email.
-            </p>
+          <div className={styles.verificationInfo}>
+            <p className={styles.codeInfo}>📧 {t('account.security.password_setup.code_expiry_hint')}</p>
             <button
               type="button"
-              className={styles['btn-link']}
+              className={styles.resendLink}
               onClick={handleRequestPasswordSetup}
               disabled={loading}
             >
-              Resend code
+              {t('account.security.password_setup.actions.resend_code')}
             </button>
           </div>
         </div>

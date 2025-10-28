@@ -18,6 +18,7 @@ const ProductForm: React.FC = () => {
   // State management
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [categories, setCategories] = useState<Category[]>([]);
   
   const [formData, setFormData] = useState({
@@ -65,7 +66,7 @@ const ProductForm: React.FC = () => {
         setCategories(categoriesData);
       } catch (err) {
         console.error('Failed to load categories:', err);
-        setError('Failed to load categories. Please refresh the page.');
+        setError(t('products.form.errors.load_product'));
       }
     };
 
@@ -80,29 +81,37 @@ const ProductForm: React.FC = () => {
       setLoading(true);
       try {
         const product = await productService.getProduct(slug);
-        
+
+        // Safely determine category id from various backend shapes
+        const rawCategory: any = (product as any).category;
+        const categoryId = rawCategory && typeof rawCategory === 'object'
+          ? String(rawCategory.id ?? '')
+          : rawCategory != null
+            ? String(rawCategory)
+            : '';
+
         setFormData({
           name: product.name,
           description: product.description,
           short_description: product.short_description || '',
-          price: product.price.toString(),
-          original_price: product.original_price?.toString() || '',
-          stock_quantity: product.stock_quantity,
-          category: product.category.id.toString(),
-          condition: product.condition,
-          brand: product.brand,
-          model: product.model,
-          weight: product.weight?.toString() || '',
-          dimensions_length: product.dimensions_length?.toString() || '',
-          dimensions_width: product.dimensions_width?.toString() || '',
-          dimensions_height: product.dimensions_height?.toString() || '',
-          materials: product.materials,
-          tags: product.tags,
-          is_featured: product.is_featured,
-          is_digital: product.is_digital,
+          price: product.price?.toString?.() ?? String(product.price ?? ''),
+          original_price: product.original_price != null ? String(product.original_price) : '',
+          stock_quantity: Number(product.stock_quantity ?? 0),
+          category: categoryId,
+          condition: (product as any).condition ?? 'new',
+          brand: (product as any).brand ?? '',
+          model: (product as any).model ?? '',
+          weight: product.weight != null ? String(product.weight) : '',
+          dimensions_length: product.dimensions_length != null ? String(product.dimensions_length) : '',
+          dimensions_width: product.dimensions_width != null ? String(product.dimensions_width) : '',
+          dimensions_height: product.dimensions_height != null ? String(product.dimensions_height) : '',
+          materials: (product as any).materials ?? '',
+          tags: Array.isArray((product as any).tags) ? (product as any).tags : [],
+          is_featured: Boolean((product as any).is_featured),
+          is_digital: Boolean((product as any).is_digital),
         });
-        
-        setSelectedColors(product.colors);
+
+        setSelectedColors(Array.isArray((product as any).colors) ? (product as any).colors : []);
       } catch (err) {
         console.error('Failed to load product for editing:', err);
         setError(t('products.form.errors.load_product'));
@@ -143,8 +152,26 @@ const ProductForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    setFieldErrors({});
+
+    // Client-side validation: original_price must be greater than price if provided
+    const priceNum = parseFloat(formData.price);
+    const originalNum = parseFloat(formData.original_price);
+    if (
+      formData.original_price &&
+      !Number.isNaN(priceNum) &&
+      !Number.isNaN(originalNum) &&
+      originalNum <= priceNum
+    ) {
+      setFieldErrors(prev => ({
+        ...prev,
+        original_price: 'Original price must be higher than current price',
+      }));
+      return;
+    }
+
+    setLoading(true);
     setIsProcessingImages(true);
 
     try {
@@ -399,7 +426,22 @@ const ProductForm: React.FC = () => {
       navigate('/my-products');
     } catch (err) {
       console.error('Failed to save product:', err);
-      setError(t('products.form.errors.save_product'));
+      // Try to surface field-level validation errors from backend (DRF style)
+      const anyErr = err as any;
+      const data = anyErr?.data as Record<string, unknown> | undefined;
+      if (data && typeof data === 'object') {
+        // Handle original_price validation message, e.g. ["Original price must be higher than current price"]
+        const op = (data as any).original_price;
+        if (op) {
+          const message = Array.isArray(op) ? String(op[0]) : String(op);
+          setFieldErrors(prev => ({ ...prev, original_price: message }));
+          setError('Product creation validation errors');
+        } else {
+          setError(t('products.form.errors.save_product'));
+        }
+      } else {
+        setError(t('products.form.errors.save_product'));
+      }
     } finally {
       setLoading(false);
       setIsProcessingImages(false);
@@ -433,11 +475,11 @@ const ProductForm: React.FC = () => {
       <div className="product-form-page">
         {/* Header Section - Like MyOrdersPage.tsx */}
         <div className="product-form-header">
-          <h1 className="product-form-title">{isEditing ? 'Edit Product' : 'Create New Product'}</h1>
+          <h1 className="product-form-title">{isEditing ? t('products.edit_product_title') : t('products.create_product_title')}</h1>
           <p className="product-form-subtitle">
             {isEditing 
-              ? 'Update your product information and images' 
-              : 'Add a new product to your portfolio with detailed information'
+              ? t('products.form.edit_product_description')
+              : t('products.form.create_product_description')
             }
           </p>
         </div>
@@ -464,7 +506,7 @@ const ProductForm: React.FC = () => {
         {/* Main Form */}
         <div className="product-form-container">
           <form onSubmit={handleSubmit} className="product-form-form">
-                      {/* Images Section */}
+            {/* Images Section */}
             <div className="product-form-section">
               <div className="product-section-header">
                 <div className="product-section-icon">
@@ -475,8 +517,8 @@ const ProductForm: React.FC = () => {
                   </svg>
                 </div>
                 <div className="product-section-content">
-                  <h3 className="product-section-title">Product Images</h3>
-                  <p className="product-section-description">Upload high-quality images to showcase your product</p>
+                  <h3 className="product-section-title">{t('products.form.images_label')}</h3>
+                  <p className="product-section-description">{t('products.form.images_hint')}</p>
                 </div>
               </div>
               
@@ -491,13 +533,13 @@ const ProductForm: React.FC = () => {
                 {isProcessingImages && (
                   <div className="product-processing-indicator">
                     <div className="product-processing-spinner"></div>
-                    <span>Processing images for upload...</span>
+                    <span>{t('products.form.processing_images')}</span>
                   </div>
                 )}
               </div>
             </div>
 
-                      {/* Basic Information */}
+            {/* Basic Information */}
             <div className="product-form-section">
               <div className="product-section-header">
                 <div className="product-section-icon">
@@ -507,14 +549,14 @@ const ProductForm: React.FC = () => {
                   </svg>
                 </div>
                 <div className="product-section-content">
-                  <h3 className="product-section-title">Basic Information</h3>
-                  <p className="product-section-description">Essential details about your product</p>
+                  <h3 className="product-section-title">{t('products.form.basic_info_title')}</h3>
+                  <p className="product-section-description">{t('products.form.basic_info_description')}</p>
                 </div>
               </div>
               
               <div className="product-form-grid">
                 <div className="product-form-group full-width">
-                  <label htmlFor="name">Product Name *</label>
+                  <label htmlFor="name">{t('products.form.name_label')} *</label>
                   <input 
                     type="text" 
                     id="name" 
@@ -522,31 +564,31 @@ const ProductForm: React.FC = () => {
                     onChange={e => setFormData({...formData, name: e.target.value})} 
                     required 
                     maxLength={200}
-                    placeholder="Enter product name"
+                    placeholder={t('products.form.name_label')}
                   />
                 </div>
 
                 <div className="product-form-group full-width">
-                  <label htmlFor="short_description">Short Description</label>
+                  <label htmlFor="short_description">{t('products.form.short_description_label')}</label>
                   <input 
                     type="text" 
                     id="short_description" 
                     value={formData.short_description} 
                     onChange={e => setFormData({...formData, short_description: e.target.value})} 
                     maxLength={300}
-                    placeholder="Brief description (optional)"
+                    placeholder={t('products.form.short_description_placeholder')}
                   />
                 </div>
 
                 <div className="product-form-group full-width">
-                  <label htmlFor="description">Full Description *</label>
+                  <label htmlFor="description">{t('products.form.full_description_label')} *</label>
                   <textarea 
                     id="description" 
                     value={formData.description} 
                     onChange={e => setFormData({...formData, description: e.target.value})} 
                     required
                     rows={4}
-                    placeholder="Detailed description of your product"
+                    placeholder={t('products.form.full_description_placeholder')}
                   />
                 </div>
               </div>
@@ -563,14 +605,14 @@ const ProductForm: React.FC = () => {
                   </svg>
                 </div>
                 <div className="product-section-content">
-                  <h3 className="product-section-title">Pricing & Inventory</h3>
-                  <p className="product-section-description">Set your price and manage stock levels</p>
+                  <h3 className="product-section-title">{t('products.form.pricing_inventory_title')}</h3>
+                  <p className="product-section-description">{t('products.form.pricing_inventory_description')}</p>
                 </div>
               </div>
               
               <div className="product-form-grid">
                 <div className="product-form-group">
-                  <label htmlFor="price">Price *</label>
+                  <label htmlFor="price">{t('products.form.price_label')} *</label>
                   <div className="product-input-with-icon">
                     <span className="product-currency-symbol">$</span>
                     <input 
@@ -587,7 +629,7 @@ const ProductForm: React.FC = () => {
                 </div>
 
                 <div className="product-form-group">
-                  <label htmlFor="original_price">Original Price</label>
+                  <label htmlFor="original_price">{t('products.form.original_price_label')}</label>
                   <div className="product-input-with-icon">
                     <span className="product-currency-symbol">$</span>
                     <input 
@@ -598,12 +640,18 @@ const ProductForm: React.FC = () => {
                       min="0.01"
                       step="0.01"
                       placeholder="0.00"
+                      aria-invalid={Boolean(fieldErrors.original_price) || undefined}
                     />
                   </div>
+                  {fieldErrors.original_price && (
+                    <p style={{ color: 'var(--error-red)', margin: '4px 0 0', fontSize: 13 }}>
+                      {fieldErrors.original_price}
+                    </p>
+                  )}
                 </div>
 
                 <div className="product-form-group">
-                  <label htmlFor="stock_quantity">Stock Quantity *</label>
+                  <label htmlFor="stock_quantity">{t('products.form.stock_quantity_label')} *</label>
                   <input 
                     type="number" 
                     id="stock_quantity" 
@@ -616,12 +664,12 @@ const ProductForm: React.FC = () => {
                 </div>
 
                 <div className="product-form-group">
-                  <label htmlFor="condition">Condition *</label>
+                  <label htmlFor="condition">{t('products.form.condition_label')} *</label>
                   <Select
                     value={formData.condition}
                     onChange={value => setFormData({...formData, condition: value})}
                     options={conditionOptions}
-                    placeholder="Select condition"
+                    placeholder={t('products.form.condition_placeholder')}
                   />
                 </div>
               </div>
@@ -638,52 +686,52 @@ const ProductForm: React.FC = () => {
                   </svg>
                 </div>
                 <div className="product-section-content">
-                  <h3 className="product-section-title">Category & Details</h3>
-                  <p className="product-section-description">Organize and categorize your product</p>
+                  <h3 className="product-section-title">{t('products.form.category_details_title')}</h3>
+                  <p className="product-section-description">{t('products.form.category_details_description')}</p>
                 </div>
               </div>
               
               <div className="product-form-grid">
                 <div className="product-form-group">
-                  <label htmlFor="category">Category *</label>
+                  <label htmlFor="category">{t('products.form.category_label')} *</label>
                   <Select
                     value={formData.category}
                     onChange={value => setFormData({...formData, category: value})}
                     options={categoryOptions}
-                    placeholder="Select category"
+                    placeholder={t('products.form.category_placeholder')}
                   />
                 </div>
 
                 <div className="product-form-group">
-                  <label htmlFor="brand">Brand</label>
+                  <label htmlFor="brand">{t('products.form.brand_label')}</label>
                   <input 
                     type="text" 
                     id="brand" 
                     value={formData.brand} 
                     onChange={e => setFormData({...formData, brand: e.target.value})} 
-                    placeholder="Product brand"
+                    placeholder={t('products.form.brand_placeholder')}
                   />
                 </div>
 
                 <div className="product-form-group">
-                  <label htmlFor="model">Model</label>
+                  <label htmlFor="model">{t('products.form.model_label')}</label>
                   <input 
                     type="text" 
                     id="model" 
                     value={formData.model} 
                     onChange={e => setFormData({...formData, model: e.target.value})} 
-                    placeholder="Product model"
+                    placeholder={t('products.form.model_placeholder')}
                   />
                 </div>
 
                 <div className="product-form-group">
-                  <label htmlFor="materials">Materials</label>
+                  <label htmlFor="materials">{t('products.form.materials_label')}</label>
                   <input 
                     type="text" 
                     id="materials" 
                     value={formData.materials} 
                     onChange={e => setFormData({...formData, materials: e.target.value})} 
-                    placeholder="e.g., Wood, Metal, Fabric"
+                    placeholder={t('products.form.materials_placeholder')}
                   />
                 </div>
               </div>
@@ -700,14 +748,14 @@ const ProductForm: React.FC = () => {
                   </svg>
                 </div>
                 <div className="product-section-content">
-                  <h3 className="product-section-title">Physical Properties</h3>
-                  <p className="product-section-description">Dimensions and weight information</p>
+                  <h3 className="product-section-title">{t('products.form.physical_properties_title')}</h3>
+                  <p className="product-section-description">{t('products.form.physical_properties_description')}</p>
                 </div>
               </div>
               
               <div className="product-form-grid">
                 <div className="product-form-group">
-                  <label htmlFor="weight">Weight (kg)</label>
+                  <label htmlFor="weight">{t('products.form.weight_label')}</label>
                   <input 
                     type="number" 
                     id="weight" 
@@ -818,8 +866,8 @@ const ProductForm: React.FC = () => {
                   </svg>
                 </div>
                 <div className="product-section-content">
-                  <h3 className="product-section-title">Tags</h3>
-                  <p className="product-section-description">Add relevant tags to help customers find your product</p>
+                  <h3 className="product-section-title">{t('products.form.tags_title')}</h3>
+                  <p className="product-section-description">{t('products.form.tags_description')}</p>
                 </div>
               </div>
               
@@ -830,7 +878,7 @@ const ProductForm: React.FC = () => {
                     value={tagInput} 
                     onChange={e => setTagInput(e.target.value)}
                     onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                    placeholder="Type a tag and press Enter"
+                    placeholder={t('products.form.tags_placeholder')}
                   />
                   <button type="button" onClick={handleAddTag} className="product-add-tag-btn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -870,8 +918,8 @@ const ProductForm: React.FC = () => {
                   </svg>
                 </div>
                 <div className="product-section-content">
-                  <h3 className="product-section-title">Product Options</h3>
-                  <p className="product-section-description">Additional settings for your product</p>
+                  <h3 className="product-section-title">{t('products.form.options_title')}</h3>
+                  <p className="product-section-description">{t('products.form.options_description')}</p>
                 </div>
               </div>
               
@@ -884,7 +932,7 @@ const ProductForm: React.FC = () => {
                       onChange={e => setFormData({...formData, is_featured: e.target.checked})} 
                     />
                     <span className="product-checkmark"></span>
-                    <span className="product-label-text">Featured Product</span>
+                    <span className="product-label-text">{t('products.form.featured_label')}</span>
                   </label>
                 </div>
                 
@@ -896,7 +944,7 @@ const ProductForm: React.FC = () => {
                       onChange={e => setFormData({...formData, is_digital: e.target.checked})} 
                     />
                     <span className="product-checkmark"></span>
-                    <span className="product-label-text">Digital Product</span>
+                    <span className="product-label-text">{t('products.form.digital_label')}</span>
                   </label>
                 </div>
               </div>
@@ -909,7 +957,7 @@ const ProductForm: React.FC = () => {
                 onClick={() => navigate('/my-products')} 
                 className="product-form-btn product-form-btn-secondary"
               >
-                Cancel
+                {t('products.form.cancel_button')}
               </button>
               <button 
                 type="submit" 

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import { apiRequest, API_ENDPOINTS } from '@/shared/api';
 import { useCart } from '@/shared/state/CartContext';
+import styles from './CheckoutSuccess.module.css';
 
 const CheckoutSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { syncWithServer, setPaymentProcessing } = useCart();
   const [sessionStatus, setSessionStatus] = useState<any>(null);
@@ -17,7 +20,7 @@ const CheckoutSuccess: React.FC = () => {
 
   useEffect(() => {
     if (!sessionId) {
-      setError('No session ID found');
+      setError(t('checkout.success.no_session'));
       setLoading(false);
       return;
     }
@@ -31,6 +34,15 @@ const CheckoutSuccess: React.FC = () => {
           { method: 'GET' }
         );
         setSessionStatus(response);
+
+        // Clear any persisted checkout clientSecret so a new checkout starts clean
+        try {
+          Object.keys(sessionStorage)
+            .filter((k) => k.startsWith('designia:checkout:'))
+            .forEach((k) => sessionStorage.removeItem(k));
+        } catch (_) {
+          // ignore storage issues
+        }
 
         // If payment was successful, refresh the cart to get updated information
         if (response.payment_status === 'paid' && !cartRefreshed) {
@@ -51,7 +63,7 @@ const CheckoutSuccess: React.FC = () => {
         }
       } catch (err) {
         console.error('Failed to fetch session status:', err);
-        setError('Failed to verify payment status');
+        setError(t('checkout.success.verify_failed'));
       } finally {
         setLoading(false);
       }
@@ -63,8 +75,14 @@ const CheckoutSuccess: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <div>🔄 Verifying your payment...</div>
+        <div className={styles.page}>
+          <div className={styles.card}>
+            <div className={`${styles.stateIcon} ${styles.pending}`} aria-hidden>
+              ⏳
+            </div>
+            <h1 className={styles.title}>{t('checkout.success.verifying_title')}</h1>
+            <p className={styles.subtitle}>{t('checkout.success.verifying_subtitle')}</p>
+          </div>
         </div>
       </Layout>
     );
@@ -73,61 +91,94 @@ const CheckoutSuccess: React.FC = () => {
   if (error || !sessionStatus) {
     return (
       <Layout>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <h1>❌ Payment Verification Failed</h1>
-          <p>{error || 'Unable to verify payment status'}</p>
-          <button onClick={() => navigate('/cart')} style={{ padding: '0.5rem 1rem', marginTop: '1rem' }}>
-            Return to Cart
-          </button>
+        <div className={styles.page}>
+          <div className={styles.card}>
+            <div className={`${styles.stateIcon} ${styles.pending}`} aria-hidden>
+              ⚠️
+            </div>
+            <h1 className={styles.title}>{t('checkout.success.verify_error_title')}</h1>
+            <p className={styles.subtitle}>{error || t('checkout.success.verify_error_subtitle')}</p>
+            <div className={styles.actions}>
+              <button type="button" className={styles.primary} onClick={() => navigate('/cart')}>
+                {t('checkout.success.return_to_cart')}
+              </button>
+              <button type="button" className={styles.secondary} onClick={() => window.location.reload()}>
+                {t('checkout.success.retry_verification')}
+              </button>
+            </div>
+          </div>
         </div>
       </Layout>
     );
   }
 
   const isPaymentSuccessful = sessionStatus.payment_status === 'paid';
+  const formattedAmount = sessionStatus.amount_total ? (sessionStatus.amount_total / 100).toFixed(2) : '0.00';
 
   return (
     <Layout>
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        {isPaymentSuccessful ? (
-          <>
-            <h1>🎉 Payment Successful!</h1>
-            <p>Thank you for your purchase!</p>
-            
-            {/* Cart refresh status */}
-            {cartRefreshed && (
-              <div style={{ backgroundColor: '#d1ecf1', padding: '0.75rem', borderRadius: '4px', margin: '0.5rem 0', fontSize: '0.9rem', color: '#0c5460' }}>
-                🛒 Your cart has been updated and is ready for your next purchase!
-              </div>
-            )}
-            
-            <div style={{ backgroundColor: '#d4edda', padding: '1rem', borderRadius: '4px', margin: '1rem 0', display: 'inline-block' }}>
-              <p><strong>Session ID:</strong> {sessionId}</p>
-              <p><strong>Amount:</strong> ${(sessionStatus.amount_total / 100).toFixed(2)}</p>
-              <p><strong>Email:</strong> {sessionStatus.customer_email}</p>
-            </div>
-            <div>
-              <button onClick={() => navigate('/marketplace')} style={{ padding: '0.5rem 1rem', margin: '0.5rem' }}>
-                Continue Shopping
-              </button>
-              <button onClick={() => navigate('/orders')} style={{ padding: '0.5rem 1rem', margin: '0.5rem', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
-                View My Orders
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <h1>⚠️ Payment Processing</h1>
-            <p>Your payment is being processed. Please check back shortly.</p>
-            <div style={{ backgroundColor: '#fff3cd', padding: '1rem', borderRadius: '4px', margin: '1rem 0', display: 'inline-block' }}>
-              <p><strong>Status:</strong> {sessionStatus.status}</p>
-              <p><strong>Payment Status:</strong> {sessionStatus.payment_status}</p>
-            </div>
-            <button onClick={() => window.location.reload()} style={{ padding: '0.5rem 1rem', margin: '0.5rem' }}>
-              Refresh Status
+      <div className={styles.page}>
+        <div className={styles.card}>
+          <div
+            className={`${styles.stateIcon} ${isPaymentSuccessful ? '' : styles.pending}`.trim()}
+            aria-hidden
+          >
+            {isPaymentSuccessful ? '🎉' : '⏳'}
+          </div>
+          <h1 className={styles.title}>
+            {isPaymentSuccessful ? t('checkout.success.confirmed_title') : t('checkout.success.processing_title')}
+          </h1>
+          <p className={styles.subtitle}>
+            {isPaymentSuccessful
+              ? t('checkout.success.confirmed_subtitle')
+              : t('checkout.success.processing_subtitle')}
+          </p>
+
+          <div className={styles.metaCard}>
+            <ul className={styles.metaList}>
+              <li className={styles.metaItem}>
+                <span>{t('checkout.success.session_id')}</span>
+                <strong>{sessionId}</strong>
+              </li>
+              <li className={styles.metaItem}>
+                <span>{t('checkout.success.amount')}</span>
+                <strong>${formattedAmount}</strong>
+              </li>
+              {sessionStatus.customer_email && (
+                <li className={styles.metaItem}>
+                  <span>{t('checkout.success.receipt_sent_to')}</span>
+                  <strong>{sessionStatus.customer_email}</strong>
+                </li>
+              )}
+              <li className={styles.metaItem}>
+                <span>{t('checkout.success.stripe_status')}</span>
+                <strong>{sessionStatus.payment_status}</strong>
+              </li>
+            </ul>
+          </div>
+
+          {cartRefreshed && (
+            <p className={styles.note}>🛒 {t('checkout.success.cart_refreshed')}</p>
+          )}
+
+          {!isPaymentSuccessful && (
+            <p className={`${styles.note} ${styles.pendingNote}`}>{t('checkout.success.waiting_confirmation')}</p>
+          )}
+
+          <div className={styles.actions}>
+            <button type="button" className={styles.primary} onClick={() => navigate('/marketplace')}>
+              {t('orders.success.continue_shopping')}
             </button>
-          </>
-        )}
+            <button type="button" className={styles.secondary} onClick={() => navigate('/orders')}>
+              {t('orders.success.view_my_orders')}
+            </button>
+            {!isPaymentSuccessful && (
+              <button type="button" className={styles.secondary} onClick={() => window.location.reload()}>
+                {t('checkout.success.refresh_status')}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </Layout>
   );

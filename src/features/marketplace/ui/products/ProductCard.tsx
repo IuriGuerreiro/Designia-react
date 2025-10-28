@@ -14,14 +14,14 @@ interface ProductCardProps {
 }
 
 const FavoriteIcon: React.FC<{ isFavorited: boolean }> = ({ isFavorited }) => (
-  <svg 
-    width="22" 
-    height="22" 
-    viewBox="0 0 24 24" 
-    fill={isFavorited ? '#EF4444' : 'none'} 
-    stroke={isFavorited ? '#EF4444' : '#6B7280'} 
-    strokeWidth="2" 
-    strokeLinecap="round" 
+  <svg
+    width="22"
+    height="22"
+    viewBox="0 0 24 24"
+    fill={isFavorited ? 'var(--color-error)' : 'none'}
+    stroke={isFavorited ? 'var(--color-error)' : 'var(--color-text-muted)'}
+    strokeWidth="2"
+    strokeLinecap="round"
     strokeLinejoin="round"
     className={styles.favoriteIcon}
   >
@@ -62,7 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
           <img src={primaryImage} alt={product.name} className={styles.image} />
           {!product.is_in_stock && (
             <div className={styles.outOfStockOverlay}>
-              <span>Out of Stock</span>
+              <span>{t('products.out_of_stock')}</span>
             </div>
           )}
         </div>
@@ -86,17 +86,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
           )}
           {displayMode === 'owner' && !product.is_active && (
             <div className={`${styles.badge} ${styles.inactiveBadge}`}>
-              Inactive
+              {t('products.inactive')}
             </div>
           )}
           {displayMode === 'owner' && product.stock_quantity === 0 && (
             <div className={`${styles.badge} ${styles.outOfStockBadge}`}>
-              Out of Stock
+              {t('products.out_of_stock')}
             </div>
           )}
           {displayMode === 'owner' && product.stock_quantity > 0 && product.stock_quantity <= 5 && (
             <div className={`${styles.badge} ${styles.lowStockBadge}`}>
-              Low Stock
+              {t('products.low_stock')}
             </div>
           )}
         </div>
@@ -133,8 +133,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
                   width="14" 
                   height="14" 
                   viewBox="0 0 24 24" 
-                  fill={star <= product.average_rating ? "#F59E0B" : "none"}
-                  stroke="#F59E0B"
+                  fill={star <= product.average_rating ? 'var(--color-warning)' : 'none'}
+                  stroke="var(--color-warning)"
                   strokeWidth="1.5"
                 >
                   <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z"/>
@@ -182,7 +182,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"/>
                   </svg>
-                  Only {product.stock_quantity} left
+                  {t('products.only_left', { count: product.stock_quantity })}
                 </div>
               )}
             </>
@@ -196,7 +196,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
                   <path d="M3 3V21H21"/>
                   <path d="M9 9L12 6L16 10L20 6"/>
                 </svg>
-                Metrics
+                {t('products.metrics')}
               </button>
               <button 
                 className={`${styles.addToCartBtn} ${styles.ownerBtn}`}
@@ -206,7 +206,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
                   <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"/>
                   <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z"/>
                 </svg>
-                Edit
+                {t('products.edit')}
               </button>
               <button 
                 className={`${styles.addToCartBtn} ${styles.ownerBtn} ${styles.deleteBtn}`}
@@ -216,7 +216,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
                   <path d="M3 6H5H21"/>
                   <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"/>
                 </svg>
-                Delete
+                {t('products.delete')}
               </button>
             </>
           )}

@@ -206,8 +206,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     if (token) {
       try {
         console.log('Syncing with server - adding item...');
-        await cartService.addItem(product.id.toString(), newQuantity);
+        const created = await cartService.addItem(product.id.toString(), newQuantity);
         console.log('Item added to server cart successfully');
+        if (created && typeof created.id === 'number') {
+          // Persist server cart item ID for future updates/removals
+          setCartItems(prev => prev.map(it =>
+            it.id.toString() === product.id.toString() ? { ...it, cartItemId: created.id } : it
+          ));
+        }
       } catch (err) {
         console.error('Failed to add to server cart:', err);
         
@@ -259,13 +265,22 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     saveCartToLocalStorage(updatedItems);
 
     // Sync with server if authenticated
-    if (isAuthenticated) {
+    const token = localStorage.getItem('access_token');
+    if (token) {
       try {
-        // Find the cart item ID from server
-        const serverCart = await cartService.getCart();
-        const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
-        if (cartItem) {
-          await cartService.removeItem(cartItem.id);
+        // Prefer using known server cart item ID when available
+        const localItem = cartItems.find(i => i.id === productId);
+        const serverItemId = localItem?.cartItemId;
+
+        if (serverItemId !== undefined) {
+          await cartService.removeItem(serverItemId);
+        } else {
+          // Fallback: fetch server cart to resolve item ID
+          const serverCart = await cartService.getCart();
+          const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
+          if (cartItem) {
+            await cartService.removeItem(cartItem.id);
+          }
         }
       } catch (err) {
         console.error('Failed to remove from server cart:', err);
@@ -287,6 +302,21 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       throw new Error(error);
     }
 
+    // Local stock guard: prevent exceeding available stock when known (helps guest carts too)
+    const targetItem = cartItems.find(item => item.id === productId);
+    if (targetItem && targetItem.availableStock !== undefined && quantity > targetItem.availableStock) {
+      const stockErr = `Only ${targetItem.availableStock} items available in stock.`;
+      const guardedItems = cartItems.map(item =>
+        item.id === productId
+          ? { ...item, stockError: stockErr, isActive: false, quantity: Math.min(quantity, targetItem.availableStock) }
+          : item
+      );
+      setCartItems(guardedItems);
+      saveCartToLocalStorage(guardedItems);
+      setError(stockErr);
+      throw new Error(stockErr);
+    }
+
     setError(null); // Clear any previous errors
 
     // Optimistic update - clear any previous item errors
@@ -297,12 +327,22 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     saveCartToLocalStorage(updatedItems);
 
     // Sync with server if authenticated
-    if (isAuthenticated) {
+    const token = localStorage.getItem('access_token');
+    if (token) {
       try {
-        const serverCart = await cartService.getCart();
-        const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
-        if (cartItem) {
-          await cartService.updateItem(cartItem.id, quantity);
+        // Prefer using known server cart item ID when available
+        const localItem = cartItems.find(i => i.id === productId);
+        const serverItemId = localItem?.cartItemId;
+
+        if (serverItemId !== undefined) {
+          await cartService.updateItem(serverItemId, quantity);
+        } else {
+          // Fallback: resolve via server cart
+          const serverCart = await cartService.getCart();
+          const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
+          if (cartItem) {
+            await cartService.updateItem(cartItem.id, quantity);
+          }
         }
       } catch (err) {
         console.error('Failed to update server cart:', err);

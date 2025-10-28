@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './StockWarning.module.css';
 
 interface StockWarningProps {
@@ -19,6 +20,7 @@ const StockWarning: React.FC<StockWarningProps> = ({
   className,
   compact = false,
 }) => {
+  const { t } = useTranslation();
   const getIcon = () => {
     switch (type) {
       case 'error':
@@ -48,7 +50,7 @@ const StockWarning: React.FC<StockWarningProps> = ({
         <button
           className={styles['stock-warning__close']}
           onClick={onClose}
-          aria-label="Dismiss warning"
+          aria-label={t('common.dismiss')}
         >
           ×
         </button>

@@ -7,7 +7,7 @@ import './Reviews.css';
 interface ReviewListProps {
   reviews: ProductReview[];
   productSlug: string;
-  currentUserId?: string;
+  currentUserId?: string | number;
   onReviewDeleted?: () => void;
   onReviewEdit?: (review: ProductReview) => void;
   loading?: boolean;
@@ -26,7 +26,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
   const [expandedReviews, setExpandedReviews] = useState<Set<number>>(new Set());
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -34,7 +34,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
   };
 
   const handleDeleteReview = async (reviewId: number) => {
-    if (!window.confirm('Are you sure you want to delete this review?')) {
+    if (!window.confirm(t('reviews.confirm_delete'))){
       return;
     }
 
@@ -46,7 +46,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
       }
     } catch (error) {
       console.error('Failed to delete review:', error);
-      alert('Failed to delete review. Please try again.');
+      alert(t('reviews.errors.delete_failed'));
     } finally {
       setDeletingReviewId(null);
     }
@@ -103,8 +103,8 @@ const ReviewList: React.FC<ReviewListProps> = ({
     return (
       <div className="no-reviews">
         <div className="no-reviews-content">
-          <h4>No Reviews Yet</h4>
-          <p>Be the first to review this product and help other customers make informed decisions.</p>
+          <h4>{t('reviews.empty_title')}</h4>
+          <p>{t('reviews.empty_message')}</p>
         </div>
       </div>
     );
@@ -181,17 +181,17 @@ const ReviewList: React.FC<ReviewListProps> = ({
                   <button
                     onClick={() => onReviewEdit && onReviewEdit(review)}
                     className="btn btn-sm btn-secondary"
-                    title="Edit Review"
+                    title={t('reviews.actions.edit_review')}
                   >
-                    Edit
+                    {t('reviews.actions.edit')}
                   </button>
                   <button
                     onClick={() => handleDeleteReview(review.id)}
                     disabled={deletingReviewId === review.id}
                     className="btn btn-sm btn-danger"
-                    title="Delete Review"
+                    title={t('reviews.actions.delete_review')}
                   >
-                    {deletingReviewId === review.id ? 'Deleting...' : 'Delete'}
+                    {deletingReviewId === review.id ? t('reviews.actions.deleting') : t('reviews.actions.delete')}
                   </button>
                 </div>
               )}
@@ -209,7 +209,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
                     onClick={() => toggleExpandReview(review.id)}
                     className="btn-link expand-review"
                   >
-                    {isExpanded ? 'Show Less' : 'Read More'}
+                    {isExpanded ? t('reviews.actions.show_less') : t('reviews.actions.read_more')}
                   </button>
                 )}
               </div>

@@ -86,6 +86,8 @@ export const buildQueryString = (filters?: unknown): string => {
   }
 
   const params = new URLSearchParams();
+  // Keys that expect repeated params for array values (DRF django-filters MultipleChoiceFilter)
+  const repeatKeys = new Set(['condition']);
 
   Object.entries(filters as Record<string, unknown>).forEach(([key, value]) => {
     if (value === undefined || value === null) {
@@ -94,7 +96,13 @@ export const buildQueryString = (filters?: unknown): string => {
 
     if (Array.isArray(value)) {
       if (value.length > 0) {
-        params.append(key, value.map(String).join(','));
+        if (repeatKeys.has(key)) {
+          // Append each value as its own param: key=a&key=b
+          value.forEach((v) => params.append(key, String(v)));
+        } else {
+          // Default: comma-separated list for backend methods that parse CSV
+          params.append(key, value.map(String).join(','));
+        }
       }
       return;
     }

@@ -1,20 +1,13 @@
-/* ===================================
-   NAVBAR - REDESIGNED
-   =================================== */
-
 .navbar {
-  background-color: var(--pure-white);
-  height: 70px; /* As per design system */
-  padding: 0 var(--space-xl);
+  position: fixed;
+  inset: 0 0 auto;
+  height: 72px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--premium-silver);
-  box-shadow: 0 2px 12px rgba(26, 27, 46, 0.08);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--color-surface-alt) 70%, transparent);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
   z-index: 1000;
 }
 
@@ -23,98 +16,177 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 4vw, 3rem);
 }
 
 .logo {
-  font-family: var(--font-secondary);
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--deep-black);
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
   text-decoration: none;
+  letter-spacing: 0.06em;
 }
 
 .navLinks {
-  display: none; /* Hidden on mobile */
+  display: none;
 }
 
 @media (min-width: 768px) {
   .navLinks {
     display: flex;
     align-items: center;
-    gap: var(--space-md);
-    margin-left: var(--space-2xl);
+    gap: 0.75rem;
+    margin-left: clamp(1.5rem, 3vw, 2.5rem);
   }
 }
 
-.navLink {
-  font-family: var(--font-primary);
-  font-size: 16px;
+.navLink,
+.adminNavLink {
+  font-size: 0.95rem;
   font-weight: 500;
-  color: var(--steel-gray);
+  color: var(--color-text-secondary);
   text-decoration: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid transparent;
+  background: transparent; /* ensure no default white button bg */
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.navLink:hover {
-  color: var(--deep-black);
-  background-color: var(--platinum-gray);
+.navLink:hover,
+.navLink:focus-visible,
+.adminNavLink:hover,
+.adminNavLink:focus-visible {
+  color: var(--color-accent);
+  background: color-mix(in srgb, #ffffff 35%, var(--color-background-accent));
+  border-color: color-mix(in srgb, #ffffff 20%, var(--color-border));
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
 }
 
 .navLink.active {
-  color: var(--deep-black);
-  background-color: var(--platinum-gray);
+  color: var(--color-accent);
+  background: var(--color-background-accent);
+  border-color: transparent;
+}
+
+/* Improve dark mode contrast for nav links */
+html[data-theme='dark'] .navLink,
+html[data-theme='dark'] .adminNavLink {
+  color: var(--color-text-primary);
+}
+html[data-theme='dark'] .navLink:hover,
+html[data-theme='dark'] .navLink:focus-visible,
+html[data-theme='dark'] .adminNavLink:hover,
+html[data-theme='dark'] .adminNavLink:focus-visible {
+  background: color-mix(in srgb, #ffffff 10%, var(--color-surface-alt));
+  border-color: color-mix(in srgb, #ffffff 12%, var(--color-border));
+  color: var(--color-accent);
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: 1.1rem;
 }
 
 .roleDisplay {
-  padding: 6px 12px;
-  font-size: 12px;
-  color: var(--steel-gray);
-  background-color: var(--platinum-gray);
-  border-radius: 20px;
-  font-weight: 500;
-  border: 1px solid var(--premium-silver);
+  padding: 0.4rem 0.85rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background: var(--color-background-accent);
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.themeToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.themeToggle:hover,
+.themeToggle:focus-visible {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, #ffffff 35%, var(--color-background-accent));
+  border-color: color-mix(in srgb, #ffffff 20%, var(--color-border));
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
+}
+
+html[data-theme='dark'] .themeToggle {
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+  box-shadow: none;
+}
+
+html[data-theme='dark'] .themeToggle:hover,
+html[data-theme='dark'] .themeToggle:focus-visible {
+  background: color-mix(in srgb, #ffffff 10%, var(--color-surface-alt));
+  border-color: color-mix(in srgb, #ffffff 12%, var(--color-border));
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
 }
 
 .actionBtn {
   position: relative;
-  color: var(--slate-gray);
+  color: var(--color-text-secondary);
   background: none;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  padding: 8px;
+  padding: 0.5rem;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.actionBtn:hover {
-  background-color: var(--platinum-gray);
+.actionBtn:hover,
+.actionBtn:focus-visible {
+  background: color-mix(in srgb, #ffffff 35%, var(--color-background-accent));
+  border-color: color-mix(in srgb, #ffffff 20%, var(--color-border));
+  color: var(--color-accent);
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
+}
+
+html[data-theme='dark'] .actionBtn {
+  color: var(--color-text-primary);
+}
+html[data-theme='dark'] .actionBtn:hover,
+html[data-theme='dark'] .actionBtn:focus-visible {
+  background: color-mix(in srgb, #ffffff 10%, var(--color-surface-alt));
+  border-color: color-mix(in srgb, #ffffff 12%, var(--color-border));
+  color: var(--color-accent);
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
 }
 
 .cartBadge {
   position: absolute;
-  top: -2px;
+  top: -4px;
   right: -4px;
-  background-color: var(--error-red);
-  color: var(--pure-white);
+  background: var(--color-error);
+  color: var(--color-accent-contrast);
   border-radius: 50%;
-  width: 18px;
+  min-width: 18px;
   height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 0.65rem;
   font-weight: 600;
 }
 
-/* User Menu */
 .userMenu {
   position: relative;
 }
@@ -123,74 +195,80 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: var(--platinum-gray);
-  color: var(--deep-black);
+  background: var(--color-background-accent);
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-primary);
   font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
+  font-size: 1rem;
   border: 2px solid transparent;
-  transition: border-color 0.2s ease;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.userAvatar:hover {
-  border-color: var(--dark-silver);
+.userAvatar:hover,
+.userAvatar:focus-visible {
+  border-color: var(--color-border);
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
 }
 
 .dropdown {
   position: absolute;
   top: calc(100% + 12px);
   right: 0;
-  width: 280px;
-  background-color: var(--pure-white);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(10, 10, 10, 0.12);
-  border: 1px solid var(--premium-silver);
+  width: 300px;
+  background: var(--color-surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--color-border);
   overflow: hidden;
   z-index: 1001;
 }
 
 .dropdownHeader {
-  padding: var(--space-lg);
-  border-bottom: 1px solid var(--premium-silver);
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background-accent);
 }
 
 .dropdownUserName {
   margin: 0;
   font-weight: 600;
-  color: var(--deep-black);
+  color: var(--color-text-primary);
 }
 
 .dropdownUserEmail {
-  margin: 4px 0 0;
-  font-size: 14px;
-  color: var(--steel-gray);
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
 }
 
 .dropdownBody {
-  padding: var(--space-sm);
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.35rem;
 }
 
 .dropdownLink {
   display: block;
-  padding: 10px 12px;
+  padding: 0.75rem 0.9rem;
   text-decoration: none;
-  color: var(--slate-gray);
-  font-size: 14px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  border-radius: 10px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.dropdownLink:hover {
-  background-color: var(--platinum-gray);
+.dropdownLink:hover,
+.dropdownLink:focus-visible {
+  background: var(--color-background-accent);
+  color: var(--color-accent);
 }
 
 .dropdownFooter {
-  padding: var(--space-sm);
-  border-top: 1px solid var(--premium-silver);
+  padding: 0.75rem;
+  border-top: 1px solid var(--color-border);
 }
 
 .logoutBtn {
@@ -199,67 +277,57 @@
   border: none;
   text-align: left;
   cursor: pointer;
-  color: var(--error-red);
+  color: var(--color-error);
+  font-weight: 600;
 }
 
-/* Admin Navigation Dropdown */
 .adminNavMenu {
   position: relative;
-}
-
-.adminNavLink {
-  font-family: var(--font-primary);
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--steel-gray);
-  background: none;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.adminNavLink:hover {
-  color: var(--deep-black);
-  background-color: var(--platinum-gray);
 }
 
 .adminNavDropdown {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  min-width: 200px;
-  background-color: var(--pure-white);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(10, 10, 10, 0.12);
-  border: 1px solid var(--premium-silver);
+  min-width: 220px;
+  background: var(--color-surface);
+  border-radius: 14px;
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--color-border);
   overflow: hidden;
   z-index: 1001;
-  padding: var(--space-sm);
-}
-
-.adminRoleDisplay {
-  padding: 8px 12px;
-  font-size: 12px;
-  color: var(--steel-gray);
-  background-color: var(--platinum-gray);
-  border-radius: 6px;
-  margin-bottom: 4px;
-  font-weight: 500;
-  text-align: center;
+  padding: 0.5rem;
 }
 
 .adminNavDropdownLink {
   display: block;
-  padding: 10px 12px;
+  padding: 0.75rem 0.9rem;
   text-decoration: none;
-  color: var(--slate-gray);
-  font-size: 14px;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  border-radius: 10px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.adminNavDropdownLink:hover {
-  background-color: var(--platinum-gray);
+.adminNavDropdownLink:hover,
+.adminNavDropdownLink:focus-visible {
+  background: var(--color-background-accent);
+  color: var(--color-accent);
+}
+
+@media (max-width: 767px) {
+  .navbar {
+    height: auto;
+    padding: 0.75rem 0;
+  }
+
+  .container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: space-between;
+  }
 }

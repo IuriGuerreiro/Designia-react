@@ -3,18 +3,18 @@
 
 :root {
   /* Designia Color Palette */
-  --designia-deep: #0A0A0A;
-  --designia-white: #FFFFFF;
-  --designia-charcoal: #1A1A1A;
-  --designia-platinum: #F5F5F5;
-  --designia-steel: #6B7280;
-  --designia-slate: #374151;
-  --designia-success: #10B981;
-  --designia-warning: #F59E0B;
-  --designia-error: #EF4444;
-  --designia-info: #6B7280;
-  --designia-premium: #E5E7EB;
-  --designia-dark-silver: #9CA3AF;
+  --designia-deep: var(--color-accent);
+  --designia-white: var(--color-surface);
+  --designia-charcoal: var(--color-text-primary);
+  --designia-platinum: var(--color-background);
+  --designia-steel: var(--color-text-secondary);
+  --designia-slate: var(--color-text-secondary);
+  --designia-success: var(--color-success);
+  --designia-warning: var(--color-warning);
+  --designia-error: var(--color-error);
+  --designia-info: var(--color-text-muted);
+  --designia-premium: var(--color-border);
+  --designia-dark-silver: var(--color-text-muted);
   
   /* Spacing Scale (8px base) */
   --space-xs: 4px;
@@ -31,7 +31,16 @@
   margin: 0 auto;
   padding: var(--space-2xl) var(--space-lg);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--designia-white);
+  background: var(--surface-glass);
+  border-radius: 28px;
+  box-shadow: var(--shadow-elevated);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-soft);
+}
+
+html[data-theme='dark'] .product-detail-page {
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  border-color: var(--border-stronger);
 }
 
 /* Breadcrumb Navigation */
@@ -46,17 +55,21 @@
 }
 
 .breadcrumb-link {
-  color: var(--designia-steel);
+  color: var(--color-text-muted);
   text-decoration: none;
   transition: all 0.2s ease;
   padding: var(--space-sm) var(--space-md);
-  border-radius: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-background-accent) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
 }
 
-.breadcrumb-link:hover {
-  color: var(--designia-deep);
-  background: var(--designia-platinum);
+.breadcrumb-link:hover,
+.breadcrumb-link:focus-visible {
+  color: var(--color-accent);
+  background: var(--color-background-accent);
   transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
 }
 
 .breadcrumb-separator {
@@ -72,7 +85,7 @@
 .product-main-content {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-2xl);
+  gap: clamp(2rem, 6vw, 3rem);
   margin-bottom: var(--space-2xl);
 }
 
@@ -87,22 +100,23 @@
 .product-gallery {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
 .main-image-container {
   position: relative;
-  background: var(--designia-platinum);
-  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-background-accent) 75%, transparent);
+  border-radius: 24px;
   overflow: hidden;
   aspect-ratio: 1 / 1;
-  box-shadow: 0 4px 20px rgba(10, 10, 10, 0.08);
+  box-shadow: var(--shadow-elevated);
   transition: all 0.3s ease;
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
 }
 
 .main-image-container:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 32px rgba(10, 10, 10, 0.12);
+  box-shadow: 0 36px 65px rgba(15, 23, 42, 0.25);
 }
 
 .main-image {
@@ -118,34 +132,34 @@
 
 .out-of-stock-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(10, 10, 10, 0.8);
+  inset: 0;
+  background: color-mix(in srgb, var(--color-accent) 88%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--designia-white);
+  color: var(--color-accent-contrast);
   font-weight: 600;
   font-size: 18px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .featured-badge {
   position: absolute;
   top: var(--space-md);
   right: var(--space-md);
-  background: linear-gradient(135deg, var(--designia-steel) 0%, var(--designia-slate) 100%);
-  color: var(--designia-white);
+  background: var(--gradient-button);
+  color: var(--color-accent-contrast);
   padding: var(--space-sm) var(--space-md);
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  box-shadow: 0 4px 12px rgba(55, 65, 81, 0.3);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
+  letter-spacing: 0.06em;
 }
 
 .featured-badge svg {
@@ -234,12 +248,12 @@
 }
 
 .stock-status.in-stock {
-  background: rgba(16, 185, 129, 0.1);
+  background: color-mix(in srgb, var(--designia-success) 20%, transparent);
   color: var(--designia-success);
 }
 
 .stock-status.out-of-stock {
-  background: rgba(239, 68, 68, 0.1);
+  background: color-mix(in srgb, var(--designia-error) 20%, transparent);
   color: var(--designia-error);
 }
 
@@ -343,7 +357,7 @@
 
 .color-option.selected {
   border-color: var(--designia-deep);
-  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--designia-deep) 18%, transparent);
 }
 
 .color-option.selected::after {
@@ -364,9 +378,9 @@
   flex-direction: column !important;
   gap: var(--space-lg) !important;
   padding: var(--space-lg) !important;
-  background: var(--designia-platinum) !important;
+  background: var(--surface-glass) !important;
   border-radius: 16px !important;
-  border: 1px solid var(--designia-premium) !important;
+  border: 1px solid var(--border-soft) !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
@@ -561,11 +575,11 @@
 
 /* Product Details Tabs */
 .product-details-tabs {
-  background: var(--designia-white);
+  background: var(--surface-glass);
   border-radius: 16px;
-  border: 1px solid var(--designia-premium);
+  border: 1px solid var(--border-soft);
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(10, 10, 10, 0.08);
+  box-shadow: var(--shadow-sm);
   margin-bottom: var(--space-2xl);
 }
 
@@ -627,7 +641,7 @@
 
 .compact-seller-view .seller-header {
   padding: var(--space-xl);
-  background: var(--designia-white);
+  background: var(--surface-subtle);
 }
 
 .compact-seller-view .seller-avatar {
@@ -667,8 +681,8 @@
 
 .tab-navigation {
   display: flex;
-  background: var(--designia-platinum);
-  border-bottom: 1px solid var(--designia-premium);
+  background: var(--surface-subtle);
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .tab-button {
@@ -723,9 +737,9 @@
   flex-direction: column;
   gap: var(--space-sm);
   padding: var(--space-lg);
-  background: var(--designia-platinum);
+  background: var(--surface-subtle);
   border-radius: 12px;
-  border: 1px solid var(--designia-premium);
+  border: 1px solid var(--border-soft);
 }
 
 .detail-label {
@@ -781,9 +795,9 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-lg);
-  background: var(--designia-platinum);
+  background: var(--surface-subtle);
   border-radius: 12px;
-  border: 1px solid var(--designia-premium);
+  border: 1px solid var(--border-soft);
 }
 
 .spec-label {
@@ -821,17 +835,17 @@
 /* Product Reviews Section */
 .reviews-section {
   margin-top: var(--space-2xl);
-  background: var(--designia-white);
+  background: var(--surface-glass);
   border-radius: 16px;
-  border: 1px solid var(--designia-premium);
+  border: 1px solid var(--border-soft);
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(10, 10, 10, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .reviews-header {
   padding: var(--space-2xl);
-  background: var(--designia-platinum);
-  border-bottom: 1px solid var(--designia-premium);
+  background: var(--surface-subtle);
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .reviews-title {
@@ -839,7 +853,7 @@
   font-size: 24px;
   font-weight: 600;
   line-height: 32px;
-  color: var(--designia-deep);
+  color: var(--color-text-primary);
   margin: 0 0 var(--space-lg) 0;
 }
 
@@ -882,12 +896,12 @@
 .rating-text {
   font-size: 16px;
   font-weight: 600;
-  color: var(--designia-deep);
+  color: var(--color-text-primary);
 }
 
 .review-count {
   font-size: 14px;
-  color: var(--designia-steel);
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 

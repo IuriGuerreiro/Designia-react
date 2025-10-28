@@ -9,6 +9,7 @@ interface ProductReviewsProps {
   productSlug?: string;
   productId: string;
   reviews: ProductReview[];
+  variant?: 'default' | 'simple';
 }
 
 // Star Rating Component
@@ -38,9 +39,10 @@ const StarRating: React.FC<{ rating: number; size?: 'sm' | 'md' | 'lg' }> = ({ r
 
 // Rating Selector Component
 const RatingSelector: React.FC<{ value: number; onChange: (rating: number) => void }> = ({ value, onChange }) => {
+  const { t } = useTranslation();
   return (
     <div className="rating-selector">
-      <label className="rating-label">Your Rating</label>
+      <label className="rating-label">{t('reviews.form.rating')}</label>
       <div className="rating-stars">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
@@ -48,7 +50,7 @@ const RatingSelector: React.FC<{ value: number; onChange: (rating: number) => vo
             type="button"
             className={`rating-star-button ${star <= value ? 'selected' : ''}`}
             onClick={() => onChange(star)}
-            aria-label={`Rate ${star} star${star !== 1 ? 's' : ''}`}
+            aria-label={t('reviews.form_extras.rating_value', { count: star })}
           >
             <svg
               className={`star ${star <= value ? 'filled' : 'empty'}`}
@@ -67,12 +69,12 @@ const RatingSelector: React.FC<{ value: number; onChange: (rating: number) => vo
           </button>
         ))}
       </div>
-      <span className="rating-text">{value} star{value !== 1 ? 's' : ''}</span>
+      <span className="rating-text">{t('reviews.form_extras.rating_value', { count: value })}</span>
     </div>
   );
 };
 
-const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId, reviews: initialReviews }) => {
+const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId, reviews: initialReviews, variant = 'default' }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   
@@ -123,7 +125,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
         }
       } catch (err) {
         console.error('Failed to load reviews data:', err);
-        setError('Failed to load reviews. Please try again.');
+        setError(t('reviews.errors.load_failed'));
       } finally {
         setLoading(false);
       }
@@ -230,7 +232,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
     if (!hasPurchased) {
       return (
         <div className="review-prompt">
-          <p>You need to purchase this product before you can leave a review.</p>
+          <p>{t('reviews.prompts.purchase_required')}</p>
         </div>
       );
     }
@@ -238,12 +240,12 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
     if (existingReview && !showReviewForm) {
       return (
         <div className="review-prompt">
-          <p>You have already reviewed this product.</p>
+          <p>{t('reviews.prompts.already_reviewed')}</p>
           <button
             onClick={() => handleEditReview(existingReview)}
             className="edit-review-btn"
           >
-            Edit Your Review
+            {t('reviews.actions.edit_review')}
           </button>
         </div>
       );
@@ -270,7 +272,143 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
       <div className="product-reviews">
         <div className="reviews-loading">
           <div className="loading-spinner"></div>
-          <p>Loading reviews...</p>
+          <p>{t('reviews.loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Simple list (Amazon-like): condensed, with basic actions
+  if (variant === 'simple') {
+    return (
+      <div className="product-reviews simple">
+        {/* Simple composer trigger */}
+        {user && canReview && !showReviewForm && (
+          <div className="review-prompt" style={{ textAlign: 'left' }}>
+            <button
+              type="button"
+              className="write-review-btn"
+              onClick={() => setShowReviewForm(true)}
+            >
+              {t('reviews.actions.write_review')}
+            </button>
+          </div>
+        )}
+
+        {/* Simple inline form */}
+        {showReviewForm && (
+          <div className="review-form-container">
+            <div className="form-header">
+              <h4 className="form-title">{t('reviews.form_extras.share_title')}</h4>
+              <p className="form-subtitle">{t('reviews.form_extras.share_subtitle')}</p>
+            </div>
+            <form className="review-form" onSubmit={handleSubmit}>
+              <RatingSelector value={rating} onChange={setRating} />
+              <div className="form-group">
+                <label htmlFor="review-title" className="form-label">{t('reviews.form.title')}</label>
+                <input
+                  id="review-title"
+                  type="text"
+                  className="form-input"
+                  placeholder={t('reviews.form_extras.title_placeholder')}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="review-comment" className="form-label">{t('reviews.form.comment')}</label>
+                <textarea
+                  id="review-comment"
+                  rows={4}
+                  className="form-textarea"
+                  placeholder={t('reviews.form_extras.comment_placeholder')}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => {
+                    setShowReviewForm(false);
+                    setEditingReview(null);
+                    setRating(5);
+                    setTitle('');
+                    setComment('');
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {t('reviews.actions.cancel')}
+                </button>
+                <button 
+                  type="submit" 
+                  className={`submit-button ${isSubmitting ? 'loading' : ''}`}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? t('reviews.actions.submitting') : t('reviews.actions.submit_review')}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+        <div className="reviews-list">
+          {reviews.length === 0 ? (
+            <div className="no-reviews">
+              <h4>{t('reviews.empty_title')}</h4>
+              <p>{t('reviews.empty_message')}</p>
+            </div>
+          ) : (
+            reviews.map((review) => (
+              <div key={review.id} className="review-card">
+                <div className="review-header">
+                  <div className="reviewer-info">
+                    <div className="reviewer-avatar">
+                      {review.reviewer_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="reviewer-details">
+                      <span className="reviewer-name">{review.reviewer_name}</span>
+                      <StarRating rating={review.rating} size="sm" />
+                    </div>
+                  </div>
+                  <div className="review-meta">
+                    {review.is_verified_purchase && (
+                      <div className="verified-badge">{t('reviews.verified_purchase')}</div>
+                    )}
+                    <div className="review-date">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </div>
+                    {user && review.reviewer.id === user.id && (
+                      <div className="review-actions" style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        type="button"
+                        className="action-btn edit-btn"
+                        aria-label={t('reviews.actions.edit')}
+                        onClick={() => handleEditReview(review)}
+                      >
+                        {t('reviews.actions.edit')}
+                      </button>
+                      <button
+                        type="button"
+                        className="action-btn delete-btn"
+                        aria-label={t('reviews.actions.delete')}
+                        onClick={() => handleDeleteReview(review.id)}
+                      >
+                        {t('reviews.actions.delete')}
+                      </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="review-content">
+                  <h5 className="review-title">{review.title}</h5>
+                  <p className="review-comment">{review.comment}</p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     );
@@ -289,7 +427,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
             onClick={() => window.location.reload()} 
             className="retry-btn"
           >
-            Retry
+            {t('reviews.actions.retry')}
           </button>
         </div>
       )}
@@ -302,9 +440,9 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
         <div className="review-form-container">
           <div className="form-header">
             <h4 className="form-title">
-              {editingReview ? 'Edit Your Review' : 'Share Your Experience'}
+              {editingReview ? t('reviews.actions.edit_review') : t('reviews.form_extras.share_title')}
             </h4>
-            <p className="form-subtitle">Help other customers make informed decisions</p>
+            <p className="form-subtitle">{t('reviews.form_extras.share_subtitle')}</p>
           </div>
           
           <form className="review-form" onSubmit={handleSubmit}>

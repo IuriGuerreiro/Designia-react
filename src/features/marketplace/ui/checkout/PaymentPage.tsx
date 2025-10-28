@@ -1,33 +1,41 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/app/layout';
-import './Checkout.css';
+import styles from './Checkout.module.css';
 
 const PaymentPage: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <Layout>
-      <div className="checkout-page-container">
-        <h2>Payment</h2>
-        <div className="standard-form">
-          <div className="form-group">
-            <label htmlFor="cardNumber">Card Number</label>
-            <input type="text" id="cardNumber" name="cardNumber" placeholder="**** **** **** ****" required />
+      <div className={styles.checkoutShell}>
+        <section className={styles.formShell}>
+          <div>
+            <span className={styles.heroEyebrow}>{t('checkout.manual_payment')}</span>
+            <h2>{t('checkout.enter_card_details')}</h2>
+            <p className={styles.supportCopy}>{t('checkout.manual_support_copy')}</p>
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="expiry">Expiry Date</label>
-              <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required />
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel} htmlFor="cardNumber">{t('checkout.card_number')}</label>
+              <input className={styles.formInput} type="text" id="cardNumber" name="cardNumber" placeholder="•••• •••• •••• ••••" required />
             </div>
-            <div className="form-group">
-              <label htmlFor="cvc">CVC</label>
-              <input type="text" id="cvc" name="cvc" placeholder="***" required />
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel} htmlFor="expiry">{t('checkout.expiry')}</label>
+                <input className={styles.formInput} type="text" id="expiry" name="expiry" placeholder="MM / YY" required />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel} htmlFor="cvc">{t('checkout.cvc')}</label>
+                <input className={styles.formInput} type="text" id="cvc" name="cvc" placeholder="•••" required />
+              </div>
             </div>
           </div>
-          <div className="form-actions">
-            <Link to="/checkout" className="btn btn-secondary">Back to Shipping</Link>
-            <button className="btn btn-primary">Pay Now</button>
+          <div className={styles.formActions}>
+            <Link to="/checkout" className={styles.secondaryAction}>{t('checkout.back_to_checkout')}</Link>
+            <button type="submit" className={styles.primaryAction}>{t('checkout.pay_now')}</button>
           </div>
-        </div>
+        </section>
       </div>
     </Layout>
   );

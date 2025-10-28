@@ -29,7 +29,7 @@ const MyProductsPage: React.FC = () => {
         setProducts(userProducts);
       } catch (err) {
         console.error('Failed to load user products:', err);
-        setError('Failed to load your products. Please check your connection and try again.');
+        setError(t('products.errors.load_my_products') || '');
         setProducts([]);
       } finally {
         setLoading(false);
@@ -40,7 +40,7 @@ const MyProductsPage: React.FC = () => {
   }, []);
 
   const handleDelete = async (productId: string, productSlug: string) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) {
+    if (!window.confirm(t('products.prompts.confirm_delete') || '')) {
       return;
     }
 
@@ -49,7 +49,7 @@ const MyProductsPage: React.FC = () => {
       setProducts(prev => prev.filter(p => p.id !== productId));
     } catch (error) {
       console.error('Failed to delete product:', error);
-      alert('Failed to delete product. Please try again.');
+      alert(t('products.errors.delete_failed') || '');
     }
   };
 
@@ -163,7 +163,7 @@ const MyProductsPage: React.FC = () => {
                   </svg>
                 </div>
                 <div className="error-text">
-                  <h4>Failed to Load Products</h4>
+          <h4>{t('products.errors.load_my_products_title') || 'Failed to Load Products'}</h4>
                   <p>{error}</p>
                 </div>
                 <button className="retry-btn" onClick={() => window.location.reload()}>
@@ -171,7 +171,7 @@ const MyProductsPage: React.FC = () => {
                     <path d="M1 4V10H7M23 20V14H17"/>
                     <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M3.51 15A9 9 0 0 0 18.36 18.36L23 14"/>
                   </svg>
-                  Retry
+                  {t('orders.actions.try_again')}
                 </button>
               </div>
             </div>
@@ -179,13 +179,13 @@ const MyProductsPage: React.FC = () => {
 
           <div className="products-overview-box">
             <div className="overview-header">
-              <h2 className="overview-title">Product Overview</h2>
+              <h2 className="overview-title">{t('products.my_products_title')}</h2>
               <div className="overview-actions">
                 <Link to="/products/new" className="add-product-btn">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 5V19M5 12H19"/>
                   </svg>
-                  Add New Product
+                  {t('products.add_new_product')}
                 </Link>
               </div>
             </div>
@@ -196,42 +196,42 @@ const MyProductsPage: React.FC = () => {
                 onClick={() => setActiveFilter('all')}
               >
                 <span className="stat-number">{products.length}</span>
-                <span className="stat-label">Total Products</span>
+                <span className="stat-label">{t('products.my_products_title')}</span>
               </div>
               <div 
                 className={`stat-item ${activeFilter === 'active' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('active')}
               >
                 <span className="stat-number">{activeProducts}</span>
-                <span className="stat-label">Active</span>
+                <span className="stat-label">{t('products.status.active') || 'Active'}</span>
               </div>
               <div 
                 className={`stat-item ${activeFilter === 'lowStock' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('lowStock')}
               >
                 <span className="stat-number">{lowStockProducts}</span>
-                <span className="stat-label">Low Stock</span>
+                <span className="stat-label">{t('products.low_stock')}</span>
               </div>
               <div 
                 className={`stat-item ${activeFilter === 'outOfStock' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('outOfStock')}
               >
                 <span className="stat-number">{outOfStockProducts}</span>
-                <span className="stat-label">Out of Stock</span>
+                <span className="stat-label">{t('products.out_of_stock')}</span>
               </div>
               <div 
                 className={`stat-item ${activeFilter === 'featured' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('featured')}
               >
                 <span className="stat-number">{featuredProducts}</span>
-                <span className="stat-label">Featured</span>
+                <span className="stat-label">{t('products.featured_badge')}</span>
               </div>
               <div 
                 className={`stat-item ${activeFilter === 'inactive' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('inactive')}
               >
                 <span className="stat-number">{inactiveProducts}</span>
-                <span className="stat-label">Inactive</span>
+                <span className="stat-label">{t('products.inactive')}</span>
               </div>
             </div>
           </div>
@@ -243,23 +243,23 @@ const MyProductsPage: React.FC = () => {
             <div className="products-section">
               <div className="products-header">
                 <h3 className="section-title">
-                  {activeFilter === 'all' ? 'Your Products' : 
-                   activeFilter === 'active' ? 'Active Products' :
-                   activeFilter === 'inactive' ? 'Inactive Products' :
-                   activeFilter === 'featured' ? 'Featured Products' :
-                   activeFilter === 'lowStock' ? 'Low Stock Products' :
-                   'Out of Stock Products'}
+                  {activeFilter === 'all' ? t('products.my_products_title') : 
+                   activeFilter === 'active' ? t('products.status.active') + ' ' + t('products.my_products_title') :
+                   activeFilter === 'inactive' ? t('products.inactive') + ' ' + t('products.my_products_title') :
+                   activeFilter === 'featured' ? t('products.featured_badge') + ' ' + t('products.my_products_title') :
+                   activeFilter === 'lowStock' ? t('products.low_stock') + ' ' + t('products.my_products_title') :
+                   t('products.out_of_stock') + ' ' + t('products.my_products_title')}
                 </h3>
                 <div className="products-summary">
                   <span className="summary-text">
-                    Showing {filteredProducts.length} of {products.length} product{filteredProducts.length !== 1 ? 's' : ''}
+                    {t('orders.count_showing', { shown: filteredProducts.length, total: products.length })}
                     {activeFilter !== 'all' && (
                       <span className="filter-indicator">
-                        {' '}({activeFilter === 'active' ? 'Active' : 
-                              activeFilter === 'inactive' ? 'Inactive' : 
-                              activeFilter === 'featured' ? 'Featured' : 
-                              activeFilter === 'lowStock' ? 'Low Stock' : 
-                              'Out of Stock'} filter)
+                        {' '}({activeFilter === 'active' ? t('products.status.active') : 
+                              activeFilter === 'inactive' ? t('products.inactive') : 
+                              activeFilter === 'featured' ? t('products.featured_badge') : 
+                              activeFilter === 'lowStock' ? t('products.low_stock') : 
+                              t('products.out_of_stock')} {t('products.filter') || 'filter'})
                       </span>
                     )}
                   </span>
@@ -296,16 +296,12 @@ const MyProductsPage: React.FC = () => {
                 )}
               </div>
               <h3 className="empty-title">
-                {activeFilter === 'all' ? 'No Products Yet' : 'No Products Found'}
+                {activeFilter === 'all' ? t('products.empty_no_products_yet') || 'No Products Yet' : t('products.empty_no_products_found') || 'No Products Found'}
               </h3>
               <p className="empty-description">
                 {activeFilter === 'all' 
-                  ? 'Start building your product portfolio by adding your first item'
-                  : `No products match the "${activeFilter === 'active' ? 'Active' : 
-                                                      activeFilter === 'inactive' ? 'Inactive' : 
-                                                      activeFilter === 'featured' ? 'Featured' : 
-                                                      activeFilter === 'lowStock' ? 'Low Stock' : 
-                                                      'Out of Stock'}" filter`
+                  ? t('products.empty_add_first') || ''
+                  : t('products.empty_no_match', { filter: activeFilter })
                 }
               </p>
               <div className="empty-actions">
@@ -315,14 +311,14 @@ const MyProductsPage: React.FC = () => {
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M12 5V19M5 12H19"/>
                       </svg>
-                      Add Your First Product
+                      {t('products.add_first_product')}
                     </Link>
                     <Link to="/products" className="empty-btn secondary">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M3 3V21H21"/>
                         <path d="M9 9L12 6L16 10L20 6"/>
                       </svg>
-                      Browse Marketplace
+                      {t('favorites.browse_products')}
                     </Link>
                   </>
                 ) : (
@@ -334,7 +330,7 @@ const MyProductsPage: React.FC = () => {
                       <path d="M3 3V21H21"/>
                       <path d="M9 9L12 6L16 10L20 6"/>
                     </svg>
-                    Show All Products
+                    {t('products.show_all_products') || 'Show All Products'}
                   </button>
                 )}
               </div>

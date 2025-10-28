@@ -5,7 +5,7 @@ import { Chat } from './Chat';
 
 const ChatPage: FC = () => {
   return (
-    <Layout maxWidth="full" padding="minimal">
+    <Layout maxWidth="full" padding="minimal" showFooter={false} showBackToTop={false} noMainPadding>
       <ChatProvider>
         <Chat />
       </ChatProvider>

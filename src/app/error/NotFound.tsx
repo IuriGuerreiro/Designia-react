@@ -7,94 +7,76 @@ const NotFound = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   return (
     <Layout>
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <h2 className={styles.title}>{t('notFound.title', 'Page Not Found')}</h2>
-          <p className={styles.description}>
-            {t('notFound.description', "Sorry, the page you are looking for doesn't exist or has been moved.")}
-          </p>
-        </header>
-
-        <section className={styles.illustration} aria-live="polite">
-          <span className={styles.statusCode} aria-hidden="true">
-            404
-          </span>
-          <div>
-            <p className={styles.description}>
-              {t('notFound.descriptionExtended', 'Let\'s get you back to discovering beautiful designs.')}
-            </p>
+      <section className={styles.page}>
+        <div className={styles.card} aria-labelledby="nf-title">
+          <div className={styles.badgeRow}>
+            <span className={styles.badge}>{t('notFound.badge', 'Designia')}</span>
           </div>
+
+          <div className={styles.codeRow} aria-hidden="true">404</div>
+
+          <h1 id="nf-title" className={styles.title}>
+            {t('notFound.title', 'Page not found')}
+          </h1>
+          <p className={styles.subtitle}>
+            {t(
+              'notFound.description',
+              'We can’t find the page you’re looking for. Try one of these destinations.'
+            )}
+          </p>
+
           <div className={styles.actions}>
-            <Link to="/" className="btn btn-primary">
-              {t('notFound.home', 'Go to Homepage')}
+            <Link to="/" className={`btn btn-primary ${styles.primary}`}>
+              {t('notFound.home', 'Go to homepage')}
             </Link>
-            <button type="button" onClick={handleGoBack} className="btn btn-secondary">
-              {t('notFound.back', 'Go Back')}
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className={`btn btn-secondary ${styles.secondary}`}
+            >
+              {t('notFound.back', 'Go back')}
             </button>
           </div>
-        </section>
+        </div>
 
-        <section className={styles.suggestions} aria-labelledby="not-found-suggestions">
-          <h3 id="not-found-suggestions" className={styles.suggestionsHeader}>
-            {t('notFound.suggestions.title', 'What would you like to do?')}
-          </h3>
-          <div className={styles.suggestionsGrid}>
-            <Link to="/products" className={styles.suggestionCard}>
-              <span className={styles.suggestionIcon} aria-hidden="true">🛍️</span>
+        <div className={styles.links} aria-labelledby="nf-links">
+          <h2 id="nf-links" className={styles.linksTitle}>
+            {t('notFound.suggestions.title', 'Popular paths')}
+          </h2>
+          <div className={styles.grid}>
+            <Link to="/products" className={styles.linkCard}>
+              <span className={styles.icon}>🛍️</span>
               <div>
-                <h4 className={styles.suggestionTitle}>
-                  {t('notFound.suggestions.products', 'Browse Products')}
-                </h4>
-                <p className={styles.suggestionCopy}>
-                  {t('notFound.suggestions.productsDesc', 'Discover amazing products from our marketplace')}
-                </p>
+                <div className={styles.linkTitle}>{t('notFound.suggestions.products', 'Browse products')}</div>
+                <div className={styles.linkCopy}>{t('notFound.suggestions.productsDesc', 'Discover pieces for your space')}</div>
               </div>
             </Link>
-
-            <Link to="/favorites" className={styles.suggestionCard}>
-              <span className={styles.suggestionIcon} aria-hidden="true">❤️</span>
+            <Link to="/favorites" className={styles.linkCard}>
+              <span className={styles.icon}>❤️</span>
               <div>
-                <h4 className={styles.suggestionTitle}>
-                  {t('notFound.suggestions.favorites', 'View Favorites')}
-                </h4>
-                <p className={styles.suggestionCopy}>
-                  {t('notFound.suggestions.favoritesDesc', 'Check out your saved favorite items')}
-                </p>
+                <div className={styles.linkTitle}>{t('notFound.suggestions.favorites', 'View favorites')}</div>
+                <div className={styles.linkCopy}>{t('notFound.suggestions.favoritesDesc', 'Revisit saved items')}</div>
               </div>
             </Link>
-
-            <Link to="/cart" className={styles.suggestionCard}>
-              <span className={styles.suggestionIcon} aria-hidden="true">🛒</span>
+            <Link to="/cart" className={styles.linkCard}>
+              <span className={styles.icon}>🛒</span>
               <div>
-                <h4 className={styles.suggestionTitle}>
-                  {t('notFound.suggestions.cart', 'Shopping Cart')}
-                </h4>
-                <p className={styles.suggestionCopy}>
-                  {t('notFound.suggestions.cartDesc', 'Review items in your cart')}
-                </p>
+                <div className={styles.linkTitle}>{t('notFound.suggestions.cart', 'Review your cart')}</div>
+                <div className={styles.linkCopy}>{t('notFound.suggestions.cartDesc', 'Edit or checkout')}</div>
               </div>
             </Link>
-
-            <Link to="/my-orders" className={styles.suggestionCard}>
-              <span className={styles.suggestionIcon} aria-hidden="true">📦</span>
+            <Link to="/my-orders" className={styles.linkCard}>
+              <span className={styles.icon}>📦</span>
               <div>
-                <h4 className={styles.suggestionTitle}>
-                  {t('notFound.suggestions.orders', 'My Orders')}
-                </h4>
-                <p className={styles.suggestionCopy}>
-                  {t('notFound.suggestions.ordersDesc', 'Track your order history and status')}
-                </p>
+                <div className={styles.linkTitle}>{t('notFound.suggestions.orders', 'Track orders')}</div>
+                <div className={styles.linkCopy}>{t('notFound.suggestions.ordersDesc', 'See delivery status')}</div>
               </div>
             </Link>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </Layout>
   );
 };

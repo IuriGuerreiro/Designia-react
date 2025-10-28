@@ -12,21 +12,18 @@ import {
   fetchProfile,
   updateProfile as updateProfileRequest,
   changeLanguage as changeLanguageRequest,
-  submitSellerApplication as submitSellerApplicationRequest,
-  fetchSellerApplicationStatus,
+  fetchTwoFactorStatus as fetchTwoFactorStatusApi,
   ensureHttpError,
 } from '../api';
-import type {
-  AuthUser,
-  RateLimitStatus,
-  RegisterData,
-  SellerApplicationRequest,
-  SellerApplicationStatus,
-} from '../model';
+import { submitSellerApplication as submitSellerApplicationRequest, fetchSellerApplicationStatus } from '@/features/account/api/sellerService';
+import type { AuthUser, RateLimitStatus, RegisterData } from '../model';
+import type { SellerApplicationRequest, SellerApplicationStatus } from '@/features/account/model/types';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
+  isBootstrapping: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{requires2FA?: boolean, userId?: number, message?: string, codeAlreadySent?: boolean, emailNotVerified?: boolean, email?: string, warningType?: string, actionRequired?: string}>;
   loginVerify2FA: (userId: number, code: string) => Promise<void>;
@@ -44,6 +41,9 @@ interface AuthContextType {
   // Seller application methods
   submitSellerApplication: (applicationData: SellerApplicationRequest) => Promise<{success: boolean, message: string, application_id?: number}>;
   getSellerApplicationStatus: () => Promise<SellerApplicationStatus>;
+
+  // 2FA helpers
+  getTwoFactorStatus: () => Promise<{ two_factor_enabled: boolean; email: string }>;
 
   // User role helpers
   isSeller: () => boolean;
@@ -68,7 +68,8 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const navigate = useNavigate();
   const isAuthenticated = !!user;
 
   // Check if user is already logged in on app start
@@ -86,6 +87,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
       setIsLoading(false);
+      setIsBootstrapping(false);
     };
 
     checkAuthStatus();
@@ -96,6 +98,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
 
       const response = await loginRequest(email, password);
+
+      console.log('Login response:', response);
 
       if ('requires_2fa' in response && response.requires_2fa) {
         return {
@@ -171,6 +175,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
       setUser(data.user);
+      // Redirect to home after successful 2FA verification
+      navigate('/');
     } catch (error) {
       const httpError = ensureHttpError(error);
       if (httpError) {
@@ -229,11 +235,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
 
       const response = await registerRequest(userData);
-
+      const success = typeof (response as any).success === 'boolean' ? (response as any).success : true;
       return {
-        success: response.success,
-        message: response.message,
-        email: response.email,
+        success,
+        message: (response as any).message,
+        email: (response as any).email,
       };
     } catch (error) {
       const httpError = ensureHttpError(error);
@@ -310,9 +316,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const verifyEmail = async (token: string): Promise<{success: boolean, message: string}> => {
     try {
       const response = await verifyEmailRequest(token);
+      const success = typeof (response as any).success === 'boolean' ? (response as any).success : true;
       return {
-        success: response.success,
-        message: response.message,
+        success,
+        message: (response as any).message,
       };
     } catch (error) {
       const httpError = ensureHttpError(error);
@@ -397,6 +404,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('access_token', data.tokens.access);
       localStorage.setItem('refresh_token', data.tokens.refresh);
       setUser(data.user);
+      navigate('/')
     } catch (error) {
       const httpError = ensureHttpError(error);
       if (httpError) {
@@ -526,6 +534,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const getTwoFactorStatus = async (): Promise<{ two_factor_enabled: boolean; email: string }> => {
+    return await fetchTwoFactorStatusApi();
+  };
+
   // User role helpers
   const isSeller = (): boolean => {
     return user?.role === 'seller' || false;
@@ -542,6 +554,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     isLoading,
+    isBootstrapping,
     isAuthenticated,
     login,
     loginVerify2FA,
@@ -559,6 +572,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Seller application methods
     submitSellerApplication,
     getSellerApplicationStatus,
+    getTwoFactorStatus,
 
     // User role helpers
     isSeller,

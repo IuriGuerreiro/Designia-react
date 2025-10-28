@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../features/auth/state/AuthContext';
 import { useActivityContext } from '../../shared/state/ActivityContext';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@/shared/state/ThemeContext';
 import styles from './Navbar.module.css';
 
 const CartIcon = () => (
@@ -31,6 +32,7 @@ const Navbar = () => {
   const { user, logout, isAdmin, isSeller, canSellProducts } = useAuth();
   const { cartCount, unreadMessagesCount } = useActivityContext();
   const location = useLocation();
+  const { mode, toggleMode } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -94,6 +96,17 @@ const Navbar = () => {
         </div>
 
         <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.themeToggle}
+            onClick={toggleMode}
+            aria-label={`Switch to ${mode === 'light' ? 'dark' : 'light'} theme`}
+            title={mode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+              {mode === 'light' ? 'dark_mode' : 'light_mode'}
+            </span>
+          </button>
           <div className={styles.roleDisplay}>
             Role: {user?.role || 'user'}
           </div>
@@ -135,6 +148,7 @@ const Navbar = () => {
                   )}
 
                   {/* Everyone can access these */}
+                  <Link to="/favorites" className={styles.dropdownLink}>{t('layout.my_favorites')}</Link>
                   <Link to="/my-orders" className={styles.dropdownLink}>My Orders</Link>
                   <Link to="/settings" className={styles.dropdownLink}>{t('layout.settings')}</Link>
                 </div>

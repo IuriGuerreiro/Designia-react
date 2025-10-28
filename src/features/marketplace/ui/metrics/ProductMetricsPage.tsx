@@ -4,6 +4,8 @@ import { Layout } from '@/app/layout';
 import './Metrics.css';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/state/AuthContext';
+import { apiRequest } from '@/shared/api/httpClient';
+import { API_ENDPOINTS } from '@/shared/api/endpoints';
 
 const ProductMetricsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -47,27 +49,15 @@ const ProductMetricsPage: React.FC = () => {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        // If productId is provided, fetch metrics for specific product, otherwise fetch all seller metrics
-        const url = productId 
-          ? `/api/marketplace/metrics/product_metrics/${productId}/`
-          : '/api/marketplace/metrics/dashboard_metrics/';
-          
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch metrics');
-        }
-        
-        const data = await response.json();
+        // Use centralized endpoints and http client (handles auth + retries)
+        const data = await apiRequest<any>(
+          productId ? API_ENDPOINTS.PRODUCT_METRICS(productId) : API_ENDPOINTS.DASHBOARD_METRICS,
+          { method: 'GET' }
+        );
         setProductMetrics(data);
       } catch (err) {
         console.error('Error fetching metrics:', err);
-        setError('Failed to load metrics data');
+        setError(t('orders.errors.unable_to_load'));
       } finally {
         setLoading(false);
       }
@@ -89,8 +79,8 @@ const ProductMetricsPage: React.FC = () => {
       <Layout>
         <div className="metrics-page-container">
           <div className="metrics-header">
-            <h2>Loading...</h2>
-            <p>Fetching your metrics data...</p>
+            <h2>{t('metrics.loading_title')}</h2>
+            <p>{t('metrics.loading_subtitle')}</p>
           </div>
         </div>
       </Layout>
@@ -102,7 +92,7 @@ const ProductMetricsPage: React.FC = () => {
       <Layout>
         <div className="metrics-page-container">
           <div className="metrics-header">
-            <h2>Error</h2>
+            <h2>{t('metrics.error_title')}</h2>
             <p>{error}</p>
           </div>
         </div>
@@ -115,18 +105,17 @@ const ProductMetricsPage: React.FC = () => {
       <div className="metrics-page-container">
         <div className="metrics-header">
           <h2>
-            {productId 
-              ? `Product Analytics: ${productMetrics.product_info?.name || 'Loading...'}`
-              : 'Seller Dashboard'
-            }
+            {productId
+              ? t('metrics.product_analytics_title', { productName: productMetrics.product_info?.name || '...' })
+              : t('metrics.seller_dashboard_title')}
           </h2>
-          <p>{productId ? 'Individual product performance metrics' : 'Your marketplace performance overview'}</p>
+          <p>{productId ? t('metrics.product_overview_subtitle') : t('metrics.seller_overview_subtitle')}</p>
         </div>
 
         {/* Product Info Section (only for individual product view) */}
         {productId && productMetrics.product_info?.name && (
           <div className="product-info-section">
-            <h3>Product Information</h3>
+            <h3>{t('metrics.product_information')}</h3>
             
             {/* Product Image and Basic Info */}
             <div className="product-summary-container" style={{ display: 'flex', gap: '20px', marginBottom: '20px', alignItems: 'flex-start' }}>
@@ -164,12 +153,12 @@ const ProductMetricsPage: React.FC = () => {
                     return imageUrl;
                   })()} 
                   alt={productMetrics.product_info.name} 
-                  style={{ 
-                    width: '120px', 
-                    height: '120px', 
-                    objectFit: 'cover', 
+                  style={{
+                    width: '120px',
+                    height: '120px',
+                    objectFit: 'cover',
                     borderRadius: '8px',
-                    border: '1px solid #e0e0e0'
+                    border: '1px solid var(--color-border)'
                   }}
                 />
               </div>
@@ -179,21 +168,23 @@ const ProductMetricsPage: React.FC = () => {
                 <h4 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.4rem' }}>
                   {productMetrics.product_info.name}
                 </h4>
-                <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#2c5530', margin: '5px 0' }}>
+                <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--color-success)', margin: '5px 0' }}>
                   ${parseFloat(productMetrics.product_info.price).toFixed(2)}
                 </p>
-                <p style={{ margin: '5px 0', color: '#666' }}>
-                  Stock: {productMetrics.product_info.stock_quantity} units
+                <p style={{ margin: '5px 0', color: 'var(--color-text-muted)' }}>
+                  {t('metrics.stock_units', { count: productMetrics.product_info.stock_quantity })}
                 </p>
                 <p style={{ margin: '5px 0' }}>
-                  <span style={{ 
-                    padding: '4px 8px', 
-                    borderRadius: '4px', 
+                  <span style={{
+                    padding: '4px 8px',
+                    borderRadius: '4px',
                     fontSize: '0.9rem',
-                    backgroundColor: productMetrics.product_info.is_active ? '#d4edda' : '#f8d7da',
-                    color: productMetrics.product_info.is_active ? '#155724' : '#721c24'
+                    backgroundColor: productMetrics.product_info.is_active
+                      ? 'color-mix(in srgb, var(--color-success) 18%, var(--color-surface) 82%)'
+                      : 'color-mix(in srgb, var(--color-error) 18%, var(--color-surface) 82%)',
+                    color: productMetrics.product_info.is_active ? 'var(--color-success)' : 'var(--color-error)'
                   }}>
-                    {productMetrics.product_info.is_active ? 'Active' : 'Inactive'}
+                    {productMetrics.product_info.is_active ? t('metrics.active') : t('metrics.inactive')}
                   </span>
                 </p>
               </div>
@@ -201,22 +192,22 @@ const ProductMetricsPage: React.FC = () => {
 
             <div className="metrics-overview-grid">
               <div className="metric-card">
-                <h4>Product ID</h4>
+                <h4>{t('metrics.product_id')}</h4>
                 <p className="metric-value" style={{ fontSize: '1rem' }}>{productMetrics.product_info.id}</p>
               </div>
               <div className="metric-card">
-                <h4>Slug</h4>
+                <h4>{t('metrics.slug')}</h4>
                 <p className="metric-value" style={{ fontSize: '1rem' }}>{productMetrics.product_info.slug}</p>
               </div>
               <div className="metric-card">
-                <h4>Created Date</h4>
+                <h4>{t('metrics.created_date')}</h4>
                 <p className="metric-value" style={{ fontSize: '1rem' }}>
                   {new Date(productMetrics.product_info.created_at).toLocaleDateString()}
                 </p>
               </div>
               {productMetrics.product_info.images && productMetrics.product_info.images.length > 0 && (
                 <div className="metric-card">
-                  <h4>Total Images</h4>
+                  <h4>{t('metrics.total_images')}</h4>
                   <p className="metric-value">{productMetrics.product_info.images.length}</p>
                 </div>
               )}
@@ -226,65 +217,65 @@ const ProductMetricsPage: React.FC = () => {
 
         {/* Product Metrics Section */}
         <div className="product-metrics-section">
-          <h3>Product Performance</h3>
+          <h3>{t('metrics.product_performance')}</h3>
           <div className="metrics-overview-grid">
             <div className="metric-card">
-              <h4>Total Products</h4>
+              <h4>{t('metrics.total_products')}</h4>
               <p className="metric-value">{productMetrics.product_counts.total_products}</p>
             </div>
             <div className="metric-card">
-              <h4>Active Listings</h4>
+              <h4>{t('metrics.active_listings')}</h4>
               <p className="metric-value">{productMetrics.product_counts.active_listings}</p>
             </div>
             <div className="metric-card">
-              <h4>Categories</h4>
+              <h4>{t('metrics.categories')}</h4>
               <p className="metric-value">{productMetrics.product_counts.total_categories}</p>
             </div>
             <div className="metric-card">
-              <h4>Total Views</h4>
+              <h4>{t('metrics.total_views')}</h4>
               <p className="metric-value">{productMetrics.product_metrics.total_views.toLocaleString()}</p>
             </div>
             <div className="metric-card">
-              <h4>Total Clicks</h4>
+              <h4>{t('metrics.total_clicks')}</h4>
               <p className="metric-value">{productMetrics.product_metrics.total_clicks.toLocaleString()}</p>
             </div>
             <div className="metric-card">
-              <h4>Wishlist Adds</h4>
+              <h4>{t('metrics.wishlist_adds')}</h4>
               <p className="metric-value">{productMetrics.product_metrics.total_favorites.toLocaleString()}</p>
             </div>
             <div className="metric-card">
-              <h4>Cart Additions</h4>
+              <h4>{t('metrics.cart_additions')}</h4>
               <p className="metric-value">{productMetrics.product_metrics.total_cart_additions.toLocaleString()}</p>
             </div>
             <div className="metric-card">
-              <h4>Total Sales</h4>
+              <h4>{t('metrics.total_sales')}</h4>
               <p className="metric-value">{productMetrics.product_metrics.total_sales}</p>
             </div>
             <div className="metric-card">
-              <h4>CTR</h4>
+              <h4>{t('metrics.ctr_short')}</h4>
               <p className="metric-value">{ctr}%</p>
             </div>
             <div className="metric-card">
-              <h4>Conversion Rate</h4>
+              <h4>{t('metrics.conversion_rate')}</h4>
               <p className="metric-value">{conversionRate}%</p>
             </div>
             <div className="metric-card">
-              <h4>Total Revenue</h4>
+              <h4>{t('metrics.total_revenue')}</h4>
               <p className="metric-value">${parseFloat(productMetrics.product_metrics.total_revenue).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
             </div>
           </div>
         </div>
 
         <div className="sales-funnel-card">
-          <h3>Sales Funnel</h3>
+          <h3>{t('metrics.sales_funnel_title')}</h3>
           <div className="funnel-step">
-            <div className="funnel-label">Views</div>
+            <div className="funnel-label">{t('metrics.funnel_views')}</div>
             <div className="funnel-bar-container">
               <div className="funnel-bar" style={{ width: '100%' }}>{productMetrics.product_metrics.total_views.toLocaleString()}</div>
             </div>
           </div>
           <div className="funnel-step">
-            <div className="funnel-label">Clicks</div>
+            <div className="funnel-label">{t('metrics.funnel_clicks')}</div>
             <div className="funnel-bar-container">
               <div className="funnel-bar" style={{ width: `${productMetrics.product_metrics.total_views > 0 ? (productMetrics.product_metrics.total_clicks / productMetrics.product_metrics.total_views) * 100 : 0}%` }}>
                 {productMetrics.product_metrics.total_clicks.toLocaleString()}
@@ -292,7 +283,7 @@ const ProductMetricsPage: React.FC = () => {
             </div>
           </div>
           <div className="funnel-step">
-            <div className="funnel-label">Added to Cart</div>
+            <div className="funnel-label">{t('metrics.funnel_added_to_cart')}</div>
             <div className="funnel-bar-container">
               <div className="funnel-bar" style={{ width: `${productMetrics.product_metrics.total_views > 0 ? (productMetrics.product_metrics.total_cart_additions / productMetrics.product_metrics.total_views) * 100 : 0}%` }}>
                 {productMetrics.product_metrics.total_cart_additions.toLocaleString()}
@@ -300,7 +291,7 @@ const ProductMetricsPage: React.FC = () => {
             </div>
           </div>
           <div className="funnel-step">
-            <div className="funnel-label">Purchased</div>
+            <div className="funnel-label">{t('metrics.funnel_purchased')}</div>
             <div className="funnel-bar-container">
               <div className="funnel-bar" style={{ width: `${productMetrics.product_metrics.total_views > 0 ? (productMetrics.product_metrics.total_sales / productMetrics.product_metrics.total_views) * 100 : 0}%` }}>
                 {productMetrics.product_metrics.total_sales.toLocaleString()}
@@ -311,18 +302,18 @@ const ProductMetricsPage: React.FC = () => {
 
         {productMetrics.recent_orders.length > 0 && (
           <div className="orders-card">
-            <h3>{productId ? 'Recent Orders for This Product' : 'Recent Orders'}</h3>
+            <h3>{productId ? t('metrics.recent_orders_for_product') : t('metrics.recent_orders_title')}</h3>
             <div className="orders-table-container">
                 <table className="orders-table">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            {!productId && <th>Product</th>}
-                            <th>Quantity</th>
-                            <th>Total</th>
-                            <th>Date</th>
-                            <th>Status</th>
+                            <th>{t('metrics.order_id')}</th>
+                            <th>{t('metrics.customer')}</th>
+                            {!productId && <th>{t('products.product_name')}</th>}
+                            <th>{t('cart.quantity')}</th>
+                            <th>{t('orders.total')}</th>
+                            <th>{t('metrics.date')}</th>
+                            <th>{t('metrics.status')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -349,8 +340,8 @@ const ProductMetricsPage: React.FC = () => {
 
         {productMetrics.recent_orders.length === 0 && (
           <div className="orders-card">
-            <h3>{productId ? 'Recent Orders for This Product' : 'Recent Orders'}</h3>
-            <p>{productId ? 'No orders found for this product.' : 'No recent orders found.'}</p>
+            <h3>{productId ? t('metrics.recent_orders_for_product') : t('metrics.recent_orders_title')}</h3>
+            <p>{productId ? t('metrics.no_orders_for_product') : t('metrics.no_recent_orders')}</p>
           </div>
         )}
       </div>

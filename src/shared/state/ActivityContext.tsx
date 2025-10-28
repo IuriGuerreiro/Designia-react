@@ -64,11 +64,12 @@ interface ActivityWebSocketMessage {
   cart_count?: number;
   unread_messages_count?: number;
   action?: string;
-  product_id?: number;
+  product_id?: string; // backend sends UUID as string
   message?: string;
   notification_type?: string;
   title?: string;
   data?: any;
+  quantity_change?: number;
 }
 
 export const ActivityProvider: React.FC<ActivityProviderProps> = ({ children }) => {
@@ -103,6 +104,15 @@ export const ActivityProvider: React.FC<ActivityProviderProps> = ({ children }) 
         onCartUpdate: (newCartCount) => {
           console.log('🛒 ActivityContext received cart update:', newCartCount);
           setCartCount(newCartCount);
+        },
+        onCartChange: (evt) => {
+          if (typeof evt.quantityChange === 'number' && evt.quantityChange < 0) {
+            console.log('🛒⬇️ Items decreased in cart:', {
+              productId: evt.productId,
+              delta: evt.quantityChange,
+              action: evt.action,
+            });
+          }
         },
         onUnreadMessagesUpdate: (newUnreadCount) => {
           console.log('💬 ActivityContext received unread messages update:', newUnreadCount);

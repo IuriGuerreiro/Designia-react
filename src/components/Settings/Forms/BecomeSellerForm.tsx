@@ -76,6 +76,29 @@ const BecomeSellerForm: React.FC = () => {
     }
   };
 
+  // If 2FA is not enabled, show only the warning/CTA and hide the form
+  if (!has2FAEnabled) {
+    return (
+      <Layout>
+        <div className="become-seller-page">
+          <div className="seller-form-header">
+            <h1 className="heading-lg">Become a Seller</h1>
+            <p className="body-lg">Two‑factor authentication (2FA) is required to apply.</p>
+          </div>
+          <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-start' }}>
+            <button
+              onClick={() => navigate('/settings')}
+              className="seller-btn seller-btn-primary"
+              type="button"
+            >
+              Activate 2FA to become a seller
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="become-seller-page">
@@ -85,31 +108,6 @@ const BecomeSellerForm: React.FC = () => {
             Tell us about your business. Your application will be reviewed by our team to ensure the quality of our marketplace.
           </p>
         </div>
-
-        {!has2FAEnabled && (
-          <div className="alert alert-error" style={{ marginBottom: '20px' }}>
-            <strong>⚠️ Two-Factor Authentication Required</strong>
-            <p style={{ marginTop: '8px', marginBottom: '8px' }}>
-              You must enable two-factor authentication (2FA) before applying to become a seller.
-              This additional security measure helps protect your account and your customers.
-            </p>
-            <button
-              onClick={() => navigate('/settings')}
-              style={{
-                marginTop: '8px',
-                padding: '8px 16px',
-                backgroundColor: '#fff',
-                color: '#d32f2f',
-                border: '2px solid #d32f2f',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              Go to Settings to Enable 2FA
-            </button>
-          </div>
-        )}
 
         {error && (
           <div className="alert alert-error" style={{ marginBottom: '20px' }}>
