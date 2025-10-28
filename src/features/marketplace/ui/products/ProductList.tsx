@@ -643,7 +643,7 @@ const ProductList: React.FC = () => {
                     </svg>
                   </div>
                   <h3>{t('products.no_products_found')}</h3>
-                  <p>{filters.search ? `No products match "${filters.search}"` : 'No products are currently available.'}</p>
+                  <p>{filters.search ? t('products.no_products_by_search', { term: filters.search }) : t('products.no_products_available')}</p>
                 </div>
               )}
 
@@ -660,13 +660,13 @@ const ProductList: React.FC = () => {
                         disabled={loadingMore}
                         style={{ marginTop: '12px' }}
                       >
-                        {loadingMore ? 'Loading…' : `Load more (${pageSize})`}
+                        {loadingMore ? t('products.loading_more') : t('products.load_more', { count: pageSize })}
                       </button>
                     </>
                   )}
                   {!hasNext && (
                     <div className="end-of-results" style={{ color: '#666', fontSize: 14, padding: '8px' }}>
-                      You’ve reached the end
+                      {t('products.end_of_results')}
                     </div>
                   )}
                 </div>

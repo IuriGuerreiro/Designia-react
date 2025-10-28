@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAdminPayouts } from '@/features/admin/hooks';
 import styles from './AdminPayouts.module.css';
 
 const DEFAULT_PAGE_SIZE = 50;
 
 const AdminPayouts = () => {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,33 +85,33 @@ const AdminPayouts = () => {
   };
 
   if (loading && payouts.length === 0) {
-    return <div className={styles.loading}>Loading payouts...</div>;
+    return <div className={styles.loading}>{t('admin.payouts.loading')}</div>;
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Admin: All Payouts</h1>
-        <p>Oversee all seller payouts across the platform</p>
+        <h1>{t('admin.payouts.title')}</h1>
+        <p>{t('admin.payouts.subtitle')}</p>
       </div>
 
       {/* Summary Cards */}
       {summary && (
         <div className={styles.summaryCards}>
           <div className={styles.summaryCard}>
-            <h3>Total Amount</h3>
+            <h3>{t('admin.payouts.summary.total_amount')}</h3>
             <p className={styles.summaryValue}>{formatCurrency(summary.total_amount, 'EUR')}</p>
           </div>
           <div className={styles.summaryCard}>
-            <h3>Average Payout</h3>
+            <h3>{t('admin.payouts.summary.average_payout')}</h3>
             <p className={styles.summaryValue}>{formatCurrency(summary.average_amount, 'EUR')}</p>
           </div>
           <div className={styles.summaryCard}>
-            <h3>Total Fees</h3>
+            <h3>{t('admin.payouts.summary.total_fees')}</h3>
             <p className={styles.summaryValue}>{formatCurrency(summary.total_fees, 'EUR')}</p>
           </div>
           <div className={styles.summaryCard}>
-            <h3>Total Payouts</h3>
+            <h3>{t('admin.payouts.summary.total_payouts')}</h3>
             <p className={styles.summaryValue}>{totalCount}</p>
           </div>
         </div>
@@ -120,7 +122,7 @@ const AdminPayouts = () => {
         <form onSubmit={handleSearch} className={styles.filterForm}>
           <input
             type="text"
-            placeholder="Search by seller username or email"
+            placeholder={t('admin.payouts.filters.search_placeholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={styles.searchInput}
@@ -131,11 +133,11 @@ const AdminPayouts = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className={styles.filterSelect}
           >
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="paid">Paid</option>
-            <option value="failed">Failed</option>
-            <option value="in_transit">In Transit</option>
+            <option value="">{t('admin.payouts.filters.status_all')}</option>
+            <option value="pending">{t('admin.payouts.filters.status_options.pending')}</option>
+            <option value="paid">{t('admin.payouts.filters.status_options.paid')}</option>
+            <option value="failed">{t('admin.payouts.filters.status_options.failed')}</option>
+            <option value="in_transit">{t('admin.payouts.filters.status_options.in_transit')}</option>
           </select>
 
           <input
@@ -143,7 +145,7 @@ const AdminPayouts = () => {
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
             className={styles.dateInput}
-            placeholder="From date"
+            placeholder={t('admin.payouts.filters.date_from')}
           />
 
           <input
@@ -151,11 +153,11 @@ const AdminPayouts = () => {
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
             className={styles.dateInput}
-            placeholder="To date"
+            placeholder={t('admin.payouts.filters.date_to')}
           />
 
           <button type="submit" className={styles.searchButton}>
-            Search
+            {t('admin.payouts.actions.search')}
           </button>
 
           <button
@@ -169,7 +171,7 @@ const AdminPayouts = () => {
             }}
             className={styles.clearButton}
           >
-            Clear
+            {t('admin.payouts.actions.clear')}
           </button>
         </form>
       </div>
@@ -181,13 +183,13 @@ const AdminPayouts = () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Payout ID</th>
-              <th>Seller</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Type</th>
-              <th>Created</th>
-              <th>Stripe ID</th>
+              <th>{t('admin.payouts.table.payout_id')}</th>
+              <th>{t('admin.payouts.table.seller')}</th>
+              <th>{t('admin.payouts.table.amount')}</th>
+              <th>{t('admin.payouts.table.status')}</th>
+              <th>{t('admin.payouts.table.type')}</th>
+              <th>{t('admin.payouts.table.created')}</th>
+              <th>{t('admin.payouts.table.stripe_id')}</th>
             </tr>
           </thead>
           <tbody>
@@ -227,17 +229,17 @@ const AdminPayouts = () => {
           disabled={currentPage === 0}
           className={styles.paginationButton}
         >
-          Previous
+          {t('admin.common.previous')}
         </button>
         <span className={styles.paginationInfo}>
-          Page {currentPage + 1} of {Math.ceil(totalCount / pageSize)} ({totalCount} total)
+          {t('admin.common.page_info', { page: currentPage + 1, pages: Math.ceil(totalCount / pageSize), total: totalCount })}
         </span>
         <button
           onClick={handleNextPage}
           disabled={(currentPage + 1) * pageSize >= totalCount}
           className={styles.paginationButton}
         >
-          Next
+          {t('admin.common.next')}
         </button>
       </div>
     </div>

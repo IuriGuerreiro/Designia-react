@@ -102,6 +102,9 @@
         "quantity_label": "Qty:"
       }
     },
+    "metrics": {
+      "customer": "Customer"
+    },
     "checkout": {
       "tax_label": "Tax"
     },
@@ -112,6 +115,7 @@
       "loading_more": "Loading…",
       "load_more": "Load more ({{count}})",
       "end_of_results": "You’ve reached the end",
+      "only_left": "Only {{count}} left",
       "edit_product_title": "Edit Product",
       "create_product_title": "Create New Product",
       "form": {
@@ -125,8 +129,23 @@
         "tags_description": "Add relevant tags to help customers find your product",
         "options_description": "Additional settings for your product"
       },
+      "errors": {
+        "load_my_products": "Failed to load your products. Please try again.",
+        "load_my_products_title": "Unable to Load Products",
+        "delete_failed": "Failed to delete product. Please try again."
+      },
+      "status": {
+        "active": "Active"
+      },
+      "filter": "filter",
+      "empty_no_products_yet": "No Products Yet",
+      "empty_no_products_found": "No Products Found",
+      "empty_add_first": "Add your first product to start selling.",
+      "empty_no_match": "No products match the current filter ({{filter}}).",
+      "show_all_products": "Show All Products",
       "filters": {
         "open_aria": "Open filters",
+        "close_aria": "Close filters",
         "active_count": "{{count}} active"
       },
       "prompts": {

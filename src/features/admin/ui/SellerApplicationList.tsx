@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/state/AuthContext';
 import { useSellerApplications } from '@/features/admin/hooks';
 import type { SellerApplicationStatus } from '@/features/admin/model';
 import styles from './SellerApplicationList.module.css';
 
 const SellerApplicationList = () => {
+  const { t } = useTranslation();
   const { user, isAdmin } = useAuth();
   const [filter, setFilter] = useState<SellerApplicationStatus | 'all'>('all');
   const [processingId, setProcessingId] = useState<number | null>(null);
@@ -36,7 +38,7 @@ const SellerApplicationList = () => {
   );
 
   const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('en-US', {
+    new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -63,29 +65,29 @@ const SellerApplicationList = () => {
   };
 
   const handleApprove = async (applicationId: number) => {
-    if (!window.confirm('Are you sure you want to approve this application?')) return;
+    if (!window.confirm(t('admin.seller_applications.confirm.approve'))) return;
 
     try {
       setProcessingId(applicationId);
       await updateStatus(applicationId, 'approve');
-      alert('Application approved successfully!');
+      alert(t('admin.seller_applications.alerts.approve_success'));
     } catch (err: any) {
-      alert(err?.message || 'Failed to approve application');
+      alert(err?.message || t('admin.seller_applications.alerts.approve_failed'));
     } finally {
       setProcessingId(null);
     }
   };
 
   const handleReject = async (applicationId: number) => {
-    const reason = prompt('Please provide a reason for rejection (optional):');
+    const reason = prompt(t('admin.seller_applications.confirm.reject_reason'));
     if (reason === null) return;
 
     try {
       setProcessingId(applicationId);
       await updateStatus(applicationId, 'reject', { reason: reason || undefined });
-      alert('Application rejected successfully!');
+      alert(t('admin.seller_applications.alerts.reject_success'));
     } catch (err: any) {
-      alert(err?.message || 'Failed to reject application');
+      alert(err?.message || t('admin.seller_applications.alerts.reject_failed'));
     } finally {
       setProcessingId(null);
     }
@@ -94,8 +96,8 @@ const SellerApplicationList = () => {
   if (!user || !isAdmin()) {
     return (
       <div className={styles.adminAccessDenied}>
-        <h2>Access Denied</h2>
-        <p>You don't have permission to access this page.</p>
+        <h2>{t('admin.seller_applications.access_denied_title')}</h2>
+        <p>{t('admin.seller_applications.access_denied_message')}</p>
       </div>
     );
   }
@@ -104,7 +106,7 @@ const SellerApplicationList = () => {
     return (
       <div className={styles.adminLoading}>
         <div className={styles.loadingSpinner}></div>
-        <p>Loading applications...</p>
+        <p>{t('admin.seller_applications.loading')}</p>
       </div>
     );
   }
@@ -112,16 +114,16 @@ const SellerApplicationList = () => {
   return (
     <div className={styles.sellerApplicationsAdmin}>
       <div className={styles.adminHeader}>
-        <h1>Seller Applications Management</h1>
+        <h1>{t('admin.seller_applications.title')}</h1>
         <div className={styles.adminStats}>
           <span className={styles.stat}>
-            Total: {applications.length}
+            {t('admin.seller_applications.stats.total', { count: applications.length })}
           </span>
           <span className={`${styles.stat} ${styles.statPending}`}>
-            Pending: {applications.filter(app => app.status === 'pending').length}
+            {t('admin.seller_applications.stats.pending', { count: applications.filter(app => app.status === 'pending').length })}
           </span>
           <span className={`${styles.stat} ${styles.statApproved}`}>
-            Approved: {applications.filter(app => app.status === 'approved').length}
+            {t('admin.seller_applications.stats.approved', { count: applications.filter(app => app.status === 'approved').length })}
           </span>
         </div>
       </div>
@@ -129,31 +131,35 @@ const SellerApplicationList = () => {
       {error && (
         <div className={styles.errorMessage}>
           {error}
-          <button onClick={() => fetchApplications()}>Retry</button>
+          <button onClick={() => fetchApplications()}>{t('admin.seller_applications.error_retry')}</button>
         </div>
       )}
 
       <div className={styles.adminFilters}>
-        <label htmlFor="status-filter">Filter by status:</label>
+        <label htmlFor="status-filter">{t('admin.seller_applications.filters.label')}</label>
         <select
           id="status-filter"
           value={filter}
           onChange={(e) => setFilter(e.target.value as SellerApplicationStatus | 'all')}
           className={styles.filterSelect}
         >
-          <option value="all">All Applications</option>
-          <option value="pending">Pending</option>
-          <option value="under_review">Under Review</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-          <option value="revision_requested">Revision Requested</option>
+          <option value="all">{t('admin.seller_applications.filters.all')}</option>
+          <option value="pending">{t('admin.seller_applications.status.pending')}</option>
+          <option value="under_review">{t('admin.seller_applications.status.under_review')}</option>
+          <option value="approved">{t('admin.seller_applications.status.approved')}</option>
+          <option value="rejected">{t('admin.seller_applications.status.rejected')}</option>
+          <option value="revision_requested">{t('admin.seller_applications.status.revision_requested')}</option>
         </select>
       </div>
 
       <div className={styles.applicationsGrid}>
         {filteredApplications.length === 0 ? (
           <div className={styles.noApplications}>
-            <p>No applications found{filter !== 'all' ? ` with status "${filter}"` : ''}.</p>
+            <p>
+              {filter === 'all'
+                ? t('admin.seller_applications.empty.none')
+                : t('admin.seller_applications.empty.none_with_status', { status: t(`admin.seller_applications.status.${filter}`) })}
+            </p>
           </div>
         ) : (
           filteredApplications.map(application => (
@@ -170,38 +176,38 @@ const SellerApplicationList = () => {
 
               <div className={styles.applicationDetails}>
                 <div className={styles.detailRow}>
-                  <strong>Applicant:</strong> {application.user_name} ({application.user_email})
+                  <strong>{t('admin.seller_applications.labels.applicant')}</strong> {application.user_name} ({application.user_email})
                 </div>
                 <div className={styles.detailRow}>
-                  <strong>Type:</strong> {application.seller_type.replace('_', ' ')}
+                  <strong>{t('admin.seller_applications.labels.type')}</strong> {application.seller_type.replace('_', ' ')}
                 </div>
                 <div className={styles.detailRow}>
-                  <strong>Submitted:</strong> {formatDate(application.submitted_at)}
+                  <strong>{t('admin.seller_applications.labels.submitted')}</strong> {formatDate(application.submitted_at)}
                 </div>
                 <div className={styles.detailRow}>
-                  <strong>Portfolio:</strong>
+                  <strong>{t('admin.seller_applications.labels.portfolio')}</strong>
                   <a href={application.portfolio_url} target="_blank" rel="noopener noreferrer">
-                    View Portfolio
+                    {t('admin.seller_applications.links.view_portfolio')}
                   </a>
                 </div>
                 {application.social_media_url && (
                   <div className={styles.detailRow}>
-                    <strong>Social Media:</strong>
+                    <strong>{t('admin.seller_applications.labels.social_media')}</strong>
                     <a href={application.social_media_url} target="_blank" rel="noopener noreferrer">
-                      View Profile
+                      {t('admin.seller_applications.links.view_profile')}
                     </a>
                   </div>
                 )}
               </div>
 
               <div className={styles.motivationSection}>
-                <strong>Motivation:</strong>
+                <strong>{t('admin.seller_applications.labels.motivation')}</strong>
                 <p>{application.motivation}</p>
               </div>
 
               {application.images.length > 0 && (
                 <div className={styles.imagesSection}>
-                  <strong>Workshop Photos:</strong>
+                  <strong>{t('admin.seller_applications.labels.workshop_photos')}</strong>
                   <div className={styles.imagesGrid}>
                     {application.images.slice(0, 3).map(image => (
                       <img
@@ -213,7 +219,7 @@ const SellerApplicationList = () => {
                       />
                     ))}
                     {application.images.length > 3 && (
-                      <div className={styles.moreImages}>+{application.images.length - 3} more</div>
+                      <div className={styles.moreImages}>+{t('admin.seller_applications.labels.more_images', { count: application.images.length - 3 })}</div>
                     )}
                   </div>
                 </div>
@@ -223,12 +229,12 @@ const SellerApplicationList = () => {
                 <div className={styles.adminNotesSection}>
                   {application.admin_notes && (
                     <div className={styles.note}>
-                      <strong>Admin Notes:</strong> {application.admin_notes}
+                      <strong>{t('admin.seller_applications.labels.admin_notes')}</strong> {application.admin_notes}
                     </div>
                   )}
                   {application.rejection_reason && (
                     <div className={styles.rejectionReason}>
-                      <strong>Rejection Reason:</strong> {application.rejection_reason}
+                      <strong>{t('admin.seller_applications.labels.rejection_reason')}</strong> {application.rejection_reason}
                     </div>
                   )}
                 </div>
@@ -241,27 +247,27 @@ const SellerApplicationList = () => {
                     onClick={() => handleApprove(application.id)}
                     disabled={processingId === application.id}
                   >
-                    {processingId === application.id ? 'Approving...' : 'Approve'}
+                    {processingId === application.id ? t('admin.seller_applications.actions.approving') : t('admin.seller_applications.actions.approve')}
                   </button>
                   <button
                     className={styles.btnReject}
                     onClick={() => handleReject(application.id)}
                     disabled={processingId === application.id}
                   >
-                    {processingId === application.id ? 'Rejecting...' : 'Reject'}
+                    {processingId === application.id ? t('admin.seller_applications.actions.rejecting') : t('admin.seller_applications.actions.reject')}
                   </button>
                 </div>
               )}
 
               {application.approved_by_name && (
                 <div className={styles.approvalInfo}>
-                  <small>Approved by: {application.approved_by_name}</small>
+                  <small>{t('admin.seller_applications.labels.approved_by', { name: application.approved_by_name })}</small>
                 </div>
               )}
 
               {application.rejected_by_name && (
                 <div className={styles.rejectionInfo}>
-                  <small>Rejected by: {application.rejected_by_name}</small>
+                  <small>{t('admin.seller_applications.labels.rejected_by', { name: application.rejected_by_name })}</small>
                 </div>
               )}
             </div>
