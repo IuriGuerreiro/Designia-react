@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useRef, useState, type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ChatMessage, ChatSummary } from '@/features/chat/model';
 import { useChat } from '@/features/chat/state/ChatContext';
 import { useAuth } from '@/features/auth/state/AuthContext';
@@ -9,6 +10,7 @@ import styles from './Chat.module.css';
 
 // Date Separator Component
 const DateSeparator: FC<{ date: Date }> = ({ date }) => {
+  const { t } = useTranslation();
   const formatDate = (date: Date) => {
     const today = new Date();
     const yesterday = new Date(today);
@@ -18,11 +20,11 @@ const DateSeparator: FC<{ date: Date }> = ({ date }) => {
     const isYesterday = date.toDateString() === yesterday.toDateString();
     
     if (isToday) {
-      return 'Today';
+      return t('chat.date.today');
     } else if (isYesterday) {
-      return 'Yesterday';
+      return t('chat.date.yesterday');
     } else {
-      return date.toLocaleDateString('en-US', {
+      return date.toLocaleDateString(undefined, {
         weekday: 'long',
         month: 'long',
         day: 'numeric',
@@ -62,6 +64,7 @@ const ChatSkeleton: FC = () => {
 };
 
 export const Chat: FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { 
     currentChat, 
@@ -160,14 +163,14 @@ export const Chat: FC = () => {
       // Handle authentication errors specifically
       if (error.message && error.message.includes('Authentication expired')) {
         setChatError({
-          title: 'Session Expired',
-          message: 'Your session has expired. Please log in again to continue chatting.',
+          title: t('chat.errors.session_expired_title'),
+          message: t('chat.errors.session_expired_message'),
           isAuthError: true
         });
       } else {
         setChatError({
-          title: 'Connection Error',
-          message: 'Failed to load chat. Please try again.',
+          title: t('chat.errors.connection_error_title'),
+          message: t('chat.errors.connection_error_message'),
           isAuthError: false
         });
       }
@@ -216,14 +219,14 @@ export const Chat: FC = () => {
             className={styles.authButton}
             onClick={handleAuthRedirect}
           >
-            Log In
+            {t('chat.actions.login')}
           </button>
         ) : (
           <button 
             className={styles.retryButton}
             onClick={() => setChatError(null)}
           >
-            Retry
+            {t('chat.actions.retry')}
           </button>
         )}
       </div>
@@ -272,8 +275,8 @@ export const Chat: FC = () => {
               <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <h3>Start your conversation</h3>
-          <p>Begin messaging with {getUserDisplayName(selectedChat!.other_user)}</p>
+          <h3>{t('chat.empty.start_conversation')}</h3>
+          <p>{t('chat.empty.begin_with', { name: getUserDisplayName(selectedChat!.other_user) })}</p>
         </div>
       );
     }
@@ -336,11 +339,11 @@ export const Chat: FC = () => {
               {/* Chat Header */}
               <div className={styles.chatHeader}>
                 <div className={styles.headerLeft}>
-                  <button 
-                    className={styles.backButton}
-                    onClick={handleBackToList}
-                    title="Back to chats"
-                  >
+          <button 
+            className={styles.backButton}
+            onClick={handleBackToList}
+            title={t('chat.a11y.back_to_chats')}
+          >
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -352,11 +355,11 @@ export const Chat: FC = () => {
                     <div className={styles.connectionStatus}>
                       <span className={`${styles.statusDot} ${isConnected ? styles.connected : styles.disconnected}`}></span>
                       <span className={styles.statusText}>
-                        {isConnected ? 'Online' : 'Connecting...'}
+                        {isConnected ? t('chat.status.online') : t('chat.status.connecting')}
                       </span>
-                    </div>
                   </div>
                 </div>
+              </div>
               </div>
 
               {/* Messages */}
@@ -380,8 +383,8 @@ export const Chat: FC = () => {
                   <path d="M8 12H8.01M12 12H12.01M16 12H16.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h3>Select a conversation</h3>
-              <p>Choose a chat from the list to start messaging</p>
+              <h3>{t('chat.empty.select_conversation_title')}</h3>
+              <p>{t('chat.empty.select_conversation_hint')}</p>
             </div>
           )}
         </div>

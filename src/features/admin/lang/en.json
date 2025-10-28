@@ -1,0 +1,155 @@
+{
+  "translation": {
+    "admin": {
+      "common": {
+        "na": "N/A",
+        "yes": "Yes",
+        "no": "No",
+        "days": "days",
+        "previous": "Previous",
+        "next": "Next",
+        "page_info": "Page {{page}} of {{pages}} ({{total}} total)"
+      },
+      "transactions": {
+        "loading": "Loading transactions...",
+        "title": "Admin: All Transactions",
+        "subtitle": "Monitor all payment transactions across the platform",
+        "summary": {
+          "total_gross": "Total Gross",
+          "total_net": "Total Net",
+          "platform_fees": "Platform Fees",
+          "stripe_fees": "Stripe Fees",
+          "average_transaction": "Average Transaction",
+          "total_transactions": "Total Transactions"
+        },
+        "filters": {
+          "search_placeholder": "Search by seller, buyer, or order ID",
+          "status_all": "All Statuses",
+          "status_options": {
+            "held": "Held",
+            "completed": "Completed",
+            "released": "Released",
+            "failed": "Failed",
+            "refunded": "Refunded"
+          },
+          "date_from": "From date",
+          "date_to": "To date"
+        },
+        "actions": {
+          "search": "Search",
+          "clear": "Clear"
+        },
+        "table": {
+          "transaction_id": "Transaction ID",
+          "seller": "Seller",
+          "buyer": "Buyer",
+          "gross_amount": "Gross Amount",
+          "net_amount": "Net Amount",
+          "status": "Status",
+          "hold_days": "Hold Days",
+          "paid_out": "Paid Out",
+          "created": "Created",
+          "platform_fee": "Platform",
+          "stripe_fee": "Stripe"
+        }
+      },
+      "payouts": {
+        "loading": "Loading payouts...",
+        "title": "Admin: All Payouts",
+        "subtitle": "Oversee all seller payouts across the platform",
+        "summary": {
+          "total_amount": "Total Amount",
+          "average_payout": "Average Payout",
+          "total_fees": "Total Fees",
+          "total_payouts": "Total Payouts"
+        },
+        "filters": {
+          "search_placeholder": "Search by seller username or email",
+          "status_all": "All Statuses",
+          "status_options": {
+            "pending": "Pending",
+            "paid": "Paid",
+            "failed": "Failed",
+            "in_transit": "In Transit"
+          },
+          "date_from": "From date",
+          "date_to": "To date"
+        },
+        "actions": {
+          "search": "Search",
+          "clear": "Clear"
+        },
+        "table": {
+          "payout_id": "Payout ID",
+          "seller": "Seller",
+          "amount": "Amount",
+          "status": "Status",
+          "type": "Type",
+          "created": "Created",
+          "stripe_id": "Stripe ID"
+        }
+      },
+      "seller_applications": {
+        "access_denied_title": "Access Denied",
+        "access_denied_message": "You don't have permission to access this page.",
+        "loading": "Loading applications...",
+        "title": "Seller Applications Management",
+        "stats": {
+          "total": "Total: {{count}}",
+          "pending": "Pending: {{count}}",
+          "approved": "Approved: {{count}}"
+        },
+        "error_retry": "Retry",
+        "filters": {
+          "label": "Filter by status:",
+          "all": "All Applications"
+        },
+        "status": {
+          "pending": "Pending",
+          "under_review": "Under Review",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "revision_requested": "Revision Requested"
+        },
+        "empty": {
+          "none": "No applications found.",
+          "none_with_status": "No applications found with status \"{{status}}\"."
+        },
+        "labels": {
+          "applicant": "Applicant:",
+          "type": "Type:",
+          "submitted": "Submitted:",
+          "portfolio": "Portfolio:",
+          "social_media": "Social Media:",
+          "motivation": "Motivation:",
+          "workshop_photos": "Workshop Photos:",
+          "more_images": "{{count}} more",
+          "admin_notes": "Admin Notes:",
+          "rejection_reason": "Rejection Reason:",
+          "approved_by": "Approved by: {{name}}",
+          "rejected_by": "Rejected by: {{name}}"
+        },
+        "links": {
+          "view_portfolio": "View Portfolio",
+          "view_profile": "View Profile"
+        },
+        "actions": {
+          "approve": "Approve",
+          "approving": "Approving...",
+          "reject": "Reject",
+          "rejecting": "Rejecting..."
+        },
+        "confirm": {
+          "approve": "Are you sure you want to approve this application?",
+          "reject_reason": "Please provide a reason for rejection (optional):"
+        },
+        "alerts": {
+          "approve_success": "Application approved successfully!",
+          "approve_failed": "Failed to approve application",
+          "reject_success": "Application rejected successfully!",
+          "reject_failed": "Failed to reject application"
+        }
+      }
+    }
+  }
+}

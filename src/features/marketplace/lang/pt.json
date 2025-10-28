@@ -102,6 +102,7 @@
       "loading_more": "A carregar…",
       "load_more": "Carregar mais ({{count}})",
       "end_of_results": "Chegou ao fim",
+      "only_left": "Apenas {{count}} restantes",
       "edit_product_title": "Editar Produto",
       "create_product_title": "Criar Novo Produto",
       "add_new_product": "Adicionar Novo Produto",
@@ -261,6 +262,25 @@
         "load_my_products_title": "Não foi possível carregar os produtos",
         "delete_failed": "Falha ao eliminar o produto. Por favor, tente novamente."
       },
+      "errors": {
+        "load_my_products": "Falha ao carregar os seus produtos. Por favor, tente novamente.",
+        "load_my_products_title": "Não foi possível carregar os produtos",
+        "delete_failed": "Falha ao eliminar o produto. Por favor, tente novamente."
+      },
+      "status": {
+        "active": "Ativo"
+      },
+      "filter": "filtro",
+      "empty_no_products_yet": "Ainda sem Produtos",
+      "empty_no_products_found": "Nenhum Produto Encontrado",
+      "empty_add_first": "Adicione o seu primeiro produto para começar a vender.",
+      "empty_no_match": "Nenhum produto corresponde ao filtro atual ({{filter}}).",
+      "show_all_products": "Mostrar Todos os Produtos",
+      "filters": {
+        "open_aria": "Abrir filtros",
+        "close_aria": "Fechar filtros",
+        "active_count": "{{count}} ativos"
+      },
       "prompts": {
         "confirm_delete": "Tem a certeza que deseja eliminar este produto?"
       },
@@ -416,6 +436,9 @@
       }
     },
     "metrics": {
+      "customer": "Cliente"
+    },
+    "metrics": {
       "title": "Métricas para: {{productName}}",
       "total_views": "Total de Visualizações",
       "total_clicks": "Total de Cliques",
@@ -474,6 +497,7 @@
       "express_shipping_eta": "Chega em 1-2 dias úteis",
       "order_summary_title": "Resumo do Pedido",
       "subtotal_label": "Subtotal",
+      "tax_label": "Imposto",
       "shipping_label": "Envio",
       "shipping_calculated_text": "Calculado no próximo passo",
       "total_label": "Total",

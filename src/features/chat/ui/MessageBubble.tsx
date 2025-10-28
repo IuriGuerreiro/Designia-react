@@ -1,4 +1,5 @@
 import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ChatMessage } from '@/features/chat/model';
 import styles from './MessageBubble.module.css';
 
@@ -13,6 +14,7 @@ export const MessageBubble: FC<MessageBubbleProps> = ({
   isOwnMessage,
   showSenderName = false
 }) => {
+  const { t } = useTranslation();
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { 
@@ -94,7 +96,7 @@ export const MessageBubble: FC<MessageBubbleProps> = ({
           <div className={styles.imageMessage}>
             <img 
               src={message.image_temp_url} 
-              alt="Shared image"
+              alt={t('chat.message.image_alt')}
               className={styles.messageImage}
               loading="lazy"
             />
@@ -110,7 +112,7 @@ export const MessageBubble: FC<MessageBubbleProps> = ({
                 <path d="M21 15L16 10L5 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span>Image</span>
+            <span>{t('chat.message.image_label')}</span>
           </div>
         );
       }
