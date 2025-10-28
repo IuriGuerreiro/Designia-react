@@ -49,15 +49,15 @@ const ProductFilters: React.FC<{
     >
       <div className="filters-header">
         <div>
-          <p className="filters-eyebrow">Refine Results</p>
-          <h3>Filters</h3>
+          <p className="filters-eyebrow">{t('products.filters.refine_results')}</p>
+          <h3>{t('products.filters.title')}</h3>
         </div>
         <div className="filters-actions">
-          <span className="filters-count">{activeFiltersCount} active</span>
+          <span className="filters-count">{t('products.filters.active_count', { count: activeFiltersCount })}</span>
           <button onClick={clearFilters} className="clear-filters-btn" type="button">
-            Clear
+            {t('products.filters.clear')}
           </button>
-          <button className="filters-close" onClick={onClose} type="button" aria-label="Close filters">
+          <button className="filters-close" onClick={onClose} type="button" aria-label={t('products.filters.close_aria')}>
             <span className="material-symbols-outlined" aria-hidden="true">
               close
             </span>
@@ -66,11 +66,11 @@ const ProductFilters: React.FC<{
       </div>
       
       <div className="filter-section">
-        <label>Price Range</label>
+        <label>{t('products.filters.price_range')}</label>
         <div className="price-range">
           <input
             type="number"
-            placeholder="Min"
+            placeholder={t('products.filters.min')}
             min={0}
             step={1}
             value={filters.min_price ?? ''}
@@ -90,7 +90,7 @@ const ProductFilters: React.FC<{
           <span>-</span>
           <input
             type="number"
-            placeholder="Max"
+            placeholder={t('products.filters.max')}
             min={0}
             step={1}
             value={filters.max_price ?? ''}
@@ -111,13 +111,13 @@ const ProductFilters: React.FC<{
       </div>
 
       <div className="filter-section">
-        <label>Category</label>
+        <label>{t('products.filters.category')}</label>
         <select
           value={filters.category_slug || ''}
           onChange={(e) => handleFilterChange('category_slug', e.target.value || undefined)}
           className="filter-select"
         >
-          <option value="">All Categories</option>
+          <option value="">{t('products.filters.all_categories')}</option>
           {categories.map(category => (
             <option key={category.slug} value={category.slug}>
               {category.name}
@@ -149,7 +149,7 @@ const ProductFilters: React.FC<{
       </div>
 
       <div className="filter-section">
-        <label>Availability</label>
+        <label>{t('products.filters.availability')}</label>
         <div className="checkbox-group">
           <label className="checkbox-label">
             <input
@@ -157,7 +157,7 @@ const ProductFilters: React.FC<{
               checked={filters.in_stock || false}
               onChange={(e) => handleFilterChange('in_stock', e.target.checked || undefined)}
             />
-            <span>In Stock Only</span>
+            <span>{t('products.filters.in_stock_only')}</span>
           </label>
           <label className="checkbox-label">
             <input
@@ -165,7 +165,7 @@ const ProductFilters: React.FC<{
               checked={filters.is_featured || false}
               onChange={(e) => handleFilterChange('is_featured', e.target.checked || undefined)}
             />
-            <span>Featured Products</span>
+            <span>{t('products.filters.featured_products')}</span>
           </label>
           <label className="checkbox-label">
             <input
@@ -173,22 +173,22 @@ const ProductFilters: React.FC<{
               checked={filters.is_on_sale || false}
               onChange={(e) => handleFilterChange('is_on_sale', e.target.checked || undefined)}
             />
-            <span>On Sale</span>
+            <span>{t('products.filters.on_sale')}</span>
           </label>
         </div>
       </div>
 
       <div className="filter-section">
-        <label>Rating</label>
+        <label>{t('products.filters.rating')}</label>
         <select
           value={filters.min_rating || ''}
           onChange={(e) => handleFilterChange('min_rating', e.target.value ? Number(e.target.value) : undefined)}
           className="filter-select"
         >
-          <option value="">Any Rating</option>
-          <option value="4">4+ Stars</option>
-          <option value="3">3+ Stars</option>
-          <option value="2">2+ Stars</option>
+          <option value="">{t('products.filters.any_rating')}</option>
+          <option value="4">{t('products.filters.rating_4')}</option>
+          <option value="3">{t('products.filters.rating_3')}</option>
+          <option value="2">{t('products.filters.rating_2')}</option>
         </select>
       </div>
     </aside>
@@ -201,9 +201,10 @@ const ProductSort: React.FC<{
   onSortChange: (sortBy: string) => void;
   disabled?: boolean;
 }> = ({ sortBy, onSortChange, disabled = false }) => {
+  const { t } = useTranslation();
   return (
     <div className="product-sort">
-      <label htmlFor="marketplace-sort">Sort</label>
+      <label htmlFor="marketplace-sort">{t('products.sort.label')}</label>
       <select
         id="marketplace-sort"
         value={sortBy}
@@ -211,13 +212,13 @@ const ProductSort: React.FC<{
         className="sort-select"
         disabled={disabled}
       >
-        <option value="newest">Newest First</option>
-        <option value="oldest">Oldest First</option>
-        <option value="price_low">Price: Low to High</option>
-        <option value="price_high">Price: High to Low</option>
-        <option value="rating">Highest Rated</option>
-        <option value="popular">Most Popular</option>
-        <option value="name">Name A-Z</option>
+        <option value="newest">{t('products.sort.newest')}</option>
+        <option value="oldest">{t('products.sort.oldest')}</option>
+        <option value="price_low">{t('products.sort.price_low')}</option>
+        <option value="price_high">{t('products.sort.price_high')}</option>
+        <option value="rating">{t('products.sort.rating')}</option>
+        <option value="popular">{t('products.sort.popular')}</option>
+        <option value="name">{t('products.sort.name')}</option>
       </select>
     </div>
   );
@@ -544,21 +545,21 @@ const ProductList: React.FC = () => {
                   disabled={loading}
                   aria-controls="marketplace-filters"
                   aria-expanded={showFilters}
-                  aria-label={showFilters ? 'Close filters' : 'Open filters'}
+                  aria-label={showFilters ? t('products.filters.close_aria') : t('products.filters.open_aria')}
                 >
                   {showFilters ? (
                     <>
                       <span className="material-symbols-outlined" aria-hidden="true">
                         close
                       </span>
-                      Close
+                      {t('orders.actions.close')}
                     </>
                   ) : (
                     <>
                       <span className="material-symbols-outlined" aria-hidden="true">
                         tune
                       </span>
-                      Filters
+                      {t('products.filters.title')}
                     </>
                   )}
                   {activeFiltersCount > 0 && <span className="filters-badge">{activeFiltersCount}</span>}
@@ -593,7 +594,7 @@ const ProductList: React.FC = () => {
               onClick={() => window.location.reload()}
               className="retry-btn"
             >
-              Retry
+              {t('orders.actions.try_again')}
             </button>
           </div>
         )}
@@ -616,7 +617,7 @@ const ProductList: React.FC = () => {
                     {processedProducts.length} curated piece{processedProducts.length !== 1 ? 's' : ''}
                   </span>
                   {activeFiltersCount > 0 && (
-                    <span className="results-filters">{activeFiltersCount} filters active</span>
+                    <span className="results-filters">{t('products.filters.active_count', { count: activeFiltersCount })}</span>
                   )}
                 </div>
               </div>
@@ -641,7 +642,7 @@ const ProductList: React.FC = () => {
                       <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  <h3>No products found</h3>
+                  <h3>{t('products.no_products_found')}</h3>
                   <p>{filters.search ? `No products match "${filters.search}"` : 'No products are currently available.'}</p>
                 </div>
               )}

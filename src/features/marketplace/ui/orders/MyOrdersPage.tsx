@@ -76,7 +76,7 @@ const MyOrdersPage: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    const reason = window.prompt('Please provide a reason for cancelling this order:');
+    const reason = window.prompt(t('orders.cancel.provide_reason') + ':');
     if (!reason || reason.trim() === '') {
       return; // User cancelled or didn't provide a reason
     }
@@ -100,15 +100,13 @@ const MyOrdersPage: React.FC = () => {
       );
 
       // Show success message
-      alert(
-        result.refund_requested 
-          ? `Cancellation request submitted! Refund of $${result.refund_amount} will be processed. Order status will update once the refund is confirmed.`
-          : 'Order cancelled successfully!'
-      );
+      alert(result.refund_requested
+        ? t('orders.cancel.refund_requested', { amount: result.refund_amount })
+        : t('orders.cancel.success'));
       
     } catch (err) {
       console.error('Failed to cancel order:', err);
-      alert(err instanceof Error ? err.message : 'Failed to cancel order. Please try again.');
+      alert(err instanceof Error ? err.message : t('orders.cancel.error'));
     } finally {
       setCancellingOrderId(null);
     }
@@ -162,8 +160,8 @@ const MyOrdersPage: React.FC = () => {
         <div className="orders-container">
           {/* Header Section */}
           <div className="orders-header">
-            <h1 className="orders-title">My Orders</h1>
-            <p className="orders-subtitle">Track and manage your furniture orders</p>
+            <h1 className="orders-title">{t('orders.title')}</h1>
+            <p className="orders-subtitle">{t('orders.subtitle')}</p>
           </div>
           
           {/* Skeleton Loading */}
@@ -207,8 +205,8 @@ const MyOrdersPage: React.FC = () => {
       <div className="orders-container">
         {/* Header Section - Premium Design System */}
         <div className="orders-header">
-          <h1 className="orders-title">My Orders</h1>
-          <p className="orders-subtitle">Track and manage your furniture orders</p>
+          <h1 className="orders-title">{t('orders.title')}</h1>
+          <p className="orders-subtitle">{t('orders.subtitle')}</p>
         </div>
         
         {/* Search Bar - Premium Design System */}
@@ -217,7 +215,7 @@ const MyOrdersPage: React.FC = () => {
             <input
               className="orders-search-input"
               type="text"
-              placeholder="Search by order ID (e.g., 12345678) or product name..."
+              placeholder={t('orders.search.placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -226,10 +224,10 @@ const MyOrdersPage: React.FC = () => {
           {searchTerm && (
             <div className="search-info">
               <small className="search-hint">
-                Searching for: "{cleanSearchTerm(searchTerm)}"
+                {t('orders.search.searching_for', { term: cleanSearchTerm(searchTerm) })}
                 {searchTerm !== cleanSearchTerm(searchTerm) && (
                   <span className="search-cleanup">
-                    {" "}(cleaned from "{searchTerm}")
+                    {" "}{t('orders.search.cleaned_from', { term: searchTerm })}
                   </span>
                 )}
               </small>
@@ -247,10 +245,7 @@ const MyOrdersPage: React.FC = () => {
                 onClick={() => setFilterStatus(status)}
               >
                 <span className="status-tab-text">
-                  {status === 'pending_payment' ? 'Pending Payment' :
-                   status === 'payment_confirmed' ? 'Payment Confirmed' :
-                   status === 'awaiting_shipment' ? 'Awaiting Shipment' :
-                   status.charAt(0).toUpperCase() + status.slice(1)} ({count})
+                  {t(`orders.status_type.${status}`)} ({count})
                 </span>
               </button>
             ))}
@@ -260,13 +255,13 @@ const MyOrdersPage: React.FC = () => {
         {error && (
           <div className="orders-error-state">
             <div className="error-icon">⚠️</div>
-            <h3 className="error-title">Unable to Load Orders</h3>
+            <h3 className="error-title">{t('orders.errors.unable_to_load')}</h3>
             <p className="error-description">{error}</p>
             <button 
               onClick={() => window.location.reload()} 
               className="error-retry-btn"
             >
-              🔄 Try Again
+              🔄 {t('orders.actions.try_again')}
             </button>
           </div>
         )}
@@ -275,7 +270,7 @@ const MyOrdersPage: React.FC = () => {
         {filteredOrders.length > 0 ? (
           <div className="orders-list-container">
             <div className="orders-count">
-              <span className="count-text">Showing {filteredOrders.length} of {orders.length} orders</span>
+              <span className="count-text">{t('orders.count_showing', { shown: filteredOrders.length, total: orders.length })}</span>
             </div>
             <div className="orders-list">
               {filteredOrders.map(order => (
@@ -284,11 +279,11 @@ const MyOrdersPage: React.FC = () => {
                     {/* Card Header */}
                     <div className="card-header">
                       <div>
-                        <h3 className="order-id">Order #{order.id.slice(-8)}</h3>
+                        <h3 className="order-id">{t('orders.order_id')} #{order.id.slice(-8)}</h3>
                         <p className="order-date">{formatOrderDate(order.created_at)}</p>
                       </div>
                       <div className="order-total">
-                        <p className="total-label">Total</p>
+                        <p className="total-label">{t('orders.total')}</p>
                         <p className="total-amount">${order.total_amount || '0.00'}</p>
                       </div>
                     </div>
@@ -319,13 +314,11 @@ const MyOrdersPage: React.FC = () => {
                         )}
                       </div>
                       <div className="order-items-summary">
-                        <p className="items-count">
-                          {order.items.length} item{order.items.length > 1 ? 's' : ''} including:
-                        </p>
-                        <p className="items-list">
-                          {order.items.slice(0, 2).map(item => item.product_name).join(', ')}
-                          {order.items.length > 2 && `, and ${order.items.length - 2} more`}
-                        </p>
+                    <p className="items-count">{order.items.length} item{order.items.length > 1 ? 's' : ''} {t('orders.items_including')}</p>
+                    <p className="items-list">
+                      {order.items.slice(0, 2).map(item => item.product_name).join(', ')}
+                      {order.items.length > 2 && t('orders.and_more', { count: order.items.length - 2 })}
+                    </p>
                       </div>
                       
                       {/* Seller Profile Preview */}
@@ -371,59 +364,59 @@ const MyOrdersPage: React.FC = () => {
                       </div>
                       <div className="order-actions">
                         {order.status === 'pending_payment' && (
-                          <button 
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/checkout?retry_order=${order.id}`; }}
-                            className="retry-payment-btn"
-                          >
-                            Retry Payment
-                          </button>
-                        )}
-                        {['pending_payment', 'payment_confirmed'].includes(order.status) && (
-                          <button 
-                            onClick={(e) => handleCancelOrder(order.id, e)}
-                            disabled={cancellingOrderId === order.id}
-                            className="cancel-order-btn"
-                          >
-                            {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel Order'}
-                          </button>
-                        )}
-                        <span className="view-details-btn">View Details</span>
-                      </div>
-                    </div>
+                      <button 
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/checkout?retry_order=${order.id}`; }}
+                        className="retry-payment-btn"
+                      >
+                        {t('orders.actions.retry_payment')}
+                      </button>
+                    )}
+                    {['pending_payment', 'payment_confirmed'].includes(order.status) && (
+                      <button 
+                        onClick={(e) => handleCancelOrder(order.id, e)}
+                        disabled={cancellingOrderId === order.id}
+                        className="cancel-order-btn"
+                      >
+                        {cancellingOrderId === order.id ? t('orders.actions.cancelling') : t('orders.actions.cancel_order')}
+                      </button>
+                    )}
+                    <span className="view-details-btn">{t('orders.view_details')}</span>
                   </div>
-                </Link>
-              ))}
-            </div>
+                </div>
+              </div>
+            </Link>
+          ))}
           </div>
-        ) : (
-          <div className="orders-empty-state">
-            <div className="empty-icon">📦</div>
-            <h3 className="empty-title">
-              {orders.length === 0 ? 'No Orders Found' : 'No Matching Orders'}
-            </h3>
-            <p className="empty-description">
-              {orders.length === 0 
-                ? "You haven't placed any orders yet. Start shopping to see your orders here!"
-                : searchTerm 
-                  ? `No orders found matching "${searchTerm}". Try a different search term.`
-                  : `No orders found with status "${filterStatus}". Try a different filter.`
-              }
-            </p>
-            {orders.length === 0 && (
-              <Link to="/" className="start-shopping-btn">
-                🛍️ Start Shopping
-              </Link>
-            )}
-            {orders.length > 0 && (
-              <button 
-                onClick={() => { setSearchTerm(''); setFilterStatus('all'); }} 
-                className="clear-filters-btn"
-              >
-                Clear Filters
-              </button>
-            )}
-          </div>
-        )}
+        </div>
+      ) : (
+        <div className="orders-empty-state">
+          <div className="empty-icon">📦</div>
+          <h3 className="empty-title">
+            {orders.length === 0 ? t('orders.empty.no_orders_found') : t('orders.empty.no_matching_orders')}
+          </h3>
+          <p className="empty-description">
+            {orders.length === 0 
+              ? t('orders.browse_products_prompt')
+              : searchTerm 
+                ? t('orders.empty.none_with_search', { term: searchTerm })
+                : t('orders.empty.none_with_status', { status: filterStatus })
+            }
+          </p>
+          {orders.length === 0 && (
+            <Link to="/" className="start-shopping-btn">
+              🛍️ {t('orders.empty.start_shopping')}
+            </Link>
+          )}
+          {orders.length > 0 && (
+            <button 
+              onClick={() => { setSearchTerm(''); setFilterStatus('all'); }} 
+              className="clear-filters-btn"
+            >
+              {t('orders.actions.clear_filters')}
+            </button>
+          )}
+        </div>
+      )}
       </div>
     </Layout>
   );

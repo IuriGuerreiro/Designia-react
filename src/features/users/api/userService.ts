@@ -76,12 +76,15 @@ export class UserService {
    */
   async getSellerProfile(sellerId: number): Promise<SellerProfile> {
     try {
-      const response = await apiRequest(API_ENDPOINTS.SELLER_PROFILE(sellerId));
-      
-      return response.data;
-    } catch (error) {
+      // Use auth public user profile; backend restricts to sellers/admin accounts
+      const response = await apiRequest(API_ENDPOINTS.PUBLIC_USER_PROFILE(sellerId));
+      // httpClient returns parsed JSON directly, not an Axios-like { data }
+      return response as SellerProfile;
+    } catch (error: any) {
       console.error('Error fetching user profile:', error);
-      throw new Error('Failed to fetch user profile');
+      // Normalize 404 to a clearer message for the page
+      const message = error?.status === 404 ? 'User not found' : 'Failed to fetch user profile';
+      throw new Error(message);
     }
   }
 
@@ -90,9 +93,8 @@ export class UserService {
    */
   async getPublicProfile(userId: number): Promise<any> {
     try {
-      const response = await apiRequest(API_ENDPOINTS.SELLER_PROFILE(userId));
-      
-      return response.data;
+      const response = await apiRequest(API_ENDPOINTS.PUBLIC_USER_PROFILE(userId));
+      return response as any;
     } catch (error) {
       console.error('Error fetching public profile:', error);
       throw new Error('Failed to fetch public profile');
@@ -103,14 +105,10 @@ export class UserService {
    * Search users by username or name
    */
   async searchUsers(query: string): Promise<any[]> {
-    try {
-      const response = await apiRequest(API_ENDPOINTS.SELLER_PROFILE(query));
-      
-      return response.data.results || [];
-    } catch (error) {
-      console.error('Error searching users:', error);
-      throw new Error('Failed to search users');
-    }
+    // Placeholder: no backend search route defined for public users in this scope
+    // Keep signature for compatibility; return empty until search API is implemented
+    console.warn('searchUsers is not implemented against a backend endpoint.');
+    return [];
   }
 
   /**

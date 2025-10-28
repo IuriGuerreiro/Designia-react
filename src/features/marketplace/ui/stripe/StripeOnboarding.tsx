@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { loadConnectAndInitialize } from '@stripe/connect-js';
 import {
   ConnectAccountOnboarding,
@@ -23,6 +24,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
   onComplete,
   onError,
 }) => {
+  const { t } = useTranslation();
   const { user} = useAuth();
   const [stripeConnectInstance, setStripeConnectInstance] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +36,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
   // Check account status and eligibility using unified approach
   const checkAccountStatus = async () => {
     if (!user) {
-      setError('User must be authenticated');
+      setError(t('stripe.errors.auth_required'));
       return { hasAccount: false, eligible: false };
     }
 
@@ -61,7 +63,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
         return { hasAccount: false, eligible: isEligible };
       }
     } catch (err: any) {
-      const errorMsg = err.message || 'Failed to check account status';
+      const errorMsg = err.message || t('stripe.errors.check_status_failed');
       setError(errorMsg);
       onError?.(errorMsg);
       return { hasAccount: false, eligible: false };
@@ -71,7 +73,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
   // Create Stripe account using unified endpoint (handles existing accounts gracefully)
   const ensureStripeAccount = async (): Promise<boolean> => {
     if (!user) {
-      setError('User must be authenticated');
+      setError(t('stripe.errors.auth_required'));
       return false;
     }
 
@@ -88,10 +90,10 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
         return true; // Account is ready (either created or already existed)
       }
       
-      setError('Failed to create or retrieve Stripe account');
+      setError(t('stripe.errors.account_create_failed'));
       return false;
     } catch (err: any) {
-      const errorMsg = err.message || 'Failed to ensure Stripe account';
+      const errorMsg = err.message || t('stripe.errors.ensure_account_failed');
       setError(errorMsg);
       onError?.(errorMsg);
       return false;
@@ -101,7 +103,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
   // Create account session for onboarding
   const createAccountSession = async (): Promise<StripeAccountSession | null> => {
     if (!user) {
-      setError('User must be authenticated');
+      setError(t('stripe.errors.auth_required'));
       return null;
     }
 
@@ -112,7 +114,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
         account_id: data.account_id
       };
     } catch (err: any) {
-      const errorMsg = err.message || 'Failed to create account session';
+      const errorMsg = err.message || t('stripe.errors.create_session_failed');
       setError(errorMsg);
       onError?.(errorMsg);
       return null;
@@ -168,7 +170,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
         await initializeStripeConnect(sessionData.client_secret);
 
       } catch (err: any) {
-        const errorMsg = err.message || 'Failed to initialize Stripe onboarding';
+      const errorMsg = err.message || t('stripe.errors.initialize_failed');
         setError(errorMsg);
         onError?.(errorMsg);
       } finally {
@@ -179,7 +181,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
     if (user) {
       initializeOnboarding();
     } else {
-      setError('User must be authenticated');
+      setError(t('stripe.errors.auth_required'));
       setLoading(false);
     }
   }, [user]);
@@ -197,7 +199,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
     return (
       <div className="stripe-onboarding-loading">
         <div className="loading-spinner"></div>
-        <p>Setting up your seller account...</p>
+        <p>{t('stripe.loading')}</p>
       </div>
     );
   }
@@ -206,13 +208,13 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
     return (
       <Layout>
         <div className="stripe-onboarding-error">
-          <h3>Setup Error</h3>
+          <h3>{t('stripe.setup_error')}</h3>
           <p>{error}</p>
           <button 
             className="retry-button" 
             onClick={() => window.location.reload()}
           >
-            Retry
+            {t('orders.actions.try_again')}
           </button>
         </div>
       </Layout>
@@ -223,8 +225,8 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
     return (
       <Layout>
         <div className="stripe-onboarding-ineligible">
-          <h3>Account Setup Required</h3>
-          <p>Before you can become a seller, please complete the following requirements:</p>
+          <h3>{t('stripe.account_setup_required')}</h3>
+          <p>{t('stripe.complete_requirements')}</p>
           <ul className="requirements-list">
             {eligibilityErrors.map((error, index) => (
               <li key={index} className="requirement-item">
@@ -240,7 +242,7 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
                 checkAccountStatus();
               }}
             >
-              Check Again
+              {t('stripe.check_again')}
             </button>
           </div>
         </div>
@@ -252,13 +254,13 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
     return (
       <Layout>
         <div className="stripe-onboarding-error">
-          <h3>Connection Error</h3>
-          <p>Failed to connect to Stripe. Please try again.</p>
+          <h3>{t('stripe.connection_error')}</h3>
+          <p>{t('stripe.connection_failed')}</p>
           <button 
             className="retry-button" 
             onClick={() => window.location.reload()}
           >
-            Retry
+            {t('orders.actions.try_again')}
           </button>
         </div>
       </Layout>
@@ -269,8 +271,8 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
     <Layout>
       <div className="stripe-onboarding-container">
         <div className="onboarding-header">
-          <h2>Complete Your Seller Setup</h2>
-          <p>Provide your business information to start selling on our platform.</p>
+          <h2>{t('stripe.complete_setup')}</h2>
+          <p>{t('stripe.provide_business_info')}</p>
         </div>
         
         <div className="onboarding-content">

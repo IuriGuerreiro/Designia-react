@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import styles from './ViewSellerAccount.module.css';
 
@@ -40,8 +41,9 @@ const ViewSellerAccount: React.FC<ViewSellerAccountProps> = ({
   showProfessionalInfo = true,
   className,
 }) => {
+  const { t } = useTranslation();
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return t('seller_page.na_label');
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -89,7 +91,7 @@ const ViewSellerAccount: React.FC<ViewSellerAccountProps> = ({
             )}
           </Link>
           <div className={styles['seller-verification-badge']}>
-            {seller.is_verified_seller && <span className={styles['verified-badge']}>✓ Verified Seller</span>}
+            {seller.is_verified_seller && <span className={styles['verified-badge']}>✓ {t('seller_page.verified_seller_badge')}</span>}
           </div>
         </div>
 
@@ -110,29 +112,29 @@ const ViewSellerAccount: React.FC<ViewSellerAccountProps> = ({
 
       {showProfessionalInfo && hasProfessionalInfo && (
         <div className={styles['seller-section']}>
-          <h3 className={styles['section-title']}>Professional Information</h3>
+          <h3 className={styles['section-title']}>{t('seller_page.professional_info')}</h3>
           <div className={styles['section-content']}>
             {seller.job_title && (
               <div className={styles['info-item']}>
-                <span className={styles['info-label']}>Job Title</span>
+                <span className={styles['info-label']}>{t('seller_page.job_title')}</span>
                 <span className={styles['info-value']}>{seller.job_title}</span>
               </div>
             )}
             {seller.company && (
               <div className={styles['info-item']}>
-                <span className={styles['info-label']}>Company</span>
+                <span className={styles['info-label']}>{t('seller_page.company')}</span>
                 <span className={styles['info-value']}>{seller.company}</span>
               </div>
             )}
             {seller.seller_type && (
               <div className={styles['info-item']}>
-                <span className={styles['info-label']}>Seller Type</span>
+                <span className={styles['info-label']}>{t('seller_page.seller_type')}</span>
                 <span className={styles['info-value']}>{seller.seller_type}</span>
               </div>
             )}
             {seller.created_at && (
               <div className={styles['info-item']}>
-                <span className={styles['info-label']}>Member Since</span>
+                <span className={styles['info-label']}>{t('seller_page.member_since')}</span>
                 <span className={styles['info-value']}>{formatDate(seller.created_at)}</span>
               </div>
             )}
@@ -142,17 +144,17 @@ const ViewSellerAccount: React.FC<ViewSellerAccountProps> = ({
 
       {showContactInfo && hasContactInfo && (
         <div className={styles['seller-section']}>
-          <h3 className={styles['section-title']}>Contact Information</h3>
+          <h3 className={styles['section-title']}>{t('seller_page.contact_info')}</h3>
           <div className={styles['section-content']}>
             {seller.location && (
               <div className={styles['info-item']}>
-                <span className={styles['info-label']}>Location</span>
+                <span className={styles['info-label']}>{t('seller_page.location')}</span>
                 <span className={styles['info-value']}>📍 {seller.location}</span>
               </div>
             )}
             {seller.website && (
               <div className={styles['info-item']}>
-                <span className={styles['info-label']}>Website</span>
+                <span className={styles['info-label']}>{t('seller_page.website')}</span>
                 <a
                   href={formatUrl(seller.website)}
                   target="_blank"
@@ -169,7 +171,7 @@ const ViewSellerAccount: React.FC<ViewSellerAccountProps> = ({
 
       {showSocialMedia && hasSocialMedia && (
         <div className={styles['seller-section']}>
-          <h3 className={styles['section-title']}>Social Media</h3>
+          <h3 className={styles['section-title']}>{t('seller_page.social_media')}</h3>
           <div className={styles['social-media-grid']}>
             {seller.instagram_url && (
               <a

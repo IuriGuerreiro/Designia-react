@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout } from '@/app/layout';
@@ -16,86 +16,93 @@ type SettingsTab = 'account' | 'security' | 'privacy' | 'legal' | 'preferences';
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();
-  const { user, isAdmin, changeLanguage: changeUserLanguage } = useAuth();
+  const { user, isAdmin, changeLanguage: changeUserLanguage, getSellerApplicationStatus } = useAuth();
   const { language, changeLanguage: changeLocalLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<SettingsTab>('account');
   const [isPrivate, setIsPrivate] = useState(false);
   const navigate = useNavigate();
+  const [sellerStatus, setSellerStatus] = useState<{
+    has_application: boolean;
+    is_seller: boolean;
+    status?: 'pending' | 'under_review' | 'approved' | 'rejected' | 'revision_requested';
+    application_id?: number;
+    submitted_at?: string;
+    admin_notes?: string;
+    rejection_reason?: string;
+  } | null>(null);
+  const [sellerStatusLoading, setSellerStatusLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        setSellerStatusLoading(true);
+        const status = await getSellerApplicationStatus();
+        if (mounted) setSellerStatus(status);
+      } catch {
+        if (mounted) setSellerStatus(null);
+      } finally {
+        if (mounted) setSellerStatusLoading(false);
+      }
+    };
+    void load();
+    return () => {
+      mounted = false;
+    };
+  }, [user?.id]);
 
   // Password change flow handled in a modal
   const [showChangePw, setShowChangePw] = useState(false);
 
   const handleLanguageChange = async (languageCode: string) => {
     try {
+      // Always update i18n immediately so the UI switches right away
+      changeLocalLanguage(languageCode);
+
+      // Persist only supported account languages
       if (languageCode === 'en' || languageCode === 'pt') {
         await changeUserLanguage(languageCode);
-      } else {
-        changeLocalLanguage(languageCode);
       }
     } catch (error) {
       console.error('Failed to change language:', error);
     }
   };
 
-  const currentLanguage = user?.language || language;
+  // Show the currently active i18n language in the UI
+  const currentLanguage = language || user?.language || 'en';
 
   const renderSecurityTab = () => (
     <>
       <div className={styles.settingsCard}>
-        <h3>Two-Factor Authentication</h3>
-        <p className={styles.cardDescription}>
-          Add an extra layer of security to your account.
-        </p>
+        <h3>{t('settings.two_factor_title')}</h3>
+        <p className={styles.cardDescription}>{t('settings.two_factor_description')}</p>
         <TwoFactorAuth />
       </div>
       <div className={styles.settingsCard}>
-        <h3>Password</h3>
+        <h3>{t('settings.password_title')}</h3>
         <p className={styles.cardDescription}>
           {user?.is_oauth_only_user
-            ? 'Set up a password for additional login options.'
-            : 'Change your password with a quick, two-step verification.'}
+            ? t('settings.password_oauth_description')
+            : t('settings.password_change_description')}
         </p>
         {user?.is_oauth_only_user ? (
           <PasswordSetup />
         ) : (
           <div className={styles.accountActions}>
-            <button className={styles.settingsBtn} onClick={() => setShowChangePw(true)}>
-              Change Password
-            </button>
+            <button className={styles.settingsBtn} onClick={() => setShowChangePw(true)}>{t('settings.change_password_button')}</button>
           </div>
         )}
       </div>
-      <div className={styles.settingsCard}>
-        <h3>Account Management</h3>
-        <p className={styles.cardDescription}>
-          Manage your account settings and profile.
-        </p>
-        <div className={styles.accountActions}>
-          <button
-            className={cx(styles.settingsBtn, styles.settingsBtnSecondary)}
-            onClick={() => navigate('/profile/edit')}
-          >
-            Edit Profile
-          </button>
-          {!user?.is_verified_seller && user?.role !== 'seller' && user?.role !== 'admin' && (
-            <button className={styles.settingsBtn} onClick={() => navigate('/settings/become-seller')}>
-              Become a Seller
-            </button>
-          )}
-      </div>
-    </div>
-  </>
-);
+    </>
+  );
 
 const renderPrivacyTab = () => (
   <div className={styles.settingsCard}>
-    <h3>Account Privacy</h3>
+    <h3>{t('settings.privacy_title')}</h3>
     <div className={styles.privacyOption}>
       <div>
-        <strong>Private Account</strong>
-        <p>
-          When your account is private, only people you approve can see your projects and collections.
-        </p>
+        <strong>{t('settings.privacy_private_label')}</strong>
+        <p>{t('settings.privacy_private_description')}</p>
       </div>
       <div className={styles.toggleField}>
         <input
@@ -105,7 +112,7 @@ const renderPrivacyTab = () => (
           onChange={() => setIsPrivate((prev) => !prev)}
         />
         <label htmlFor="settings-private-toggle">
-          {isPrivate ? 'Private mode enabled' : 'Currently public'}
+          {isPrivate ? t('settings.privacy_private_enabled') : t('settings.privacy_private_disabled')}
         </label>
       </div>
     </div>
@@ -115,17 +122,12 @@ const renderPrivacyTab = () => (
   const languageButtons = [
     { code: 'en', label: 'English' },
     { code: 'pt', label: 'Português' },
-    { code: 'fr', label: 'Français' },
-    { code: 'de', label: 'Deutsch' },
-    { code: 'es', label: 'Español' },
   ];
 
   const renderPreferencesTab = () => (
     <div className={styles.settingsCard}>
-      <h3>Language Preferences</h3>
-      <p className={styles.cardDescription}>
-        Choose your preferred language for the interface.
-      </p>
+      <h3>{t('settings.language_prefs_title')}</h3>
+      <p className={styles.cardDescription}>{t('settings.language_prefs_description')}</p>
       <div className={styles.languageSelector}>
         {languageButtons.map(({ code, label }) => (
           <button
@@ -142,17 +144,8 @@ const renderPrivacyTab = () => (
       </div>
       <div className={styles.currentLanguageInfo}>
         <small>
-          Current language:{' '}
-          {currentLanguage === 'pt'
-            ? 'Portuguese'
-            : currentLanguage === 'fr'
-              ? 'French'
-              : currentLanguage === 'de'
-                ? 'German'
-                : currentLanguage === 'es'
-                  ? 'Spanish'
-                  : 'English'}
-          {(user?.language === 'en' || user?.language === 'pt') && ' (saved to account)'}
+          {t('settings.current_language_label')} {currentLanguage === 'pt' ? 'Portuguese' : 'English'}
+          {(user?.language === 'en' || user?.language === 'pt') && ` ${t('settings.saved_to_account_suffix')}`}
         </small>
       </div>
     </div>
@@ -161,27 +154,17 @@ const renderPrivacyTab = () => (
   const renderLegalTab = () => (
     <>
       <div className={styles.settingsCard}>
-        <h3>Privacy Policy</h3>
-        <p className={styles.cardDescription}>
-          Read our privacy policy to understand how we collect, use, and protect your information.
-        </p>
-        <button
-          className={cx(styles.settingsBtn, styles.settingsBtnSecondary)}
-          onClick={() => window.open('/privacy-policy', '_blank')}
-        >
-          View Privacy Policy
+        <h3>{t('settings.privacy_policy_title')}</h3>
+        <p className={styles.cardDescription}>{t('settings.privacy_policy_description')}</p>
+        <button className={cx(styles.settingsBtn, styles.settingsBtnSecondary)} onClick={() => window.open('/privacy-policy', '_blank')}>
+          {t('settings.view_privacy_policy_button')}
         </button>
       </div>
       <div className={styles.settingsCard}>
-        <h3>Terms of Use</h3>
-        <p className={styles.cardDescription}>
-          Review our terms of service and user agreement.
-        </p>
-        <button
-          className={cx(styles.settingsBtn, styles.settingsBtnSecondary)}
-          onClick={() => window.open('/terms-of-use', '_blank')}
-        >
-          View Terms of Use
+        <h3>{t('settings.terms_title')}</h3>
+        <p className={styles.cardDescription}>{t('settings.terms_description')}</p>
+        <button className={cx(styles.settingsBtn, styles.settingsBtnSecondary)} onClick={() => window.open('/terms-of-use', '_blank')}>
+          {t('settings.view_terms_button')}
         </button>
       </div>
     </>
@@ -190,52 +173,117 @@ const renderPrivacyTab = () => (
   const renderAccountTab = () => (
     <>
       <div className={styles.settingsCard}>
-        <h3>Account Information</h3>
+        <h3>{t('settings.account_info_title')}</h3>
         <div className={styles.accountInfo}>
           <div className={styles.infoGroup}>
-            <label>Username</label>
+            <label>{t('settings.username_label')}</label>
             <p>{user?.username}</p>
           </div>
           <div className={styles.infoGroup}>
-            <label>Email</label>
+            <label>{t('settings.email_label')}</label>
             <p>{user?.email}</p>
           </div>
           <div className={styles.infoGroup}>
-            <label>Name</label>
+            <label>{t('settings.name_label')}</label>
             <p>
               {user?.first_name} {user?.last_name}
             </p>
           </div>
           <div className={styles.infoGroup}>
-            <label>Account Type</label>
+            <label>{t('settings.account_type_label')}</label>
             <p className={user?.is_oauth_only_user ? styles.statusWarning : styles.statusSuccess}>
-              {user?.is_oauth_only_user ? 'Google OAuth Only' : 'Full Account'}
+              {user?.is_oauth_only_user ? t('settings.account_type_oauth_only') : t('settings.account_type_full')}
             </p>
           </div>
         </div>
       </div>
-      
+
+      <div className={styles.settingsCard}>
+        <h3>{t('settings.account_mgmt_title')}</h3>
+        <p className={styles.cardDescription}>{t('settings.account_mgmt_description')}</p>
+        <div className={styles.accountActions}>
+          <button
+            className={cx(styles.settingsBtn, styles.settingsBtnSecondary)}
+            onClick={() => navigate('/profile/edit')}
+          >
+            {t('settings.edit_profile_button')}
+          </button>
+          {!user?.is_verified_seller && user?.role !== 'seller' && user?.role !== 'admin' && !sellerStatusLoading && !sellerStatus?.has_application && (
+            <button className={styles.settingsBtn} onClick={() => navigate('/settings/become-seller')}>
+              {t('settings.become_seller_button')}
+            </button>
+          )}
+        </div>
+      </div>
+
       {!isAdmin() && (
         <div className={styles.settingsCard}>
-          <h3>Seller Status</h3>
+          <h3>{t('settings.seller_status_title')}</h3>
           <div className={styles.accountInfo}>
             <div className={styles.infoGroup}>
-              <label>Verification</label>
-              <p className={user?.is_verified_seller ? styles.statusSuccess : styles.statusMuted}>
-                {user?.is_verified_seller ? 'Verified Seller' : 'Not a Verified Seller'}
+              <label>{t('settings.verification_label')}</label>
+              <p className={user?.is_verified_seller || user?.role === 'seller' ? styles.statusSuccess : styles.statusMuted}>
+                {user?.is_verified_seller || user?.role === 'seller' ? t('settings.verification_verified') : t('settings.verification_not_verified')}
               </p>
             </div>
-            {user?.is_verified_seller && (
+            {sellerStatusLoading && (
               <div className={styles.infoGroup}>
-                <label>Seller Type</label>
-                <p>{user?.seller_type || 'N/A'}</p>
+                <label>{t('settings.application_label')}</label>
+                <p>{t('settings.application_checking')}</p>
               </div>
             )}
-            {!user?.is_verified_seller && user?.role !== 'seller' && user?.role !== 'admin' && (
+            {!sellerStatusLoading && sellerStatus?.has_application && sellerStatus?.status && (
+              <div className={styles.infoGroup}>
+                <label>{t('settings.application_status_label')}</label>
+                <p>
+                  {sellerStatus.status === 'under_review'
+                    ? t('settings.application_status_under_review')
+                    : sellerStatus.status === 'revision_requested'
+                      ? t('settings.application_status_revision_requested')
+                      : sellerStatus.status.charAt(0).toUpperCase() + sellerStatus.status.slice(1)}
+                </p>
+              </div>
+            )}
+            {!sellerStatusLoading && sellerStatus?.status === 'rejected' && sellerStatus?.rejection_reason && (
+              <div className={styles.infoGroup}>
+                <label>{t('settings.rejection_reason_label')}</label>
+                <p className={styles.statusWarning}>{sellerStatus.rejection_reason}</p>
+              </div>
+            )}
+            {user?.is_verified_seller && (
+              <div className={styles.infoGroup}>
+                <label>{t('settings.seller_type_label')}</label>
+                <p>{user?.seller_type || t('settings.na_label')}</p>
+              </div>
+            )}
+            {!user?.is_verified_seller && user?.role !== 'seller' && user?.role !== 'admin' && !sellerStatusLoading && !sellerStatus?.has_application && (
               <div className={styles.infoGroup}>
                 <button className={styles.settingsBtn} onClick={() => navigate('/settings/become-seller')}>
-                  Become a Seller
+                  {t('settings.become_seller_button')}
                 </button>
+              </div>
+            )}
+            {!user?.is_verified_seller && user?.role !== 'seller' && user?.role !== 'admin' && sellerStatus?.has_application && (
+              <div className={styles.infoGroup}>
+                {sellerStatus.status === 'rejected' ? (
+                  <>
+                    <p className={styles.statusWarning}>{t('settings.application_rejected_text')}</p>
+                    {sellerStatus.rejection_reason && (
+                      <p className={styles.statusMuted}>{sellerStatus.rejection_reason}</p>
+                    )}
+                    <div className={styles.accountActions}>
+                      <button className={styles.settingsBtn} onClick={() => navigate('/settings/become-seller')}>
+                        {t('settings.resubmit_application_button')}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p className={styles.statusMuted}>
+                    {sellerStatus.status === 'pending' || sellerStatus.status === 'under_review' || sellerStatus.status === 'revision_requested'
+                      ? t('settings.application_submitted_wait')
+                      : null}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -265,24 +313,29 @@ const renderPrivacyTab = () => (
       <div className={styles.settingsPage}>
         <section className={styles.settingsHeader}>
           <div className={styles.settingsHeaderContent}>
-            <span className={styles.settingsEyebrow}>Account Center</span>
+            <span className={styles.settingsEyebrow}>{t('settings.header_eyebrow')}</span>
             <h2>{t('settings.title')}</h2>
-            <p>
-              Curate your identity, adjust privacy, and tailor Designia to your workflow. All preferences respect the
-              monochrome theme and sync instantly across devices.
-            </p>
+            <p>{t('settings.header_description')}</p>
             <div className={styles.settingsStats}>
               <div className={styles.settingsStat}>
-                <span>Membership</span>
-                <strong>{user?.role === 'admin' ? 'Admin Suite' : user?.role === 'seller' ? 'Seller Hub' : 'Collector'}</strong>
+                <span>{t('settings.stat_membership_label')}</span>
+                <strong>
+                  {user?.role === 'admin'
+                    ? t('settings.stat_membership_admin')
+                    : user?.role === 'seller'
+                      ? t('settings.stat_membership_seller')
+                      : t('settings.stat_membership_user')}
+                </strong>
               </div>
               <div className={styles.settingsStat}>
-                <span>Language</span>
+                <span>{t('settings.stat_language_label')}</span>
                 <strong>{currentLanguage.toUpperCase()}</strong>
               </div>
               <div className={styles.settingsStat}>
-                <span>Security</span>
-                <strong>{user?.is_two_factor_enabled ? '2FA Active' : '2FA Pending'}</strong>
+                <span>{t('settings.stat_security_label')}</span>
+                <strong>
+                  {user?.is_two_factor_enabled ? t('settings.stat_security_2fa_active') : t('settings.stat_security_2fa_pending')}
+                </strong>
               </div>
             </div>
           </div>

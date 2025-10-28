@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Layout } from '@/app/layout';
 import { orderService } from '@/features/marketplace/api';
 import { type Order } from '@/features/marketplace/model';
 import './Orders.css';
 
 const UserOrdersManagement: React.FC = () => {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +59,7 @@ const UserOrdersManagement: React.FC = () => {
       setOrders(ordersData);
     } catch (err) {
       console.error('Failed to load seller orders:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load seller orders');
+      setError(err instanceof Error ? err.message : t('orders.errors.unable_to_load'));
     } finally {
       setLoading(false);
     }
@@ -105,19 +107,19 @@ const UserOrdersManagement: React.FC = () => {
   const cancelOrderWithReason = async (orderId: string) => {
     const { reason } = cancelData[orderId] || {};
     if (!reason) {
-      alert('Please provide a reason for cancellation.');
+      alert(t('orders.cancel.provide_reason'));
       return;
     }
-    if (!window.confirm(`Are you sure you want to cancel this order? Reason: ${reason}`)) return;
+    if (!window.confirm(t('orders.cancel.confirm_with_reason', { reason }))) return;
 
     setUpdatingOrders(prev => new Set(prev).add(orderId));
     try {
       const response = await orderService.cancelOrderWithReason(orderId, reason);
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...response.order } : o));
       toggleCancelForm(orderId);
-      alert(response.refund_requested ? `Cancellation submitted! Refund of ${response.refund_amount} will be processed.` : 'Order cancelled.');
+      alert(response.refund_requested ? t('orders.cancel.refund_requested', { amount: response.refund_amount }) : t('orders.cancel.success'));
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to cancel order.');
+      alert(err instanceof Error ? err.message : t('orders.cancel.error'));
     } finally {
       setUpdatingOrders(prev => { const newSet = new Set(prev); newSet.delete(orderId); return newSet; });
     }
@@ -193,8 +195,8 @@ const UserOrdersManagement: React.FC = () => {
         <div className="orders-management-container">
           {/* Header Section */}
           <div className="management-header">
-            <h1 className="management-title">Order Management</h1>
-            <p className="management-subtitle">Manage and fulfill customer orders</p>
+            <h1 className="management-title">{t('orders.management.title')}</h1>
+            <p className="management-subtitle">{t('orders.management.subtitle')}</p>
           </div>
           
           {/* Skeleton Loading */}
@@ -239,8 +241,8 @@ const UserOrdersManagement: React.FC = () => {
       <div className="orders-management-container">
         {/* Header Section */}
         <div className="management-header">
-          <h1 className="management-title">Order Management</h1>
-          <p className="management-subtitle">Manage and fulfill customer orders</p>
+          <h1 className="management-title">{t('orders.management.title')}</h1>
+          <p className="management-subtitle">{t('orders.management.subtitle')}</p>
         </div>
 
         {/* Error Display */}
@@ -257,7 +259,7 @@ const UserOrdersManagement: React.FC = () => {
             <input
               className="orders-search-input"
               type="text"
-              placeholder="Search by order ID, product name, or buyer name..."
+              placeholder={t('orders.search.placeholder_management')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -266,11 +268,9 @@ const UserOrdersManagement: React.FC = () => {
           {searchTerm && (
             <div className="search-info">
               <small className="search-hint">
-                Searching for: "{cleanSearchTerm(searchTerm)}"
+                {t('orders.search.searching_for', { term: cleanSearchTerm(searchTerm) })}
                 {searchTerm !== cleanSearchTerm(searchTerm) && (
-                  <span className="search-cleanup">
-                    {" "}(cleaned from "{searchTerm}")
-                  </span>
+                  <span className="search-cleanup"> {t('orders.search.cleaned_from', { term: searchTerm })}</span>
                 )}
               </small>
             </div>
@@ -286,7 +286,7 @@ const UserOrdersManagement: React.FC = () => {
                 onClick={() => setFilterStatus(status)}
                 className={`management-status-tab ${filterStatus === status ? 'active-management-tab' : ''}`}
               >
-                {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} ({statusCounts[status] || 0})
+                {t(`orders.status_type.${status}`)} ({statusCounts[status] || 0})
               </button>
             ))}
           </div>
@@ -296,13 +296,13 @@ const UserOrdersManagement: React.FC = () => {
         {filteredOrders.length === 0 ? (
           <div className="orders-empty-state">
             <div className="empty-icon">📦</div>
-            <h3 className="empty-title">No Orders Found</h3>
+            <h3 className="empty-title">{t('orders.empty.no_orders_found')}</h3>
             <p className="empty-description">
               {searchTerm 
-                ? `No orders found matching "${searchTerm}". Try a different search term.`
+                ? t('orders.empty.none_with_search', { term: searchTerm })
                 : filterStatus === 'all' 
-                  ? "You have no orders to fulfill." 
-                  : `No orders with status "${filterStatus}".`
+                  ? t('orders.empty.you_have_none') 
+                  : t('orders.empty.none_with_status', { status: filterStatus })
               }
             </p>
             {searchTerm && (
@@ -310,14 +310,14 @@ const UserOrdersManagement: React.FC = () => {
                 onClick={() => setSearchTerm('')} 
                 className="clear-filters-btn"
               >
-                Clear Search
+                {t('orders.actions.clear_search')}
               </button>
             )}
           </div>
         ) : (
           <div className="orders-list-container">
             <div className="orders-count">
-              <span className="count-text">Showing {filteredOrders.length} of {orders.length} orders</span>
+              <span className="count-text">{t('orders.count_showing', { shown: filteredOrders.length, total: orders.length })}</span>
             </div>
             <div className="orders-list">
             {filteredOrders.map(order => (
@@ -325,13 +325,13 @@ const UserOrdersManagement: React.FC = () => {
                 {/* Card Header */}
                 <div className="card-header">
                   <div>
-                    <h3 className="order-id">Order #{order.id.slice(-8)}</h3>
+                    <h3 className="order-id">{t('orders.order_id')} #{order.id.slice(-8)}</h3>
                     <p className="order-date">
                       {new Date(order.created_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}
                     </p>
                   </div>
                   <div className="order-total">
-                    <p className="total-label">Total</p>
+                    <p className="total-label">{t('orders.total')}</p>
                     <p className="total-amount">${order.total_amount}</p>
                   </div>
                 </div>
@@ -362,14 +362,12 @@ const UserOrdersManagement: React.FC = () => {
                     )}
                   </div>
                   <div className="order-items-summary">
-                    <p className="items-count">
-                      {order.items.length} item{order.items.length > 1 ? 's' : ''} including:
-                    </p>
+                    <p className="items-count">{order.items.length} item{order.items.length > 1 ? 's' : ''} {t('orders.items_including')}</p>
                     <p className="items-list">
                       {order.items.slice(0, 2).map(item => item.product_name).join(', ')}
-                      {order.items.length > 2 && `, and ${order.items.length - 2} more`}
+                      {order.items.length > 2 && t('orders.and_more', { count: order.items.length - 2 })}
                     </p>
-                    <p className="buyer-info">For {order.buyer.first_name} {order.buyer.last_name}</p>
+                    <p className="buyer-info">{t('orders.management.for_label')} {order.buyer.first_name} {order.buyer.last_name}</p>
                   </div>
                 </div>
 
@@ -385,7 +383,7 @@ const UserOrdersManagement: React.FC = () => {
                         disabled={updatingOrders.has(order.id)}
                         className="retry-payment-btn"
                       >
-                        {updatingOrders.has(order.id) ? 'Processing...' : 'Process Order'}
+                        {updatingOrders.has(order.id) ? t('orders.actions.processing') : t('orders.actions.process_order')}
                       </button>
                     )}
                     {['awaiting_shipment', 'shipped'].includes(order.status) && (
@@ -393,7 +391,7 @@ const UserOrdersManagement: React.FC = () => {
                         onClick={() => toggleTrackingForm(order.id)}
                         className="btn-tracking"
                       >
-                        {order.seller_shipping?.tracking_number ? 'Update Tracking' : 'Add Tracking'}
+                        {order.seller_shipping?.tracking_number ? t('orders.actions.update_tracking') : t('orders.actions.add_tracking')}
                       </button>
                     )}
                     {['payment_confirmed', 'awaiting_shipment'].includes(order.status) && (
@@ -401,7 +399,7 @@ const UserOrdersManagement: React.FC = () => {
                         onClick={() => toggleCancelForm(order.id)}
                         className="cancel-order-btn"
                       >
-                        Cancel
+                        {t('orders.actions.cancel_order')}
                       </button>
                       )}
                   </div>
@@ -412,18 +410,18 @@ const UserOrdersManagement: React.FC = () => {
                   <div className="management-forms-section">
                     {showTrackingForm.has(order.id) && (
                       <div className="tracking-form-section">
-                        <h4 className="form-section-title">Tracking Information</h4>
+                        <h4 className="form-section-title">{t('orders.detail.shipping_tracking')}</h4>
                         <div className="tracking-form-grid">
                           <input 
                             type="text" 
-                            placeholder="Tracking Number"
+                            placeholder={t('orders.detail.tracking_number')}
                             defaultValue={order.seller_shipping?.tracking_number || ''}
                             onChange={(e) => handleTrackingDataChange(order.id, 'trackingNumber', e.target.value)}
                             className="tracking-input"
                           />
                           <input 
                             type="text" 
-                            placeholder="Carrier"
+                            placeholder={t('orders.detail.carrier')}
                             defaultValue={order.seller_shipping?.shipping_carrier || ''}
                             onChange={(e) => handleTrackingDataChange(order.id, 'carrier', e.target.value)}
                             className="tracking-input"
@@ -433,14 +431,14 @@ const UserOrdersManagement: React.FC = () => {
                             disabled={updatingOrders.has(order.id)}
                             className="btn-save-tracking"
                           >
-                            Save
+                            {t('orders.actions.save')}
                           </button>
                         </div>
                       </div>
                     )}
                     {showCancelForm.has(order.id) && (
                       <div className="cancel-form-section">
-                        <h4 className="form-section-title">Cancel Order</h4>
+                        <h4 className="form-section-title">{t('orders.actions.cancel_order')}</h4>
                         <textarea 
                           placeholder="Reason for cancellation..."
                           onChange={(e) => handleCancelDataChange(order.id, e.target.value)}
@@ -452,7 +450,7 @@ const UserOrdersManagement: React.FC = () => {
                           disabled={updatingOrders.has(order.id)}
                           className="btn-confirm-cancellation"
                         >
-                          Confirm Cancellation
+                          {t('orders.actions.confirm_cancellation')}
                         </button>
                       </div>
                     )}

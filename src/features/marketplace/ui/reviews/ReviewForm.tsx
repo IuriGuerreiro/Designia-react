@@ -31,7 +31,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productSlug, onReviewSubmitted,
       }
       onReviewSubmitted();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit review.');
+      setError(err instanceof Error ? err.message : t('reviews.errors.submit_failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -39,27 +39,27 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productSlug, onReviewSubmitted,
 
   return (
     <div className={styles.formContainer}>
-      <h3 className={styles.header}>{existingReview ? 'Edit Your Review' : 'Write a Review'}</h3>
+      <h3 className={styles.header}>{existingReview ? t('reviews.actions.edit_review') : t('reviews.actions.write_review')}</h3>
       {error && <p>{error}</p>}
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="rating">Rating</label>
+          <label className={styles.label} htmlFor="rating">{t('reviews.form.rating')}</label>
           <select id="rating" value={rating} onChange={e => setRating(Number(e.target.value))} className={styles.select}>
             {[5, 4, 3, 2, 1].map(r => <option key={r} value={r}>{'★'.repeat(r)}{'☆'.repeat(5 - r)}</option>)}
           </select>
         </div>
         <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="title">Title</label>
+          <label className={styles.label} htmlFor="title">{t('reviews.form.title')}</label>
           <input id="title" type="text" value={title} onChange={e => setTitle(e.target.value)} required className={styles.input} />
         </div>
         <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="comment">Comment</label>
+          <label className={styles.label} htmlFor="comment">{t('reviews.form.comment')}</label>
           <textarea id="comment" value={comment} onChange={e => setComment(e.target.value)} required rows={5} className={styles.textarea}></textarea>
         </div>
         <div className={styles.formActions}>
-          {onCancel && <button type="button" onClick={onCancel} className={`${styles.btn} ${styles.btnSecondary}`}>Cancel</button>}
+          {onCancel && <button type="button" onClick={onCancel} className={`${styles.btn} ${styles.btnSecondary}`}>{t('reviews.actions.cancel')}</button>}
           <button type="submit" disabled={isSubmitting} className={`${styles.btn} ${styles.btnPrimary}`}>
-            {isSubmitting ? 'Submitting...' : 'Submit Review'}
+            {isSubmitting ? t('reviews.actions.submitting') : t('reviews.actions.submit_review')}
           </button>
         </div>
       </form>

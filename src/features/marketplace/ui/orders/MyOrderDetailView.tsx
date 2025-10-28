@@ -92,7 +92,7 @@ const MyOrderDetailView: React.FC = () => {
       <Layout>
         <div className="order-detail-loading">
           <div className="loading-spinner"></div>
-          <p className="loading-text">Loading order details...</p>
+          <p className="loading-text">{t('orders.detail.loading_details')}</p>
         </div>
       </Layout>
     );
@@ -103,10 +103,10 @@ const MyOrderDetailView: React.FC = () => {
       <Layout>
         <div className="order-detail-error">
           <div className="error-icon">⚠️</div>
-          <h3 className="error-title">Order Not Found</h3>
-          <p className="error-description">{error || 'This order could not be found or you do not have permission to view it.'}</p>
+          <h3 className="error-title">{t('orders.detail.not_found_title')}</h3>
+          <p className="error-description">{error || t('orders.detail.not_found_message')}</p>
           <Link to="/my-orders" className="back-to-orders-btn">
-            ← Back to Orders
+            ← {t('orders.detail.back_to_orders')}
           </Link>
         </div>
       </Layout>
@@ -120,7 +120,7 @@ const MyOrderDetailView: React.FC = () => {
         <div className="order-detail-breadcrumb">
           <Link to="/my-orders" className="breadcrumb-link">
             <span className="breadcrumb-icon">←</span>
-            <span className="breadcrumb-text">Back to Orders</span>
+            <span className="breadcrumb-text">{t('orders.detail.back_to_orders')}</span>
           </Link>
         </div>
 
@@ -183,18 +183,18 @@ const MyOrderDetailView: React.FC = () => {
                   <div className="item-meta">
                     <span className="seller-info">
                       <span className="seller-icon">🏢</span>
-                      <span className="seller-name">{item.seller || 'Unknown Seller'}</span>
+                      <span className="seller-name">{item.seller || t('orders.detail.unknown_seller')}</span>
                     </span>
                   </div>
                   <h3 className="item-name">{item.product_name}</h3>
                   
                   <div className="pricing-grid">
                     <div className="price-detail">
-                      <span className="price-label">Unit Price</span>
+                      <span className="price-label">{t('orders.detail.unit_price')}</span>
                       <span className="price-value">${item.unit_price}</span>
                     </div>
                     <div className="price-detail">
-                      <span className="price-label">Total</span>
+                      <span className="price-label">{t('orders.total')}</span>
                       <span className="price-value total-highlight">
                         ${item.total_price}
                       </span>
@@ -212,9 +212,9 @@ const MyOrderDetailView: React.FC = () => {
             <div className="section-header">
               <h2 className="section-title">
                 <span className="section-icon">🚚</span>
-                Shipping & Tracking
+                {t('orders.detail.shipping_tracking')}
               </h2>
-              <span className="shipping-count-badge">{order.shipping_info.length} shipment{order.shipping_info.length > 1 ? 's' : ''}</span>
+              <span className="shipping-count-badge">{t('orders.detail.shipment_count', { count: order.shipping_info.length, suffix: order.shipping_info.length > 1 ? 's' : '' })}</span>
             </div>
             
             <div className="shipping-list">
@@ -231,11 +231,7 @@ const MyOrderDetailView: React.FC = () => {
                         </Link>
                         {shipping.shipped_at && (
                           <span className="shipped-date">
-                            Shipped on {new Date(shipping.shipped_at).toLocaleDateString('en-US', {
-                              month: 'long',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
+                            {t('orders.detail.shipped_on', { date: new Date(shipping.shipped_at).toLocaleDateString() })}
                           </span>
                         )}
                       </div>
@@ -245,12 +241,12 @@ const MyOrderDetailView: React.FC = () => {
                   {shipping.tracking_number ? (
                     <div className="tracking-info">
                       <div className="tracking-detail">
-                        <span className="tracking-label">Tracking Number</span>
+                        <span className="tracking-label">{t('orders.detail.tracking_number')}</span>
                         <div className="tracking-number">{shipping.tracking_number}</div>
                       </div>
                       {shipping.shipping_carrier && (
                         <div className="tracking-detail">
-                          <span className="tracking-label">Carrier</span>
+                          <span className="tracking-label">{t('orders.detail.carrier')}</span>
                           <span className="carrier-name">{shipping.shipping_carrier}</span>
                         </div>
                       )}
@@ -258,7 +254,7 @@ const MyOrderDetailView: React.FC = () => {
                   ) : (
                     <div className="no-tracking">
                       <div className="preparing-status">
-                        <span>📦 Preparing for shipment</span>
+                        <span>📦 {t('orders.detail.preparing_shipment')}</span>
                       </div>
                     </div>
                   )}
@@ -273,17 +269,17 @@ const MyOrderDetailView: React.FC = () => {
           <div className="section-header">
             <h2 className="section-title">
               <span className="section-icon">📋</span>
-              Order Summary
+              {t('orders.detail.order_summary')}
             </h2>
           </div>
           
           <div className="order-summary-card">
             <div className="summary-row">
-              <span className="summary-label">Subtotal</span>
+              <span className="summary-label">{t('checkout.subtotal_label')}</span>
               <span className="summary-value">${order.subtotal}</span>
             </div>
             <div className="summary-row">
-              <span className="summary-label">Shipping</span>
+              <span className="summary-label">{t('checkout.shipping_label')}</span>
               <span className="summary-value">${order.shipping_cost}</span>
             </div>
             {order.tax_amount > 0 && (
@@ -300,7 +296,7 @@ const MyOrderDetailView: React.FC = () => {
             )}
             <div className="summary-divider"></div>
             <div className="summary-row final-total">
-              <span className="summary-label">Total</span>
+              <span className="summary-label">{t('checkout.total_label')}</span>
               <span className="summary-value">${order.total_amount}</span>
             </div>
           </div>

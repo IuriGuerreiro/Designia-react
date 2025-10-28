@@ -40,15 +40,16 @@ export default defineConfig(({ mode }) => {
           "img-src 'self' data: blob: https:;",
       },
       proxy: {
+        // Use Vite-loaded env vars (not process.env)
         '/api': {
-          target: process.env.VITE_API_URL,
+          target: env.VITE_API_BASE_URL,
           changeOrigin: true,
         },
         '/ws': {
-          target: process.env.VITE_WS_URL,
+          target: env.VITE_WS_BASE_URL,
           ws: true,
+          changeOrigin: true,
         },
-
       }
     }
   }

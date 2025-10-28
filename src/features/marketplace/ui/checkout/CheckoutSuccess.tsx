@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import { apiRequest, API_ENDPOINTS } from '@/shared/api';
@@ -7,6 +8,7 @@ import styles from './CheckoutSuccess.module.css';
 
 const CheckoutSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { syncWithServer, setPaymentProcessing } = useCart();
   const [sessionStatus, setSessionStatus] = useState<any>(null);
@@ -18,7 +20,7 @@ const CheckoutSuccess: React.FC = () => {
 
   useEffect(() => {
     if (!sessionId) {
-      setError('No session ID found');
+      setError(t('checkout.success.no_session'));
       setLoading(false);
       return;
     }
@@ -61,7 +63,7 @@ const CheckoutSuccess: React.FC = () => {
         }
       } catch (err) {
         console.error('Failed to fetch session status:', err);
-        setError('Failed to verify payment status');
+        setError(t('checkout.success.verify_failed'));
       } finally {
         setLoading(false);
       }
@@ -78,8 +80,8 @@ const CheckoutSuccess: React.FC = () => {
             <div className={`${styles.stateIcon} ${styles.pending}`} aria-hidden>
               ⏳
             </div>
-            <h1 className={styles.title}>Verifying your payment</h1>
-            <p className={styles.subtitle}>We&apos;re confirming details with Stripe. This only takes a moment.</p>
+            <h1 className={styles.title}>{t('checkout.success.verifying_title')}</h1>
+            <p className={styles.subtitle}>{t('checkout.success.verifying_subtitle')}</p>
           </div>
         </div>
       </Layout>
@@ -94,14 +96,14 @@ const CheckoutSuccess: React.FC = () => {
             <div className={`${styles.stateIcon} ${styles.pending}`} aria-hidden>
               ⚠️
             </div>
-            <h1 className={styles.title}>We couldn&apos;t verify the payment</h1>
-            <p className={styles.subtitle}>{error || 'Unable to confirm your session. Try again from your cart.'}</p>
+            <h1 className={styles.title}>{t('checkout.success.verify_error_title')}</h1>
+            <p className={styles.subtitle}>{error || t('checkout.success.verify_error_subtitle')}</p>
             <div className={styles.actions}>
               <button type="button" className={styles.primary} onClick={() => navigate('/cart')}>
-                Return to cart
+                {t('checkout.success.return_to_cart')}
               </button>
               <button type="button" className={styles.secondary} onClick={() => window.location.reload()}>
-                Retry verification
+                {t('checkout.success.retry_verification')}
               </button>
             </div>
           </div>
@@ -124,59 +126,55 @@ const CheckoutSuccess: React.FC = () => {
             {isPaymentSuccessful ? '🎉' : '⏳'}
           </div>
           <h1 className={styles.title}>
-            {isPaymentSuccessful ? 'Payment confirmed!' : 'Payment is still processing'}
+            {isPaymentSuccessful ? t('checkout.success.confirmed_title') : t('checkout.success.processing_title')}
           </h1>
           <p className={styles.subtitle}>
             {isPaymentSuccessful
-              ? 'Thank you for choosing Designia. Your order details are on their way to your inbox.'
-              : 'Your payment is being finalised with Stripe. We will email you as soon as the confirmation arrives.'}
+              ? t('checkout.success.confirmed_subtitle')
+              : t('checkout.success.processing_subtitle')}
           </p>
 
           <div className={styles.metaCard}>
             <ul className={styles.metaList}>
               <li className={styles.metaItem}>
-                <span>Session ID</span>
+                <span>{t('checkout.success.session_id')}</span>
                 <strong>{sessionId}</strong>
               </li>
               <li className={styles.metaItem}>
-                <span>Amount</span>
+                <span>{t('checkout.success.amount')}</span>
                 <strong>${formattedAmount}</strong>
               </li>
               {sessionStatus.customer_email && (
                 <li className={styles.metaItem}>
-                  <span>Receipt sent to</span>
+                  <span>{t('checkout.success.receipt_sent_to')}</span>
                   <strong>{sessionStatus.customer_email}</strong>
                 </li>
               )}
               <li className={styles.metaItem}>
-                <span>Stripe status</span>
+                <span>{t('checkout.success.stripe_status')}</span>
                 <strong>{sessionStatus.payment_status}</strong>
               </li>
             </ul>
           </div>
 
           {cartRefreshed && (
-            <p className={styles.note}>
-              🛒 Your cart has been refreshed and is ready for your next styling session.
-            </p>
+            <p className={styles.note}>🛒 {t('checkout.success.cart_refreshed')}</p>
           )}
 
           {!isPaymentSuccessful && (
-            <p className={`${styles.note} ${styles.pendingNote}`}>
-              We&apos;re still waiting for confirmation. Feel free to stay on this page or refresh in a few seconds.
-            </p>
+            <p className={`${styles.note} ${styles.pendingNote}`}>{t('checkout.success.waiting_confirmation')}</p>
           )}
 
           <div className={styles.actions}>
             <button type="button" className={styles.primary} onClick={() => navigate('/marketplace')}>
-              Continue shopping
+              {t('orders.success.continue_shopping')}
             </button>
             <button type="button" className={styles.secondary} onClick={() => navigate('/orders')}>
-              View my orders
+              {t('orders.success.view_my_orders')}
             </button>
             {!isPaymentSuccessful && (
               <button type="button" className={styles.secondary} onClick={() => window.location.reload()}>
-                Refresh status
+                {t('checkout.success.refresh_status')}
               </button>
             )}
           </div>

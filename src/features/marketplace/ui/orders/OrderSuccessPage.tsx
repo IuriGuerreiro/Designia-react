@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import { orderService } from '@/features/marketplace/api';
@@ -7,6 +8,7 @@ import './Orders.css';
 
 const OrderSuccessPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
+  const { t } = useTranslation();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +66,7 @@ const OrderSuccessPage: React.FC = () => {
       <Layout>
         <div className="order-success-loading">
           <div className="loading-spinner"></div>
-          <p className="loading-text">Loading order details...</p>
+          <p className="loading-text">{t('orders.detail.loading_details')}</p>
         </div>
       </Layout>
     );
@@ -75,9 +77,9 @@ const OrderSuccessPage: React.FC = () => {
       <Layout>
         <div className="order-success-error">
           <div className="error-icon">⚠️</div>
-          <h2 className="error-title">Order Not Found</h2>
-          <p className="error-description">{error || 'The order could not be found.'}</p>
-          <Link to="/my-orders" className="btn-primary">View My Orders</Link>
+          <h2 className="error-title">{t('orders.detail.not_found_title')}</h2>
+          <p className="error-description">{error || t('orders.detail.not_found_message')}</p>
+          <Link to="/my-orders" className="btn-primary">{t('orders.success.view_my_orders')}</Link>
         </div>
       </Layout>
     );
@@ -89,8 +91,8 @@ const OrderSuccessPage: React.FC = () => {
         {/* Success Header */}
         <div className="success-header">
           <div className="success-icon">✅</div>
-          <h1 className="success-title">Order Placed Successfully!</h1>
-          <p className="success-subtitle">Thank you for your purchase. Your order #{order.id} has been confirmed.</p>
+          <h1 className="success-title">{t('orders.success.title')}</h1>
+          <p className="success-subtitle">{t('orders.success.subtitle', { id: order.id })}</p>
         </div>
 
         {/* Order Content Layout */}
@@ -98,7 +100,7 @@ const OrderSuccessPage: React.FC = () => {
           {/* Order Items Column */}
           <div className="order-items-column">
             <div className="section-header">
-              <h3 className="section-title">Items Ordered</h3>
+              <h3 className="section-title">{t('orders.success.items_ordered')}</h3>
               <span className="item-count-badge">{order.items.length} item{order.items.length > 1 ? 's' : ''}</span>
             </div>
             <div className="order-items-list">
@@ -130,7 +132,7 @@ const OrderSuccessPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="item-total">
-                      <span className="total-label">Total</span>
+                      <span className="total-label">{t('orders.total')}</span>
                       <span className="total-amount">${item.total_price}</span>
                     </div>
                   </div>
@@ -143,19 +145,19 @@ const OrderSuccessPage: React.FC = () => {
           <div className="order-summary-column">
             {/* Order Summary Card */}
             <div className="summary-card">
-              <h3 className="summary-title">Order Summary</h3>
+              <h3 className="summary-title">{t('orders.detail.order_summary')}</h3>
               <div className="summary-breakdown">
                 <div className="summary-row">
-                  <span className="summary-label">Subtotal:</span>
+                  <span className="summary-label">{t('checkout.subtotal_label')}:</span>
                   <span className="summary-value">${order.subtotal}</span>
                 </div>
                 <div className="summary-row">
-                  <span className="summary-label">Shipping:</span>
+                  <span className="summary-label">{t('checkout.shipping_label')}:</span>
                   <span className="summary-value">${order.shipping_cost}</span>
                 </div>
                 <div className="summary-divider"></div>
                 <div className="summary-row final-total">
-                  <span className="summary-label">Total:</span>
+                  <span className="summary-label">{t('checkout.total_label')}:</span>
                   <span className="summary-value">${order.total_amount}</span>
                 </div>
               </div>
@@ -163,7 +165,7 @@ const OrderSuccessPage: React.FC = () => {
 
             {/* Shipping Address Card */}
             <div className="shipping-card">
-              <h3 className="shipping-title">Shipping To</h3>
+              <h3 className="shipping-title">{t('orders.success.shipping_to')}</h3>
               <div className="shipping-address">
                 <p className="recipient-name">{order.shipping_address.name}</p>
                 <p className="street-address">{order.shipping_address.street}</p>
@@ -178,10 +180,10 @@ const OrderSuccessPage: React.FC = () => {
         {/* Action Buttons */}
         <div className="action-buttons">
           <Link to="/products" className="btn-primary">
-            🛍️ Continue Shopping
+            🛍️ {t('orders.success.continue_shopping')}
           </Link>
           <Link to="/my-orders" className="btn-secondary">
-            📋 View All Orders
+            📋 {t('orders.success.view_all_orders')}
           </Link>
         </div>
       </div>

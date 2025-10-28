@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   paymentService,
   type PayoutOrder,
@@ -14,6 +15,7 @@ interface PayoutDetailModalProps {
 }
 
 const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<PayoutOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +37,7 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
       
     } catch (err: any) {
       console.error('Error loading payout orders:', err);
-      setError(err.message || 'Failed to load payout orders');
+      setError(err.message || t('stripe.payouts.errors.load_orders_failed'));
     } finally {
       setLoading(false);
     }
@@ -95,7 +97,7 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
     <div className="modal-overlay" onClick={onClose}>
       <div className="payout-detail-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Payout Details</h2>
+          <h2>{t('stripe.payouts.details_title')}</h2>
           <button className="close-button" onClick={onClose}>
             ×
           </button>
@@ -106,21 +108,21 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
           <div className="payout-summary">
             <div className="summary-grid">
               <div className="summary-item">
-                <label>Payout ID</label>
+                <label>{t('stripe.payouts.payout_id')}</label>
                 <code>{payout.stripe_payout_id}</code>
               </div>
               <div className="summary-item">
-                <label>Amount</label>
+                <label>{t('orders.total')}</label>
                 <strong className="payout-amount">{payout.formatted_amount}</strong>
               </div>
               <div className="summary-item">
-                <label>Status</label>
+                <label>{t('metrics.status')}</label>
                 <span className={`status-badge status-${getStatusColor(payout.status)}`}>
                   {payout.status.replace('_', ' ').toUpperCase()}
                 </span>
               </div>
               <div className="summary-item">
-                <label>Type</label>
+                <label>{t('stripe.payouts.type')}</label>
                 <span className="payout-type">
                   {payout.payout_type.charAt(0).toUpperCase() + payout.payout_type.slice(1)}
                 </span>
@@ -135,13 +137,13 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
               </div>
               {payout.arrival_date && (
                 <div className="summary-item">
-                  <label>Expected Arrival</label>
+                  <label>{t('stripe.payouts.expected_arrival')}</label>
                   <span>{formatDate(payout.arrival_date)}</span>
                 </div>
               )}
               {payout.bank_name && (
                 <div className="summary-item">
-                  <label>Bank Account</label>
+                  <label>{t('stripe.payouts.bank_account')}</label>
                   <div>
                     <div>{payout.bank_name}</div>
                     {payout.bank_account_last4 && (
@@ -155,23 +157,23 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
 
           {/* Orders Section */}
           <div className="orders-section">
-            <h3>Orders Included in This Payout</h3>
+            <h3>{t('stripe.payouts.orders_included')}</h3>
             
             {loading ? (
               <div className="loading-container">
                 <div className="loading-spinner"></div>
-                <p>Loading order details...</p>
+                <p>{t('stripe.payouts.loading_orders') || 'Loading order details...'}</p>
               </div>
             ) : error ? (
               <div className="error-container">
-                <p>Error loading orders: {error}</p>
+                <p>{t('orders.errors.unable_to_load') || 'Error loading orders'}: {error}</p>
                 <button onClick={loadPayoutOrders} className="retry-button">
-                  Try Again
+                  {t('orders.actions.try_again')}
                 </button>
               </div>
             ) : orders.length === 0 ? (
               <div className="no-orders">
-                <p>No order details available for this payout.</p>
+                <p>{t('stripe.payouts.no_order_details') || 'No order details available for this payout.'}</p>
               </div>
             ) : (
               <div className="orders-list">
@@ -183,11 +185,11 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
                     >
                       <div className="order-info">
                         <div className="order-id">
-                          <strong>Order #{order.order_id.slice(-8)}</strong>
+                          <strong>{t('orders.order_id')} #{order.order_id.slice(-8)}</strong>
                           <span className="order-date">{formatDate(order.order_date)}</span>
                         </div>
                         <div className="order-customer">
-                          <span>Customer: {order.buyer_username}</span>
+                          <span>{t('metrics.customer') || 'Customer'}: {order.buyer_username}</span>
                         </div>
                       </div>
                       <div className="order-amounts">
@@ -216,27 +218,27 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
                       <div className="order-details">
                         {/* Order breakdown */}
                         {order.subtotal && (
-                          <div className="order-breakdown">
-                            <h4>Order Breakdown</h4>
-                            <div className="breakdown-grid">
+                        <div className="order-breakdown">
+                          <h4>{t('stripe.payouts.order_breakdown')}</h4>
+                          <div className="breakdown-grid">
+                            <div className="breakdown-item">
+                              <span>{t('checkout.subtotal_label')}:</span>
+                              <span>{formatCurrency(order.subtotal)}</span>
+                            </div>
+                            {order.shipping_cost && order.shipping_cost !== '0.00' && (
                               <div className="breakdown-item">
-                                <span>Subtotal:</span>
-                                <span>{formatCurrency(order.subtotal)}</span>
+                                <span>{t('checkout.shipping_label')}:</span>
+                                <span>{formatCurrency(order.shipping_cost)}</span>
                               </div>
-                              {order.shipping_cost && order.shipping_cost !== '0.00' && (
-                                <div className="breakdown-item">
-                                  <span>Shipping:</span>
-                                  <span>{formatCurrency(order.shipping_cost)}</span>
-                                </div>
-                              )}
-                              {order.tax_amount && order.tax_amount !== '0.00' && (
-                                <div className="breakdown-item">
-                                  <span>Tax:</span>
+                            )}
+                            {order.tax_amount && order.tax_amount !== '0.00' && (
+                              <div className="breakdown-item">
+                                  <span>{t('checkout.tax_label')}:</span>
                                   <span>{formatCurrency(order.tax_amount)}</span>
                                 </div>
                               )}
                               <div className="breakdown-item total">
-                                <span><strong>Total:</strong></span>
+                                <span><strong>{t('checkout.total_label')}:</strong></span>
                                 <span><strong>{formatCurrency(order.total_amount)}</strong></span>
                               </div>
                             </div>
@@ -246,17 +248,17 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
                         {/* Items list */}
                         {order.items && order.items.length > 0 ? (
                           <div className="order-items">
-                            <h4>Items</h4>
+                            <h4>{t('orders.detail.items')}</h4>
                             <div className="items-list">
                               {order.items.map((item, index) => (
                                 <div key={index} className="item-row">
                                   <div className="item-info">
                                     <span className="item-name">{item.product_name}</span>
-                                    <span className="item-quantity">Qty: {item.quantity}</span>
+                                    <span className="item-quantity">{t('orders.detail.quantity_label')}: {item.quantity}</span>
                                   </div>
                                   <div className="item-pricing">
-                                    <span className="item-price">{formatCurrency(item.price)} each</span>
-                                    <span className="item-total">{formatCurrency(item.total)} total</span>
+                                    <span className="item-price">{formatCurrency(item.price)} {t('stripe.payouts.each')}</span>
+                                    <span className="item-total">{formatCurrency(item.total)} {t('stripe.payouts.total')}</span>
                                   </div>
                                 </div>
                               ))}
@@ -264,27 +266,27 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
                           </div>
                         ) : order.item_names ? (
                           <div className="order-items">
-                            <h4>Items</h4>
+                            <h4>{t('orders.detail.items')}</h4>
                             <p className="item-names">{order.item_names}</p>
                           </div>
                         ) : null}
 
                         {/* Transfer details */}
                         <div className="transfer-details">
-                          <h4>Transfer Details</h4>
+                          <h4>{t('stripe.payouts.transfer_details')}</h4>
                           <div className="transfer-grid">
                             <div className="transfer-item">
-                              <span>Transfer Date:</span>
+                              <span>{t('stripe.payouts.transfer_date')}:</span>
                               <span>{formatDate(order.transfer_date)}</span>
                             </div>
                             <div className="transfer-item">
-                              <span>Payment Status:</span>
+                              <span>{t('stripe.payouts.payment_status')}:</span>
                               <span className={`status-badge status-${getStatusColor(order.payment_status)}`}>
                                 {order.payment_status.toUpperCase()}
                               </span>
                             </div>
                             <div className="transfer-item highlight">
-                              <span><strong>Amount Transferred:</strong></span>
+                              <span><strong>{t('stripe.payouts.amount_transferred')}:</strong></span>
                               <span><strong>{formatCurrency(order.transfer_amount)}</strong></span>
                             </div>
                           </div>
@@ -300,7 +302,7 @@ const PayoutDetailModal: React.FC<PayoutDetailModalProps> = ({ payout, isOpen, o
 
         <div className="modal-footer">
           <button onClick={onClose} className="close-modal-button">
-            Close
+            {t('orders.actions.close') || 'Close'}
           </button>
         </div>
       </div>
