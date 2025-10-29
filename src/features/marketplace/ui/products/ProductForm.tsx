@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { categoryService, productService } from '@/features/marketplace/api';
 import { type Category } from '@/features/marketplace/model';
 import { processImagesForUpload, type ImageInfo } from '@/utils/imageUtils';
-import './ProductForm.css';
+import styles from './ProductForm.module.css';
 
 const ProductForm: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -460,9 +460,9 @@ const ProductForm: React.FC = () => {
   if (loading && isEditing) {
     return (
       <Layout>
-        <div className="product-form-page">
-          <div className="product-loading-container">
-            <div className="product-loading-spinner"></div>
+<div className={styles['product-form-page']}>
+<div className={styles['product-loading-container']}>
+            <div className={styles['product-loading-spinner']}></div>
             <p>{t('products.form.loading_product')}</p>
           </div>
         </div>
@@ -474,9 +474,9 @@ const ProductForm: React.FC = () => {
     <Layout>
       <div className="product-form-page">
         {/* Header Section - Like MyOrdersPage.tsx */}
-        <div className="product-form-header">
-          <h1 className="product-form-title">{isEditing ? t('products.edit_product_title') : t('products.create_product_title')}</h1>
-          <p className="product-form-subtitle">
+        <div className={styles['product-form-header']}>
+          <h1 className={styles['product-form-title']}>{isEditing ? t('products.edit_product_title') : t('products.create_product_title')}</h1>
+          <p className={styles['product-form-subtitle']}>
             {isEditing 
               ? t('products.form.edit_product_description')
               : t('products.form.create_product_description')
@@ -486,16 +486,16 @@ const ProductForm: React.FC = () => {
 
         {/* Error Banner */}
         {error && (
-          <div className="error-banner">
-            <div className="error-content">
-              <div className="error-icon">
+<div className={styles['error-banner']}>
+            <div className={styles['error-content']}>
+              <div className={styles['error-icon']}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="10"/>
                   <line x1="15" y1="9" x2="9" y2="15"/>
                   <line x1="9" y1="9" x2="15" y2="18"/>
                 </svg>
               </div>
-              <div className="error-text">
+              <div className={styles['error-text']}>
                 <h4>Error</h4>
                 <p>{error}</p>
               </div>
@@ -504,25 +504,25 @@ const ProductForm: React.FC = () => {
         )}
 
         {/* Main Form */}
-        <div className="product-form-container">
-          <form onSubmit={handleSubmit} className="product-form-form">
+<div className={styles['product-form-container']}>
+          <form onSubmit={handleSubmit} className={styles['product-form-form']}>
             {/* Images Section */}
-            <div className="product-form-section">
-              <div className="product-section-header">
-                <div className="product-section-icon">
+            <div className={styles['product-form-section']}>
+              <div className={styles['product-section-header']}>
+                <div className={styles['product-section-icon']}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                     <circle cx="8.5" cy="8.5" r="1.5"/>
                     <polyline points="21,15 16,10 5,21"/>
                   </svg>
                 </div>
-                <div className="product-section-content">
-                  <h3 className="product-section-title">{t('products.form.images_label')}</h3>
-                  <p className="product-section-description">{t('products.form.images_hint')}</p>
+<div className={styles['product-section-content']}>
+                  <h3 className={styles['product-section-title']}>{t('products.form.images_label')}</h3>
+                  <p className={styles['product-section-description']}>{t('products.form.images_hint')}</p>
                 </div>
               </div>
               
-              <div className="product-form-group">
+<div className={styles['product-form-group']}>
                 <ImageUpload 
                   files={imageFiles} 
                   setFiles={setImageFiles}
@@ -531,18 +531,18 @@ const ProductForm: React.FC = () => {
                   allowedExtensions={['jpg', 'jpeg', 'png', 'webp']}
                 />
                 {isProcessingImages && (
-                  <div className="product-processing-indicator">
-                    <div className="product-processing-spinner"></div>
+                  <div className={styles['product-processing-indicator']}>
+                    <div className={styles['product-processing-spinner']}></div>
                     <span>{t('products.form.processing_images')}</span>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Basic Information */}
-            <div className="product-form-section">
-              <div className="product-section-header">
-                <div className="product-section-icon">
+{/* Basic Information */}
+            <div className={styles['product-form-section']}>
+              <div className={styles['product-section-header']}>
+                <div className={styles['product-section-icon']}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M16 4H18C19.1046 4 20 4.89543 20 6V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6C4 4.89543 4.89543 4 6 4H8"/>
                     <path d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55228 8.44772 6 9 6H15C15.5523 6 16 5.55228 16 5V3C16 2.44772 15.5523 2 15 2Z"/>

@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import { orderService } from '@/features/marketplace/api';
 import { type Order } from '@/features/marketplace/model';
-import './Orders.css';
+import styles from './Orders.module.css';
 
 const OrderSuccessPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -64,9 +64,9 @@ const OrderSuccessPage: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="order-success-loading">
-          <div className="loading-spinner"></div>
-          <p className="loading-text">{t('orders.detail.loading_details')}</p>
+        <div className={styles['order-success-loading']}>
+          <div className={styles['loading-spinner']}></div>
+          <p className={styles['loading-text']}>{t('orders.detail.loading_details')}</p>
         </div>
       </Layout>
     );
@@ -75,11 +75,11 @@ const OrderSuccessPage: React.FC = () => {
   if (error || !order) {
     return (
       <Layout>
-        <div className="order-success-error">
-          <div className="error-icon">⚠️</div>
-          <h2 className="error-title">{t('orders.detail.not_found_title')}</h2>
-          <p className="error-description">{error || t('orders.detail.not_found_message')}</p>
-          <Link to="/my-orders" className="btn-primary">{t('orders.success.view_my_orders')}</Link>
+        <div className={styles['order-success-error']}>
+          <div className={styles['error-icon']}>⚠️</div>
+          <h2 className={styles['error-title']}>{t('orders.detail.not_found_title')}</h2>
+          <p className={styles['error-description']}>{error || t('orders.detail.not_found_message')}</p>
+          <Link to="/my-orders" className={styles['btn-primary']}>{t('orders.success.view_my_orders')}</Link>
         </div>
       </Layout>
     );
@@ -87,33 +87,33 @@ const OrderSuccessPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="order-success-page">
+      <div className={styles['order-success-page']}>
         {/* Success Header */}
-        <div className="success-header">
-          <div className="success-icon">✅</div>
-          <h1 className="success-title">{t('orders.success.title')}</h1>
-          <p className="success-subtitle">{t('orders.success.subtitle', { id: order.id })}</p>
+        <div className={styles['success-header']}>
+          <div className={styles['success-icon']}>✅</div>
+          <h1 className={styles['success-title']}>{t('orders.success.title')}</h1>
+          <p className={styles['success-subtitle']}>{t('orders.success.subtitle', { id: order.id })}</p>
         </div>
 
         {/* Order Content Layout */}
-        <div className="order-success-layout">
+        <div className={styles['order-success-layout']}>
           {/* Order Items Column */}
-          <div className="order-items-column">
-            <div className="section-header">
-              <h3 className="section-title">{t('orders.success.items_ordered')}</h3>
-              <span className="item-count-badge">{order.items.length} item{order.items.length > 1 ? 's' : ''}</span>
+          <div className={styles['order-items-column']}>
+            <div className={styles['section-header']}>
+              <h3 className={styles['section-title']}>{t('orders.success.items_ordered')}</h3>
+              <span className={styles['item-count-badge']}>{order.items.length} item{order.items.length > 1 ? 's' : ''}</span>
             </div>
-            <div className="order-items-list">
+            <div className={styles['order-items-list']}>
               {order.items.map((item) => {
                 const imageUrl = getBestImageUrl(item);
                 
                 return (
-                  <div key={item.id} className="order-item-card">
-                    <div className="item-image-container">
+                  <div key={item.id} className={styles['order-item-card']}>
+                    <div className={styles['item-image-container']}>
                       <img 
                         src={imageUrl}
                         alt={item.product_name}
-                        className="item-image"
+                        className={styles['item-image']}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           console.warn(`Image failed to load for ${item.product_name}, falling back to placeholder`);
@@ -122,18 +122,18 @@ const OrderSuccessPage: React.FC = () => {
                           }
                         }}
                       />
-                      <div className="quantity-badge">{item.quantity}</div>
+                      <div className={styles['quantity-badge']}>{item.quantity}</div>
                     </div>
-                    <div className="item-details">
-                      <h4 className="item-name">{item.product_name}</h4>
-                      <div className="item-meta">
-                        <span className="item-quantity">Qty: {item.quantity}</span>
-                        <span className="item-unit-price">${item.unit_price}</span>
+                    <div className={styles['item-details']}>
+                      <h4 className={styles['item-name']}>{item.product_name}</h4>
+                      <div className={styles['item-meta']}>
+                        <span className={styles['item-quantity']}>Qty: {item.quantity}</span>
+                        <span className={styles['item-unit-price']}>${item.unit_price}</span>
                       </div>
                     </div>
-                    <div className="item-total">
-                      <span className="total-label">{t('orders.total')}</span>
-                      <span className="total-amount">${item.total_price}</span>
+                    <div className={styles['item-total']}>
+                      <span className={styles['total-label']}>{t('orders.total')}</span>
+                      <span className={styles['total-amount']}>${item.total_price}</span>
                     </div>
                   </div>
                 );
@@ -142,34 +142,34 @@ const OrderSuccessPage: React.FC = () => {
           </div>
 
           {/* Order Summary Column */}
-          <div className="order-summary-column">
+          <div className={styles['order-summary-column']}>
             {/* Order Summary Card */}
-            <div className="summary-card">
-              <h3 className="summary-title">{t('orders.detail.order_summary')}</h3>
-              <div className="summary-breakdown">
-                <div className="summary-row">
-                  <span className="summary-label">{t('checkout.subtotal_label')}:</span>
-                  <span className="summary-value">${order.subtotal}</span>
+            <div className={styles['summary-card']}>
+              <h3 className={styles['summary-title']}>{t('orders.detail.order_summary')}</h3>
+              <div className={styles['summary-breakdown']}>
+                <div className={styles['summary-row']}>
+                  <span className={styles['summary-label']}>{t('checkout.subtotal_label')}:</span>
+                  <span className={styles['summary-value']}>${order.subtotal}</span>
                 </div>
-                <div className="summary-row">
-                  <span className="summary-label">{t('checkout.shipping_label')}:</span>
-                  <span className="summary-value">${order.shipping_cost}</span>
+                <div className={styles['summary-row']}>
+                  <span className={styles['summary-label']}>{t('checkout.shipping_label')}:</span>
+                  <span className={styles['summary-value']}>${order.shipping_cost}</span>
                 </div>
-                <div className="summary-divider"></div>
-                <div className="summary-row final-total">
-                  <span className="summary-label">{t('checkout.total_label')}:</span>
-                  <span className="summary-value">${order.total_amount}</span>
+                <div className={styles['summary-divider']}></div>
+                <div className={`${styles['summary-row']} ${styles['final-total']}`}>
+                  <span className={styles['summary-label']}>{t('checkout.total_label')}:</span>
+                  <span className={styles['summary-value']}>${order.total_amount}</span>
                 </div>
               </div>
             </div>
 
             {/* Shipping Address Card */}
-            <div className="shipping-card">
-              <h3 className="shipping-title">{t('orders.success.shipping_to')}</h3>
-              <div className="shipping-address">
-                <p className="recipient-name">{order.shipping_address.name}</p>
-                <p className="street-address">{order.shipping_address.street}</p>
-                <p className="city-state-zip">
+            <div className={styles['shipping-card']}>
+              <h3 className={styles['shipping-title']}>{t('orders.success.shipping_to')}</h3>
+              <div className={styles['shipping-address']}>
+                <p className={styles['recipient-name']}>{order.shipping_address.name}</p>
+                <p className={styles['street-address']}>{order.shipping_address.street}</p>
+                <p className={styles['city-state-zip']}>
                   {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}
                 </p>
               </div>

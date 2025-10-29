@@ -4,7 +4,7 @@ import { Layout } from '@/app/layout';
 import ProductCard from './ProductCard';
 import { useFavorites } from '@/features/marketplace/hooks/useFavorites';
 import { useCart } from '@/shared/state/CartContext';
-import './ProductList.css';
+import styles from './ProductList.module.css';
 
 const FavoritesPage: React.FC = () => {
   const { t } = useTranslation();
@@ -74,8 +74,8 @@ const FavoritesPage: React.FC = () => {
   if (loading) {
     return (
       <Layout maxWidth="full">
-        <div className="products-page">
-          <div className="error-message">
+        <div className={styles['products-page']}>
+          <div className={styles['error-message']}>
             <p>{t('favorites.loading_favorites')}</p>
           </div>
         </div>
@@ -85,16 +85,16 @@ const FavoritesPage: React.FC = () => {
 
   return (
     <Layout maxWidth="full">
-      <div className="products-page favorites-wide">
-        <section className="products-main">
-          <div className="products-controls">
-            <div className="results-info">
+      <div className={`${styles['products-page']} ${styles['favorites-wide']}`}>
+        <section className={styles['products-main']}>
+          <div className={styles['products-controls']}>
+            <div className={styles['results-info']}>
               <span>{t('favorites.my_favorites')}</span>
-              <span className="results-filters">{t('favorites.total_count', { count: favorites.length })}</span>
+              <span className={styles['results-filters']}>{t('favorites.total_count', { count: favorites.length })}</span>
             </div>
             <button 
               onClick={refreshFavorites}
-              className="filter-toggle-btn"
+              className={styles['filter-toggle-btn']}
               disabled={loading}
               type="button"
             >
@@ -104,7 +104,7 @@ const FavoritesPage: React.FC = () => {
         </section>
 
         {error && (
-          <div className="error-message">
+          <div className={styles['error-message']}>
             <p>{error}</p>
             {error.includes('Authentication') && (
               <button 
@@ -118,7 +118,7 @@ const FavoritesPage: React.FC = () => {
         )}
 
         {favorites.length > 0 ? (
-          <div className="products-flex">
+          <div className={styles['products-flex']}>
             {favorites.map(({ product }) => (
               <ProductCard 
                 key={product.id}
@@ -129,15 +129,15 @@ const FavoritesPage: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="no-results-message">
-            <div className="no-results-icon">
+          <div className={styles['no-results-message']}>
+            <div className={styles['no-results-icon']}>
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <h3>{t('favorites.no_favorites_title')}</h3>
             <p>{t('favorites.no_favorites_message')}</p>
-            <a href="/products" className="retry-btn" style={{textDecoration: 'none', display: 'inline-block'}}>
+            <a href="/products" className={styles['retry-btn']} style={{textDecoration: 'none', display: 'inline-block'}}>
               {t('favorites.browse_products')}
             </a>
           </div>

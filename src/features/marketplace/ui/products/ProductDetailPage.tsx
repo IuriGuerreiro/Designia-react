@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { productService } from '@/features/marketplace/api';
 import { type Product } from '@/features/marketplace/model';
 import ViewSellerAccount from '@/features/marketplace/ui/seller/ViewSellerAccount';
-import './ProductDetailPage.css';
+import styles from './ProductDetailPage.module.css';
 
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -65,76 +65,76 @@ const ProductDetailPage: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="product-detail-page">
+        <div className={styles['product-detail-page']}>
           {/* Breadcrumb Navigation Skeleton */}
-          <nav className="breadcrumb-nav">
-            <div className="skeleton-line" style={{ width: '80px', height: '16px' }}></div>
-            <span className="breadcrumb-separator">/</span>
-            <div className="skeleton-line" style={{ width: '120px', height: '16px' }}></div>
+          <nav className={styles['breadcrumb-nav']}>
+            <div className={styles['skeleton-line']} style={{ width: '80px', height: '16px' }}></div>
+            <span className={styles['breadcrumb-separator']}>/</span>
+            <div className={styles['skeleton-line']} style={{ width: '120px', height: '16px' }}></div>
           </nav>
 
           {/* Main Product Content Skeleton */}
-          <div className="product-skeleton">
+          <div className={styles['product-skeleton']}>
             {/* Image Gallery Skeleton */}
-            <div className="skeleton-gallery">
-              <div className="skeleton-main-image"></div>
-              <div className="skeleton-thumbnails">
+            <div className={styles['skeleton-gallery']}>
+              <div className={styles['skeleton-main-image']}></div>
+              <div className={styles['skeleton-thumbnails']}>
                 {[1, 2, 3, 4, 5].map((index) => (
-                  <div key={index} className="skeleton-thumbnail"></div>
+                  <div key={index} className={styles['skeleton-thumbnail']}></div>
                 ))}
               </div>
             </div>
 
             {/* Product Information Skeleton */}
-            <div className="skeleton-product-info">
-              <div className="skeleton-title"></div>
-              <div className="skeleton-meta"></div>
-              <div className="skeleton-price"></div>
-              <div className="skeleton-description">
-                <div className="skeleton-description-line"></div>
-                <div className="skeleton-description-line"></div>
-                <div className="skeleton-description-line"></div>
+            <div className={styles['skeleton-product-info']}>
+              <div className={styles['skeleton-title']}></div>
+              <div className={styles['skeleton-meta']}></div>
+              <div className={styles['skeleton-price']}></div>
+              <div className={styles['skeleton-description']}>
+                <div className={styles['skeleton-description-line']}></div>
+                <div className={styles['skeleton-description-line']}></div>
+                <div className={styles['skeleton-description-line']}></div>
               </div>
-              <div className="skeleton-actions"></div>
+              <div className={styles['skeleton-actions']}></div>
             </div>
           </div>
 
           {/* Product Details Tabs Skeleton */}
-          <div className="skeleton-tabs">
-            <div className="skeleton-tab-navigation"></div>
-            <div className="skeleton-tab-content">
-              <div className="skeleton-detail-item"></div>
-              <div className="skeleton-detail-item"></div>
-              <div className="skeleton-detail-item"></div>
-              <div className="skeleton-detail-item"></div>
+          <div className={styles['skeleton-tabs']}>
+            <div className={styles['skeleton-tab-navigation']}></div>
+            <div className={styles['skeleton-tab-content']}>
+              <div className={styles['skeleton-detail-item']}></div>
+              <div className={styles['skeleton-detail-item']}></div>
+              <div className={styles['skeleton-detail-item']}></div>
+              <div className={styles['skeleton-detail-item']}></div>
             </div>
           </div>
 
           {/* Reviews Section Skeleton */}
-          <div className="reviews-section">
-            <div className="reviews-header">
-              <div className="skeleton-title" style={{ width: '200px', height: '32px' }}></div>
-              <div className="skeleton-meta" style={{ width: '150px', height: '20px' }}></div>
+          <div className={styles['reviews-section']}>
+            <div className={styles['reviews-header']}>
+              <div className={styles['skeleton-title']} style={{ width: '200px', height: '32px' }}></div>
+              <div className={styles['skeleton-meta']} style={{ width: '150px', height: '20px' }}></div>
             </div>
-            <div className="reviews-content">
+            <div className={styles['reviews-content']}>
               {[1, 2, 3].map((index) => (
-                <div key={index} className="review-skeleton">
-                  <div className="skeleton-header">
-                    <div className="skeleton-avatar"></div>
-                    <div className="skeleton-info">
-                      <div className="skeleton-name"></div>
-                      <div className="skeleton-meta">
-                        <div className="skeleton-stars"></div>
-                        <div className="skeleton-date"></div>
+                <div key={index} className={styles['review-skeleton']}>
+                  <div className={styles['skeleton-header']}>
+                    <div className={styles['skeleton-avatar']}></div>
+                    <div className={styles['skeleton-info']}>
+                      <div className={styles['skeleton-name']}></div>
+                      <div className={styles['skeleton-meta']}>
+                        <div className={styles['skeleton-stars']}></div>
+                        <div className={styles['skeleton-date']}></div>
                       </div>
                     </div>
                   </div>
-                  <div className="skeleton-content">
-                    <div className="skeleton-title"></div>
-                    <div className="skeleton-comment">
-                      <div className="skeleton-line"></div>
-                      <div className="skeleton-line"></div>
-                      <div className="skeleton-line short"></div>
+                  <div className={styles['skeleton-content']}>
+                    <div className={styles['skeleton-title']}></div>
+                    <div className={styles['skeleton-comment']}>
+                      <div className={styles['skeleton-line']}></div>
+                      <div className={styles['skeleton-line']}></div>
+                      <div className={`${styles['skeleton-line']} ${styles['short']}`}></div>
                     </div>
                   </div>
                 </div>
@@ -149,8 +149,8 @@ const ProductDetailPage: React.FC = () => {
   if (error || !product) {
     return (
       <Layout>
-        <div className="product-detail-error">
-          <div className="error-icon">
+        <div className={styles['product-detail-error']}>
+          <div className={styles['error-icon']}>
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -159,7 +159,7 @@ const ProductDetailPage: React.FC = () => {
           </div>
           <h3>{t('products.detail.not_found_title')}</h3>
           <p>{error || t('products.detail.not_found_message')}</p>
-          <Link to="/products" className="back-to-products-btn">
+          <Link to="/products" className={styles['back-to-products-btn']}>
             {t('products.detail.browse_products')}
           </Link>
         </div>
@@ -171,23 +171,23 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="product-detail-page">
+      <div className={styles['product-detail-page']}>
         {/* Breadcrumb Navigation */}
-        <nav className="breadcrumb-nav">
-          <Link to="/products" className="breadcrumb-link">{t('layout.products')}</Link>
-          <span className="breadcrumb-separator">/</span>
-          <span className="breadcrumb-current">{product.name}</span>
+        <nav className={styles['breadcrumb-nav']}>
+          <Link to="/products" className={styles['breadcrumb-link']}>{t('layout.products')}</Link>
+          <span className={styles['breadcrumb-separator']}>/</span>
+          <span className={styles['breadcrumb-current']}>{product.name}</span>
         </nav>
 
         {/* Main Product Content */}
-        <div className="product-main-content">
+        <div className={styles['product-main-content']}>
           {/* Image Gallery */}
-          <div className="product-gallery">
-            <div className="main-image-container">
+          <div className={styles['product-gallery']}>
+            <div className={styles['main-image-container']}>
               <img 
                 src={selectedImage} 
                 alt={product.name}
-                className="main-image"
+                className={styles['main-image']}
               />
               {!product.is_in_stock && (
                 <div className="out-of-stock-overlay">
@@ -205,18 +205,18 @@ const ProductDetailPage: React.FC = () => {
             </div>
             
             {product.images && product.images.length > 1 && (
-              <div className="thumbnail-gallery">
+              <div className={styles['thumbnail-gallery']}>
                 {product.images.map((image, index) => (
                   <button
                     key={image.id}
-                    className={`thumbnail-button ${index === selectedImageIndex ? 'active' : ''}`}
+                    className={`${styles['thumbnail-button']} ${index === selectedImageIndex ? 'active' : ''}`}
                     onClick={() => setSelectedImageIndex(index)}
                     aria-label={`View ${product.name} image ${index + 1}`}
                   >
                     <img 
                       src={image.presigned_url} 
                       alt={`${product.name} thumbnail ${index + 1}`}
-                      className="thumbnail-image"
+                      className={styles['thumbnail-image']}
                     />
                   </button>
                 ))}

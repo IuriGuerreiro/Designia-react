@@ -3,7 +3,7 @@ import { type ProductReview } from '@/features/marketplace/model';
 import { reviewService } from '@/features/marketplace/api';
 import { useAuth } from '@/features/auth/state/AuthContext';
 import { useTranslation } from 'react-i18next';
-import './ProductReviews.css';
+import styles from './ProductReviews.module.css';
 
 interface ProductReviewsProps {
   productSlug?: string;
@@ -19,7 +19,7 @@ const StarRating: React.FC<{ rating: number; size?: 'sm' | 'md' | 'lg' }> = ({ r
     stars.push(
       <svg
         key={i}
-        className={`star ${i <= rating ? 'filled' : 'empty'} star-${size}`}
+        className={`${styles['star']} ${i <= rating ? styles['filled'] : styles['empty']} ${styles[`star-${size}`]}`}
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -34,26 +34,26 @@ const StarRating: React.FC<{ rating: number; size?: 'sm' | 'md' | 'lg' }> = ({ r
       </svg>
     );
   }
-  return <div className="star-rating">{stars}</div>;
+  return <div className={styles['star-rating']}>{stars}</div>;
 };
 
 // Rating Selector Component
 const RatingSelector: React.FC<{ value: number; onChange: (rating: number) => void }> = ({ value, onChange }) => {
   const { t } = useTranslation();
   return (
-    <div className="rating-selector">
-      <label className="rating-label">{t('reviews.form.rating')}</label>
-      <div className="rating-stars">
+    <div className={styles['rating-selector']}>
+      <label className={styles['rating-label']}>{t('reviews.form.rating')}</label>
+      <div className={styles['rating-stars']}>
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
             type="button"
-            className={`rating-star-button ${star <= value ? 'selected' : ''}`}
+            className={`${styles['rating-star-button']} ${star <= value ? styles['selected'] : ''}`}
             onClick={() => onChange(star)}
             aria-label={t('reviews.form_extras.rating_value', { count: star })}
           >
             <svg
-              className={`star ${star <= value ? 'filled' : 'empty'}`}
+              className={`${styles['star']} ${star <= value ? styles['filled'] : styles['empty']}`}
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -69,7 +69,7 @@ const RatingSelector: React.FC<{ value: number; onChange: (rating: number) => vo
           </button>
         ))}
       </div>
-      <span className="rating-text">{t('reviews.form_extras.rating_value', { count: value })}</span>
+      <span className={styles['rating-text']}>{t('reviews.form_extras.rating_value', { count: value })}</span>
     </div>
   );
 };
@@ -223,7 +223,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
   const renderReviewPrompt = () => {
     if (!user) {
       return (
-        <div className="review-prompt">
+        <div className={styles['review-prompt']}>
           <p>Please <a href="/login">log in</a> to leave a review.</p>
         </div>
       );
@@ -231,7 +231,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
 
     if (!hasPurchased) {
       return (
-        <div className="review-prompt">
+        <div className={styles['review-prompt']}>
           <p>{t('reviews.prompts.purchase_required')}</p>
         </div>
       );
@@ -239,11 +239,11 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
 
     if (existingReview && !showReviewForm) {
       return (
-        <div className="review-prompt">
+        <div className={styles['review-prompt']}>
           <p>{t('reviews.prompts.already_reviewed')}</p>
           <button
             onClick={() => handleEditReview(existingReview)}
-            className="edit-review-btn"
+            className={styles['edit-review-btn']}
           >
             {t('reviews.actions.edit_review')}
           </button>
@@ -253,10 +253,10 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
 
     if (canReview && !showReviewForm) {
       return (
-        <div className="review-prompt">
+        <div className={styles['review-prompt']}>
           <button
             onClick={() => setShowReviewForm(true)}
-            className="write-review-btn"
+            className={styles['write-review-btn']}
           >
             Write a Review
           </button>
@@ -269,9 +269,9 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
 
   if (loading) {
     return (
-      <div className="product-reviews">
-        <div className="reviews-loading">
-          <div className="loading-spinner"></div>
+      <div className={styles['product-reviews']}>
+        <div className={styles['reviews-loading']}>
+          <div className={styles['loading-spinner']}></div>
           <p>{t('reviews.loading')}</p>
         </div>
       </div>
@@ -281,10 +281,10 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
   // Simple list (Amazon-like): condensed, with basic actions
   if (variant === 'simple') {
     return (
-      <div className="product-reviews simple">
+      <div className={`${styles['product-reviews']} ${styles['simple']}`}>
         {/* Simple composer trigger */}
         {user && canReview && !showReviewForm && (
-          <div className="review-prompt" style={{ textAlign: 'left' }}>
+          <div className={styles['review-prompt']} style={{ textAlign: 'left' }}>
             <button
               type="button"
               className="write-review-btn"
@@ -297,41 +297,41 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
 
         {/* Simple inline form */}
         {showReviewForm && (
-          <div className="review-form-container">
-            <div className="form-header">
-              <h4 className="form-title">{t('reviews.form_extras.share_title')}</h4>
-              <p className="form-subtitle">{t('reviews.form_extras.share_subtitle')}</p>
+          <div className={styles['review-form-container']}>
+            <div className={styles['form-header']}>
+              <h4 className={styles['form-title']}>{t('reviews.form_extras.share_title')}</h4>
+              <p className={styles['form-subtitle']}>{t('reviews.form_extras.share_subtitle')}</p>
             </div>
-            <form className="review-form" onSubmit={handleSubmit}>
+            <form className={styles['review-form']} onSubmit={handleSubmit}>
               <RatingSelector value={rating} onChange={setRating} />
-              <div className="form-group">
-                <label htmlFor="review-title" className="form-label">{t('reviews.form.title')}</label>
+              <div className={styles['form-group']}>
+                <label htmlFor="review-title" className={styles['form-label']}>{t('reviews.form.title')}</label>
                 <input
                   id="review-title"
                   type="text"
-                  className="form-input"
+                  className={styles['form-input']}
                   placeholder={t('reviews.form_extras.title_placeholder')}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="review-comment" className="form-label">{t('reviews.form.comment')}</label>
+              <div className={styles['form-group']}>
+                <label htmlFor="review-comment" className={styles['form-label']}>{t('reviews.form.comment')}</label>
                 <textarea
                   id="review-comment"
                   rows={4}
-                  className="form-textarea"
+                  className={styles['form-textarea']}
                   placeholder={t('reviews.form_extras.comment_placeholder')}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   required
                 />
               </div>
-              <div className="form-actions">
+              <div className={styles['form-actions']}>
                 <button
                   type="button"
-                  className="cancel-btn"
+                  className={styles['cancel-btn']}
                   onClick={() => {
                     setShowReviewForm(false);
                     setEditingReview(null);
@@ -345,7 +345,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                 </button>
                 <button 
                   type="submit" 
-                  className={`submit-button ${isSubmitting ? 'loading' : ''}`}
+                  className={`${styles['submit-button']} ${isSubmitting ? styles['loading'] : ''}`}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? t('reviews.actions.submitting') : t('reviews.actions.submit_review')}
