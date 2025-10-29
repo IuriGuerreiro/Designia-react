@@ -7,8 +7,8 @@ import { productService } from '@/features/marketplace/api';
 import { useCart } from '@/shared/state/CartContext';
 import type { ProductListItem } from '@/features/marketplace/model';
 import { userService } from '@/features/users/api';
-import './SellerProfilePage.css';
-import '@/features/marketplace/ui/products/ProductList.css';
+import styles from './SellerProfilePage.module.css';
+import '@/features/marketplace/ui/products/ProductList.module.css';
 
 interface SellerProfile {
   id: number;
@@ -111,18 +111,18 @@ const SellerProfilePage: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="seller-profile-page">
-          <div className="seller-profile-skeleton">
-            <div className="skeleton-header">
-              <div className="skeleton-avatar"></div>
-              <div className="skeleton-info">
-                <div className="skeleton-name"></div>
-                <div className="skeleton-bio"></div>
+        <div className={styles['seller-profile-page']}>
+          <div className={styles['seller-profile-skeleton']}>
+            <div className={styles['skeleton-header']}>
+              <div className={styles['skeleton-avatar']}></div>
+              <div className={styles['skeleton-info']}>
+                <div className={styles['skeleton-name']}></div>
+                <div className={styles['skeleton-bio']}></div>
               </div>
             </div>
-            <div className="skeleton-content">
-              <div className="skeleton-section"></div>
-              <div className="skeleton-section"></div>
+            <div className={styles['skeleton-content']}>
+              <div className={styles['skeleton-section']}></div>
+              <div className={styles['skeleton-section']}></div>
             </div>
           </div>
         </div>
@@ -133,11 +133,11 @@ const SellerProfilePage: React.FC = () => {
   if (error || !seller) {
     return (
       <Layout>
-                 <div className="seller-profile-error">
-           <div className="error-icon">⚠️</div>
+                 <div className={styles['seller-profile-error']}>
+           <div className={styles['error-icon']}>⚠️</div>
            <h3>User Not Found</h3>
            <p>{error || 'The user profile you\'re looking for doesn\'t exist.'}</p>
-           <Link to="/products" className="back-to-products-btn">
+           <Link to="/products" className={styles['back-to-products-btn']}>
              Browse Products
            </Link>
          </div>
@@ -147,12 +147,12 @@ const SellerProfilePage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="seller-profile-page">
+      <div className={styles['seller-profile-page']}>
         {/* Breadcrumb Navigation */}
-        <nav className="breadcrumb-nav">
-          <Link to="/products" className="breadcrumb-link">Products</Link>
-          <span className="breadcrumb-separator">/</span>
-          <Link to={`/seller/${seller.id}`} className="breadcrumb-current">
+        <nav className={styles['breadcrumb-nav']}>
+          <Link to="/products" className={styles['breadcrumb-link']}>Products</Link>
+          <span className={styles['breadcrumb-separator']}>/</span>
+          <Link to={`/seller/${seller.id}`} className={styles['breadcrumb-current']}>
             {seller.first_name && seller.last_name 
               ? `${seller.first_name} ${seller.last_name}`
               : seller.username
@@ -161,36 +161,36 @@ const SellerProfilePage: React.FC = () => {
         </nav>
 
         {/* Seller Profile - compact header */}
-        <div className="seller-profile-section">
-          <div className="seller-header-card">
-            <div className="seller-header-inner">
-              <div className="seller-avatar-block">
+        <div className={styles['seller-profile-section']}>
+          <div className={styles['seller-header-card']}>
+            <div className={styles['seller-header-inner']}>
+              <div className={styles['seller-avatar-block']}>
                 {seller.avatar ? (
-                  <img className="seller-avatar-img" src={seller.avatar} alt={`${seller.first_name || seller.username} avatar`} />
+                  <img className={styles['seller-avatar-img']} src={seller.avatar} alt={`${seller.first_name || seller.username} avatar`} />
                 ) : (
-                  <div className="seller-avatar-fallback">{(seller.first_name?.[0] || seller.username[0]).toUpperCase()}</div>
+                  <div className={styles['seller-avatar-fallback']}>{(seller.first_name?.[0] || seller.username[0]).toUpperCase()}</div>
                 )}
               </div>
-              <div className="seller-header-info">
-                <h1 className="seller-title">
+              <div className={styles['seller-header-info']}>
+                <h1 className={styles['seller-title']}>
                   {seller.company?.trim() || (seller.first_name && seller.last_name ? `${seller.first_name} ${seller.last_name}` : seller.username)}
                 </h1>
-                <div className="seller-sub">
-                  <span className="seller-username">@{seller.username}</span>
-                  {seller.is_verified_seller && <span className="seller-badge verified">Verified Seller</span>}
+                <div className={styles['seller-sub']}>
+                  <span className={styles['seller-username']}>@{seller.username}</span>
+                  {seller.is_verified_seller && <span className={`${styles['seller-badge']} verified`}>Verified Seller</span>}
                   {(!seller.is_verified_seller && (seller as any).role === 'admin') && (
-                    <span className="seller-badge admin">Admin</span>
+                    <span className={`${styles['seller-badge']} admin`}>Admin</span>
                   )}
                 </div>
-                <div className="seller-links">
+                <div className={styles['seller-links']}>
                   {seller.website && (
-                    <a className="seller-link" href={seller.website.startsWith('http') ? seller.website : `https://${seller.website}`} target="_blank" rel="noreferrer">
+                    <a className={styles['seller-link']} href={seller.website.startsWith('http') ? seller.website : `https://${seller.website}`} target="_blank" rel="noreferrer">
                       🌐 Website
                     </a>
                   )}
                   {seller.location && (
                     <a
-                      className="seller-link"
+                      className={styles['seller-link']}
                       href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(seller.location)}`}
                       target="_blank"
                       rel="noreferrer"
@@ -199,9 +199,9 @@ const SellerProfilePage: React.FC = () => {
                     </a>
                   )}
                 </div>
-                <div className="seller-metrics">
-                  <div className="metric"><span className="metric-value">{sellerProducts.length}</span><span className="metric-label">{t('seller_page.metrics.products')}</span></div>
-                  <div className="metric"><span className="metric-value">{new Date(seller.created_at || '').toLocaleDateString()}</span><span className="metric-label">{t('seller_page.metrics.member_since')}</span></div>
+                <div className={styles['seller-metrics']}>
+                  <div className={styles['metric']}><span className={styles['metric-value']}>{sellerProducts.length}</span><span className={styles['metric-label']}>{t('seller_page.metrics.products')}</span></div>
+                  <div className={styles['metric']}><span className={styles['metric-value']}>{new Date(seller.created_at || '').toLocaleDateString()}</span><span className={styles['metric-label']}>{t('seller_page.metrics.member_since')}</span></div>
                 </div>
               </div>
             </div>
@@ -238,20 +238,20 @@ const SellerProfilePage: React.FC = () => {
                   </div>
                 )}
                 {(seller.instagram_url || seller.twitter_url || seller.linkedin_url || seller.facebook_url) && (
-                  <div className="seller-detail">
-                    <h4 className="detail-title">{t('seller_page.social')}</h4>
-                    <ul className="detail-list">
+                  <div className={styles['seller-detail']}>
+                    <h4 className={styles['detail-title']}>{t('seller_page.social')}</h4>
+                    <ul className={styles['detail-list']}>
                       {seller.instagram_url && (
-                        <li><a className="detail-link" href={seller.instagram_url.startsWith('http') ? seller.instagram_url : `https://${seller.instagram_url}`} target="_blank" rel="noreferrer">📷 Instagram</a></li>
+                        <li><a className={styles['detail-link']} href={seller.instagram_url.startsWith('http') ? seller.instagram_url : `https://${seller.instagram_url}`} target="_blank" rel="noreferrer">📷 Instagram</a></li>
                       )}
                       {seller.twitter_url && (
-                        <li><a className="detail-link" href={seller.twitter_url.startsWith('http') ? seller.twitter_url : `https://${seller.twitter_url}`} target="_blank" rel="noreferrer">🐦 Twitter</a></li>
+                        <li><a className={styles['detail-link']} href={seller.twitter_url.startsWith('http') ? seller.twitter_url : `https://${seller.twitter_url}`} target="_blank" rel="noreferrer">🐦 Twitter</a></li>
                       )}
                       {seller.linkedin_url && (
-                        <li><a className="detail-link" href={seller.linkedin_url.startsWith('http') ? seller.linkedin_url : `https://${seller.linkedin_url}`} target="_blank" rel="noreferrer">💼 LinkedIn</a></li>
+                        <li><a className={styles['detail-link']} href={seller.linkedin_url.startsWith('http') ? seller.linkedin_url : `https://${seller.linkedin_url}`} target="_blank" rel="noreferrer">💼 LinkedIn</a></li>
                       )}
                       {seller.facebook_url && (
-                        <li><a className="detail-link" href={seller.facebook_url.startsWith('http') ? seller.facebook_url : `https://${seller.facebook_url}`} target="_blank" rel="noreferrer">📘 Facebook</a></li>
+                        <li><a className={styles['detail-link']} href={seller.facebook_url.startsWith('http') ? seller.facebook_url : `https://${seller.facebook_url}`} target="_blank" rel="noreferrer">📘 Facebook</a></li>
                       )}
                     </ul>
                   </div>
@@ -263,9 +263,9 @@ const SellerProfilePage: React.FC = () => {
 
                  {/* User's Products */}
         {sellerProducts.length > 0 && (
-          <div className="seller-products-section">
-            <h2 className="section-title">{t('seller_page.products_by', { name: seller.first_name || seller.username })}</h2>
-            <div className="products-flex">
+          <div className={styles['seller-products-section']}>
+            <h2 className={styles['section-title']}>{t('seller_page.products_by', { name: seller.first_name || seller.username })}</h2>
+            <div className={styles['products-grid']}>
               {sellerProducts.slice(0, 6).map((product) => (
                 <ProductCard
                   key={product.id}
@@ -276,8 +276,8 @@ const SellerProfilePage: React.FC = () => {
               ))}
             </div>
             {sellerProducts.length > 6 && (
-              <div className="view-all-products">
-                <Link to={`/products?seller_id=${seller.id}`} className="view-all-btn">
+              <div className={styles['view-all-products']}>
+                <Link to={`/products?seller_id=${seller.id}`} className={styles['view-all-btn']}>
                   {t('seller_page.view_all_products', { count: sellerProducts.length })}
                 </Link>
               </div>
@@ -287,8 +287,8 @@ const SellerProfilePage: React.FC = () => {
 
                  {/* No Products Message */}
          {sellerProducts.length === 0 && (
-           <div className="no-products-section">
-             <div className="no-products-icon">📦</div>
+           <div className={styles['no-products-section']}>
+             <div className={styles['no-products-icon']}>📦</div>
              <h3>{t('seller_page.no_products_title')}</h3>
              <p>{t('seller_page.no_products_message')}</p>
            </div>

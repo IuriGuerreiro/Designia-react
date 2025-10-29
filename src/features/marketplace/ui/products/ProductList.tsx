@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import './ProductList.css';
+import styles from './ProductList.module.css';
 import { Layout } from '@/app/layout';
 import ProductCard from './ProductCard';
 import { useTranslation } from 'react-i18next';
@@ -10,13 +10,13 @@ import { type ProductListItem, type ProductFilters } from '@/features/marketplac
 // Skeleton Loading Component
 const ProductCardSkeleton: React.FC = () => {
   return (
-    <div className="product-card-skeleton">
-      <div className="skeleton-image"></div>
-      <div className="skeleton-content">
-        <div className="skeleton-title"></div>
-        <div className="skeleton-price"></div>
-        <div className="skeleton-description"></div>
-        <div className="skeleton-button"></div>
+    <div className={styles['product-card-skeleton']}>
+      <div className={styles['skeleton-image']}></div>
+      <div className={styles['skeleton-content']}>
+        <div className={styles['skeleton-title']}></div>
+        <div className={styles['skeleton-price']}></div>
+        <div className={styles['skeleton-description']}></div>
+        <div className={styles['skeleton-button']}></div>
       </div>
     </div>
   );
@@ -44,20 +44,20 @@ const ProductFilters: React.FC<{
   return (
     <aside
       id="marketplace-filters"
-      className={`product-filters ${isOpen ? 'open' : ''}`}
+      className={`${styles['product-filters']} ${isOpen ? styles['open'] : ''}`}
       aria-hidden={!isOpen}
     >
-      <div className="filters-header">
+  <div className={styles['filters-header']}>
         <div>
-          <p className="filters-eyebrow">{t('products.filters.refine_results')}</p>
+          <p className={styles['filters-eyebrow']}>{t('products.filters.refine_results')}</p>
           <h3>{t('products.filters.title')}</h3>
         </div>
-        <div className="filters-actions">
-          <span className="filters-count">{t('products.filters.active_count', { count: activeFiltersCount })}</span>
-          <button onClick={clearFilters} className="clear-filters-btn" type="button">
+        <div className={styles['filters-actions']}>
+          <span className={styles['filters-count']}>{t('products.filters.active_count', { count: activeFiltersCount })}</span>
+          <button onClick={clearFilters} className={styles['clear-filters-btn']} type="button">
             {t('products.filters.clear')}
           </button>
-          <button className="filters-close" onClick={onClose} type="button" aria-label={t('products.filters.close_aria')}>
+          <button className={styles['filters-close']} onClick={onClose} type="button" aria-label={t('products.filters.close_aria')}>
             <span className="material-symbols-outlined" aria-hidden="true">
               close
             </span>
@@ -65,9 +65,9 @@ const ProductFilters: React.FC<{
         </div>
       </div>
       
-      <div className="filter-section">
+  <div className={styles['filter-section']}>
         <label>{t('products.filters.price_range')}</label>
-        <div className="price-range">
+  <div className={styles['price-range']}>
           <input
             type="number"
             placeholder={t('products.filters.min')}
@@ -85,7 +85,7 @@ const ProductFilters: React.FC<{
               const n = Math.max(0, Number(val));
               handleFilterChange('min_price', Number.isNaN(n) ? undefined : n);
             }}
-            className="price-input"
+            className={styles['price-input']}
           />
           <span>-</span>
           <input
@@ -105,17 +105,17 @@ const ProductFilters: React.FC<{
               const n = Math.max(0, Number(val));
               handleFilterChange('max_price', Number.isNaN(n) ? undefined : n);
             }}
-            className="price-input"
+            className={styles['price-input']}
           />
         </div>
       </div>
 
-      <div className="filter-section">
+  <div className={styles['filter-section']}>
         <label>{t('products.filters.category')}</label>
         <select
           value={filters.category_slug || ''}
           onChange={(e) => handleFilterChange('category_slug', e.target.value || undefined)}
-          className="filter-select"
+          className={styles['filter-select']}
         >
           <option value="">{t('products.filters.all_categories')}</option>
           {categories.map(category => (
@@ -126,11 +126,11 @@ const ProductFilters: React.FC<{
         </select>
       </div>
 
-      <div className="filter-section">
+  <div className={styles['filter-section']}>
         <label>Condition</label>
-        <div className="checkbox-group">
+        <div className={styles['checkbox-group']}>
           {['new', 'like_new', 'good', 'fair', 'poor'].map(condition => (
-            <label key={condition} className="checkbox-label">
+            <label key={condition} className={styles['checkbox-label']}>
               <input
                 type="checkbox"
                 checked={filters.condition?.includes(condition) || false}
@@ -148,10 +148,10 @@ const ProductFilters: React.FC<{
         </div>
       </div>
 
-      <div className="filter-section">
+  <div className={styles['filter-section']}>
         <label>{t('products.filters.availability')}</label>
-        <div className="checkbox-group">
-          <label className="checkbox-label">
+        <div className={styles['checkbox-group']}>
+          <label className={styles['checkbox-label']}>
             <input
               type="checkbox"
               checked={filters.in_stock || false}
@@ -159,7 +159,7 @@ const ProductFilters: React.FC<{
             />
             <span>{t('products.filters.in_stock_only')}</span>
           </label>
-          <label className="checkbox-label">
+          <label className={styles['checkbox-label']}>
             <input
               type="checkbox"
               checked={filters.is_featured || false}
@@ -167,7 +167,7 @@ const ProductFilters: React.FC<{
             />
             <span>{t('products.filters.featured_products')}</span>
           </label>
-          <label className="checkbox-label">
+          <label className={styles['checkbox-label']}>
             <input
               type="checkbox"
               checked={filters.is_on_sale || false}
@@ -183,7 +183,7 @@ const ProductFilters: React.FC<{
         <select
           value={filters.min_rating || ''}
           onChange={(e) => handleFilterChange('min_rating', e.target.value ? Number(e.target.value) : undefined)}
-          className="filter-select"
+          className={styles['filter-select']}
         >
           <option value="">{t('products.filters.any_rating')}</option>
           <option value="4">{t('products.filters.rating_4')}</option>
@@ -203,13 +203,13 @@ const ProductSort: React.FC<{
 }> = ({ sortBy, onSortChange, disabled = false }) => {
   const { t } = useTranslation();
   return (
-    <div className="product-sort">
+    <div className={styles['product-sort']}>
       <label htmlFor="marketplace-sort">{t('products.sort.label')}</label>
       <select
         id="marketplace-sort"
         value={sortBy}
         onChange={(e) => onSortChange(e.target.value)}
-        className="sort-select"
+        className={styles['sort-select']}
         disabled={disabled}
       >
         <option value="newest">{t('products.sort.newest')}</option>
@@ -227,7 +227,7 @@ const ProductSort: React.FC<{
 const ServicesPlaceholder: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <div className="services-placeholder">
+    <div className={styles['services-placeholder']}>
       <h3>{t('products.services_title')}</h3>
       <p>{t('products.services_description')}</p>
     </div>
@@ -497,7 +497,7 @@ const ProductList: React.FC = () => {
   // Render loading skeleton
   const renderLoadingSkeletons = () => {
     return (
-      <div className="products-flex">
+      <div className={styles['products-flex']}>
         {Array.from({ length: 12 }).map((_, index) => (
           <ProductCardSkeleton key={index} />
         ))}
@@ -507,27 +507,27 @@ const ProductList: React.FC = () => {
 
   return (
     <Layout padding="minimal" maxWidth="full">
-      <div className="products-page">
-        <section className="marketplace-hero">
-          <div className="hero-overlay" aria-hidden="true" />
-          <div className="hero-inner">
-            <div className="hero-copy">
-              <span className="hero-eyebrow">Designia Marketplace</span>
-              <h2 className="hero-title">{t('products.collection_title')}</h2>
-              <p className="hero-description">
+      <div className={styles['products-page']}>
+        <section className={styles['marketplace-hero']}>
+          <div className={styles['hero-overlay']} aria-hidden="true" />
+          <div className={styles['hero-inner']}>
+            <div className={styles['hero-copy']}>
+              <span className={styles['hero-eyebrow']}>Designia Marketplace</span>
+              <h2 className={styles['hero-title']}>{t('products.collection_title')}</h2>
+              <p className={styles['hero-description']}>
                 Discover monochrome pieces, curated textures, and statement silhouettes crafted for contemporary homes and studios.
               </p>
-              <div className="hero-metrics" role="list">
+              <div className={styles['hero-metrics']} role="list">
                 {heroMetrics.map((metric) => (
-                  <div className="hero-metric" role="listitem" key={metric.label}>
-                    <span className="metric-value">{metric.value}</span>
-                    <span className="metric-label">{metric.label}</span>
+                  <div className={styles['hero-metric']} role="listitem" key={metric.label}>
+                    <span className={styles['metric-value']}>{metric.value}</span>
+                    <span className={styles['metric-label']}>{metric.label}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="hero-controls">
-              <div className="search-bar">
+            <div className={styles['hero-controls']}>
+              <div className={styles['search-bar']}>
                 <label className="sr-only" htmlFor="marketplace-search">{t('products.search_placeholder')}</label>
                 <input
                   id="marketplace-search"
@@ -537,10 +537,10 @@ const ProductList: React.FC = () => {
                   onChange={(e) => setSearchInput(e.target.value)}
                 />
               </div>
-              <div className="hero-actions">
+              <div className={styles['hero-actions']}>
                 <button
                   type="button"
-                  className={`filter-toggle-btn ${showFilters ? 'active' : ''}`}
+                  className={`${styles['filter-toggle-btn']} ${showFilters ? styles['active'] : ''}`}
                   onClick={() => setShowFilters((prev) => !prev)}
                   disabled={loading}
                   aria-controls="marketplace-filters"
@@ -562,7 +562,7 @@ const ProductList: React.FC = () => {
                       {t('products.filters.title')}
                     </>
                   )}
-                  {activeFiltersCount > 0 && <span className="filters-badge">{activeFiltersCount}</span>}
+                  {activeFiltersCount > 0 && <span className={styles['filters-badge']}>{activeFiltersCount}</span>}
                 </button>
                 <ProductSort sortBy={sortBy} onSortChange={setSortBy} disabled={loading} />
               </div>
@@ -570,16 +570,16 @@ const ProductList: React.FC = () => {
           </div>
         </section>
 
-        <div className="tabs">
+        <div className={styles['tabs']}>
           <button
-            className={`tab ${activeTab === 'products' ? 'active' : ''}`}
+            className={`${styles['tab']} ${activeTab === 'products' ? styles['active'] : ''}`}
             onClick={() => setActiveTab('products')}
             disabled={loading}
           >
             {t('products.products_tab')}
           </button>
           <button
-            className={`tab ${activeTab === 'services' ? 'active' : ''}`}
+            className={`${styles['tab']} ${activeTab === 'services' ? styles['active'] : ''}`}
             onClick={() => setActiveTab('services')}
             disabled={loading}
           >
@@ -588,11 +588,11 @@ const ProductList: React.FC = () => {
         </div>
 
         {error && (
-          <div className="error-message">
+          <div className={styles['error-message']}>
             <p>{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="retry-btn"
+              className={styles['retry-btn']}
             >
               {t('orders.actions.try_again')}
             </button>
@@ -600,7 +600,7 @@ const ProductList: React.FC = () => {
         )}
 
         {activeTab === 'products' ? (
-          <section className={`products-shell ${showFilters ? 'filters-visible' : ''}`}>
+          <section className={`${styles['products-shell']} ${showFilters ? styles['filters-visible'] : ''}`}>
             <ProductFilters
               filters={filters}
               onFilterChange={setFilters}
@@ -610,14 +610,14 @@ const ProductList: React.FC = () => {
               activeFiltersCount={activeFiltersCount}
             />
 
-            <div className="products-main">
-              <div className="products-controls">
-                <div className="results-info">
+            <div className={styles['products-main']}>
+              <div className={styles['products-controls']}>
+                <div className={styles['results-info']}>
                   <span>
                     {processedProducts.length} curated piece{processedProducts.length !== 1 ? 's' : ''}
                   </span>
                   {activeFiltersCount > 0 && (
-                    <span className="results-filters">{t('products.filters.active_count', { count: activeFiltersCount })}</span>
+                    <span className={styles['results-filters']}>{t('products.filters.active_count', { count: activeFiltersCount })}</span>
                   )}
                 </div>
               </div>
@@ -625,7 +625,7 @@ const ProductList: React.FC = () => {
               {loading ? (
                 renderLoadingSkeletons()
               ) : processedProducts.length > 0 ? (
-                <div className="products-flex">
+                <div className={styles['products-flex']}>
                   {processedProducts.map(product => (
                     <ProductCard
                       key={product.id}
@@ -636,8 +636,8 @@ const ProductList: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <div className="no-results-message">
-                  <div className="no-results-icon">
+                <div className={styles['no-results-message']}>
+                  <div className={styles['no-results-icon']}>
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -655,7 +655,7 @@ const ProductList: React.FC = () => {
                       <div ref={sentinelRef} style={{ height: 1, width: '100%' }} />
                       <button
                         type="button"
-                        className="load-more-btn"
+                        className={styles['load-more-btn']}
                         onClick={loadMore}
                         disabled={loadingMore}
                         style={{ marginTop: '12px' }}
@@ -665,7 +665,7 @@ const ProductList: React.FC = () => {
                     </>
                   )}
                   {!hasNext && (
-                    <div className="end-of-results" style={{ color: '#666', fontSize: 14, padding: '8px' }}>
+                    <div className={styles['end-of-results']} style={{ color: '#666', fontSize: 14, padding: '8px' }}>
                       {t('products.end_of_results')}
                     </div>
                   )}

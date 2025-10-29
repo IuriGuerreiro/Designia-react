@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { paymentService, type PayoutSummary, type PayoutOrdersResponse } from '@/features/payments/api';
+import { paymentService, type PayoutSummary } from '@/features/payments/api';
 import PayoutDetailModal from './PayoutDetailModal';
-import './PayoutsList.css';
+import styles from './PayoutsList.module.css';
 
 interface PayoutsListProps {
   className?: string;
@@ -114,13 +114,13 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
 
   if (loading && payouts.length === 0) {
     return (
-      <div className={`payouts-list ${className || ''}`}>
-        <div className="payouts-header">
+      <div className={`${styles['payouts-list']} ${className || ''}`}>
+        <div className={styles['payouts-header']}>
           <h2>{t('stripe.payouts.title')}</h2>
-          <p className="payouts-subtitle">{t('stripe.payouts.subtitle')}</p>
+          <p className={styles['payouts-subtitle']}>{t('stripe.payouts.subtitle')}</p>
         </div>
-        <div className="payouts-loading">
-          <div className="loading-spinner"></div>
+        <div className={styles['payouts-loading']}>
+          <div className={styles['loading-spinner']}></div>
           <p>{t('stripe.payouts.loading')}</p>
         </div>
       </div>
@@ -129,14 +129,14 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
 
   if (error && payouts.length === 0) {
     return (
-      <div className={`payouts-list ${className || ''}`}>
-        <div className="payouts-header">
+      <div className={`${styles['payouts-list']} ${className || ''}`}>
+        <div className={styles['payouts-header']}>
           <h2>{t('stripe.payouts.title')}</h2>
-          <p className="payouts-subtitle">{t('stripe.payouts.subtitle')}</p>
+          <p className={styles['payouts-subtitle']}>{t('stripe.payouts.subtitle')}</p>
         </div>
-        <div className="payouts-error">
+        <div className={styles['payouts-error']}>
           <p>{t('common.error') || 'Error'}: {error}</p>
-          <button onClick={loadPayouts} className="retry-button">
+          <button onClick={loadPayouts} className={styles['retry-button']}>
             {t('orders.actions.try_again')}
           </button>
         </div>
@@ -146,14 +146,14 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
 
   if (payouts.length === 0) {
     return (
-      <div className={`payouts-list ${className || ''}`}>
-        <div className="payouts-header">
+      <div className={`${styles['payouts-list']} ${className || ''}`}>
+        <div className={styles['payouts-header']}>
           <h2>{t('stripe.payouts.title')}</h2>
-          <p className="payouts-subtitle">{t('stripe.payouts.subtitle')}</p>
+          <p className={styles['payouts-subtitle']}>{t('stripe.payouts.subtitle')}</p>
         </div>
-        <div className="payouts-empty">
-          <div className="empty-state">
-            <div className="empty-icon">💰</div>
+        <div className={styles['payouts-empty']}>
+          <div className={styles['empty-state']}>
+            <div className={styles['empty-icon']}>💰</div>
             <h3>{t('stripe.payouts.empty_title') || 'No Payouts Yet'}</h3>
             <p>{t('stripe.payouts.empty_message_1') || "You haven't received any payouts from your sales yet."}</p>
             <p>{t('stripe.payouts.empty_message_2') || 'Once you start selling, your payouts will appear here.'}</p>
@@ -164,19 +164,19 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
   }
 
   return (
-    <div className={`payouts-list ${className || ''}`}>
-              <div className="payouts-header">
-          <div className="payouts-header-content">
+    <div className={`${styles['payouts-list']} ${className || ''}`}>
+              <div className={styles['payouts-header']}>
+          <div className={styles['payouts-header-content']}>
             <h2>{t('stripe.payouts.title')}</h2>
-            <p className="payouts-subtitle">{t('stripe.payouts.subtitle')}</p>
+            <p className={styles['payouts-subtitle']}>{t('stripe.payouts.subtitle')}</p>
           </div>
-          <div className="payouts-stats">
-            <span className="total-count">{t('stripe.payouts.total_count', { count: pagination.totalCount })}</span>
+          <div className={styles['payouts-stats']}>
+            <span className={styles['total-count']}>{t('stripe.payouts.total_count', { count: pagination.totalCount })}</span>
           </div>
         </div>
 
-      <div className="payouts-table-container">
-        <table className="payouts-table">
+      <div className={styles['payouts-table-container']}>
+        <table className={styles['payouts-table']}>
           <thead>
             <tr>
               <th>{t('metrics.date')}</th>
@@ -193,30 +193,30 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
             {payouts.map((payout) => (
               <tr 
                 key={payout.id} 
-                className="payout-row"
+                className={styles['payout-row']}
                 onClick={() => handlePayoutClick(payout)}
               >
-                <td className="payout-date">
+                <td className={styles['payout-date']}>
                   {formatDate(payout.created_at)}
                   <small>{t('stripe.payouts.days_ago', { count: payout.days_since_created })}</small>
                 </td>
-                <td className="payout-id">
+                <td className={styles['payout-id']}>
                   <code>{payout.stripe_payout_id.slice(-8)}</code>
                 </td>
-                <td className="payout-amount">
+                <td className={styles['payout-amount']}>
                   <strong>{payout.formatted_amount}</strong>
                   <small>{payout.payout_type}</small>
                 </td>
-                <td className="payout-status">
-                  <span className={`status-badge status-${getStatusColor(payout.status)}`}>
+                <td className={styles['payout-status']}>
+                  <span className={`${styles['status-badge']} ${styles[`status-${getStatusColor(payout.status)}`]}`}>
                     {payout.status.replace('_', ' ').toUpperCase()}
                   </span>
                 </td>
-                <td className="payout-orders">
-                  <span className="orders-count">{payout.transfer_count}</span>
+                <td className={styles['payout-orders']}>
+                  <span className={styles['orders-count']}>{payout.transfer_count}</span>
                   <small>{t('orders.title')}</small>
                 </td>
-                <td className="payout-bank">
+                <td className={styles['payout-bank']}>
                   {payout.bank_name ? (
                     <div>
                       <div className="bank-name">{payout.bank_name}</div>
@@ -228,12 +228,12 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
                     <span className="no-bank">{t('seller_page.na_label')}</span>
                   )}
                 </td>
-                <td className="payout-arrival">
+                <td className={styles['payout-arrival']}>
                   {payout.arrival_date ? formatDate(payout.arrival_date) : t('seller_page.na_label')}
                 </td>
-                <td className="payout-actions">
+                <td className={styles['payout-actions']}>
                   <button 
-                    className="view-details-btn"
+                    className={styles['view-details-btn']}
                     onClick={(e) => {
                       e.stopPropagation();
                       handlePayoutClick(payout);
@@ -250,23 +250,23 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
 
       {/* Pagination */}
       {(pagination.hasNext || pagination.hasPrevious) && (
-        <div className="payouts-pagination">
+        <div className={styles['payouts-pagination']}>
           <button
             onClick={handlePrevPage}
             disabled={!pagination.hasPrevious}
-            className="pagination-btn"
+            className={styles['pagination-btn']}
           >
             ← {t('stripe.payouts.previous')}
           </button>
           
-          <span className="pagination-info">
+          <span className={styles['pagination-info']}>
             {t('stripe.payouts.showing_range', { start: pagination.offset + 1, end: Math.min(pagination.offset + pagination.pageSize, pagination.totalCount), total: pagination.totalCount })}
           </span>
           
           <button
             onClick={handleNextPage}
             disabled={!pagination.hasNext}
-            className="pagination-btn"
+            className={styles['pagination-btn']}
           >
             {t('stripe.payouts.next')} →
           </button>
@@ -275,8 +275,8 @@ const PayoutsList: React.FC<PayoutsListProps> = ({ className }) => {
 
       {/* Loading overlay for pagination */}
       {loading && (
-        <div className="payouts-loading-overlay">
-          <div className="loading-spinner"></div>
+        <div className={styles['payouts-loading-overlay']}>
+          <div className={styles['loading-spinner']}></div>
         </div>
       )}
 
