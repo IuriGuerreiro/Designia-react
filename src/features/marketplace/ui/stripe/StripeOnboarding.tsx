@@ -7,7 +7,7 @@ import {
 } from '@stripe/react-connect-js';
 import { useAuth } from '@/features/auth/state/AuthContext';
 import { paymentService } from '@/features/payments/api';
-import './StripeOnboarding.css';
+import styles from './StripeOnboarding.module.css';
 import { Layout } from '@/app/layout';
 
 interface StripeOnboardingProps {
@@ -197,8 +197,8 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
 
   if (loading) {
     return (
-      <div className="stripe-onboarding-loading">
-        <div className="loading-spinner"></div>
+      <div className={styles['stripe-onboarding-loading']}>
+        <div className={styles['loading-spinner']}></div>
         <p>{t('stripe.loading')}</p>
       </div>
     );
@@ -207,11 +207,11 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
   if (error) {
     return (
       <Layout>
-        <div className="stripe-onboarding-error">
+        <div className={styles['stripe-onboarding-error']}>
           <h3>{t('stripe.setup_error')}</h3>
           <p>{error}</p>
           <button 
-            className="retry-button" 
+            className={styles['retry-button']}
             onClick={() => window.location.reload()}
           >
             {t('orders.actions.try_again')}
@@ -224,19 +224,19 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
   if (!eligible) {
     return (
       <Layout>
-        <div className="stripe-onboarding-ineligible">
+        <div className={styles['stripe-onboarding-ineligible']}>
           <h3>{t('stripe.account_setup_required')}</h3>
           <p>{t('stripe.complete_requirements')}</p>
           <ul className="requirements-list">
             {eligibilityErrors.map((error, index) => (
-              <li key={index} className="requirement-item">
+              <li key={index} className={styles['requirement-item']}>
                 {error}
               </li>
             ))}
           </ul>
           <div className="requirements-actions">
             <button 
-              className="check-again-button"
+              className={styles['check-again-button']}
               onClick={() => {
                 setEligibilityChecked(false);
                 checkAccountStatus();
@@ -250,14 +250,14 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
     );
   }
 
-  if (!stripeConnectInstance) {
+    if (!stripeConnectInstance) {
     return (
       <Layout>
-        <div className="stripe-onboarding-error">
+        <div className={styles['stripe-onboarding-error']}>
           <h3>{t('stripe.connection_error')}</h3>
           <p>{t('stripe.connection_failed')}</p>
           <button 
-            className="retry-button" 
+            className={styles['retry-button']} 
             onClick={() => window.location.reload()}
           >
             {t('orders.actions.try_again')}
@@ -269,13 +269,13 @@ const StripeOnboarding: React.FC<StripeOnboardingProps> = ({
 
   return (
     <Layout>
-      <div className="stripe-onboarding-container">
-        <div className="onboarding-header">
+      <div className={styles['stripe-onboarding-container']}>
+        <div className={styles['onboarding-header']}>
           <h2>{t('stripe.complete_setup')}</h2>
           <p>{t('stripe.provide_business_info')}</p>
         </div>
         
-        <div className="onboarding-content">
+        <div className={styles['onboarding-content']}>
           <ConnectComponentsProvider connectInstance={stripeConnectInstance}>
             <ConnectAccountOnboarding
               onExit={handleExit}

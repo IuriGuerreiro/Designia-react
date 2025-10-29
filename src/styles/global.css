@@ -166,6 +166,10 @@ button:disabled {
   margin: 0 auto;
 }
 
+/* Phase 1 shared styles import */
+@import './shared.css';
+
+
 
 .btn {
   display: inline-flex;

@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import { useTranslation } from 'react-i18next';
 import { productService } from '@/features/marketplace/api';
 import { type ProductListItem } from '@/features/marketplace/model';
 import ProductCard from './ProductCard';
-import './MyProducts.css';
+import styles from './MyProducts.module.css';
 
 const MyProductsPage: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   
   // State management
   const [products, setProducts] = useState<ProductListItem[]>([]);
@@ -82,53 +81,53 @@ const MyProductsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Layout maxWidth="full">
-        <div className="my-products-page">
+    <Layout maxWidth="full">
+      <div className={styles['my-products-page']}>
           <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
             {/* Hero Section Skeleton */}
-            <div className="hero-section skeleton">
-              <div className="hero-title skeleton-text"></div>
-              <div className="hero-subtitle skeleton-text"></div>
+            <div className={`${styles['hero-section']} ${styles['skeleton']}`}>
+              <div className={`${styles['hero-title']} ${styles['skeleton-text']}`}></div>
+              <div className={`${styles['hero-subtitle']} ${styles['skeleton-text']}`}></div>
             </div>
 
             {/* Products Overview Box Skeleton */}
-            <div className="products-overview-box skeleton">
-              <div className="overview-header skeleton">
-                <div className="overview-title skeleton-text"></div>
-                <div className="overview-actions skeleton">
-                  <div className="add-product-btn skeleton-button"></div>
+            <div className={`${styles['products-overview-box']} ${styles['skeleton']}`}>
+              <div className={`${styles['overview-header']} ${styles['skeleton']}`}>
+                <div className={`${styles['overview-title']} ${styles['skeleton-text']}`}></div>
+                <div className={`${styles['overview-actions']} ${styles['skeleton']}`}>
+                  <div className={`${styles['add-product-btn']} ${styles['skeleton-button']}`}></div>
 
                 </div>
               </div>
               
-              <div className="overview-stats skeleton">
+              <div className={`${styles['overview-stats']} ${styles['skeleton']}`}>
                 {[...Array(6)].map((_, index) => (
-                  <div key={index} className="stat-item skeleton">
-                    <div className="stat-number skeleton-text"></div>
-                    <div className="stat-label skeleton-text"></div>
+                  <div key={index} className={`${styles['stat-item']} ${styles['skeleton']}`}>
+                    <div className={`${styles['stat-number']} ${styles['skeleton-text']}`}></div>
+                    <div className={`${styles['stat-label']} ${styles['skeleton-text']}`}></div>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Products Grid Skeleton */}
-            <div className="products-section skeleton">
-              <div className="products-header skeleton">
-                <div className="section-title skeleton-text"></div>
-                <div className="products-summary skeleton-text"></div>
+            <div className={`${styles['products-section']} ${styles['skeleton']}`}>
+              <div className={`${styles['products-header']} ${styles['skeleton']}`}>
+                <div className={`${styles['section-title']} ${styles['skeleton-text']}`}></div>
+                <div className={`${styles['products-summary']} ${styles['skeleton-text']}`}></div>
               </div>
               
-              <div className="products-grid skeleton">
+              <div className={`${styles['products-grid']} ${styles['skeleton']}`}>
                 {[...Array(6)].map((_, index) => (
-                  <div key={index} className="product-card-skeleton">
-                    <div className="product-image skeleton-image"></div>
-                    <div className="product-info skeleton">
-                      <div className="product-name skeleton-text"></div>
-                      <div className="product-price skeleton-text"></div>
-                      <div className="product-actions skeleton">
-                        <div className="action-btn skeleton-button"></div>
-                        <div className="action-btn skeleton-button"></div>
-                        <div className="action-btn skeleton-button"></div>
+                  <div key={index} className={styles['product-card-skeleton']}>
+                    <div className={`${styles['product-image']} ${styles['skeleton-image']}`}></div>
+                    <div className={`${styles['product-info']} ${styles['skeleton']}`}>
+                      <div className={`${styles['product-name']} ${styles['skeleton-text']}`}></div>
+                      <div className={`${styles['product-price']} ${styles['skeleton-text']}`}></div>
+                      <div className={`${styles['product-actions']} ${styles['skeleton']}`}>
+                        <div className={`${styles['action-btn']} ${styles['skeleton-button']}`}></div>
+                        <div className={`${styles['action-btn']} ${styles['skeleton-button']}`}></div>
+                        <div className={`${styles['action-btn']} ${styles['skeleton-button']}`}></div>
                       </div>
                     </div>
                   </div>
@@ -143,30 +142,30 @@ const MyProductsPage: React.FC = () => {
 
   return (
     <Layout maxWidth="full">
-      <div className="my-products-page">
+  <div className={styles['my-products-page']}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           {/* Hero Section - Like MyOrdersPage.tsx */}
-          <div className="hero-section">
-            <h1 className="hero-title">{t('products.my_products_title')}</h1>
-            <p className="hero-subtitle">Manage your product portfolio with powerful tools and insights</p>
+          <div className={styles['hero-section']}>
+            <h1 className={styles['hero-title']}>{t('products.my_products_title')}</h1>
+            <p className={styles['hero-subtitle']}>Manage your product portfolio with powerful tools and insights</p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="error-banner">
-              <div className="error-content">
-                <div className="error-icon">
+            <div className={styles['error-banner']}>
+              <div className={styles['error-content']}>
+                <div className={styles['error-icon']}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="15" y1="9" x2="9" y2="15"/>
                     <line x1="9" y1="9" x2="15" y2="15"/>
                   </svg>
                 </div>
-                <div className="error-text">
+                <div className={styles['error-text']}>
           <h4>{t('products.errors.load_my_products_title') || 'Failed to Load Products'}</h4>
                   <p>{error}</p>
                 </div>
-                <button className="retry-btn" onClick={() => window.location.reload()}>
+                <button className={styles['retry-btn']} onClick={() => window.location.reload()}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M1 4V10H7M23 20V14H17"/>
                     <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M3.51 15A9 9 0 0 0 18.36 18.36L23 14"/>
@@ -177,11 +176,11 @@ const MyProductsPage: React.FC = () => {
             </div>
           )}
 
-          <div className="products-overview-box">
-            <div className="overview-header">
-              <h2 className="overview-title">{t('products.my_products_title')}</h2>
-              <div className="overview-actions">
-                <Link to="/products/new" className="add-product-btn">
+          <div className={styles['products-overview-box']}>
+            <div className={styles['overview-header']}>
+              <h2 className={styles['overview-title']}>{t('products.my_products_title')}</h2>
+              <div className={styles['overview-actions']}>
+                <Link to="/products/new" className={styles['add-product-btn']}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 5V19M5 12H19"/>
                   </svg>
@@ -190,59 +189,59 @@ const MyProductsPage: React.FC = () => {
               </div>
             </div>
             
-            <div className="overview-stats">
+            <div className={styles['overview-stats']}>
               <div 
-                className={`stat-item ${activeFilter === 'all' ? 'active' : ''}`}
+                className={`${styles['stat-item']} ${activeFilter === 'all' ? styles['active'] : ''}`}
                 onClick={() => setActiveFilter('all')}
               >
-                <span className="stat-number">{products.length}</span>
-                <span className="stat-label">{t('products.my_products_title')}</span>
+                <span className={styles['stat-number']}>{products.length}</span>
+                <span className={styles['stat-label']}>{t('products.my_products_title')}</span>
               </div>
               <div 
-                className={`stat-item ${activeFilter === 'active' ? 'active' : ''}`}
+                className={`${styles['stat-item']} ${activeFilter === 'active' ? styles['active'] : ''}`}
                 onClick={() => setActiveFilter('active')}
               >
-                <span className="stat-number">{activeProducts}</span>
-                <span className="stat-label">{t('products.status.active') || 'Active'}</span>
+                <span className={styles['stat-number']}>{activeProducts}</span>
+                <span className={styles['stat-label']}>{t('products.status.active') || 'Active'}</span>
               </div>
               <div 
-                className={`stat-item ${activeFilter === 'lowStock' ? 'active' : ''}`}
+                className={`${styles['stat-item']} ${activeFilter === 'lowStock' ? styles['active'] : ''}`}
                 onClick={() => setActiveFilter('lowStock')}
               >
-                <span className="stat-number">{lowStockProducts}</span>
-                <span className="stat-label">{t('products.low_stock')}</span>
+                <span className={styles['stat-number']}>{lowStockProducts}</span>
+                <span className={styles['stat-label']}>{t('products.low_stock')}</span>
               </div>
               <div 
-                className={`stat-item ${activeFilter === 'outOfStock' ? 'active' : ''}`}
+                className={`${styles['stat-item']} ${activeFilter === 'outOfStock' ? styles['active'] : ''}`}
                 onClick={() => setActiveFilter('outOfStock')}
               >
-                <span className="stat-number">{outOfStockProducts}</span>
-                <span className="stat-label">{t('products.out_of_stock')}</span>
+                <span className={styles['stat-number']}>{outOfStockProducts}</span>
+                <span className={styles['stat-label']}>{t('products.out_of_stock')}</span>
               </div>
               <div 
-                className={`stat-item ${activeFilter === 'featured' ? 'active' : ''}`}
+                className={`${styles['stat-item']} ${activeFilter === 'featured' ? styles['active'] : ''}`}
                 onClick={() => setActiveFilter('featured')}
               >
-                <span className="stat-number">{featuredProducts}</span>
-                <span className="stat-label">{t('products.featured_badge')}</span>
+                <span className={styles['stat-number']}>{featuredProducts}</span>
+                <span className={styles['stat-label']}>{t('products.featured_badge')}</span>
               </div>
               <div 
-                className={`stat-item ${activeFilter === 'inactive' ? 'active' : ''}`}
+                className={`${styles['stat-item']} ${activeFilter === 'inactive' ? styles['active'] : ''}`}
                 onClick={() => setActiveFilter('inactive')}
               >
-                <span className="stat-number">{inactiveProducts}</span>
-                <span className="stat-label">{t('products.inactive')}</span>
+                <span className={styles['stat-number']}>{inactiveProducts}</span>
+                <span className={styles['stat-label']}>{t('products.inactive')}</span>
               </div>
             </div>
           </div>
         </div>
         {/* Products Content */}
         {filteredProducts.length > 0 ? (
-          <div className="my-products-content">
+          <div className={styles['my-products-content']}>
             {/* Products Grid/List */}
-            <div className="products-section">
-              <div className="products-header">
-                <h3 className="section-title">
+            <div className={styles['products-section']}>
+              <div className={styles['products-header']}>
+                <h3 className={styles['section-title']}>
                   {activeFilter === 'all' ? t('products.my_products_title') : 
                    activeFilter === 'active' ? t('products.status.active') + ' ' + t('products.my_products_title') :
                    activeFilter === 'inactive' ? t('products.inactive') + ' ' + t('products.my_products_title') :
@@ -250,11 +249,11 @@ const MyProductsPage: React.FC = () => {
                    activeFilter === 'lowStock' ? t('products.low_stock') + ' ' + t('products.my_products_title') :
                    t('products.out_of_stock') + ' ' + t('products.my_products_title')}
                 </h3>
-                <div className="products-summary">
-                  <span className="summary-text">
+                <div className={styles['products-summary']}>
+                  <span className={styles['summary-text']}>
                     {t('orders.count_showing', { shown: filteredProducts.length, total: products.length })}
                     {activeFilter !== 'all' && (
-                      <span className="filter-indicator">
+                      <span className={styles['filter-indicator']}>
                         {' '}({activeFilter === 'active' ? t('products.status.active') : 
                               activeFilter === 'inactive' ? t('products.inactive') : 
                               activeFilter === 'featured' ? t('products.featured_badge') : 
@@ -266,7 +265,7 @@ const MyProductsPage: React.FC = () => {
                 </div>
               </div>
               
-              <div className="products-layout products-grid">
+              <div className={`${styles['products-layout']} ${styles['products-grid']}`}>
                 {filteredProducts.map(product => (
                   <ProductCard
                     key={product.id}
@@ -281,9 +280,9 @@ const MyProductsPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="empty-state">
-            <div className="empty-content">
-              <div className="empty-icon">
+          <div className={styles['empty-state']}>
+            <div className={styles['empty-content']}>
+              <div className={styles['empty-icon']}>
                 {activeFilter === 'all' ? (
                   <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <path d="M20 7L10 17L5 12"/>
@@ -295,25 +294,25 @@ const MyProductsPage: React.FC = () => {
                   </svg>
                 )}
               </div>
-              <h3 className="empty-title">
+              <h3 className={styles['empty-title']}>
                 {activeFilter === 'all' ? t('products.empty_no_products_yet') || 'No Products Yet' : t('products.empty_no_products_found') || 'No Products Found'}
               </h3>
-              <p className="empty-description">
+              <p className={styles['empty-description']}>
                 {activeFilter === 'all' 
                   ? t('products.empty_add_first') || ''
                   : t('products.empty_no_match', { filter: activeFilter })
                 }
               </p>
-              <div className="empty-actions">
+              <div className={styles['empty-actions']}>
                 {activeFilter === 'all' ? (
                   <>
-                    <Link to="/products/new" className="empty-btn primary">
+                    <Link to="/products/new" className={`${styles['empty-btn']} ${styles['primary']}`}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M12 5V19M5 12H19"/>
                       </svg>
                       {t('products.add_first_product')}
                     </Link>
-                    <Link to="/products" className="empty-btn secondary">
+                    <Link to="/products" className={`${styles['empty-btn']} ${styles['secondary']}`}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M3 3V21H21"/>
                         <path d="M9 9L12 6L16 10L20 6"/>
@@ -323,7 +322,7 @@ const MyProductsPage: React.FC = () => {
                   </>
                 ) : (
                   <button 
-                    className="empty-btn primary"
+                    className={`${styles['empty-btn']} ${styles['primary']}`}
                     onClick={() => setActiveFilter('all')}
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

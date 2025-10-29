@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { orderService } from '@/features/marketplace/api';
 import { type Order } from '@/features/marketplace/model';
 import ViewSellerAccount from '@/features/marketplace/ui/seller/ViewSellerAccount';
-import './Orders.css';
+import styles from './Orders.module.css';
 
 const MyOrdersPage: React.FC = () => {
   const { t } = useTranslation();
@@ -160,8 +160,8 @@ const MyOrdersPage: React.FC = () => {
         <div className="orders-container">
           {/* Header Section */}
           <div className="orders-header">
-            <h1 className="orders-title">{t('orders.title')}</h1>
-            <p className="orders-subtitle">{t('orders.subtitle')}</p>
+            <h1 className={styles['orders-title']}>{t('orders.title')}</h1>
+            <p className={styles['orders-subtitle']}>{t('orders.subtitle')}</p>
           </div>
           
           {/* Skeleton Loading */}

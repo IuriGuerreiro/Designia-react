@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Layout } from '@/app/layout';
 import { orderService } from '@/features/marketplace/api';
 import { type Order } from '@/features/marketplace/model';
-import './Orders.css';
+import styles from './Orders.module.css';
 
 const UserOrdersManagement: React.FC = () => {
   const { t } = useTranslation();
@@ -192,40 +192,40 @@ const UserOrdersManagement: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="orders-management-container">
+        <div className={styles['orders-management-container']}>
           {/* Header Section */}
-          <div className="management-header">
-            <h1 className="management-title">{t('orders.management.title')}</h1>
-            <p className="management-subtitle">{t('orders.management.subtitle')}</p>
+          <div className={styles['management-header']}>
+            <h1 className={styles['management-title']}>{t('orders.management.title')}</h1>
+            <p className={styles['management-subtitle']}>{t('orders.management.subtitle')}</p>
           </div>
           
           {/* Skeleton Loading */}
-          <div className="management-skeleton">
+          <div className={styles['management-skeleton']}>
             {[1, 2, 3].map((index) => (
-              <div key={index} className="skeleton-management-card">
-                <div className="skeleton-management-header">
+              <div key={index} className={styles['skeleton-management-card']}>
+                <div className={styles['skeleton-management-header']}>
                   <div>
-                    <div className="skeleton-order-id"></div>
-                    <div className="skeleton-order-date"></div>
+                    <div className={styles['skeleton-order-id']}></div>
+                    <div className={styles['skeleton-order-date']}></div>
                   </div>
-                  <div className="skeleton-management-status"></div>
+                  <div className={styles['skeleton-management-status']}></div>
                 </div>
                 
-                <div className="skeleton-management-body">
-                  <div className="skeleton-items-preview">
-                    <div className="skeleton-items-images">
-                      <div className="skeleton-item-image"></div>
-                      <div className="skeleton-item-image"></div>
-                      <div className="skeleton-item-image"></div>
+                <div className={styles['skeleton-management-body']}>
+                  <div className={styles['skeleton-items-preview']}>
+                    <div className={styles['skeleton-items-images']}>
+                      <div className={styles['skeleton-item-image']}></div>
+                      <div className={styles['skeleton-item-image']}></div>
+                      <div className={styles['skeleton-item-image']}></div>
                     </div>
-                    <div className="skeleton-items-summary">
-                      <div className="skeleton-text-line short"></div>
-                      <div className="skeleton-text-line medium"></div>
+                    <div className={styles['skeleton-items-summary']}>
+                      <div className={`${styles['skeleton-text-line']} ${styles.short}`}></div>
+                      <div className={`${styles['skeleton-text-line']} ${styles.medium}`}></div>
                     </div>
                   </div>
-                  <div className="skeleton-actions">
-                    <div className="skeleton-button"></div>
-                    <div className="skeleton-button"></div>
+                  <div className={styles['skeleton-actions']}>
+                    <div className={styles['skeleton-button']}></div>
+                    <div className={styles['skeleton-button']}></div>
                   </div>
                 </div>
               </div>
@@ -238,39 +238,39 @@ const UserOrdersManagement: React.FC = () => {
 
   return (
     <Layout>
-      <div className="orders-management-container">
+      <div className={styles['orders-management-container']}>
         {/* Header Section */}
-        <div className="management-header">
-          <h1 className="management-title">{t('orders.management.title')}</h1>
-          <p className="management-subtitle">{t('orders.management.subtitle')}</p>
+        <div className={styles['management-header']}>
+          <h1 className={styles['management-title']}>{t('orders.management.title')}</h1>
+          <p className={styles['management-subtitle']}>{t('orders.management.subtitle')}</p>
         </div>
 
         {/* Error Display */}
         {error && (
-          <div className="management-error">
-            <div className="error-icon">⚠️</div>
-            <p className="error-message">{error}</p>
+          <div className={styles['management-error']}>
+            <div className={styles['error-icon']}>⚠️</div>
+            <p className={styles['error-message']}>{error}</p>
           </div>
         )}
 
         {/* Search Bar */}
-        <div className="orders-search-container">
-          <div className="search-input-wrapper">
+        <div className={styles['orders-search-container']}>
+          <div className={styles['search-input-wrapper']}>
             <input
-              className="orders-search-input"
+              className={styles['orders-search-input']}
               type="text"
               placeholder={t('orders.search.placeholder_management')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <div className="search-icon">🔍</div>
+            <div className={styles['search-icon']}>🔍</div>
           </div>
           {searchTerm && (
-            <div className="search-info">
-              <small className="search-hint">
+            <div className={styles['search-info']}>
+              <small className={styles['search-hint']}>
                 {t('orders.search.searching_for', { term: cleanSearchTerm(searchTerm) })}
                 {searchTerm !== cleanSearchTerm(searchTerm) && (
-                  <span className="search-cleanup"> {t('orders.search.cleaned_from', { term: searchTerm })}</span>
+                  <span className={styles['search-cleanup']}> {t('orders.search.cleaned_from', { term: searchTerm })}</span>
                 )}
               </small>
             </div>
@@ -279,12 +279,12 @@ const UserOrdersManagement: React.FC = () => {
 
         {/* Status Filter Tabs */}
         {orders.length > 0 && (
-          <div className="management-status-tabs">
+          <div className={styles['management-status-tabs']}>
             {['all', 'payment_confirmed', 'awaiting_shipment', 'shipped', 'delivered', 'cancelled'].map(status => (
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
-                className={`management-status-tab ${filterStatus === status ? 'active-management-tab' : ''}`}
+                className={`${styles['management-status-tab']} ${filterStatus === status ? styles['active-management-tab'] : ''}`}
               >
                 {t(`orders.status_type.${status}`)} ({statusCounts[status] || 0})
               </button>
@@ -315,30 +315,30 @@ const UserOrdersManagement: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="orders-list-container">
-            <div className="orders-count">
-              <span className="count-text">{t('orders.count_showing', { shown: filteredOrders.length, total: orders.length })}</span>
+          <div className={styles['orders-list-container']}>
+            <div className={styles['orders-count']}>
+              <span className={styles['count-text']}>{t('orders.count_showing', { shown: filteredOrders.length, total: orders.length })}</span>
             </div>
-            <div className="orders-list">
+            <div className={styles['orders-list']}>
             {filteredOrders.map(order => (
-              <div key={order.id} className="order-card">
+              <div key={order.id} className={styles['order-card']}>
                 {/* Card Header */}
-                <div className="card-header">
+                <div className={styles['card-header']}>
                   <div>
-                    <h3 className="order-id">{t('orders.order_id')} #{order.id.slice(-8)}</h3>
-                    <p className="order-date">
+                    <h3 className={styles['order-id']}>{t('orders.order_id')} #{order.id.slice(-8)}</h3>
+                    <p className={styles['order-date']}>
                       {new Date(order.created_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}
                     </p>
                   </div>
-                  <div className="order-total">
-                    <p className="total-label">{t('orders.total')}</p>
-                    <p className="total-amount">${order.total_amount}</p>
+                  <div className={styles['order-total']}>
+                    <p className={styles['total-label']}>{t('orders.total')}</p>
+                    <p className={styles['total-amount']}>${order.total_amount}</p>
                   </div>
                 </div>
 
                 {/* Card Body */}
-                <div className="card-body">
-                  <div className="order-images">
+                <div className={styles['card-body']}>
+                  <div className={styles['order-images']}>
                     {order.items.slice(0, 3).map((item, index) => {
                       const imageUrl = getBestImageUrl(item);
                       
@@ -347,7 +347,7 @@ const UserOrdersManagement: React.FC = () => {
                           key={index} 
                           src={imageUrl}
                           alt={item.product_name} 
-                          className="order-item-image"
+                          className={styles['order-item-image']}
                           onError={(e) => {
                             console.warn(`Image failed to load for ${item.product_name}, falling back to placeholder`);
                             e.currentTarget.src = '/placeholder-product.svg';
@@ -356,32 +356,32 @@ const UserOrdersManagement: React.FC = () => {
                       );
                     })}
                     {order.items.length > 3 && (
-                      <div className="order-item-overflow">
+                      <div className={styles['order-item-overflow']}>
                         +{order.items.length - 3}
                       </div>
                     )}
                   </div>
-                  <div className="order-items-summary">
-                    <p className="items-count">{order.items.length} item{order.items.length > 1 ? 's' : ''} {t('orders.items_including')}</p>
-                    <p className="items-list">
+                  <div className={styles['order-items-summary']}>
+                    <p className={styles['items-count']}>{order.items.length} item{order.items.length > 1 ? 's' : ''} {t('orders.items_including')}</p>
+                    <p className={styles['items-list']}>
                       {order.items.slice(0, 2).map(item => item.product_name).join(', ')}
                       {order.items.length > 2 && t('orders.and_more', { count: order.items.length - 2 })}
                     </p>
-                    <p className="buyer-info">{t('orders.management.for_label')} {order.buyer.first_name} {order.buyer.last_name}</p>
+                    <p className={styles['buyer-info']}>{t('orders.management.for_label')} {order.buyer.first_name} {order.buyer.last_name}</p>
                   </div>
                 </div>
 
                 {/* Card Footer */}
-                <div className="card-footer">
-                  <div className={`status-badge ${getStatusClass(order.status)}`}>
+                <div className={styles['card-footer']}>
+                  <div className={`${styles['status-badge']} ${styles[getStatusClass(order.status)]}`}>
                     {order.status.replace('_', ' ')}
                   </div>
-                  <div className="order-actions">
+                  <div className={styles['order-actions']}>
                     {order.status === 'payment_confirmed' && (
                       <button 
                         onClick={() => processOrder(order.id)} 
                         disabled={updatingOrders.has(order.id)}
-                        className="retry-payment-btn"
+                        className={styles['retry-payment-btn']}
                       >
                         {updatingOrders.has(order.id) ? t('orders.actions.processing') : t('orders.actions.process_order')}
                       </button>
@@ -389,7 +389,7 @@ const UserOrdersManagement: React.FC = () => {
                     {['awaiting_shipment', 'shipped'].includes(order.status) && (
                       <button 
                         onClick={() => toggleTrackingForm(order.id)}
-                        className="btn-tracking"
+                        className={styles['btn-tracking']}
                       >
                         {order.seller_shipping?.tracking_number ? t('orders.actions.update_tracking') : t('orders.actions.add_tracking')}
                       </button>
@@ -397,7 +397,7 @@ const UserOrdersManagement: React.FC = () => {
                     {['payment_confirmed', 'awaiting_shipment'].includes(order.status) && (
                       <button 
                         onClick={() => toggleCancelForm(order.id)}
-                        className="cancel-order-btn"
+                        className={styles['cancel-order-btn']}
                       >
                         {t('orders.actions.cancel_order')}
                       </button>
@@ -407,29 +407,29 @@ const UserOrdersManagement: React.FC = () => {
 
                 {/* Expanded Forms */}
                 {(showTrackingForm.has(order.id) || showCancelForm.has(order.id)) && (
-                  <div className="management-forms-section">
+                  <div className={styles['management-forms-section']}>
                     {showTrackingForm.has(order.id) && (
-                      <div className="tracking-form-section">
-                        <h4 className="form-section-title">{t('orders.detail.shipping_tracking')}</h4>
-                        <div className="tracking-form-grid">
+                      <div className={styles['tracking-form-section']}>
+                        <h4 className={styles['form-section-title']}>{t('orders.detail.shipping_tracking')}</h4>
+                        <div className={styles['tracking-form-grid']}>
                           <input 
                             type="text" 
                             placeholder={t('orders.detail.tracking_number')}
                             defaultValue={order.seller_shipping?.tracking_number || ''}
                             onChange={(e) => handleTrackingDataChange(order.id, 'trackingNumber', e.target.value)}
-                            className="tracking-input"
+                            className={styles['tracking-input']}
                           />
                           <input 
                             type="text" 
                             placeholder={t('orders.detail.carrier')}
                             defaultValue={order.seller_shipping?.shipping_carrier || ''}
                             onChange={(e) => handleTrackingDataChange(order.id, 'carrier', e.target.value)}
-                            className="tracking-input"
+                            className={styles['tracking-input']}
                           />
                           <button 
                             onClick={() => updateTrackingNumber(order.id)} 
                             disabled={updatingOrders.has(order.id)}
-                            className="btn-save-tracking"
+                            className={styles['btn-save-tracking']}
                           >
                             {t('orders.actions.save')}
                           </button>
@@ -437,18 +437,18 @@ const UserOrdersManagement: React.FC = () => {
                       </div>
                     )}
                     {showCancelForm.has(order.id) && (
-                      <div className="cancel-form-section">
-                        <h4 className="form-section-title">{t('orders.actions.cancel_order')}</h4>
+                      <div className={styles['cancel-form-section']}>
+                        <h4 className={styles['form-section-title']}>{t('orders.actions.cancel_order')}</h4>
                         <textarea 
                           placeholder="Reason for cancellation..."
                           onChange={(e) => handleCancelDataChange(order.id, e.target.value)}
                           rows={3}
-                          className="cancel-reason-textarea"
+                          className={styles['cancel-reason-textarea']}
                         />
                         <button 
                           onClick={() => cancelOrderWithReason(order.id)} 
                           disabled={updatingOrders.has(order.id)}
-                          className="btn-confirm-cancellation"
+                          className={styles['btn-confirm-cancellation']}
                         >
                           {t('orders.actions.confirm_cancellation')}
                         </button>

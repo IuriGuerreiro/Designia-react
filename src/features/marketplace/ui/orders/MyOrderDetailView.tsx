@@ -4,7 +4,7 @@ import { Layout } from '@/app/layout';
 import { useTranslation } from 'react-i18next';
 import { orderService } from '@/features/marketplace/api';
 import { type Order } from '@/features/marketplace/model';
-import './Orders.css';
+import styles from './Orders.module.css';
 
 const MyOrderDetailView: React.FC = () => {
   const { t } = useTranslation();
@@ -90,9 +90,9 @@ const MyOrderDetailView: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="order-detail-loading">
-          <div className="loading-spinner"></div>
-          <p className="loading-text">{t('orders.detail.loading_details')}</p>
+        <div className={styles['order-detail-loading']}>
+          <div className={styles['loading-spinner']}></div>
+          <p className={styles['loading-text']}>{t('orders.detail.loading_details')}</p>
         </div>
       </Layout>
     );
@@ -101,11 +101,11 @@ const MyOrderDetailView: React.FC = () => {
   if (error || !order) {
     return (
       <Layout>
-        <div className="order-detail-error">
-          <div className="error-icon">⚠️</div>
-          <h3 className="error-title">{t('orders.detail.not_found_title')}</h3>
-          <p className="error-description">{error || t('orders.detail.not_found_message')}</p>
-          <Link to="/my-orders" className="back-to-orders-btn">
+        <div className={styles['order-detail-error']}>
+          <div className={styles['error-icon']}>⚠️</div>
+          <h3 className={styles['error-title']}>{t('orders.detail.not_found_title')}</h3>
+          <p className={styles['error-description']}>{error || t('orders.detail.not_found_message')}</p>
+          <Link to="/my-orders" className={styles['back-to-orders-btn']}>
             ← {t('orders.detail.back_to_orders')}
           </Link>
         </div>
@@ -115,60 +115,60 @@ const MyOrderDetailView: React.FC = () => {
 
   return (
     <Layout>
-      <div className="order-detail-container">
+      <div className={styles['order-detail-container']}>
         {/* Premium Breadcrumb */}
-        <div className="order-detail-breadcrumb">
-          <Link to="/my-orders" className="breadcrumb-link">
-            <span className="breadcrumb-icon">←</span>
-            <span className="breadcrumb-text">{t('orders.detail.back_to_orders')}</span>
+        <div className={styles['order-detail-breadcrumb']}>
+          <Link to="/my-orders" className={styles['breadcrumb-link']}>
+            <span className={styles['breadcrumb-icon']}>←</span>
+            <span className={styles['breadcrumb-text']}>{t('orders.detail.back_to_orders')}</span>
           </Link>
         </div>
 
         {/* Premium Order Header */}
-        <div className="order-detail-header">
-          <div className="header-content">
-            <div className="order-title-section">
-              <div className="order-id-display">
-                <span className="order-label">Order Number</span>
-                <h1 className="order-number">#{order.id.slice(-8)}</h1>
+        <div className={styles['order-detail-header']}>
+          <div className={styles['header-content']}>
+            <div className={styles['order-title-section']}>
+              <div className={styles['order-id-display']}>
+                <span className={styles['order-label']}>Order Number</span>
+                <h1 className={styles['order-number']}>#{order.id.slice(-8)}</h1>
               </div>
-              <div className="order-date-info">
-                <span className="date-label">Order Placed</span>
-                <span className="order-date">{formatOrderDate(order.created_at)}</span>
+              <div className={styles['order-date-info']}>
+                <span className={styles['date-label']}>Order Placed</span>
+                <span className={styles['order-date']}>{formatOrderDate(order.created_at)}</span>
               </div>
             </div>
             
-            <div className="header-status-section">
-              <div className={`status-badge ${getStatusClass(order.status)}`}>
-                <span className="status-icon">{getStatusIcon(order.status)}</span>
-                <span className="status-text">{order.status.replace('_', ' ')}</span>
+            <div className={styles['header-status-section']}>
+              <div className={`${styles['status-badge']} ${styles[getStatusClass(order.status)]}`}>
+                <span className={styles['status-icon']}>{getStatusIcon(order.status)}</span>
+                <span className={styles['status-text']}>{order.status.replace('_', ' ')}</span>
               </div>
-              <div className="order-total-section">
-                <span className="total-label">Total Amount</span>
-                <span className="total-amount">${order.total_amount || '0.00'}</span>
+              <div className={styles['order-total-section']}>
+                <span className={styles['total-label']}>Total Amount</span>
+                <span className={styles['total-amount']}>${order.total_amount || '0.00'}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Premium Order Items Section */}
-        <div className="order-detail-section">
-          <div className="section-header">
-            <h2 className="section-title">
-              <span className="section-icon">📦</span>
+        <div className={styles['order-detail-section']}>
+          <div className={styles['section-header']}>
+            <h2 className={styles['section-title']}>
+              <span className={styles['section-icon']}>📦</span>
               Order Items
             </h2>
-            <span className="item-count-badge">{order.items.length} item{order.items.length > 1 ? 's' : ''}</span>
+            <span className={styles['item-count-badge']}>{order.items.length} item{order.items.length > 1 ? 's' : ''}</span>
           </div>
           
-          <div className="order-items-grid">
+          <div className={styles['order-items-grid']}>
             {order.items.map((item) => (
-              <div key={item.id} className="order-item-card">
-                <div className="item-image-container">
+              <div key={item.id} className={styles['order-item-card']}>
+                <div className={styles['item-image-container']}>
                   <img 
                     src={getBestImageUrl(item)}
                     alt={item.product_name}
-                    className="item-image"
+                    className={styles['item-image']}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       if (target.src !== '/placeholder-product.svg') {
@@ -176,26 +176,26 @@ const MyOrderDetailView: React.FC = () => {
                       }
                     }}
                   />
-                  <div className="quantity-badge">{item.quantity}x</div>
+                  <div className={styles['quantity-badge']}>{item.quantity}x</div>
                 </div>
                 
-                <div className="item-details">
-                  <div className="item-meta">
-                    <span className="seller-info">
-                      <span className="seller-icon">🏢</span>
-                      <span className="seller-name">{item.seller || t('orders.detail.unknown_seller')}</span>
+                <div className={styles['item-details']}>
+                  <div className={styles['item-meta']}>
+                    <span className={styles['seller-info']}>
+                      <span className={styles['seller-icon']}>🏢</span>
+                      <span className={styles['seller-name']}>{item.seller || t('orders.detail.unknown_seller')}</span>
                     </span>
                   </div>
-                  <h3 className="item-name">{item.product_name}</h3>
+                  <h3 className={styles['item-name']}>{item.product_name}</h3>
                   
-                  <div className="pricing-grid">
-                    <div className="price-detail">
-                      <span className="price-label">{t('orders.detail.unit_price')}</span>
-                      <span className="price-value">${item.unit_price}</span>
+                  <div className={styles['pricing-grid']}>
+                    <div className={styles['price-detail']}>
+                      <span className={styles['price-label']}>{t('orders.detail.unit_price')}</span>
+                      <span className={styles['price-value']}>${item.unit_price}</span>
                     </div>
-                    <div className="price-detail">
-                      <span className="price-label">{t('orders.total')}</span>
-                      <span className="price-value total-highlight">
+                    <div className={styles['price-detail']}>
+                      <span className={styles['price-label']}>{t('orders.total')}</span>
+                      <span className={`${styles['price-value']} ${styles['total-highlight']}`}>
                         ${item.total_price}
                       </span>
                     </div>
@@ -208,29 +208,29 @@ const MyOrderDetailView: React.FC = () => {
 
         {/* Premium Shipping Section */}
         {order.shipping_info && order.shipping_info.length > 0 && (
-          <div className="order-detail-section">
-            <div className="section-header">
-              <h2 className="section-title">
-                <span className="section-icon">🚚</span>
+          <div className={styles['order-detail-section']}>
+            <div className={styles['section-header']}>
+              <h2 className={styles['section-title']}>
+                <span className={styles['section-icon']}>🚚</span>
                 {t('orders.detail.shipping_tracking')}
               </h2>
-              <span className="shipping-count-badge">{t('orders.detail.shipment_count', { count: order.shipping_info.length, suffix: order.shipping_info.length > 1 ? 's' : '' })}</span>
+              <span className={styles['shipping-count-badge']}>{t('orders.detail.shipment_count', { count: order.shipping_info.length, suffix: order.shipping_info.length > 1 ? 's' : '' })}</span>
             </div>
             
-            <div className="shipping-list">
+            <div className={styles['shipping-list']}>
               {order.shipping_info.map((shipping, index) => (
-                <div key={index} className="shipping-card">
-                  <div className="shipping-header">
-                    <div className="seller-info">
-                      <div className="seller-avatar">
+                <div key={index} className={styles['shipping-card']}>
+                  <div className={styles['shipping-header']}>
+                    <div className={styles['seller-info']}>
+                      <div className={styles['seller-avatar']}>
                         {shipping.seller.username.charAt(0).toUpperCase()}
                       </div>
-                      <div className="seller-details">
-                        <Link to={`/seller/${shipping.seller.id}`} className="seller-name-link">
-                          <h4 className="seller-name">{shipping.seller.username}</h4>
+                      <div className={styles['seller-details']}>
+                        <Link to={`/seller/${shipping.seller.id}`} className={styles['seller-name-link']}>
+                          <h4 className={styles['seller-name']}>{shipping.seller.username}</h4>
                         </Link>
                         {shipping.shipped_at && (
-                          <span className="shipped-date">
+                          <span className={styles['shipped-date']}>
                             {t('orders.detail.shipped_on', { date: new Date(shipping.shipped_at).toLocaleDateString() })}
                           </span>
                         )}
@@ -239,21 +239,21 @@ const MyOrderDetailView: React.FC = () => {
                   </div>
                   
                   {shipping.tracking_number ? (
-                    <div className="tracking-info">
-                      <div className="tracking-detail">
-                        <span className="tracking-label">{t('orders.detail.tracking_number')}</span>
-                        <div className="tracking-number">{shipping.tracking_number}</div>
+                    <div className={styles['tracking-info']}>
+                      <div className={styles['tracking-detail']}>
+                        <span className={styles['tracking-label']}>{t('orders.detail.tracking_number')}</span>
+                        <div className={styles['tracking-number']}>{shipping.tracking_number}</div>
                       </div>
                       {shipping.shipping_carrier && (
-                        <div className="tracking-detail">
-                          <span className="tracking-label">{t('orders.detail.carrier')}</span>
-                          <span className="carrier-name">{shipping.shipping_carrier}</span>
+                        <div className={styles['tracking-detail']}>
+                          <span className={styles['tracking-label']}>{t('orders.detail.carrier')}</span>
+                          <span className={styles['carrier-name']}>{shipping.shipping_carrier}</span>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="no-tracking">
-                      <div className="preparing-status">
+                    <div className={styles['no-tracking']}>
+                      <div className={styles['preparing-status']}>
                         <span>📦 {t('orders.detail.preparing_shipment')}</span>
                       </div>
                     </div>
@@ -265,39 +265,39 @@ const MyOrderDetailView: React.FC = () => {
         )}
 
         {/* Premium Order Summary */}
-        <div className="order-detail-section">
-          <div className="section-header">
-            <h2 className="section-title">
-              <span className="section-icon">📋</span>
+        <div className={styles['order-detail-section']}>
+          <div className={styles['section-header']}>
+            <h2 className={styles['section-title']}>
+              <span className={styles['section-icon']}>📋</span>
               {t('orders.detail.order_summary')}
             </h2>
           </div>
           
-          <div className="order-summary-card">
-            <div className="summary-row">
-              <span className="summary-label">{t('checkout.subtotal_label')}</span>
-              <span className="summary-value">${order.subtotal}</span>
+          <div className={styles['order-summary-card']}>
+            <div className={styles['summary-row']}>
+              <span className={styles['summary-label']}>{t('checkout.subtotal_label')}</span>
+              <span className={styles['summary-value']}>${order.subtotal}</span>
             </div>
-            <div className="summary-row">
-              <span className="summary-label">{t('checkout.shipping_label')}</span>
-              <span className="summary-value">${order.shipping_cost}</span>
+            <div className={styles['summary-row']}>
+              <span className={styles['summary-label']}>{t('checkout.shipping_label')}</span>
+              <span className={styles['summary-value']}>${order.shipping_cost}</span>
             </div>
             {order.tax_amount > 0 && (
-              <div className="summary-row">
-                <span className="summary-label">Tax</span>
-                <span className="summary-value">${order.tax_amount}</span>
+              <div className={styles['summary-row']}>
+                <span className={styles['summary-label']}>Tax</span>
+                <span className={styles['summary-value']}>${order.tax_amount}</span>
               </div>
             )}
             {order.discount_amount > 0 && (
-              <div className="summary-row">
-                <span className="summary-label">Discount</span>
-                <span className="summary-value discount-value">-${order.discount_amount}</span>
+              <div className={styles['summary-row']}>
+                <span className={styles['summary-label']}>Discount</span>
+                <span className={`${styles['summary-value']} ${styles['discount-value']}`}>-${order.discount_amount}</span>
               </div>
             )}
-            <div className="summary-divider"></div>
-            <div className="summary-row final-total">
-              <span className="summary-label">{t('checkout.total_label')}</span>
-              <span className="summary-value">${order.total_amount}</span>
+            <div className={styles['summary-divider']}></div>
+            <div className={`${styles['summary-row']} ${styles['final-total']}`}>
+              <span className={styles['summary-label']}>{t('checkout.total_label')}</span>
+              <span className={styles['summary-value']}>${order.total_amount}</span>
             </div>
           </div>
         </div>
