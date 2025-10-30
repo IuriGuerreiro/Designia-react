@@ -201,7 +201,7 @@ button:disabled {
 }
 
 .btn-primary {
-  background: var(--button-gradient);
+  background: var(--gradient-button);
   color: var(--color-accent-contrast);
   border-color: color-mix(in srgb, var(--color-accent) 65%, transparent);
   box-shadow: var(--shadow-sm);

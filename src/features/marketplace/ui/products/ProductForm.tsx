@@ -7,13 +7,60 @@ import { useTranslation } from 'react-i18next';
 import { categoryService, productService } from '@/features/marketplace/api';
 import { type Category } from '@/features/marketplace/model';
 import { processImagesForUpload, type ImageInfo } from '@/utils/imageUtils';
-import styles from './ProductForm.module.css';
+import {
+  FormContainer,
+  FormSection,
+  FormGrid,
+  FormGroup,
+  FormLabel,
+  FormInput,
+  FormTextarea,
+  FormSelect,
+  InputGroup,
+  Checkbox,
+  HelpText,
+  FormActions,
+  Button,
+  Loading,
+  type FormTranslations
+} from '@/shared/ui/forms';
 
 const ProductForm: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const isEditing = Boolean(slug);
+  
+  // Form translations
+  const formTranslations: FormTranslations = {
+    selectOption: t('forms.select_option'),
+    requiredField: t('forms.required_field'),
+    optional: t('forms.optional'),
+    loading: t('forms.loading'),
+    save: t('forms.save'),
+    cancel: t('forms.cancel'),
+    submit: t('forms.submit'),
+    edit: t('forms.edit'),
+    delete: t('forms.delete'),
+    confirm: t('forms.confirm'),
+    back: t('forms.back'),
+    next: t('forms.next'),
+    previous: t('forms.previous'),
+    finish: t('forms.finish'),
+    close: t('forms.close'),
+    search: t('forms.search'),
+    clear: t('forms.clear'),
+    upload: t('forms.upload'),
+    download: t('forms.download'),
+    browse: t('forms.browse'),
+    chooseFile: t('forms.choose_file'),
+    dragDrop: t('forms.drag_drop'),
+    processing: t('forms.processing'),
+    success: t('forms.success'),
+    error: t('forms.error'),
+    warning: t('forms.warning'),
+    info: t('forms.info')
+  };
   
   // State management
   const [loading, setLoading] = useState(false);
@@ -46,7 +93,6 @@ const ProductForm: React.FC = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [isProcessingImages, setIsProcessingImages] = useState(false);
-
 
   const availableColors = ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Gray', 'Brown', 'Orange', 'Purple'];
   
@@ -460,11 +506,8 @@ const ProductForm: React.FC = () => {
   if (loading && isEditing) {
     return (
       <Layout>
-<div className={styles['product-form-page']}>
-<div className={styles['product-loading-container']}>
-            <div className={styles['product-loading-spinner']}></div>
-            <p>{t('products.form.loading_product')}</p>
-          </div>
+        <div style={{ padding: 'var(--space-3xl, 64px)' }}>
+          <Loading text={t('products.form.loading_product')} />
         </div>
       </Layout>
     );
@@ -472,11 +515,35 @@ const ProductForm: React.FC = () => {
 
   return (
     <Layout>
-      <div className="product-form-page">
-        {/* Header Section - Like MyOrdersPage.tsx */}
-        <div className={styles['product-form-header']}>
-          <h1 className={styles['product-form-title']}>{isEditing ? t('products.edit_product_title') : t('products.create_product_title')}</h1>
-          <p className={styles['product-form-subtitle']}>
+      <div style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        padding: 'var(--space-xl, 32px) var(--space-lg, 24px)',
+        fontFamily: 'var(--font-sans, "Inter", sans-serif)'
+      }}>
+        {/* Header Section */}
+        <div style={{ 
+          textAlign: 'center', 
+          padding: 'var(--space-xl, 32px) 0 var(--space-lg, 24px)', 
+          borderBottom: '1px solid var(--color-border, #E5E7EB)', 
+          marginBottom: 'var(--space-xl, 32px)' 
+        }}>
+          <h1 style={{ 
+            fontFamily: 'var(--font-serif, "Playfair Display", serif)', 
+            fontSize: '36px', 
+            fontWeight: 600, 
+            color: 'var(--color-text-primary, #1A1A1A)', 
+            margin: '0 0 var(--space-sm, 8px) 0',
+            lineHeight: 1.2
+          }}>
+            {isEditing ? t('products.edit_product_title') : t('products.create_product_title')}
+          </h1>
+          <p style={{ 
+            fontSize: '16px', 
+            color: 'var(--color-text-secondary, #6B7280)', 
+            margin: 0,
+            lineHeight: 1.5
+          }}>
             {isEditing 
               ? t('products.form.edit_product_description')
               : t('products.form.create_product_description')
@@ -486,43 +553,55 @@ const ProductForm: React.FC = () => {
 
         {/* Error Banner */}
         {error && (
-<div className={styles['error-banner']}>
-            <div className={styles['error-content']}>
-              <div className={styles['error-icon']}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="15" y1="9" x2="9" y2="15"/>
-                  <line x1="9" y1="9" x2="15" y2="18"/>
-                </svg>
-              </div>
-              <div className={styles['error-text']}>
-                <h4>Error</h4>
-                <p>{error}</p>
-              </div>
+          <div style={{
+            borderRadius: '16px',
+            border: '1px solid color-mix(in srgb, var(--color-error, #EF4444) 45%, transparent)',
+            background: 'color-mix(in srgb, var(--color-error, #EF4444) 12%, var(--color-surface, #FFFFFF) 88%)',
+            padding: '16px 24px',
+            marginBottom: 'var(--space-lg, 24px)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              color: 'var(--color-error, #EF4444)'
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="18"/>
+              </svg>
+            </div>
+            <div>
+              <h4 style={{ margin: '0 0 4px', fontSize: '16px', color: 'var(--color-error, #EF4444)', fontWeight: 600 }}>
+                Error
+              </h4>
+              <p style={{ margin: 0, color: 'var(--color-text-secondary, #6B7280)', lineHeight: 1.5 }}>
+                {error}
+              </p>
             </div>
           </div>
         )}
 
         {/* Main Form */}
-<div className={styles['product-form-container']}>
-          <form onSubmit={handleSubmit} className={styles['product-form-form']}>
+        <FormContainer>
+          <form onSubmit={handleSubmit}>
             {/* Images Section */}
-            <div className={styles['product-form-section']}>
-              <div className={styles['product-section-header']}>
-                <div className={styles['product-section-icon']}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <polyline points="21,15 16,10 5,21"/>
-                  </svg>
-                </div>
-<div className={styles['product-section-content']}>
-                  <h3 className={styles['product-section-title']}>{t('products.form.images_label')}</h3>
-                  <p className={styles['product-section-description']}>{t('products.form.images_hint')}</p>
-                </div>
-              </div>
-              
-<div className={styles['product-form-group']}>
+            <FormSection 
+              title={t('products.form.images_label')}
+              description={t('products.form.images_hint')}
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21,15 16,10 5,21"/>
+                </svg>
+              }
+            >
+              <FormGroup>
                 <ImageUpload 
                   files={imageFiles} 
                   setFiles={setImageFiles}
@@ -531,34 +610,46 @@ const ProductForm: React.FC = () => {
                   allowedExtensions={['jpg', 'jpeg', 'png', 'webp']}
                 />
                 {isProcessingImages && (
-                  <div className={styles['product-processing-indicator']}>
-                    <div className={styles['product-processing-spinner']}></div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-md, 16px)',
+                    padding: 'var(--space-md, 16px)',
+                    background: 'var(--surface-subtle, rgba(241, 243, 244, 0.5))',
+                    borderRadius: '12px',
+                    marginTop: 'var(--space-md, 16px)',
+                    color: 'var(--color-text-secondary, #6B7280)',
+                    fontSize: '14px'
+                  }}>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      border: '2px solid var(--color-border, #E5E7EB)',
+                      borderTop: '2px solid var(--color-primary, #3B82F6)',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }}></div>
                     <span>{t('products.form.processing_images')}</span>
                   </div>
                 )}
-              </div>
-            </div>
+              </FormGroup>
+            </FormSection>
 
-{/* Basic Information */}
-            <div className={styles['product-form-section']}>
-              <div className={styles['product-section-header']}>
-                <div className={styles['product-section-icon']}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M16 4H18C19.1046 4 20 4.89543 20 6V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6C4 4.89543 4.89543 4 6 4H8"/>
-                    <path d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55228 8.44772 6 9 6H15C15.5523 6 16 5.55228 16 5V3C16 2.44772 15.5523 2 15 2Z"/>
-                  </svg>
-                </div>
-                <div className="product-section-content">
-                  <h3 className="product-section-title">{t('products.form.basic_info_title')}</h3>
-                  <p className="product-section-description">{t('products.form.basic_info_description')}</p>
-                </div>
-              </div>
-              
-              <div className="product-form-grid">
-                <div className="product-form-group full-width">
-                  <label htmlFor="name">{t('products.form.name_label')} *</label>
-                  <input 
-                    type="text" 
+            {/* Basic Information */}
+            <FormSection 
+              title={t('products.form.basic_info_title')}
+              description={t('products.form.basic_info_description')}
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M16 4H18C19.1046 4 20 4.89543 20 6V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6C4 4.89543 4.89543 4 6 4H8"/>
+                  <path d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55228 8.44772 6 9 6H15C15.5523 6 16 5.55228 16 5V3C16 2.44772 15.5523 2 15 2Z"/>
+                </svg>
+              }
+            >
+              <FormGrid>
+                <FormGroup fullWidth>
+                  <FormLabel required htmlFor="name">{t('products.form.name_label')}</FormLabel>
+                  <FormInput 
                     id="name" 
                     value={formData.name} 
                     onChange={e => setFormData({...formData, name: e.target.value})} 
@@ -566,56 +657,52 @@ const ProductForm: React.FC = () => {
                     maxLength={200}
                     placeholder={t('products.form.name_label')}
                   />
-                </div>
+                </FormGroup>
 
-                <div className="product-form-group full-width">
-                  <label htmlFor="short_description">{t('products.form.short_description_label')}</label>
-                  <input 
-                    type="text" 
+                <FormGroup fullWidth>
+                  <FormLabel htmlFor="short_description">{t('products.form.short_description_label')}</FormLabel>
+                  <FormInput 
                     id="short_description" 
                     value={formData.short_description} 
                     onChange={e => setFormData({...formData, short_description: e.target.value})} 
                     maxLength={300}
                     placeholder={t('products.form.short_description_placeholder')}
                   />
-                </div>
+                </FormGroup>
 
-                <div className="product-form-group full-width">
-                  <label htmlFor="description">{t('products.form.full_description_label')} *</label>
-                  <textarea 
+                <FormGroup fullWidth>
+                  <FormLabel required htmlFor="description">{t('products.form.full_description_label')}</FormLabel>
+                  <FormTextarea 
                     id="description" 
                     value={formData.description} 
                     onChange={e => setFormData({...formData, description: e.target.value})} 
                     required
-                    rows={4}
+                    showCharacterCounter
+                    maxLength={2000}
+                    value={formData.description}
                     placeholder={t('products.form.full_description_placeholder')}
                   />
-                </div>
-              </div>
-            </div>
+                </FormGroup>
+              </FormGrid>
+            </FormSection>
 
             {/* Pricing & Inventory */}
-            <div className="product-form-section">
-              <div className="product-section-header">
-                <div className="product-section-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <line x1="12" y1="1" x2="12" y2="23"/>
-                    <path d="M17 5H9.5A3.5 3.5 0 0 0 6 8.5V11A3.5 3.5 0 0 0 9.5 14.5H17"/>
-                    <path d="M17 19H9.5A3.5 3.5 0 0 0 6 22.5V25A3.5 3.5 0 0 0 9.5 28.5H17"/>
-                  </svg>
-                </div>
-                <div className="product-section-content">
-                  <h3 className="product-section-title">{t('products.form.pricing_inventory_title')}</h3>
-                  <p className="product-section-description">{t('products.form.pricing_inventory_description')}</p>
-                </div>
-              </div>
-              
-              <div className="product-form-grid">
-                <div className="product-form-group">
-                  <label htmlFor="price">{t('products.form.price_label')} *</label>
-                  <div className="product-input-with-icon">
-                    <span className="product-currency-symbol">$</span>
-                    <input 
+            <FormSection 
+              title={t('products.form.pricing_inventory_title')}
+              description={t('products.form.pricing_inventory_description')}
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5A3.5 3.5 0 0 0 6 8.5V11A3.5 3.5 0 0 0 9.5 14.5H17"/>
+                  <path d="M17 19H9.5A3.5 3.5 0 0 0 6 22.5V25A3.5 3.5 0 0 0 9.5 28.5H17"/>
+                </svg>
+              }
+            >
+              <FormGrid>
+                <FormGroup error={fieldErrors.original_price}>
+                  <FormLabel required htmlFor="price">{t('products.form.price_label')}</FormLabel>
+                  <InputGroup prefix="$">
+                    <FormInput 
                       type="number" 
                       id="price" 
                       value={formData.price} 
@@ -625,14 +712,13 @@ const ProductForm: React.FC = () => {
                       step="0.01"
                       placeholder="0.00"
                     />
-                  </div>
-                </div>
+                  </InputGroup>
+                </FormGroup>
 
-                <div className="product-form-group">
-                  <label htmlFor="original_price">{t('products.form.original_price_label')}</label>
-                  <div className="product-input-with-icon">
-                    <span className="product-currency-symbol">$</span>
-                    <input 
+                <FormGroup error={fieldErrors.original_price}>
+                  <FormLabel htmlFor="original_price">{t('products.form.original_price_label')}</FormLabel>
+                  <InputGroup prefix="$">
+                    <FormInput 
                       type="number" 
                       id="original_price" 
                       value={formData.original_price} 
@@ -640,19 +726,13 @@ const ProductForm: React.FC = () => {
                       min="0.01"
                       step="0.01"
                       placeholder="0.00"
-                      aria-invalid={Boolean(fieldErrors.original_price) || undefined}
                     />
-                  </div>
-                  {fieldErrors.original_price && (
-                    <p style={{ color: 'var(--error-red)', margin: '4px 0 0', fontSize: 13 }}>
-                      {fieldErrors.original_price}
-                    </p>
-                  )}
-                </div>
+                  </InputGroup>
+                </FormGroup>
 
-                <div className="product-form-group">
-                  <label htmlFor="stock_quantity">{t('products.form.stock_quantity_label')} *</label>
-                  <input 
+                <FormGroup>
+                  <FormLabel required htmlFor="stock_quantity">{t('products.form.stock_quantity_label')}</FormLabel>
+                  <FormInput 
                     type="number" 
                     id="stock_quantity" 
                     value={formData.stock_quantity} 
@@ -661,102 +741,94 @@ const ProductForm: React.FC = () => {
                     min="0"
                     placeholder="0"
                   />
-                </div>
+                </FormGroup>
 
-                <div className="product-form-group">
-                  <label htmlFor="condition">{t('products.form.condition_label')} *</label>
-                  <Select
+                <FormGroup>
+                  <FormLabel required htmlFor="condition">{t('products.form.condition_label')}</FormLabel>
+                  <FormSelect
+                    id="condition"
                     value={formData.condition}
                     onChange={value => setFormData({...formData, condition: value})}
                     options={conditionOptions}
                     placeholder={t('products.form.condition_placeholder')}
+                    translations={formTranslations}
                   />
-                </div>
-              </div>
-            </div>
+                </FormGroup>
+              </FormGrid>
+            </FormSection>
 
             {/* Category & Details */}
-            <div className="product-form-section">
-              <div className="product-section-header">
-                <div className="product-section-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M3 3H21V7H3V3Z"/>
-                    <path d="M3 11H21V15H3V11Z"/>
-                    <path d="M3 19H21V23H3V19Z"/>
-                  </svg>
-                </div>
-                <div className="product-section-content">
-                  <h3 className="product-section-title">{t('products.form.category_details_title')}</h3>
-                  <p className="product-section-description">{t('products.form.category_details_description')}</p>
-                </div>
-              </div>
-              
-              <div className="product-form-grid">
-                <div className="product-form-group">
-                  <label htmlFor="category">{t('products.form.category_label')} *</label>
-                  <Select
+            <FormSection 
+              title={t('products.form.category_details_title')}
+              description={t('products.form.category_details_description')}
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 3H21V7H3V3Z"/>
+                  <path d="M3 11H21V15H3V11Z"/>
+                  <path d="M3 19H21V23H3V19Z"/>
+                </svg>
+              }
+            >
+              <FormGrid>
+                <FormGroup>
+                  <FormLabel required htmlFor="category">{t('products.form.category_label')}</FormLabel>
+                  <FormSelect
+                    id="category"
                     value={formData.category}
                     onChange={value => setFormData({...formData, category: value})}
                     options={categoryOptions}
                     placeholder={t('products.form.category_placeholder')}
                   />
-                </div>
+                </FormGroup>
 
-                <div className="product-form-group">
-                  <label htmlFor="brand">{t('products.form.brand_label')}</label>
-                  <input 
-                    type="text" 
+                <FormGroup>
+                  <FormLabel htmlFor="brand">{t('products.form.brand_label')}</FormLabel>
+                  <FormInput 
                     id="brand" 
                     value={formData.brand} 
                     onChange={e => setFormData({...formData, brand: e.target.value})} 
                     placeholder={t('products.form.brand_placeholder')}
                   />
-                </div>
+                </FormGroup>
 
-                <div className="product-form-group">
-                  <label htmlFor="model">{t('products.form.model_label')}</label>
-                  <input 
-                    type="text" 
+                <FormGroup>
+                  <FormLabel htmlFor="model">{t('products.form.model_label')}</FormLabel>
+                  <FormInput 
                     id="model" 
                     value={formData.model} 
                     onChange={e => setFormData({...formData, model: e.target.value})} 
                     placeholder={t('products.form.model_placeholder')}
                   />
-                </div>
+                </FormGroup>
 
-                <div className="product-form-group">
-                  <label htmlFor="materials">{t('products.form.materials_label')}</label>
-                  <input 
-                    type="text" 
+                <FormGroup>
+                  <FormLabel htmlFor="materials">{t('products.form.materials_label')}</FormLabel>
+                  <FormInput 
                     id="materials" 
                     value={formData.materials} 
                     onChange={e => setFormData({...formData, materials: e.target.value})} 
                     placeholder={t('products.form.materials_placeholder')}
                   />
-                </div>
-              </div>
-            </div>
+                </FormGroup>
+              </FormGrid>
+            </FormSection>
 
             {/* Physical Properties */}
-            <div className="product-form-section">
-              <div className="product-section-header">
-                <div className="product-section-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 16V8A2 2 0 0 0 19 6H5A2 2 0 0 0 3 8V16A2 2 0 0 0 5 18H19A2 2 0 0 0 21 16Z"/>
-                    <path d="M7 2V22"/>
-                    <path d="M17 2V22"/>
-                  </svg>
-                </div>
-                <div className="product-section-content">
-                  <h3 className="product-section-title">{t('products.form.physical_properties_title')}</h3>
-                  <p className="product-section-description">{t('products.form.physical_properties_description')}</p>
-                </div>
-              </div>
-              
-              <div className="product-form-grid">
-                <div className="product-form-group">
-                  <label htmlFor="weight">{t('products.form.weight_label')}</label>
-                  <input 
+            <FormSection 
+              title={t('products.form.physical_properties_title')}
+              description={t('products.form.physical_properties_description')}
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 16V8A2 2 0 0 0 19 6H5A2 2 0 0 0 3 8V16A2 2 0 0 0 5 18H19A2 2 0 0 0 21 16Z"/>
+                  <path d="M7 2V22"/>
+                  <path d="M17 2V22"/>
+                </svg>
+              }
+            >
+              <FormGrid>
+                <FormGroup>
+                  <FormLabel htmlFor="weight">{t('products.form.weight_label')}</FormLabel>
+                  <FormInput 
                     type="number" 
                     id="weight" 
                     value={formData.weight} 
@@ -765,11 +837,11 @@ const ProductForm: React.FC = () => {
                     step="0.1"
                     placeholder="0.0"
                   />
-                </div>
+                </FormGroup>
 
-                <div className="product-form-group">
-                  <label htmlFor="dimensions_length">Length (cm)</label>
-                  <input 
+                <FormGroup>
+                  <FormLabel htmlFor="dimensions_length">Length (cm)</FormLabel>
+                  <FormInput 
                     type="number" 
                     id="dimensions_length" 
                     value={formData.dimensions_length} 
@@ -778,11 +850,11 @@ const ProductForm: React.FC = () => {
                     step="0.1"
                     placeholder="0.0"
                   />
-                </div>
+                </FormGroup>
 
-                <div className="product-form-group">
-                  <label htmlFor="dimensions_width">Width (cm)</label>
-                  <input 
+                <FormGroup>
+                  <FormLabel htmlFor="dimensions_width">Width (cm)</FormLabel>
+                  <FormInput 
                     type="number" 
                     id="dimensions_width" 
                     value={formData.dimensions_width} 
@@ -791,11 +863,11 @@ const ProductForm: React.FC = () => {
                     step="0.1"
                     placeholder="0.0"
                   />
-                </div>
+                </FormGroup>
 
-                <div className="product-form-group">
-                  <label htmlFor="dimensions_height">Height (cm)</label>
-                  <input 
+                <FormGroup>
+                  <FormLabel htmlFor="dimensions_height">Height (cm)</FormLabel>
+                  <FormInput 
                     type="number" 
                     id="dimensions_height" 
                     value={formData.dimensions_height} 
@@ -804,47 +876,84 @@ const ProductForm: React.FC = () => {
                     step="0.1"
                     placeholder="0.0"
                   />
-                </div>
-              </div>
-            </div>
+                </FormGroup>
+              </FormGrid>
+            </FormSection>
 
             {/* Colors */}
-            <div className="product-form-section">
-              <div className="product-section-header">
-                <div className="product-section-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="13.5" cy="6.5" r="1.5"/>
-                    <circle cx="17.5" cy="10.5" r="1.5"/>
-                    <circle cx="8.5" cy="7.5" r="1.5"/>
-                    <circle cx="6.5" cy="12.5" r="1.5"/>
-                    <path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2Z"/>
-                  </svg>
-                </div>
-                <div className="product-section-content">
-                  <h3 className="product-section-title">Available Colors</h3>
-                  <p className="product-section-description">Select the colors available for this product</p>
-                </div>
-              </div>
-              
-              <div className="product-form-group">
-                <Select
+            <FormSection 
+              title="Available Colors"
+              description="Select the colors available for this product"
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="13.5" cy="6.5" r="1.5"/>
+                  <circle cx="17.5" cy="10.5" r="1.5"/>
+                  <circle cx="8.5" cy="7.5" r="1.5"/>
+                  <circle cx="6.5" cy="12.5" r="1.5"/>
+                  <path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2Z"/>
+                </svg>
+              }
+            >
+              <FormGroup>
+                <FormSelect
                   value=""
                   onChange={handleAddColor}
                   options={colorOptions}
                   placeholder="Add a color"
                 />
-                <div className="product-selected-colors">
+                <div style={{ 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  gap: 'var(--space-sm, 8px)', 
+                  marginTop: 'var(--space-md, 16px)' 
+                }}>
                   {selectedColors.map(color => (
-                    <div key={color} className="product-color-chip">
+                    <div key={color} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-sm, 8px)',
+                      padding: 'var(--space-sm, 8px) var(--space-md, 16px)',
+                      background: 'var(--surface-subtle, rgba(241, 243, 244, 0.5))',
+                      borderRadius: '20px',
+                      fontSize: '14px',
+                      color: 'var(--color-text-primary, #1A1A1A)',
+                      fontWeight: 500,
+                      transition: 'all 0.3s ease'
+                    }}>
                       <span 
-                        className="product-color-indicator" 
-                        style={{ backgroundColor: color.toLowerCase() }}
+                        style={{ 
+                          width: '16px', 
+                          height: '16px', 
+                          borderRadius: '50%', 
+                          border: '2px solid var(--color-surface, #FFFFFF)', 
+                          boxShadow: '0 2px 4px rgba(0,0,0,.1)',
+                          backgroundColor: color.toLowerCase() 
+                        }} 
                       />
-                      <span className="product-color-name">{color}</span>
+                      <span>{color}</span>
                       <button 
                         type="button" 
                         onClick={() => handleRemoveColor(color)}
-                        className="product-remove-color-btn"
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--color-text-secondary, #6B7280)',
+                          cursor: 'pointer',
+                          padding: '2px',
+                          borderRadius: '50%',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--color-error, #EF4444)';
+                          e.currentTarget.style.color = 'var(--color-surface, #FFFFFF)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'none';
+                          e.currentTarget.style.color = 'var(--color-text-secondary, #6B7280)';
+                        }}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <line x1="18" y1="6" x2="6" y2="18"/>
@@ -854,47 +963,85 @@ const ProductForm: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
+              </FormGroup>
+            </FormSection>
 
             {/* Tags */}
-            <div className="product-form-section">
-              <div className="product-section-header">
-                <div className="product-section-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20.59 13.41L13.42 20.58C13.2343 20.766 13.0137 20.9135 12.7709 21.0141C12.5281 21.1148 12.2682 21.1666 12.005 21.1666C11.7418 21.1666 11.4819 21.1148 11.2391 21.0141C10.9963 20.9135 10.7757 20.766 10.59 20.58L2 12V2H12L20.59 10.59C20.9625 10.9625 21.1666 11.4645 21.1666 12C21.1666 12.5355 20.9625 13.0375 20.59 13.41Z"/>
-                  </svg>
-                </div>
-                <div className="product-section-content">
-                  <h3 className="product-section-title">{t('products.form.tags_title')}</h3>
-                  <p className="product-section-description">{t('products.form.tags_description')}</p>
-                </div>
-              </div>
-              
-              <div className="product-form-group">
-                <div className="product-tag-input-container">
-                  <input 
-                    type="text" 
+            <FormSection 
+              title={t('products.form.tags_title')}
+              description={t('products.form.tags_description')}
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20.59 13.41L13.42 20.58C13.2343 20.766 13.0137 20.9135 12.7709 21.0141C12.5281 21.1148 12.2682 21.1666 12.005 21.1666C11.7418 21.1666 11.4819 21.1148 11.2391 21.0141C10.9963 20.9135 10.7757 20.766 10.59 20.58L2 12V2H12L20.59 10.59C20.9625 10.9625 21.1666 11.4645 21.1666 12C21.1666 12.5355 20.9625 13.0375 20.59 13.41Z"/>
+                </svg>
+              }
+            >
+              <FormGroup>
+                <div style={{ 
+                  display: 'flex', 
+                  gap: 'var(--space-sm, 8px)', 
+                  marginBottom: 'var(--space-md, 16px)' 
+                }}>
+                  <FormInput 
                     value={tagInput} 
                     onChange={e => setTagInput(e.target.value)}
                     onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
                     placeholder={t('products.form.tags_placeholder')}
+                    style={{ flex: 1 }}
                   />
-                  <button type="button" onClick={handleAddTag} className="product-add-tag-btn">
+                  <Button 
+                    type="button" 
+                    onClick={handleAddTag}
+                    style={{ minWidth: '48px', padding: '12px' }}
+                  >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <line x1="12" y1="5" x2="12" y2="19"/>
                       <line x1="5" y1="12" x2="19" y2="12"/>
                     </svg>
-                  </button>
+                  </Button>
                 </div>
-                <div className="product-selected-tags">
+                <div style={{ 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  gap: 'var(--space-sm, 8px)' 
+                }}>
                   {formData.tags.map(tag => (
-                    <div key={tag} className="product-tag-chip">
-                      <span className="product-tag-text">{tag}</span>
+                    <div key={tag} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-sm, 8px)',
+                      padding: 'var(--space-sm, 8px) var(--space-md, 16px)',
+                      background: 'var(--surface-subtle, rgba(241, 243, 244, 0.5))',
+                      borderRadius: '20px',
+                      fontSize: '14px',
+                      color: 'var(--color-text-primary, #1A1A1A)',
+                      fontWeight: 500,
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <span>{tag}</span>
                       <button 
                         type="button" 
                         onClick={() => handleRemoveTag(tag)}
-                        className="product-remove-tag-btn"
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--color-text-secondary, #6B7280)',
+                          cursor: 'pointer',
+                          padding: '2px',
+                          borderRadius: '50%',
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--color-error, #EF4444)';
+                          e.currentTarget.style.color = 'var(--color-surface, #FFFFFF)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'none';
+                          e.currentTarget.style.color = 'var(--color-text-secondary, #6B7280)';
+                        }}
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <line x1="18" y1="6" x2="6" y2="18"/>
@@ -904,78 +1051,60 @@ const ProductForm: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
+              </FormGroup>
+            </FormSection>
 
             {/* Options */}
-            <div className="product-form-section">
-              <div className="product-section-header">
-                <div className="product-section-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15A1.65 1.65 0 0 0 18 14.5C18 13.5 19 12 19 12C19 12 18 10.5 18 9.5A1.65 1.65 0 0 0 16.6 9C16.6 9 16 9.5 16 10.5C16 11.5 16.6 12 16.6 12C16.6 12 16 12.5 16 13.5C16 14.5 16.6 15 16.6 15"/>
-                    <path d="M7.4 15A1.65 1.65 0 0 1 9 14.5C9 13.5 8 12 8 12C8 12 9 10.5 9 9.5A1.65 1.65 0 0 1 10.4 9C10.4 9 11 9.5 11 10.5C11 11.5 10.4 12 10.4 12C10.4 12 11 12.5 11 13.5C11 14.5 10.4 15 10.4 15"/>
-                  </svg>
-                </div>
-                <div className="product-section-content">
-                  <h3 className="product-section-title">{t('products.form.options_title')}</h3>
-                  <p className="product-section-description">{t('products.form.options_description')}</p>
-                </div>
-              </div>
-              
-              <div className="product-form-grid">
-                <div className="product-form-group product-checkbox-group">
-                  <label className="product-checkbox-label">
-                    <input 
-                      type="checkbox" 
-                      checked={formData.is_featured} 
-                      onChange={e => setFormData({...formData, is_featured: e.target.checked})} 
-                    />
-                    <span className="product-checkmark"></span>
-                    <span className="product-label-text">{t('products.form.featured_label')}</span>
-                  </label>
-                </div>
-                
-                <div className="product-form-group product-checkbox-group">
-                  <label className="product-checkbox-label">
-                    <input 
-                      type="checkbox" 
-                      checked={formData.is_digital} 
-                      onChange={e => setFormData({...formData, is_digital: e.target.checked})} 
-                    />
-                    <span className="product-checkmark"></span>
-                    <span className="product-label-text">{t('products.form.digital_label')}</span>
-                  </label>
-                </div>
-              </div>
-            </div>
+            <FormSection 
+              title={t('products.form.options_title')}
+              description={t('products.form.options_description')}
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15A1.65 1.65 0 0 0 18 14.5C18 13.5 19 12 19 12C19 12 18 10.5 18 9.5A1.65 1.65 0 0 0 16.6 9C16.6 9 16 9.5 16 10.5C16 11.5 16.6 12 16.6 12C16.6 12 16 12.5 16 13.5C16 14.5 16.6 15 16.6 15"/>
+                  <path d="M7.4 15A1.65 1.65 0 0 1 9 14.5C9 13.5 8 12 8 12C8 12 9 10.5 9 9.5A1.65 1.65 0 0 1 10.4 9C10.4 9 11 9.5 11 10.5C11 11.5 10.4 12 10.4 12C10.4 12 11 12.5 11 13.5C11 14.5 10.4 15 10.4 15"/>
+                </svg>
+              }
+            >
+              <FormGrid>
+                <FormGroup>
+                  <Checkbox
+                    label={t('products.form.featured_label')}
+                    checked={formData.is_featured}
+                    onChange={(checked) => setFormData({...formData, is_featured: checked})}
+                  />
+                </FormGroup>
+                 
+                <FormGroup>
+                  <Checkbox
+                    label={t('products.form.digital_label')}
+                    checked={formData.is_digital}
+                    onChange={(checked) => setFormData({...formData, is_digital: checked})}
+                  />
+                </FormGroup>
+              </FormGrid>
+            </FormSection>
 
             {/* Form Actions */}
-            <div className="product-form-actions">
-              <button 
+            <FormActions>
+              <Button 
                 type="button" 
-                onClick={() => navigate('/my-products')} 
-                className="product-form-btn product-form-btn-secondary"
+                variant="secondary"
+                onClick={() => navigate('/my-products')}
               >
                 {t('products.form.cancel_button')}
-              </button>
-              <button 
+              </Button>
+              <Button 
                 type="submit" 
+                variant="primary"
+                loading={loading}
                 disabled={loading}
-                className="product-form-btn product-form-btn-primary"
               >
-                {loading ? (
-                  <>
-                    <div className="product-form-btn-spinner"></div>
-                    Saving...
-                  </>
-                ) : (
-                  isEditing ? 'Update Product' : 'Create Product'
-                )}
-              </button>
-            </div>
+                {isEditing ? 'Update Product' : 'Create Product'}
+              </Button>
+            </FormActions>
           </form>
-        </div>
+        </FormContainer>
       </div>
     </Layout>
   );

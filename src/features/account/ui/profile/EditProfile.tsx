@@ -4,12 +4,56 @@ import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import ImageUpload from '@/shared/ui/image-upload/ImageUpload';
 import { useAuth } from '@/features/auth/state/AuthContext';
+import {
+  FormContainer,
+  FormSection,
+  FormGrid,
+  FormGroup,
+  FormLabel,
+  FormInput,
+  FormTextarea,
+  FormSelect,
+  FormActions,
+  Button,
+} from '@/shared/ui/forms';
+import type { FormTranslations } from '@/shared/ui/forms';
 import styles from './Profile.module.css';
 
 const EditProfile: React.FC = () => {
   const { t } = useTranslation();
   const { user, updateProfile, isSeller, isAdmin } = useAuth();
   const navigate = useNavigate();
+
+  // Form translations for shared components
+  const formTranslations: FormTranslations = {
+    selectOption: t('forms.select_option', 'Select an option'),
+    requiredField: t('forms.required_field', 'Required field'),
+    optional: t('forms.optional', 'Optional'),
+    loading: t('forms.loading', 'Loading...'),
+    save: t('forms.save', 'Save'),
+    cancel: t('forms.cancel', 'Cancel'),
+    submit: t('forms.submit', 'Submit'),
+    edit: t('forms.edit', 'Edit'),
+    delete: t('forms.delete', 'Delete'),
+    confirm: t('forms.confirm', 'Confirm'),
+    back: t('forms.back', 'Back'),
+    next: t('forms.next', 'Next'),
+    previous: t('forms.previous', 'Previous'),
+    finish: t('forms.finish', 'Finish'),
+    close: t('forms.close', 'Close'),
+    search: t('forms.search', 'Search'),
+    clear: t('forms.clear', 'Clear'),
+    upload: t('forms.upload', 'Upload'),
+    download: t('forms.download', 'Download'),
+    browse: t('forms.browse', 'Browse'),
+    chooseFile: t('forms.choose_file', 'Choose File'),
+    dragDrop: t('forms.drag_drop', 'Drag and drop files here'),
+    processing: t('forms.processing', 'Processing...'),
+    success: t('forms.success', 'Success'),
+    error: t('forms.error', 'Error'),
+    warning: t('forms.warning', 'Warning'),
+    info: t('forms.info', 'Information')
+  };
   const [profileImage, setProfileImage] = useState<File[]>([]);
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState({
@@ -101,11 +145,8 @@ const EditProfile: React.FC = () => {
     return trimmedUrl;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    
-    // URL fields that should be auto-formatted
-    const urlFields = ['website', 'instagram_url', 'twitter_url', 'linkedin_url', 'facebook_url'];
     
     if (name in formData.profile) {
       if (type === 'checkbox') {
@@ -216,7 +257,7 @@ const EditProfile: React.FC = () => {
         
         // Handle detailed validation errors
         if (error.details && typeof error.details === 'object') {
-          const errorMessages = [];
+          const errorMessages: string[] = [];
           Object.entries(error.details).forEach(([field, messages]) => {
             if (Array.isArray(messages)) {
               errorMessages.push(`${field}: ${messages.join(', ')}`);
@@ -231,112 +272,104 @@ const EditProfile: React.FC = () => {
     }
   };
 
-  const renderBasicTab = () => (
+const renderBasicTab = () => (
     <div className={styles.tabContent}>
-              <div className={`${styles.profileFormGroup} ${styles.profilePictureSection}`}>
-          <label className={styles.profileFormLabel}>{t('account.profile.edit.fields.profile_picture')}</label>
-        <ImageUpload files={profileImage} setFiles={setProfileImage} />
-      </div>
+      <FormSection>
+        <FormGroup className={styles.profilePictureSection}>
+          <FormLabel>{t('account.profile.edit.fields.profile_picture')}</FormLabel>
+          <ImageUpload files={profileImage} setFiles={setProfileImage} />
+        </FormGroup>
 
-      <div className={styles.profileFormRow}>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="first_name" className={styles.profileFormLabel}>{t('account.profile.edit.fields.first_name')}</label>
-          <input 
-            type="text" 
-            id="first_name" 
-            name="first_name" 
-            value={formData.first_name} 
+        <FormGrid>
+          <FormGroup>
+            <FormLabel htmlFor="first_name">{t('account.profile.edit.fields.first_name')}</FormLabel>
+            <FormInput 
+              id="first_name" 
+              name="first_name" 
+              value={formData.first_name} 
+              onChange={handleChange}
+            />
+          </FormGroup>
+          <FormGroup>
+            <FormLabel htmlFor="last_name">{t('account.profile.edit.fields.last_name')}</FormLabel>
+            <FormInput 
+              id="last_name" 
+              name="last_name" 
+              value={formData.last_name} 
+              onChange={handleChange}
+            />
+          </FormGroup>
+        </FormGrid>
+
+        <FormGroup>
+          <FormLabel htmlFor="username">{t('account.profile.edit.fields.username')}</FormLabel>
+          <FormInput 
+            id="username" 
+            name="username" 
+            value={formData.username} 
             onChange={handleChange}
-            className={styles.profileInputField}
           />
-        </div>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="last_name" className={styles.profileFormLabel}>{t('account.profile.edit.fields.last_name')}</label>
-          <input 
-            type="text" 
-            id="last_name" 
-            name="last_name" 
-            value={formData.last_name} 
+        </FormGroup>
+
+        <FormGrid>
+          <FormGroup>
+            <FormLabel htmlFor="gender">{t('account.profile.edit.fields.gender')}</FormLabel>
+            <FormSelect 
+              id="gender" 
+              name="gender" 
+              value={formData.profile.gender} 
+              onChange={handleChange}
+              translations={formTranslations}
+            >
+              <option value="">{t('account.profile.edit.fields.gender_select')}</option>
+              <option value="male">{t('account.profile.edit.fields.gender_options.male')}</option>
+              <option value="female">{t('account.profile.edit.fields.gender_options.female')}</option>
+              <option value="non_binary">{t('account.profile.edit.fields.gender_options.non_binary')}</option>
+              <option value="prefer_not_to_say">{t('account.profile.edit.fields.gender_options.prefer_not_to_say')}</option>
+              <option value="other">{t('account.profile.edit.fields.gender_options.other')}</option>
+            </FormSelect>
+          </FormGroup>
+          <FormGroup>
+            <FormLabel htmlFor="pronouns">{t('account.profile.edit.fields.pronouns')}</FormLabel>
+            <FormInput 
+              id="pronouns" 
+              name="pronouns" 
+              value={formData.profile.pronouns} 
+              onChange={handleChange} 
+              placeholder={t('account.profile.edit.placeholders.pronouns')}
+            />
+          </FormGroup>
+        </FormGrid>
+
+        <FormGroup>
+          <FormLabel htmlFor="birth_date">{t('account.profile.edit.fields.birth_date')}</FormLabel>
+          <FormInput 
+            type="date" 
+            id="birth_date" 
+            name="birth_date" 
+            value={formData.profile.birth_date} 
             onChange={handleChange}
-            className={styles.profileInputField}
           />
-        </div>
-      </div>
+        </FormGroup>
 
-      <div className={styles.profileFormGroup}>
-        <label htmlFor="username" className={styles.profileFormLabel}>{t('account.profile.edit.fields.username')}</label>
-        <input 
-          type="text" 
-          id="username" 
-          name="username" 
-          value={formData.username} 
-          onChange={handleChange}
-          className={styles.profileInputField}
-        />
-      </div>
-
-      <div className={styles.profileFormRow}>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="gender" className={styles.profileFormLabel}>{t('account.profile.edit.fields.gender')}</label>
-          <select 
-            id="gender" 
-            name="gender" 
-            value={formData.profile.gender} 
-            onChange={handleChange}
-            className={styles.profileInputField}
-          >
-            <option value="">{t('account.profile.edit.fields.gender_select')}</option>
-            <option value="male">{t('account.profile.edit.fields.gender_options.male')}</option>
-            <option value="female">{t('account.profile.edit.fields.gender_options.female')}</option>
-            <option value="non_binary">{t('account.profile.edit.fields.gender_options.non_binary')}</option>
-            <option value="prefer_not_to_say">{t('account.profile.edit.fields.gender_options.prefer_not_to_say')}</option>
-            <option value="other">{t('account.profile.edit.fields.gender_options.other')}</option>
-          </select>
-        </div>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="pronouns" className={styles.profileFormLabel}>{t('account.profile.edit.fields.pronouns')}</label>
-          <input 
-            type="text" 
-            id="pronouns" 
-            name="pronouns" 
-            value={formData.profile.pronouns} 
+        <FormGroup>
+          <FormLabel htmlFor="bio">{t('account.profile.edit.fields.bio')}</FormLabel>
+          <FormTextarea 
+            id="bio" 
+            name="bio" 
+            value={formData.profile.bio} 
             onChange={handleChange} 
-            placeholder={t('account.profile.edit.placeholders.pronouns')}
-            className={styles.profileInputField}
+            rows={4} 
+            maxLength={500} 
+            placeholder={t('account.profile.edit.placeholders.bio')}
+            showCharacterCounter={true}
           />
-        </div>
-      </div>
-
-      <div className={styles.profileFormGroup}>
-        <label htmlFor="birth_date" className={styles.profileFormLabel}>{t('account.profile.edit.fields.birth_date')}</label>
-        <input 
-          type="date" 
-          id="birth_date" 
-          name="birth_date" 
-          value={formData.profile.birth_date} 
-          onChange={handleChange}
-          className={styles.profileInputField}
-        />
-      </div>
-
-      <div className={styles.profileFormGroup}>
-        <label htmlFor="bio" className={styles.profileFormLabel}>{t('account.profile.edit.fields.bio')}</label>
-        <textarea 
-          id="bio" 
-          name="bio" 
-          value={formData.profile.bio} 
-          onChange={handleChange} 
-          rows={4} 
-          maxLength={500} 
-          placeholder={t('account.profile.edit.placeholders.bio')}
-          className={`${styles.profileInputField} ${styles.profileTextareaField}`}
-        />
-        <small className={styles.profileFormHint}>{formData.profile.bio.length}/500 {t('account.profile.edit.misc.characters')}</small>
-      </div>
+        </FormGroup>
+      </FormSection>
     </div>
   );
 
-  const renderContactTab = () => (
+const renderContactTab = () => (
     <div className={styles.tabContent}>
       {!hasFullAccess ? (
         <div className={styles.restrictedTabMessage}>
@@ -344,24 +377,24 @@ const EditProfile: React.FC = () => {
           <p className={styles.restrictedTabText}>
             {t('account.profile.edit.restricted.contact_text')}
           </p>
-          <button 
-            className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
+          <Button 
+            variant="primary"
             onClick={() => navigate('/settings/become-seller')}
           >
             {t('account.profile.edit.actions.become_verified_seller')}
-          </button>
+          </Button>
         </div>
       ) : (
-        <>
-          <div className={styles.profileFormRow}>
-            <div className={styles.profileFormGroup} style={{flex: '0 0 120px'}}>
-              <label htmlFor="country_code" className={styles.profileFormLabel}>{t('account.profile.edit.fields.country_code')}</label>
-              <select 
+        <FormSection>
+          <FormGrid>
+            <FormGroup className={styles.countryCodeGroup}>
+              <FormLabel htmlFor="country_code">{t('account.profile.edit.fields.country_code')}</FormLabel>
+              <FormSelect 
                 id="country_code" 
                 name="country_code" 
                 value={formData.profile.country_code} 
                 onChange={handleChange}
-                className={styles.profileInputField}
+                translations={formTranslations}
               >
                 <option value="+1">+1 (US/CA)</option>
                 <option value="+44">+44 (UK)</option>
@@ -372,25 +405,24 @@ const EditProfile: React.FC = () => {
                 <option value="+81">+81 (JP)</option>
                 <option value="+86">+86 (CN)</option>
                 <option value="+91">+91 (IN)</option>
-              </select>
-            </div>
-            <div className={styles.profileFormGroup}>
-              <label htmlFor="phone_number" className={styles.profileFormLabel}>{t('account.profile.edit.fields.phone_number')}</label>
-              <input 
+              </FormSelect>
+            </FormGroup>
+            <FormGroup>
+              <FormLabel htmlFor="phone_number">{t('account.profile.edit.fields.phone_number')}</FormLabel>
+              <FormInput 
                 type="tel" 
                 id="phone_number" 
                 name="phone_number" 
                 value={formData.profile.phone_number} 
                 onChange={handleChange} 
                 placeholder={t('account.profile.edit.placeholders.phone')}
-                className={styles.profileInputField}
               />
-            </div>
-          </div>
+            </FormGroup>
+          </FormGrid>
 
-          <div className={styles.profileFormGroup}>
-            <label htmlFor="website" className={styles.profileFormLabel}>{t('account.profile.edit.fields.website')}</label>
-            <input 
+          <FormGroup>
+            <FormLabel htmlFor="website">{t('account.profile.edit.fields.website')}</FormLabel>
+            <FormInput 
               type="url" 
               id="website" 
               name="website" 
@@ -398,28 +430,26 @@ const EditProfile: React.FC = () => {
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
               placeholder={t('account.profile.edit.placeholders.website')}
-              className={styles.profileInputField}
             />
-          </div>
+          </FormGroup>
 
-          <div className={styles.profileFormGroup}>
-            <label htmlFor="location" className={styles.profileFormLabel}>{t('account.profile.edit.fields.location')}</label>
-            <input 
+          <FormGroup>
+            <FormLabel htmlFor="location">{t('account.profile.edit.fields.location')}</FormLabel>
+            <FormInput 
               type="text" 
               id="location" 
               name="location" 
               value={formData.profile.location} 
               onChange={handleChange} 
               placeholder={t('account.profile.edit.placeholders.location')}
-              className={styles.profileInputField}
             />
-          </div>
-        </>
+          </FormGroup>
+        </FormSection>
       )}
     </div>
   );
 
-  const renderProfessionalTab = () => (
+const renderProfessionalTab = () => (
     <div className={styles.tabContent}>
       {!hasFullAccess ? (
         <div className={styles.restrictedTabMessage}>
@@ -427,132 +457,127 @@ const EditProfile: React.FC = () => {
           <p className={styles.restrictedTabText}>
             {t('account.profile.edit.restricted.professional_text')}
           </p>
-          <button 
-            className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
+          <Button 
+            variant="primary"
             onClick={() => navigate('/settings/become-seller')}
           >
             {t('account.profile.edit.actions.become_verified_seller')}
-          </button>
+          </Button>
         </div>
       ) : (
-        <>
-          <div className={styles.profileFormGroup}>
-            <label htmlFor="job_title" className={styles.profileFormLabel}>{t('account.profile.edit.fields.job_title')}</label>
-            <input 
+        <FormSection>
+          <FormGroup>
+            <FormLabel htmlFor="job_title">{t('account.profile.edit.fields.job_title')}</FormLabel>
+            <FormInput 
               type="text" 
               id="job_title" 
               name="job_title" 
               value={formData.profile.job_title} 
               onChange={handleChange} 
               placeholder={t('account.profile.edit.placeholders.job_title')}
-              className={styles.profileInputField}
             />
-          </div>
+          </FormGroup>
 
-          <div className={styles.profileFormGroup}>
-            <label htmlFor="company" className={styles.profileFormLabel}>{t('account.profile.edit.fields.company')}</label>
-            <input 
+          <FormGroup>
+            <FormLabel htmlFor="company">{t('account.profile.edit.fields.company')}</FormLabel>
+            <FormInput 
               type="text" 
               id="company" 
               name="company" 
               value={formData.profile.company} 
               onChange={handleChange} 
               placeholder={t('account.profile.edit.placeholders.company')}
-              className={styles.profileInputField}
             />
-          </div>
+          </FormGroup>
 
-          <div className={styles.profileFormGroup}>
-            <label htmlFor="account_type" className={styles.profileFormLabel}>{t('account.profile.edit.fields.account_type')}</label>
-            <select 
+          <FormGroup>
+            <FormLabel htmlFor="account_type">{t('account.profile.edit.fields.account_type')}</FormLabel>
+            <FormSelect 
               id="account_type" 
               name="account_type" 
               value={formData.profile.account_type} 
               onChange={handleChange}
-              className={styles.profileInputField}
+              translations={formTranslations}
             >
               <option value="personal">{t('account.profile.edit.fields.account_type_options.personal')}</option>
               <option value="business">{t('account.profile.edit.fields.account_type_options.business')}</option>
               <option value="creator">{t('account.profile.edit.fields.account_type_options.creator')}</option>
-            </select>
-          </div>
-        </>
+            </FormSelect>
+          </FormGroup>
+        </FormSection>
       )}
     </div>
   );
 
-  const renderAddressTab = () => (
+const renderAddressTab = () => (
     <div className={styles.tabContent}>
-      <div className={styles.profileFormGroup}>
-        <label htmlFor="street_address" className={styles.profileFormLabel}>{t('account.profile.edit.fields.street_address')}</label>
-        <input 
-          type="text" 
-          id="street_address" 
-          name="street_address" 
-          value={formData.profile.street_address} 
-          onChange={handleChange} 
-          placeholder={t('account.profile.edit.placeholders.street_address')}
-          className={styles.profileInputField}
-        />
-      </div>
+      <FormSection>
+        <FormGroup>
+          <FormLabel htmlFor="street_address">{t('account.profile.edit.fields.street_address')}</FormLabel>
+          <FormInput 
+            type="text" 
+            id="street_address" 
+            name="street_address" 
+            value={formData.profile.street_address} 
+            onChange={handleChange} 
+            placeholder={t('account.profile.edit.placeholders.street_address')}
+          />
+        </FormGroup>
 
-      <div className={styles.profileFormRow}>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="city" className={styles.profileFormLabel}>{t('account.profile.edit.fields.city')}</label>
-          <input 
-            type="text" 
-            id="city" 
-            name="city" 
-            value={formData.profile.city} 
-            onChange={handleChange} 
-            placeholder={t('account.profile.edit.placeholders.city')}
-            className={styles.profileInputField}
-          />
-        </div>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="state_province" className={styles.profileFormLabel}>{t('account.profile.edit.fields.state_province')}</label>
-          <input 
-            type="text" 
-            id="state_province" 
-            name="state_province" 
-            value={formData.profile.state_province} 
-            onChange={handleChange} 
-            placeholder={t('account.profile.edit.placeholders.state_province')}
-            className={styles.profileInputField}
-          />
-        </div>
-      </div>
+        <FormGrid>
+          <FormGroup>
+            <FormLabel htmlFor="city">{t('account.profile.edit.fields.city')}</FormLabel>
+            <FormInput 
+              type="text" 
+              id="city" 
+              name="city" 
+              value={formData.profile.city} 
+              onChange={handleChange} 
+              placeholder={t('account.profile.edit.placeholders.city')}
+            />
+          </FormGroup>
+          <FormGroup>
+            <FormLabel htmlFor="state_province">{t('account.profile.edit.fields.state_province')}</FormLabel>
+            <FormInput 
+              type="text" 
+              id="state_province" 
+              name="state_province" 
+              value={formData.profile.state_province} 
+              onChange={handleChange} 
+              placeholder={t('account.profile.edit.placeholders.state_province')}
+            />
+          </FormGroup>
+        </FormGrid>
 
-      <div className={styles.profileFormRow}>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="country" className={styles.profileFormLabel}>{t('account.profile.edit.fields.country')}</label>
-          <input 
-            type="text" 
-            id="country" 
-            name="country" 
-            value={formData.profile.country} 
-            onChange={handleChange} 
-            placeholder={t('account.profile.edit.placeholders.country')}
-            className={styles.profileInputField}
-          />
-        </div>
-        <div className={styles.profileFormGroup}>
-          <label htmlFor="postal_code" className={styles.profileFormLabel}>{t('account.profile.edit.fields.postal_code')}</label>
-                      <input 
+        <FormGrid>
+          <FormGroup>
+            <FormLabel htmlFor="country">{t('account.profile.edit.fields.country')}</FormLabel>
+            <FormInput 
+              type="text" 
+              id="country" 
+              name="country" 
+              value={formData.profile.country} 
+              onChange={handleChange} 
+              placeholder={t('account.profile.edit.placeholders.country')}
+            />
+          </FormGroup>
+          <FormGroup>
+            <FormLabel htmlFor="postal_code">{t('account.profile.edit.fields.postal_code')}</FormLabel>
+            <FormInput 
               type="text" 
               id="postal_code" 
               name="postal_code" 
               value={formData.profile.postal_code} 
               onChange={handleChange} 
               placeholder={t('account.profile.edit.placeholders.postal_code')}
-              className={styles.profileInputField}
             />
-        </div>
-      </div>
+          </FormGroup>
+        </FormGrid>
+      </FormSection>
     </div>
   );
 
-  const renderSocialTab = () => (
+const renderSocialTab = () => (
     <div className={styles.tabContent}>
       {!hasFullAccess ? (
         <div className={styles.restrictedTabMessage}>
@@ -560,18 +585,18 @@ const EditProfile: React.FC = () => {
           <p className={styles.restrictedTabText}>
             {t('account.profile.edit.restricted.social_text')}
           </p>
-          <button 
-            className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
+          <Button 
+            variant="primary"
             onClick={() => navigate('/settings/become-seller')}
           >
             {t('account.profile.edit.actions.become_verified_seller')}
-          </button>
+          </Button>
         </div>
       ) : (
-        <>
-          <div className={styles.profileFormGroup}>
-            <label htmlFor="instagram_url" className={styles.profileFormLabel}>{t('account.profile.edit.fields.instagram')}</label>
-            <input 
+        <FormSection>
+          <FormGroup>
+            <FormLabel htmlFor="instagram_url">{t('account.profile.edit.fields.instagram')}</FormLabel>
+            <FormInput 
               type="url" 
               id="instagram_url" 
               name="instagram_url" 
@@ -579,13 +604,12 @@ const EditProfile: React.FC = () => {
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
               placeholder={t('account.profile.edit.placeholders.instagram')}
-              className={styles.profileInputField}
             />
-          </div>
+          </FormGroup>
 
-          <div className={styles.profileFormGroup}>
-            <label htmlFor="twitter_url" className={styles.profileFormLabel}>{t('account.profile.edit.fields.twitter')}</label>
-            <input 
+          <FormGroup>
+            <FormLabel htmlFor="twitter_url">{t('account.profile.edit.fields.twitter')}</FormLabel>
+            <FormInput 
               type="url" 
               id="twitter_url" 
               name="twitter_url" 
@@ -593,13 +617,12 @@ const EditProfile: React.FC = () => {
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
               placeholder={t('account.profile.edit.placeholders.twitter')}
-              className={styles.profileInputField}
             />
-          </div>
+          </FormGroup>
 
-          <div className={styles.profileFormGroup}>
-            <label htmlFor="linkedin_url" className={styles.profileFormLabel}>{t('account.profile.edit.fields.linkedin')}</label>
-            <input 
+          <FormGroup>
+            <FormLabel htmlFor="linkedin_url">{t('account.profile.edit.fields.linkedin')}</FormLabel>
+            <FormInput 
               type="url" 
               id="linkedin_url" 
               name="linkedin_url" 
@@ -607,13 +630,12 @@ const EditProfile: React.FC = () => {
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
               placeholder={t('account.profile.edit.placeholders.linkedin')}
-              className={styles.profileInputField}
             />
-          </div>
+          </FormGroup>
 
-          <div className={styles.profileFormGroup}>
-            <label htmlFor="facebook_url" className={styles.profileFormLabel}>{t('account.profile.edit.fields.facebook')}</label>
-            <input 
+          <FormGroup>
+            <FormLabel htmlFor="facebook_url">{t('account.profile.edit.fields.facebook')}</FormLabel>
+            <FormInput 
               type="url" 
               id="facebook_url" 
               name="facebook_url" 
@@ -621,10 +643,9 @@ const EditProfile: React.FC = () => {
               onChange={handleChange} 
               onBlur={handleUrlBlur} 
               placeholder={t('account.profile.edit.placeholders.facebook')}
-              className={styles.profileInputField}
             />
-          </div>
-        </>
+          </FormGroup>
+        </FormSection>
       )}
     </div>
   );
@@ -663,7 +684,8 @@ const EditProfile: React.FC = () => {
           )}
         </div>
         
-        <form onSubmit={handleSubmit} className={styles.profilePremiumForm}>
+        <FormContainer className={styles.profilePremiumForm}>
+        <form onSubmit={handleSubmit}>
           <div className={styles.profileTabNavigation}>
             <button 
               type="button" 
@@ -718,22 +740,23 @@ const EditProfile: React.FC = () => {
             {/* Preferences moved to Settings; no render in profile editor */}
           </div>
 
-          <div className={styles.profileFormActions}>
-            <button 
+<FormActions className={styles.profileFormActions}>
+            <Button 
               type="button" 
-              className={`${styles.profileBtn} ${styles.profileBtnSecondary}`} 
+              variant="secondary"
               onClick={() => navigate('/settings')}
             >
               {t('account.profile.edit.actions.cancel')}
-            </button>
-            <button 
+            </Button>
+            <Button 
               type="submit" 
-              className={`${styles.profileBtn} ${styles.profileBtnPrimary}`}
+              variant="primary"
             >
               {t('account.profile.edit.actions.save')}
-            </button>
-          </div>
+            </Button>
+          </FormActions>
         </form>
+      </FormContainer>
       </div>
     </Layout>
   );

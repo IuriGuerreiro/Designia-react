@@ -189,7 +189,7 @@
   padding: 0.6rem 1.1rem;
   border-radius: 999px;
   border: none;
-  background: var(--button-gradient);
+  background: var(--gradient-button);
   color: var(--color-accent-contrast);
   font-weight: 600;
   cursor: pointer;

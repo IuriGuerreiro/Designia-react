@@ -7,7 +7,19 @@ import { useAuth } from '@/features/auth/state/AuthContext';
 import ImageUpload from '@/shared/ui/image-upload/ImageUpload';
 import Select from '@/shared/ui/select/Select';
 import type { Option } from '@/shared/ui/select/Select';
-import styles from './BecomeSellerForm.module.css';
+import {
+  FormContainer,
+  FormSection,
+  FormGrid,
+  FormGroup,
+  FormLabel,
+  FormInput,
+  FormTextarea,
+  Button,
+  Loading,
+  FormActions,
+  type FormTranslations
+} from '@/shared/ui/forms';
 
 // Options are translated within the component using i18n
 
@@ -15,6 +27,37 @@ const BecomeSellerForm: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { submitSellerApplication, user, getSellerApplicationStatus, getTwoFactorStatus } = useAuth();
+  
+  // Form translations
+  const formTranslations: FormTranslations = {
+    selectOption: t('forms.select_option'),
+    requiredField: t('forms.required_field'),
+    optional: t('forms.optional'),
+    loading: t('forms.loading'),
+    save: t('forms.save'),
+    cancel: t('forms.cancel'),
+    submit: t('forms.submit'),
+    edit: t('forms.edit'),
+    delete: t('forms.delete'),
+    confirm: t('forms.confirm'),
+    back: t('forms.back'),
+    next: t('forms.next'),
+    previous: t('forms.previous'),
+    finish: t('forms.finish'),
+    close: t('forms.close'),
+    search: t('forms.search'),
+    clear: t('forms.clear'),
+    upload: t('forms.upload'),
+    download: t('forms.download'),
+    browse: t('forms.browse'),
+    chooseFile: t('forms.choose_file'),
+    dragDrop: t('forms.drag_drop'),
+    processing: t('forms.processing'),
+    success: t('forms.success'),
+    error: t('forms.error'),
+    warning: t('forms.warning'),
+    info: t('forms.info')
+  };
   const [workshopFiles, setWorkshopFiles] = useState<File[]>([]);
   const [sellerType, setSellerType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -58,7 +101,7 @@ const BecomeSellerForm: React.FC = () => {
     };
 
     void loadTwoFactor();
-  }, [user?.two_factor_enabled, (user as any)?.is_two_factor_enabled]);
+  }, [user?.two_factor_enabled, (user as any)?.is_two_factor_enabled, getTwoFactorStatus]);
 
   // Load seller application status
   useEffect(() => {
@@ -132,10 +175,37 @@ const BecomeSellerForm: React.FC = () => {
   if (user?.role === 'seller' || user?.is_verified_seller) {
     return (
       <Layout>
-        <div className={styles['become-seller-page']}>
-          <div className={styles['seller-form-header']}>
-            <h1 className="heading-lg">{t('account.seller.page_title')}</h1>
-            <p className="body-lg">{t('account.seller.already_seller')}</p>
+        <div style={{ 
+          maxWidth: '800px', 
+          margin: '0 auto', 
+          padding: 'var(--space-xl, 32px) var(--space-lg, 24px)',
+          fontFamily: 'var(--font-sans, "Inter", sans-serif)'
+        }}>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: 'var(--space-3xl, 64px) var(--space-xl, 32px)', 
+            background: 'var(--surface-glass, rgba(255, 255, 255, 0.95))',
+            border: '1px solid var(--border-soft, rgba(229, 231, 235, 0.6))',
+            borderRadius: '16px',
+            boxShadow: 'var(--shadow-md, 0 4px 16px rgba(15, 23, 42, 0.12))'
+          }}>
+            <h1 style={{ 
+              fontSize: '32px', 
+              fontWeight: 600, 
+              color: 'var(--color-text-primary, #1A1A1A)', 
+              margin: '0 0 var(--space-md, 16px) 0',
+              fontFamily: 'var(--font-serif, "Playfair Display", serif)'
+            }}>
+              {t('account.seller.page_title')}
+            </h1>
+            <p style={{ 
+              fontSize: '18px', 
+              color: 'var(--color-text-secondary, #6B7280)', 
+              margin: 0,
+              lineHeight: 1.6
+            }}>
+              {t('account.seller.already_seller')}
+            </p>
           </div>
         </div>
       </Layout>
@@ -146,25 +216,83 @@ const BecomeSellerForm: React.FC = () => {
   if (sellerStatus?.has_application && (sellerStatus.status === 'pending' || sellerStatus.status === 'under_review' || sellerStatus.status === 'revision_requested')) {
     return (
       <Layout>
-        <div className={styles['become-seller-page']}>
-          <div className={styles['seller-form-header']}>
-            <h1 className="heading-lg">{t('account.seller.page_title')}</h1>
-            <p className="body-lg">{t('account.seller.in_review_message', { status: sellerStatus.status === 'under_review' ? t('account.seller.status.under_review') : (sellerStatus.status || '').replace('_',' ') })}</p>
+        <div style={{ 
+          maxWidth: '800px', 
+          margin: '0 auto', 
+          padding: 'var(--space-xl, 32px) var(--space-lg, 24px)',
+          fontFamily: 'var(--font-sans, "Inter", sans-serif)'
+        }}>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: 'var(--space-xl, 32px) 0 var(--space-lg, 24px)', 
+            borderBottom: '1px solid var(--color-border, #E5E7EB)', 
+            marginBottom: 'var(--space-xl, 32px)' 
+          }}>
+            <h1 style={{ 
+              fontFamily: 'var(--font-serif, "Playfair Display", serif)', 
+              fontSize: '36px', 
+              fontWeight: 600, 
+              color: 'var(--color-text-primary, #1A1A1A)', 
+              margin: '0 0 var(--space-sm, 8px) 0',
+              lineHeight: 1.2
+            }}>
+              {t('account.seller.page_title')}
+            </h1>
+            <p style={{ 
+              fontSize: '16px', 
+              color: 'var(--color-text-secondary, #6B7280)', 
+              margin: 0,
+              lineHeight: 1.5
+            }}>
+              {t('account.seller.in_review_message', { status: sellerStatus.status === 'under_review' ? t('account.seller.status.under_review') : (sellerStatus.status || '').replace('_',' ') })}
+            </p>
           </div>
-          <div className={styles['center-gate']}>
-            <div className={styles['gate-card']}>
-              <div className={styles['gate-icon']} aria-hidden>⏳</div>
-              <h3 className={cx('heading-md', styles['gate-title'])}>{t('account.seller.app_in_progress')}</h3>
-              <p className={cx('body-md', styles['gate-text'])}>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            minHeight: '300px'
+          }}>
+            <div style={{
+              background: 'var(--surface-glass, rgba(255, 255, 255, 0.95))',
+              border: '1px solid var(--border-soft, rgba(229, 231, 235, 0.6))',
+              borderRadius: '16px',
+              padding: 'var(--space-3xl, 64px)',
+              textAlign: 'center',
+              boxShadow: 'var(--shadow-md, 0 4px 16px rgba(15, 23, 42, 0.12))',
+              maxWidth: '400px'
+            }}>
+              <div style={{ 
+                fontSize: '48px', 
+                marginBottom: 'var(--space-lg, 24px)' 
+              }}>
+                ⏳
+              </div>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: 600, 
+                color: 'var(--color-text-primary, #1A1A1A)', 
+                margin: '0 0 var(--space-md, 16px) 0'
+              }}>
+                {t('account.seller.app_in_progress')}
+              </h3>
+              <p style={{ 
+                fontSize: '16px', 
+                color: 'var(--color-text-secondary, #6B7280)', 
+                margin: 0,
+                lineHeight: 1.5
+              }}>
                 {t('account.seller.review_notice')}
               </p>
-              <button
+              <Button
                 type="button"
-                className={cx(styles['seller-btn'], styles['seller-btn-secondary'])}
+                variant="secondary"
                 onClick={() => navigate('/settings')}
+                style={{ marginTop: 'var(--space-xl, 32px)' }}
               >
                 {t('account.seller.go_to_settings')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -172,16 +300,25 @@ const BecomeSellerForm: React.FC = () => {
     );
   }
 
-  // If application was rejected, allow re-submission by showing form with a notice
-
   // Show lightweight check state while verifying 2FA
   if (twoFactorLoading && !has2FAEnabled) {
     return (
       <Layout>
-        <div className={styles['become-seller-page']}>
-          <div className={styles['seller-form-header']}>
-            <h1 className="heading-lg">{t('account.seller.page_title')}</h1>
-            <p className="body-lg">{t('account.seller.checking_2fa')}</p>
+        <div style={{ 
+          maxWidth: '800px', 
+          margin: '0 auto', 
+          padding: 'var(--space-xl, 32px) var(--space-lg, 24px)',
+          fontFamily: 'var(--font-sans, "Inter", sans-serif)'
+        }}>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: 'var(--space-3xl, 64px) var(--space-xl, 32px)', 
+            background: 'var(--surface-glass, rgba(255, 255, 255, 0.95))',
+            border: '1px solid var(--border-soft, rgba(229, 231, 235, 0.6))',
+            borderRadius: '16px',
+            boxShadow: 'var(--shadow-md, 0 4px 16px rgba(15, 23, 42, 0.12))'
+          }}>
+            <Loading text={t('account.seller.checking_2fa')} translations={formTranslations} />
           </div>
         </div>
       </Layout>
@@ -192,26 +329,83 @@ const BecomeSellerForm: React.FC = () => {
   if (!has2FAEnabled) {
     return (
       <Layout>
-        <div className={styles['become-seller-page']}>
-          <div className={styles['seller-form-header']}>
-            <h1 className="heading-lg">{t('account.seller.page_title')}</h1>
-            <p className="body-lg">{t('account.seller.2fa_required')}</p>
+        <div style={{ 
+          maxWidth: '800px', 
+          margin: '0 auto', 
+          padding: 'var(--space-xl, 32px) var(--space-lg, 24px)',
+          fontFamily: 'var(--font-sans, "Inter", sans-serif)'
+        }}>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: 'var(--space-xl, 32px) 0 var(--space-lg, 24px)', 
+            borderBottom: '1px solid var(--color-border, #E5E7EB)', 
+            marginBottom: 'var(--space-xl, 32px)' 
+          }}>
+            <h1 style={{ 
+              fontFamily: 'var(--font-serif, "Playfair Display", serif)', 
+              fontSize: '36px', 
+              fontWeight: 600, 
+              color: 'var(--color-text-primary, #1A1A1A)', 
+              margin: '0 0 var(--space-sm, 8px) 0',
+              lineHeight: 1.2
+            }}>
+              {t('account.seller.page_title')}
+            </h1>
+            <p style={{ 
+              fontSize: '16px', 
+              color: 'var(--color-text-secondary, #6B7280)', 
+              margin: 0,
+              lineHeight: 1.5
+            }}>
+              {t('account.seller.2fa_required')}
+            </p>
           </div>
-          <div className={styles['center-gate']}>
-            <div className={styles['gate-card']}>
-              <div className={styles['gate-icon']} aria-hidden>🔒</div>
-              <h3 className={cx('heading-md', styles['gate-title'])}>{t('account.seller.enable_2fa_title')}</h3>
-              <p className={cx('body-md', styles['gate-text'])}>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            minHeight: '300px'
+          }}>
+            <div style={{
+              background: 'var(--surface-glass, rgba(255, 255, 255, 0.95))',
+              border: '1px solid var(--border-soft, rgba(229, 231, 235, 0.6))',
+              borderRadius: '16px',
+              padding: 'var(--space-3xl, 64px)',
+              textAlign: 'center',
+              boxShadow: 'var(--shadow-md, 0 4px 16px rgba(15, 23, 42, 0.12))',
+              maxWidth: '400px'
+            }}>
+              <div style={{ 
+                fontSize: '48px', 
+                marginBottom: 'var(--space-lg, 24px)' 
+              }}>
+                🔒
+              </div>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: 600, 
+                color: 'var(--color-text-primary, #1A1A1A)', 
+                margin: '0 0 var(--space-md, 16px) 0'
+              }}>
+                {t('account.seller.enable_2fa_title')}
+              </h3>
+              <p style={{ 
+                fontSize: '16px', 
+                color: 'var(--color-text-secondary, #6B7280)', 
+                margin: '0 0 var(--space-xl, 32px) 0',
+                lineHeight: 1.5
+              }}>
                 {t('account.seller.enable_2fa_description')}
               </p>
-              <button
+              <Button
                 type="button"
-                className={cx(styles['seller-btn'], styles['seller-btn-primary'])}
+                variant="primary"
                 onClick={() => navigate('/settings')}
                 aria-label="Activate two-factor authentication in settings"
               >
                 {t('account.seller.activate_2fa_cta')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -221,139 +415,355 @@ const BecomeSellerForm: React.FC = () => {
 
   return (
     <Layout>
-      <div className={styles['become-seller-page']}>
-        <div className={styles['seller-form-header']}>
-          <h1 className="heading-lg">{t('account.seller.page_title')}</h1>
-          <p className="body-lg">{t('account.seller.page_intro')}</p>
+      <div style={{ 
+        maxWidth: '800px', 
+        margin: '0 auto', 
+        padding: 'var(--space-xl, 32px) var(--space-lg, 24px)',
+        fontFamily: 'var(--font-sans, "Inter", sans-serif)'
+      }}>
+        {/* Header Section */}
+        <div style={{ 
+          textAlign: 'center', 
+          padding: 'var(--space-xl, 32px) 0 var(--space-lg, 24px)', 
+          borderBottom: '1px solid var(--color-border, #E5E7EB)', 
+          marginBottom: 'var(--space-xl, 32px)' 
+        }}>
+          <h1 style={{ 
+            fontFamily: 'var(--font-serif, "Playfair Display", serif)', 
+            fontSize: '36px', 
+            fontWeight: 600, 
+            color: 'var(--color-text-primary, #1A1A1A)', 
+            margin: '0 0 var(--space-sm, 8px) 0',
+            lineHeight: 1.2
+          }}>
+            {t('account.seller.page_title')}
+          </h1>
+          <p style={{ 
+            fontSize: '16px', 
+            color: 'var(--color-text-secondary, #6B7280)', 
+            margin: 0,
+            lineHeight: 1.5
+          }}>
+            {t('account.seller.page_intro')}
+          </p>
         </div>
 
+        {/* Rejection Notice */}
         {sellerStatus?.status === 'rejected' && (
-          <div className={styles.alertError}>
-            {t('account.seller.rejected_notice')}
-            {sellerStatus.rejection_reason ? ` ${t('account.seller.rejection_reason_prefix')} ${sellerStatus.rejection_reason}` : ''}
-          </div>
-        )}
-
-        {error && <div className={styles.alertError}>{error}</div>}
-
-        {success && (
-          <div className={styles.alertSuccess}>{t('account.seller.submit_success')}</div>
-        )}
-
-        <form onSubmit={handleSubmit} className={styles['premium-form']}>
-          <div className={styles['form-section']}>
-            <div className={styles['seller-section-header']}>
-              <span className={styles.sectionEyebrow}>{t('account.seller.step_1')}</span>
-              <h2 className="heading-md">{t('account.seller.business_info_title')}</h2>
-              <p className="body-md">{t('account.seller.business_info_description')}</p>
+          <div style={{
+            borderRadius: '16px',
+            border: '1px solid color-mix(in srgb, var(--color-error, #EF4444) 45%, transparent)',
+            background: 'color-mix(in srgb, var(--color-error, #EF4444) 12%, var(--color-surface, #FFFFFF) 88%)',
+            padding: '16px 24px',
+            marginBottom: 'var(--space-lg, 24px)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              color: 'var(--color-error, #EF4444)'
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="18"/>
+              </svg>
             </div>
-
-            <div className={styles.formGrid}>
-              <div className={styles['seller-form-group']}>
-                <label htmlFor="businessName" className={styles['form-label']}>{t('account.seller.form.business_name_label')}</label>
-                <input
-                  type="text"
-                  id="businessName"
-                  name="businessName"
-                  className={styles['input-field']}
-                  required
-                  placeholder={t('account.seller.form.business_name_placeholder')}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="sellerType" className={styles['form-label']}>{t('account.seller.form.seller_type_label')}</label>
-                <Select
-                  options={sellerTypeOptions}
-                  value={sellerType}
-                  onChange={setSellerType}
-                  placeholder={t('account.seller.form.seller_type_placeholder')}
-                />
-              </div>
-
-              <div className={cx(styles.formGroup, styles.fullRow)}>
-                <label htmlFor="motivation" className={styles['form-label']}>{t('account.seller.form.motivation_label')}</label>
-                <textarea
-                  id="motivation"
-                  name="motivation"
-                  rows={5}
-                  className={cx(styles['input-field'], styles['textarea-field'])}
-                  placeholder={t('account.seller.form.motivation_placeholder')}
-                  required
-                ></textarea>
-                <small className={styles.hint}>{t('account.seller.form.motivation_hint')}</small>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles['form-section']}>
-            <div className={styles['seller-section-header']}>
-              <span className={styles.sectionEyebrow}>{t('account.seller.step_2')}</span>
-              <h2 className="heading-md">{t('account.seller.verification_title')}</h2>
-              <p className="body-md">{t('account.seller.verification_description')}</p>
-            </div>
-
-            <div className={styles.formGrid}>
-              <div className={styles.formGroup}>
-                <label htmlFor="portfolio" className={styles['form-label']}>{t('account.seller.form.portfolio_label')}</label>
-                <input
-                  type="url"
-                  id="portfolio"
-                  name="portfolio"
-                  className={styles['input-field']}
-                  placeholder={t('account.seller.form.portfolio_placeholder')}
-                  required
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="socialMedia" className={styles['form-label']}>{t('account.seller.form.social_media_label')}</label>
-                <input
-                  type="url"
-                  id="socialMedia"
-                  name="socialMedia"
-                  className={styles['input-field']}
-                  placeholder={t('account.seller.form.social_media_placeholder')}
-                />
-              </div>
-
-              <div className={cx(styles.formGroup, styles.fullRow)}>
-                <label htmlFor="workshopPhotos" className={styles['form-label']}>{t('account.seller.form.workshop_photos_label')}</label>
-                <p className={styles['form-hint']}>{t('account.seller.form.workshop_photos_hint')}</p>
-                <div className={styles['upload-container']}>
-                  <ImageUpload files={workshopFiles} setFiles={setWorkshopFiles} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles['seller-form-actions']}>
-            <span className={styles.actionsNote}>{t('account.seller.form.actions_note')}</span>
             <div>
-              <button
-                type="button"
-                className={cx(styles['seller-btn'], styles['seller-btn-secondary'])}
-                onClick={() => navigate(-1)}
-                disabled={isLoading}
-              >
-                {t('account.seller.actions.cancel')}
-              </button>
-              <span style={{ display: 'inline-block', width: 12 }} />
-              <button
-                type="submit"
-                className={cx(styles['seller-btn'], styles['seller-btn-primary'])}
-                disabled={isLoading}
-              >
-                {isLoading ? t('account.seller.actions.submitting') : t('account.seller.actions.submit_application')}
-              </button>
+              <h4 style={{ margin: '0 0 4px', fontSize: '16px', color: 'var(--color-error, #EF4444)', fontWeight: 600 }}>
+                {t('account.seller.rejected_notice')}
+              </h4>
+              {sellerStatus.rejection_reason && (
+                <p style={{ margin: '4px 0 0', color: 'var(--color-text-secondary, #6B7280)', lineHeight: 1.5 }}>
+                  {t('account.seller.rejection_reason_prefix')} {sellerStatus.rejection_reason}
+                </p>
+              )}
             </div>
           </div>
-        </form>
+        )}
+
+        {/* Error Banner */}
+        {error && (
+          <div style={{
+            borderRadius: '16px',
+            border: '1px solid color-mix(in srgb, var(--color-error, #EF4444) 45%, transparent)',
+            background: 'color-mix(in srgb, var(--color-error, #EF4444) 12%, var(--color-surface, #FFFFFF) 88%)',
+            padding: '16px 24px',
+            marginBottom: 'var(--space-lg, 24px)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              color: 'var(--color-error, #EF4444)'
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="18"/>
+              </svg>
+            </div>
+            <div>
+              <h4 style={{ margin: '0 0 4px', fontSize: '16px', color: 'var(--color-error, #EF4444)', fontWeight: 600 }}>
+                Error
+              </h4>
+              <p style={{ margin: 0, color: 'var(--color-text-secondary, #6B7280)', lineHeight: 1.5 }}>
+                {error}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Success Banner */}
+        {success && (
+          <div style={{
+            borderRadius: '16px',
+            border: '1px solid color-mix(in srgb, var(--color-success, #10B981) 45%, transparent)',
+            background: 'color-mix(in srgb, var(--color-success, #10B981) 12%, var(--color-surface, #FFFFFF) 88%)',
+            padding: '16px 24px',
+            marginBottom: 'var(--space-lg, 24px)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              color: 'var(--color-success, #10B981)'
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22,4 12,14.01 9,11.01"/>
+              </svg>
+            </div>
+            <div>
+              <h4 style={{ margin: '0 0 4px', fontSize: '16px', color: 'var(--color-success, #10B981)', fontWeight: 600 }}>
+                Success
+              </h4>
+              <p style={{ margin: 0, color: 'var(--color-text-secondary, #6B7280)', lineHeight: 1.5 }}>
+                {t('account.seller.submit_success')}
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {/* Main Form */}
+        <FormContainer>
+          <form onSubmit={handleSubmit}>
+            {/* Business Information Section */}
+            <FormSection 
+              title={
+                <span style={{ 
+                  fontSize: '12px', 
+                  color: 'var(--color-primary, #3B82F6)', 
+                  fontWeight: 600, 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.12em',
+                  display: 'block',
+                  marginBottom: 'var(--space-sm, 8px)'
+                }}>
+                  {t('account.seller.step_1')}
+                </span>
+              }
+              description={
+                <>
+                  <h2 style={{ 
+                    fontSize: '20px', 
+                    fontWeight: 600, 
+                    color: 'var(--color-text-primary, #1A1A1A)', 
+                    margin: '0 0 var(--space-sm, 8px) 0',
+                    fontFamily: 'var(--font-serif, "Playfair Display", serif)'
+                  }}>
+                    {t('account.seller.business_info_title')}
+                  </h2>
+                  <p style={{ 
+                    fontSize: '14px', 
+                    color: 'var(--color-text-secondary, #6B7280)', 
+                    margin: 0,
+                    lineHeight: 1.5
+                  }}>
+                    {t('account.seller.business_info_description')}
+                  </p>
+                </>
+              }
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M16 4H18C19.1046 4 20 4.89543 20 6V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V6C4 4.89543 4.89543 4 6 4H8"/>
+                  <path d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55228 8.44772 6 9 6H15C15.5523 6 16 5.55228 16 5V3C16 2.44772 15.5523 2 15 2Z"/>
+                </svg>
+              }
+            >
+              <FormGrid>
+                <FormGroup fullWidth>
+                  <FormLabel required htmlFor="businessName">{t('account.seller.form.business_name_label')}</FormLabel>
+                  <FormInput 
+                    id="businessName"
+                    name="businessName"
+                    required
+                    placeholder={t('account.seller.form.business_name_placeholder')}
+                  />
+                </FormGroup>
+
+                <FormGroup fullWidth>
+                  <FormLabel required htmlFor="sellerType">{t('account.seller.form.seller_type_label')}</FormLabel>
+                  <Select
+                    name="sellerType"
+                    options={sellerTypeOptions}
+                    value={sellerType}
+                    onChange={setSellerType}
+                    placeholder={t('account.seller.form.seller_type_placeholder')}
+                  />
+                </FormGroup>
+
+                <FormGroup fullWidth>
+                  <FormLabel required htmlFor="motivation">{t('account.seller.form.motivation_label')}</FormLabel>
+                  <FormTextarea 
+                    id="motivation"
+                    name="motivation"
+                    showCharacterCounter
+                    maxLength={1000}
+                    placeholder={t('account.seller.form.motivation_placeholder')}
+                    required
+                  />
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: 'var(--color-text-muted, #9CA3AF)', 
+                    marginTop: 'var(--space-xs, 4px)',
+                    lineHeight: 1.4
+                  }}>
+                    {t('account.seller.form.motivation_hint')}
+                  </div>
+                </FormGroup>
+              </FormGrid>
+            </FormSection>
+
+            {/* Verification Section */}
+            <FormSection 
+              title={
+                <span style={{ 
+                  fontSize: '12px', 
+                  color: 'var(--color-primary, #3B82F6)', 
+                  fontWeight: 600, 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.12em',
+                  display: 'block',
+                  marginBottom: 'var(--space-sm, 8px)'
+                }}>
+                  {t('account.seller.step_2')}
+                </span>
+              }
+              description={
+                <>
+                  <h2 style={{ 
+                    fontSize: '20px', 
+                    fontWeight: 600, 
+                    color: 'var(--color-text-primary, #1A1A1A)', 
+                    margin: '0 0 var(--space-sm, 8px) 0',
+                    fontFamily: 'var(--font-serif, "Playfair Display", serif)'
+                  }}>
+                    {t('account.seller.verification_title')}
+                  </h2>
+                  <p style={{ 
+                    fontSize: '14px', 
+                    color: 'var(--color-text-secondary, #6B7280)', 
+                    margin: 0,
+                    lineHeight: 1.5
+                  }}>
+                    {t('account.seller.verification_description')}
+                  </p>
+                </>
+              }
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              }
+            >
+              <FormGrid>
+                <FormGroup fullWidth>
+                  <FormLabel required htmlFor="portfolio">{t('account.seller.form.portfolio_label')}</FormLabel>
+                  <FormInput 
+                    type="url"
+                    id="portfolio"
+                    name="portfolio"
+                    placeholder={t('account.seller.form.portfolio_placeholder')}
+                    required
+                  />
+                </FormGroup>
+
+                <FormGroup fullWidth>
+                  <FormLabel htmlFor="socialMedia">{t('account.seller.form.social_media_label')}</FormLabel>
+                  <FormInput 
+                    type="url"
+                    id="socialMedia"
+                    name="socialMedia"
+                    placeholder={t('account.seller.form.social_media_placeholder')}
+                  />
+                </FormGroup>
+
+                <FormGroup fullWidth>
+                  <FormLabel required htmlFor="workshopPhotos">{t('account.seller.form.workshop_photos_label')}</FormLabel>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    color: 'var(--color-text-muted, #9CA3AF)', 
+                    margin: '0 0 var(--space-md, 16px) 0',
+                    lineHeight: 1.4
+                  }}>
+                    {t('account.seller.form.workshop_photos_hint')}
+                  </div>
+                  <ImageUpload 
+                    files={workshopFiles} 
+                    setFiles={setWorkshopFiles}
+                    minFiles={3}
+                    maxFiles={10}
+                    maxFileSize={10 * 1024 * 1024}
+                    allowedExtensions={['jpg', 'jpeg', 'png', 'webp']}
+                  />
+                </FormGroup>
+              </FormGrid>
+            </FormSection>
+
+            {/* Form Actions */}
+            <FormActions>
+              <div style={{ 
+                fontSize: '12px', 
+                color: 'var(--color-text-muted, #9CA3AF)', 
+                marginBottom: 'var(--space-md, 16px)',
+                textAlign: 'center'
+              }}>
+                {t('account.seller.form.actions_note')}
+              </div>
+              <div style={{ display: 'flex', gap: 'var(--space-md, 16px)' }}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => navigate(-1)}
+                  disabled={isLoading}
+                >
+                  {t('account.seller.actions.cancel')}
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  loading={isLoading}
+                  disabled={isLoading}
+                >
+                  {isLoading ? t('account.seller.actions.submitting') : t('account.seller.actions.submit_application')}
+                </Button>
+              </div>
+            </FormActions>
+          </form>
+        </FormContainer>
       </div>
     </Layout>
   );
 };
-
-const cx = (...classes: Array<string | false | null | undefined>) => classes.filter(Boolean).join(' ');
 
 export default BecomeSellerForm;

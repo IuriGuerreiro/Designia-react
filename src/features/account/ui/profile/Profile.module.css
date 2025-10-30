@@ -1,4 +1,4 @@
-/* Profile.module.css - Designia Design System Implementation */
+/* Profile.module.css - Minimal Layout Styles with Shared Forms Integration */
 
 .editProfilePage {
   max-width: 1000px;
@@ -13,14 +13,14 @@
 }
 
 .profileFormHeader h1 {
-  color: var(--designia-deep, #0A0A0A);
+  color: var(--color-text-primary);
   margin-bottom: var(--space-md);
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif);
   font-weight: 600;
 }
 
 .profileFormHeader p {
-  color: var(--designia-slate, #374151);
+  color: var(--color-text-secondary);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
@@ -29,47 +29,48 @@
 .profileCompletion {
   margin-top: var(--space-lg);
   padding: var(--space-lg);
-  background: var(--designia-platinum, #F5F5F5);
+  background: var(--color-surface);
   border-radius: 12px;
-  border: 1px solid var(--designia-silver, #9CA3AF);
+  border: 1px solid var(--color-border);
 }
 
 .completionText {
   display: block;
-  color: var(--designia-slate, #374151);
+  color: var(--color-text-secondary);
   font-weight: 500;
   margin-bottom: var(--space-sm);
-  font-size: var(--body-md, 16px);
+  font-size: 16px;
 }
 
 .profileProgressBar {
   width: 100%;
   height: 8px;
-  background: var(--designia-white, #FFFFFF);
+  background: var(--color-surface);
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid var(--designia-silver, #9CA3AF);
+  border: 1px solid var(--color-border);
 }
 
 .profileProgressFill {
   height: 100%;
-  background: linear-gradient(90deg, var(--designia-deep, #0A0A0A) 0%, var(--designia-charcoal, #1A1A1A) 100%);
+  background: var(--gradient-button);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
 
+/* Form container styling - uses shared forms base */
 .profilePremiumForm {
-  background: var(--designia-white, #FFFFFF);
+  background: var(--color-surface);
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(107, 114, 128, 0.15);
-  border: 1px solid var(--designia-silver, #9CA3AF);
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--color-border);
   overflow: hidden;
 }
 
 .profileTabNavigation {
   display: flex;
-  background: var(--designia-platinum, #F5F5F5);
-  border-bottom: 1px solid var(--designia-silver, #9CA3AF);
+  background: var(--color-surface-alt);
+  border-bottom: 1px solid var(--color-border);
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -85,10 +86,10 @@
   padding: var(--space-md) var(--space-sm);
   background: transparent;
   border: none;
-  color: var(--designia-steel, #6B7280);
-  font-size: var(--body-sm, 14px);
+  color: var(--color-text-muted);
+  font-size: 14px;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   cursor: pointer;
   transition: all 0.2s ease;
   border-bottom: 3px solid transparent;
@@ -96,14 +97,14 @@
 }
 
 .profileTabBtn:hover {
-  color: var(--designia-deep, #0A0A0A);
-  background: var(--designia-white, #FFFFFF);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
 }
 
 .profileTabBtn.active {
-  color: var(--designia-deep, #0A0A0A);
-  background: var(--designia-white, #FFFFFF);
-  border-bottom-color: var(--designia-deep, #0A0A0A);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border-bottom-color: var(--color-accent);
 }
 
 .profileTabContainer {
@@ -119,142 +120,93 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.profileFormGroup {
-  margin-bottom: var(--space-xl);
-}
-
-.profileFormRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-xl);
-}
-
-.profileFormLabel {
-  display: block;
-  color: var(--designia-deep, #0A0A0A);
-  font-weight: 500;
-  margin-bottom: var(--space-sm);
-  font-size: var(--label, 14px);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.profileInputField {
-  width: 100%;
-  background: var(--designia-white, #FFFFFF);
-  border: 2px solid var(--designia-platinum, #E5E7EB);
-  border-radius: 8px;
-  padding: var(--space-md);
-  font-size: var(--body-md, 16px);
-  font-family: 'Inter', sans-serif;
-  transition: all 0.2s ease;
-  color: var(--designia-deep, #0A0A0A);
-}
-
-.profileInputField:focus {
-  border-color: var(--designia-deep, #0A0A0A);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.1);
-  transform: translateY(-1px);
-}
-
-.profileInputField::placeholder {
-  color: var(--designia-steel, #6B7280);
-  opacity: 0.7;
-}
-
-.profileTextareaField {
-  resize: vertical;
-  min-height: 120px;
-  line-height: 1.6;
-}
-
-.profileFormHint {
-  color: var(--designia-steel, #6B7280);
-  font-size: var(--body-sm, 14px);
-  margin-top: var(--space-xs);
-  font-style: italic;
-}
-
+/* Profile picture section - custom styling */
 .profilePictureSection {
   text-align: center;
   padding: var(--space-lg);
-  background: var(--designia-platinum, #F5F5F5);
+  background: var(--color-surface-alt);
   border-radius: 12px;
-  border: 2px dashed var(--designia-silver, #9CA3AF);
+  border: 2px dashed var(--color-border);
 }
 
-.profileCheckboxGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  margin-top: var(--space-sm);
-}
-
-.profileCheckboxLabel {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  color: var(--designia-slate, #374151);
-  font-size: var(--body-md, 16px);
-  cursor: pointer;
-}
-
-.profileCheckboxLabel input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--designia-deep, #0A0A0A);
-}
-
+/* Form actions - integrates with shared forms */
 .profileFormActions {
   display: flex;
   gap: var(--space-md);
   justify-content: center;
   padding: var(--space-2xl);
-  background: var(--designia-platinum, #F5F5F5);
-  border-top: 1px solid var(--designia-silver, #9CA3AF);
+  background: var(--color-surface-alt);
+  border-top: 1px solid var(--color-border);
 }
 
-.profileBtn {
-  padding: var(--space-md) var(--space-xl);
-  border-radius: 8px;
-  font-size: var(--button, 16px);
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+/* Country code group - custom styling */
+.countryCodeGroup {
+  flex: 0 0 120px;
+}
+
+/* Seller restriction note */
+.sellerRestrictionNote {
+  margin-top: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--color-warning);
+  border-radius: 12px;
+  border: 1px solid var(--color-warning);
+  color: var(--color-accent-contrast);
+}
+
+.restrictionText {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.becomeSellerLink {
+  background: var(--color-accent-contrast);
+  color: var(--color-warning);
   border: none;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 48px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   text-decoration: none;
-  min-width: 140px;
+  white-space: nowrap;
 }
 
-.profileBtnPrimary {
-  background: var(--designia-deep, #0A0A0A);
-  color: var(--designia-white, #FFFFFF);
-  box-shadow: 0 2px 8px rgba(10, 10, 10, 0.2);
+.becomeSellerLink:hover {
+  background: var(--color-surface);
+  transform: translateY(-1px);
 }
 
-.profileBtnPrimary:hover {
-  background: var(--designia-charcoal, #1A1A1A);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(10, 10, 10, 0.3);
+.restrictedTabMessage {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-2xl);
+  background: var(--color-surface-alt);
+  border-radius: 12px;
+  border: 2px dashed var(--color-border);
 }
 
-.profileBtnSecondary {
-  background: transparent;
-  color: var(--designia-deep, #0A0A0A);
-  border: 2px solid var(--designia-deep, #0A0A0A);
+.restrictedTabTitle {
+  color: var(--color-text-primary);
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+  font-family: var(--font-serif);
 }
 
-.profileBtnSecondary:hover {
-  background: var(--designia-deep, #0A0A0A);
-  color: var(--designia-white, #FFFFFF);
-  transform: translateY(-2px);
+.restrictedTabText {
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: var(--space-xl);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Responsive Design */
@@ -267,18 +219,9 @@
     padding: var(--space-xl) var(--space-lg);
   }
   
-  .profileFormRow {
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
-  }
-  
   .profileFormActions {
     flex-direction: column;
     gap: var(--space-sm);
-  }
-  
-  .profileBtn {
-    width: 100%;
   }
   
   .profileTabNavigation {
@@ -288,7 +231,7 @@
   
   .profileTabBtn {
     min-width: 100px;
-    font-size: var(--body-sm, 14px);
+    font-size: 14px;
     padding: var(--space-sm);
   }
 }
@@ -305,7 +248,7 @@
   }
   
   .profileFormHeader p {
-    font-size: var(--body-md, 16px);
+    font-size: 16px;
   }
   
   .profileTabContainer {
@@ -331,113 +274,4 @@
   .restrictedTabTitle {
     font-size: 20px;
   }
-}
-
-/* CSS Custom Properties for Design System Colors */
-:root {
-  --designia-deep: #0A0A0A;
-  --designia-white: #FFFFFF;
-  --designia-charcoal: #1A1A1A;
-  --designia-platinum: #F5F5F5;
-  --designia-steel: #6B7280;
-  --designia-slate: #374151;
-  --designia-silver: #9CA3AF;
-  --designia-success: #10B981;
-  --designia-warning: #F59E0B;
-  --designia-error: #EF4444;
-  
-  /* Spacing Scale */
-  --space-xs: 4px;
-  --space-sm: 8px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-2xl: 48px;
-  --space-3xl: 64px;
-  
-  /* Typography Scale */
-  --body-sm: 14px;
-  --body-md: 16px;
-  --body-lg: 18px;
-  --label: 14px;
-  --button: 16px;
-}
-
-/* Typography Classes */
-.headingLg {
-  font-size: 48px;
-  line-height: 56px;
-  font-weight: 600;
-  font-family: 'Playfair Display', serif;
-  color: var(--designia-deep, #0A0A0A);
-}
-
-.bodyLg {
-  font-size: var(--body-lg, 18px);
-  line-height: 1.6;
-  color: var(--designia-slate, #374151);
-}
-
-.sellerRestrictionNote {
-  margin-top: var(--space-lg);
-  padding: var(--space-lg);
-  background: var(--designia-warning, #F59E0B);
-  border-radius: 12px;
-  border: 1px solid var(--designia-warning, #F59E0B);
-  color: var(--designia-white, #FFFFFF);
-}
-
-.restrictionText {
-  margin: 0;
-  font-size: var(--body-md, 16px);
-  line-height: 1.6;
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  flex-wrap: wrap;
-}
-
-.becomeSellerLink {
-  background: var(--designia-white, #FFFFFF);
-  color: var(--designia-warning, #F59E0B);
-  border: none;
-  padding: var(--space-sm) var(--space-md);
-  border-radius: 6px;
-  font-size: var(--body-sm, 14px);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.becomeSellerLink:hover {
-  background: var(--designia-platinum, #F5F5F5);
-  transform: translateY(-1px);
-}
-
-.restrictedTabMessage {
-  text-align: center;
-  padding: var(--space-3xl) var(--space-2xl);
-  background: var(--designia-platinum, #F5F5F5);
-  border-radius: 12px;
-  border: 2px dashed var(--designia-silver, #9CA3AF);
-}
-
-.restrictedTabTitle {
-  color: var(--designia-deep, #0A0A0A);
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: var(--space-md);
-  font-family: 'Playfair Display', serif;
-}
-
-.restrictedTabText {
-  color: var(--designia-slate, #374151);
-  font-size: var(--body-md, 16px);
-  line-height: 1.6;
-  margin-bottom: var(--space-xl);
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
 }

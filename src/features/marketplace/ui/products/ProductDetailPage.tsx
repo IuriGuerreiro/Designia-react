@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import ProductReviews from './ProductReviews';
 import { useCart } from '@/shared/state/CartContext';
+import { useTheme } from '@/shared/state/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { productService } from '@/features/marketplace/api';
 import { type Product } from '@/features/marketplace/model';
@@ -12,6 +13,7 @@ import styles from './ProductDetailPage.module.css';
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { addToCart } = useCart();
+  const { tokens } = useTheme();
   const { t } = useTranslation();
   
   const [product, setProduct] = useState<Product | null>(null);
@@ -171,31 +173,72 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className={styles['product-detail-page']}>
+      <div 
+        className={styles['product-detail-page']}
+        style={{ 
+          background: tokens.background,
+          color: tokens.textPrimary 
+        }}
+      >
         {/* Breadcrumb Navigation */}
-        <nav className={styles['breadcrumb-nav']}>
-          <Link to="/products" className={styles['breadcrumb-link']}>{t('layout.products')}</Link>
-          <span className={styles['breadcrumb-separator']}>/</span>
-          <span className={styles['breadcrumb-current']}>{product.name}</span>
+        <nav 
+          className={styles['breadcrumb-nav']}
+          style={{ color: tokens.textSecondary }}
+        >
+          <Link 
+            to="/products" 
+            className={styles['breadcrumb-link']}
+            style={{ color: tokens.textSecondary }}
+          >
+            {t('layout.products')}
+          </Link>
+          <span 
+            className={styles['breadcrumb-separator']}
+            style={{ color: tokens.textMuted }}
+          >
+            /
+          </span>
+          <span 
+            className={styles['breadcrumb-current']}
+            style={{ color: tokens.textPrimary }}
+          >
+            {product.name}
+          </span>
         </nav>
 
         {/* Main Product Content */}
-        <div className={styles['product-main-content']}>
+        <div 
+          className={styles['product-main-content']}
+          style={{ 
+            background: tokens.surface,
+            borderColor: tokens.border,
+            boxShadow: tokens.shadow 
+          }}
+        >
           {/* Image Gallery */}
           <div className={styles['product-gallery']}>
-            <div className={styles['main-image-container']}>
+            <div 
+              className={styles['main-image-container']}
+              style={{ background: tokens.backgroundAccent }}
+            >
               <img 
                 src={selectedImage} 
                 alt={product.name}
                 className={styles['main-image']}
               />
               {!product.is_in_stock && (
-                <div className="out-of-stock-overlay">
+                <div className={styles['out-of-stock-overlay']}>
                   <span>{t('products.out_of_stock')}</span>
                 </div>
               )}
               {product.is_featured && (
-                <div className="featured-badge">
+                <div 
+                  className={styles['featured-badge']}
+                  style={{ 
+                    background: tokens.warning,
+                    boxShadow: `0 4px 12px ${tokens.warning}33` 
+                  }}
+                >
                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -209,9 +252,13 @@ const ProductDetailPage: React.FC = () => {
                 {product.images.map((image, index) => (
                   <button
                     key={image.id}
-                    className={`${styles['thumbnail-button']} ${index === selectedImageIndex ? 'active' : ''}`}
+                    className={`${styles['thumbnail-button']} ${index === selectedImageIndex ? styles.active : ''}`}
                     onClick={() => setSelectedImageIndex(index)}
                     aria-label={`View ${product.name} image ${index + 1}`}
+                    style={{ 
+                      borderColor: tokens.border,
+                      background: tokens.backgroundAccent 
+                    }}
                   >
                     <img 
                       src={image.presigned_url} 
@@ -225,21 +272,39 @@ const ProductDetailPage: React.FC = () => {
           </div>
 
           {/* Product Information */}
-          <div className="product-info">
-            <div className="product-header">
-              <h1 className="product-title">{product.name}</h1>
-              <div className="product-meta">
+          <div className={styles['product-info']}>
+            <div className={styles['product-header']}>
+              <h1 
+                className={styles['product-title']}
+                style={{ color: tokens.textPrimary }}
+              >
+                {product.name}
+              </h1>
+              <div className={styles['product-meta']}>
                 {product.seller?.id ? (
-                  <Link to={`/seller/${product.seller.id}`} className="product-seller">
+                  <Link 
+                    to={`/seller/${product.seller.id}`} 
+                    className={styles['product-seller']}
+                    style={{ color: tokens.textSecondary }}
+                  >
                     {t('products.detail.by')} {product.seller.username}
                   </Link>
                 ) : (
-                  <span className="product-seller">
+                  <span 
+                    className={styles['product-seller']}
+                    style={{ color: tokens.textSecondary }}
+                  >
                     {t('products.detail.by')} Designia
                   </span>
                 )}
                 {product.is_in_stock && (
-                  <span className="stock-status in-stock">
+                  <span 
+                    className={`${styles['stock-status']} ${styles['in-stock']}`}
+                    style={{ 
+                      color: tokens.success,
+                      background: `${tokens.success}1A` 
+                    }}
+                  >
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -247,7 +312,13 @@ const ProductDetailPage: React.FC = () => {
                   </span>
                 )}
                 {!product.is_in_stock && (
-                  <span className="stock-status out-of-stock">
+                  <span 
+                    className={`${styles['stock-status']} ${styles['out-of-stock']}`}
+                    style={{ 
+                      color: tokens.error,
+                      background: `${tokens.error}1A` 
+                    }}
+                  >
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M18.364 18.364A9 9 0 1 1 5.636 5.636a9 9 0 0 1 12.728 12.728zM12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -257,20 +328,40 @@ const ProductDetailPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="product-price-section">
-              <div className="price-container">
-                <span className="price-amount">${product.price}</span>
+            <div className={styles['product-price-section']}>
+              <div className={styles['price-container']}>
+                <span 
+                  className={styles['price-amount']}
+                  style={{ color: tokens.textPrimary }}
+                >
+                  ${product.price}
+                </span>
                 {product.original_price && product.original_price > product.price && (
-                  <span className="original-price">${product.original_price}</span>
+                  <span 
+                    className={styles['original-price']}
+                    style={{ color: tokens.textMuted }}
+                  >
+                    ${product.original_price}
+                  </span>
                 )}
                 {product.is_on_sale && (
-                  <span className="discount-badge">
+                  <span 
+                    className={styles['discount-badge']}
+                    style={{ background: tokens.error }}
+                  >
                     -{product.discount_percentage}%
                   </span>
                 )}
               </div>
               {product.stock_quantity <= 5 && product.stock_quantity > 0 && (
-                <div className="low-stock-warning">
+                <div 
+                  className={styles['low-stock-warning']}
+                  style={{ 
+                    color: tokens.warning,
+                    background: `${tokens.warning}1A`,
+                    borderColor: `${tokens.warning}4D` 
+                  }}
+                >
                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -279,20 +370,35 @@ const ProductDetailPage: React.FC = () => {
               )}
             </div>
 
-            <div className="product-description">
+            <div 
+              className={styles['product-description']}
+              style={{ 
+                color: tokens.textSecondary,
+                background: tokens.backgroundAccent,
+                borderLeftColor: tokens.accent 
+              }}
+            >
               <p>{product.description}</p>
             </div>
 
             {/* Color Selection */}
             {product.colors && product.colors.length > 0 && (
-              <div className="color-selection">
-                <label className="color-label">{t('products.detail.select_color')}</label>
-                <div className="color-options">
+              <div className={styles['color-selection']}>
+                <label 
+                  className={styles['color-label']}
+                  style={{ color: tokens.textSecondary }}
+                >
+                  {t('products.detail.select_color')}
+                </label>
+                <div className={styles['color-options']}>
                   {product.colors.map((color, index) => (
                     <button
                       key={index}
-                      className={`color-option ${selectedColor === color ? 'selected' : ''}`}
-                      style={{ backgroundColor: color.toLowerCase() }}
+                      className={`${styles['color-option']} ${selectedColor === color ? styles.selected : ''}`}
+                      style={{ 
+                        backgroundColor: color.toLowerCase(),
+                        borderColor: tokens.border 
+                      }}
                       onClick={() => setSelectedColor(color)}
                       title={color}
                       aria-label={t('products.detail.select_color_aria', { color })}
@@ -303,15 +409,34 @@ const ProductDetailPage: React.FC = () => {
             )}
 
             {/* Add to Cart Section */}
-            <div className="product-actions">
-              <div className="quantity-selector">
-                <label htmlFor="quantity" className="quantity-label">{t('products.detail.quantity')}</label>
-                <div className="quantity-controls">
+            <div 
+              className={styles['product-actions']}
+              style={{ 
+                background: tokens.backgroundAccent,
+                borderColor: tokens.border 
+              }}
+            >
+              <div className={styles['quantity-selector']}>
+                <label 
+                  htmlFor="quantity" 
+                  className={styles['quantity-label']}
+                  style={{ color: tokens.textSecondary }}
+                >
+                  {t('products.detail.quantity')}
+                </label>
+                <div 
+                  className={styles['quantity-controls']}
+                  style={{ 
+                    borderColor: tokens.border,
+                    background: tokens.surface 
+                  }}
+                >
                   <button 
-                    className="quantity-btn"
+                    className={styles['quantity-btn']}
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
                     aria-label={t('products.detail.decrease_qty')}
+                    style={{ color: tokens.textSecondary }}
                   >
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
                       <path d="M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -319,19 +444,21 @@ const ProductDetailPage: React.FC = () => {
                   </button>
                   <input 
                     id="quantity"
-                    className="quantity-input" 
+                    className={styles['quantity-input']} 
                     type="number" 
                     value={quantity} 
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     min="1"
                     max={product.stock_quantity}
                     aria-label={t('products.detail.qty_input_aria')}
+                    style={{ color: tokens.textPrimary }}
                   />
                   <button 
-                    className="quantity-btn"
+                    className={styles['quantity-btn']}
                     onClick={() => setQuantity(q => Math.min(product.stock_quantity, q + 1))}
                     disabled={quantity >= product.stock_quantity}
                     aria-label={t('products.detail.increase_qty')}
+                    style={{ color: tokens.textSecondary }}
                   >
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
                       <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -341,13 +468,17 @@ const ProductDetailPage: React.FC = () => {
               </div>
 
               <button 
-                className={`add-to-cart-btn ${isAddingToCart ? 'loading' : ''} ${!product.is_in_stock ? 'disabled' : ''}`}
+                className={`${styles['add-to-cart-btn']} ${isAddingToCart ? styles.loading : ''} ${!product.is_in_stock ? styles.disabled : ''}`}
                 onClick={handleAddToCart}
                 disabled={!product.is_in_stock || isAddingToCart}
+                style={{ 
+                  background: tokens.buttonGradient,
+                  color: tokens.accentContrast 
+                }}
               >
                 {isAddingToCart ? (
                   <>
-                    <div className="spinner"></div>
+                    <div className={styles.spinner}></div>
                     {t('products.detail.adding_to_cart')}
                   </>
                 ) : product.is_in_stock ? (
@@ -364,23 +495,38 @@ const ProductDetailPage: React.FC = () => {
             </div>
 
             {/* Quick Product Stats */}
-            <div className="product-quick-stats">
-              <div className="stat-item">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div 
+              className={styles['product-quick-stats']}
+              style={{ 
+                background: tokens.surface,
+                borderColor: tokens.border 
+              }}
+            >
+              <div 
+                className={styles['stat-item']}
+                style={{ color: tokens.textSecondary }}
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: tokens.textMuted }}>
                   <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M2.458 12C3.732 7.943 7.523 5 12 5C16.477 5 20.268 7.943 21.542 12C20.268 16.057 16.477 19 12 19C7.523 19 3.732 16.057 2.458 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span>{product.view_count} views</span>
               </div>
-              <div className="stat-item">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div 
+                className={styles['stat-item']}
+                style={{ color: tokens.textSecondary }}
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: tokens.textMuted }}>
                   <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span>{product.favorite_count} favorites</span>
               </div>
               {product.average_rating > 0 && (
-                <div className="stat-item">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div 
+                  className={styles['stat-item']}
+                  style={{ color: tokens.textSecondary }}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: tokens.textMuted }}>
                     <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   <span>{product.average_rating.toFixed(1)} ({product.review_count} reviews)</span>
@@ -391,59 +537,184 @@ const ProductDetailPage: React.FC = () => {
         </div>
 
         {/* Product Information Tabs (Details / Specifications / Seller) */}
-        <div className="product-details-tabs">
-          <div className="tab-navigation">
+        <div 
+          className={styles['product-details-tabs']}
+          style={{ 
+            background: tokens.surface,
+            borderColor: tokens.border,
+            boxShadow: tokens.shadow 
+          }}
+        >
+          <div 
+            className={styles['tab-navigation']}
+            style={{ background: tokens.backgroundAccent, borderColor: tokens.border }}
+          >
             <button 
-              className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}
+              className={`${styles['tab-button']} ${activeTab === 'details' ? styles.active : ''}`}
               onClick={() => setActiveTab('details')}
+              style={{ 
+                color: activeTab === 'details' ? tokens.accent : tokens.textSecondary,
+                background: activeTab === 'details' ? tokens.surface : 'transparent'
+              }}
             >
               Product Details
             </button>
             <button 
-              className={`tab-button ${activeTab === 'specifications' ? 'active' : ''}`}
+              className={`${styles['tab-button']} ${activeTab === 'specifications' ? styles.active : ''}`}
               onClick={() => setActiveTab('specifications')}
+              style={{ 
+                color: activeTab === 'specifications' ? tokens.accent : tokens.textSecondary,
+                background: activeTab === 'specifications' ? tokens.surface : 'transparent'
+              }}
             >
               Specifications
             </button>
             <button 
-              className={`tab-button ${activeTab === 'seller' ? 'active' : ''}`}
+              className={`${styles['tab-button']} ${activeTab === 'seller' ? styles.active : ''}`}
               onClick={() => setActiveTab('seller')}
+              style={{ 
+                color: activeTab === 'seller' ? tokens.accent : tokens.textSecondary,
+                background: activeTab === 'seller' ? tokens.surface : 'transparent'
+              }}
             >
               Seller
             </button>
           </div>
 
-          <div className="tab-content">
+          <div className={styles['tab-content']}>
             {activeTab === 'details' && (
-              <div className="details-content">
-                <div className="details-grid">
-                  <div className="detail-item">
-                    <span className="detail-label">Brand</span>
-                    <span className="detail-value">{product.brand || 'N/A'}</span>
+              <div className={styles['details-content']}>
+                <div className={styles['details-grid']}>
+                  <div 
+                    className={styles['detail-item']}
+                    style={{ 
+                      background: tokens.backgroundAccent,
+                      borderColor: tokens.border 
+                    }}
+                  >
+                    <span 
+                      className={styles['detail-label']}
+                      style={{ color: tokens.textMuted }}
+                    >
+                      Brand
+                    </span>
+                    <span 
+                      className={styles['detail-value']}
+                      style={{ color: tokens.textPrimary }}
+                    >
+                      {product.brand || 'N/A'}
+                    </span>
                   </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Model</span>
-                    <span className="detail-value">{product.model || 'N/A'}</span>
+                  <div 
+                    className={styles['detail-item']}
+                    style={{ 
+                      background: tokens.backgroundAccent,
+                      borderColor: tokens.border 
+                    }}
+                  >
+                    <span 
+                      className={styles['detail-label']}
+                      style={{ color: tokens.textMuted }}
+                    >
+                      Model
+                    </span>
+                    <span 
+                      className={styles['detail-value']}
+                      style={{ color: tokens.textPrimary }}
+                    >
+                      {product.model || 'N/A'}
+                    </span>
                   </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Condition</span>
-                    <span className="detail-value">{product.condition}</span>
+                  <div 
+                    className={styles['detail-item']}
+                    style={{ 
+                      background: tokens.backgroundAccent,
+                      borderColor: tokens.border 
+                    }}
+                  >
+                    <span 
+                      className={styles['detail-label']}
+                      style={{ color: tokens.textMuted }}
+                    >
+                      Condition
+                    </span>
+                    <span 
+                      className={styles['detail-value']}
+                      style={{ color: tokens.textPrimary }}
+                    >
+                      {product.condition}
+                    </span>
                   </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Materials</span>
-                    <span className="detail-value">{product.materials || 'N/A'}</span>
+                  <div 
+                    className={styles['detail-item']}
+                    style={{ 
+                      background: tokens.backgroundAccent,
+                      borderColor: tokens.border 
+                    }}
+                  >
+                    <span 
+                      className={styles['detail-label']}
+                      style={{ color: tokens.textMuted }}
+                    >
+                      Materials
+                    </span>
+                    <span 
+                      className={styles['detail-value']}
+                      style={{ color: tokens.textPrimary }}
+                    >
+                      {product.materials || 'N/A'}
+                    </span>
                   </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Category</span>
-                    <span className="detail-value">{product.category?.name || 'N/A'}</span>
+                  <div 
+                    className={styles['detail-item']}
+                    style={{ 
+                      background: tokens.backgroundAccent,
+                      borderColor: tokens.border 
+                    }}
+                  >
+                    <span 
+                      className={styles['detail-label']}
+                      style={{ color: tokens.textMuted }}
+                    >
+                      Category
+                    </span>
+                    <span 
+                      className={styles['detail-value']}
+                      style={{ color: tokens.textPrimary }}
+                    >
+                      {product.category?.name || 'N/A'}
+                    </span>
                   </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Tags</span>
-                    <span className="detail-value">
+                  <div 
+                    className={styles['detail-item']}
+                    style={{ 
+                      background: tokens.backgroundAccent,
+                      borderColor: tokens.border 
+                    }}
+                  >
+                    <span 
+                      className={styles['detail-label']}
+                      style={{ color: tokens.textMuted }}
+                    >
+                      Tags
+                    </span>
+                    <span 
+                      className={styles['detail-value']}
+                      style={{ color: tokens.textPrimary }}
+                    >
                       {product.tags && product.tags.length > 0 ? (
-                        <div className="tags-container">
+                        <div className={styles['tags-container']}>
                           {product.tags.map((tag, index) => (
-                            <span key={index} className="tag">{tag}</span>
+                            <span 
+                              key={index} 
+                              className={styles.tag}
+                              style={{ 
+                                background: tokens.accent,
+                                color: tokens.accentContrast 
+                              }}
+                            >
+                              {tag}
+                            </span>
                           ))}
                         </div>
                       ) : 'N/A'}
@@ -454,39 +725,126 @@ const ProductDetailPage: React.FC = () => {
             )}
 
             {activeTab === 'specifications' && (
-              <div className="specifications-content">
-                <div className="specifications-grid">
+              <div className={styles['specifications-content']}>
+                <div className={styles['specifications-grid']}>
                   {product.weight && (
-                    <div className="spec-item">
-                      <span className="spec-label">Weight</span>
-                      <span className="spec-value">{product.weight} kg</span>
+                    <div 
+                      className={styles['spec-item']}
+                      style={{ 
+                        background: tokens.backgroundAccent,
+                        borderColor: tokens.border 
+                      }}
+                    >
+                      <span 
+                        className={styles['spec-label']}
+                        style={{ color: tokens.textSecondary }}
+                      >
+                        Weight
+                      </span>
+                      <span 
+                        className={styles['spec-value']}
+                        style={{ color: tokens.textPrimary }}
+                      >
+                        {product.weight} kg
+                      </span>
                     </div>
                   )}
                   {product.dimensions_length && (
-                    <div className="spec-item">
-                      <span className="spec-label">Length</span>
-                      <span className="spec-value">{product.dimensions_length} cm</span>
+                    <div 
+                      className={styles['spec-item']}
+                      style={{ 
+                        background: tokens.backgroundAccent,
+                        borderColor: tokens.border 
+                      }}
+                    >
+                      <span 
+                        className={styles['spec-label']}
+                        style={{ color: tokens.textSecondary }}
+                      >
+                        Length
+                      </span>
+                      <span 
+                        className={styles['spec-value']}
+                        style={{ color: tokens.textPrimary }}
+                      >
+                        {product.dimensions_length} cm
+                      </span>
                     </div>
                   )}
                   {product.dimensions_width && (
-                    <div className="spec-item">
-                      <span className="spec-label">Width</span>
-                      <span className="spec-value">{product.dimensions_width} cm</span>
+                    <div 
+                      className={styles['spec-item']}
+                      style={{ 
+                        background: tokens.backgroundAccent,
+                        borderColor: tokens.border 
+                      }}
+                    >
+                      <span 
+                        className={styles['spec-label']}
+                        style={{ color: tokens.textSecondary }}
+                      >
+                        Width
+                      </span>
+                      <span 
+                        className={styles['spec-value']}
+                        style={{ color: tokens.textPrimary }}
+                      >
+                        {product.dimensions_width} cm
+                      </span>
                     </div>
                   )}
                   {product.dimensions_height && (
-                    <div className="spec-item">
-                      <span className="spec-label">Height</span>
-                      <span className="spec-value">{product.dimensions_height} cm</span>
+                    <div 
+                      className={styles['spec-item']}
+                      style={{ 
+                        background: tokens.backgroundAccent,
+                        borderColor: tokens.border 
+                      }}
+                    >
+                      <span 
+                        className={styles['spec-label']}
+                        style={{ color: tokens.textSecondary }}
+                      >
+                        Height
+                      </span>
+                      <span 
+                        className={styles['spec-value']}
+                        style={{ color: tokens.textPrimary }}
+                      >
+                        {product.dimensions_height} cm
+                      </span>
                     </div>
                   )}
                   {product.colors && product.colors.length > 0 && (
-                    <div className="spec-item">
-                      <span className="spec-label">Available Colors</span>
-                      <span className="spec-value">
-                        <div className="colors-container">
+                    <div 
+                      className={styles['spec-item']}
+                      style={{ 
+                        background: tokens.backgroundAccent,
+                        borderColor: tokens.border 
+                      }}
+                    >
+                      <span 
+                        className={styles['spec-label']}
+                        style={{ color: tokens.textSecondary }}
+                      >
+                        Available Colors
+                      </span>
+                      <span 
+                        className={styles['spec-value']}
+                        style={{ color: tokens.textPrimary }}
+                      >
+                        <div className={styles['colors-container']}>
                           {product.colors.map((color, index) => (
-                            <span key={index} className="color-chip">{color}</span>
+                            <span 
+                              key={index} 
+                              className={styles['color-chip']}
+                              style={{ 
+                                background: tokens.accent,
+                                color: tokens.accentContrast 
+                              }}
+                            >
+                              {color}
+                            </span>
                           ))}
                         </div>
                       </span>
@@ -497,7 +855,7 @@ const ProductDetailPage: React.FC = () => {
             )}
 
             {activeTab === 'seller' && (
-              <div className="seller-tab-content">
+              <div className={styles['seller-tab-content']}>
                 {product.seller && product.seller.id ? (
                   <>
                     <ViewSellerAccount 
@@ -527,7 +885,10 @@ const ProductDetailPage: React.FC = () => {
                     />
                   </>
                 ) : (
-                  <div className="no-seller-info">
+                  <div 
+                    className={styles['no-seller-info']}
+                    style={{ color: tokens.textMuted }}
+                  >
                     <p>Seller information not available</p>
                   </div>
                 )}
@@ -535,18 +896,39 @@ const ProductDetailPage: React.FC = () => {
             )}
           </div>
         </div>
-        
+
         {/* Product Reviews Section */}
         {product.slug && (
-          <div className="reviews-section">
-            <div className="reviews-header">
-              <h2 className="reviews-title">{t('products.detail.customer_reviews')}</h2>
+          <div 
+            className={styles['reviews-section']}
+            style={{ 
+              background: tokens.surface,
+              borderColor: tokens.border,
+              boxShadow: tokens.shadow 
+            }}
+          >
+            <div 
+              className={styles['reviews-header']}
+              style={{ borderColor: tokens.border }}
+            >
+              <h2 
+                className={styles['reviews-title']}
+                style={{ color: tokens.textPrimary }}
+              >
+                {t('products.detail.customer_reviews')}
+              </h2>
               {/* Simple summary header only */}
-              <div className="reviews-summary">
-                <span className="rating-text">
+              <div className={styles['reviews-summary']}>
+                <span 
+                  className={styles['rating-text']}
+                  style={{ color: tokens.textPrimary }}
+                >
                   {product.average_rating > 0 ? `${product.average_rating.toFixed(1)} / 5` : t('products.detail.no_ratings_yet')}
                 </span>
-                <span className="review-count">
+                <span 
+                  className={styles['review-count']}
+                  style={{ color: tokens.textSecondary }}
+                >
                   {t('products.detail.reviews_count', { count: product.review_count, suffix: product.review_count !== 1 ? 's' : '' })}
                 </span>
               </div>
@@ -565,3 +947,4 @@ const ProductDetailPage: React.FC = () => {
 };
 
 export default ProductDetailPage;
+

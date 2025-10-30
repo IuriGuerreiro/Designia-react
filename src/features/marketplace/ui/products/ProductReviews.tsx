@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { type ProductReview } from '@/features/marketplace/model';
 import { reviewService } from '@/features/marketplace/api';
 import { useAuth } from '@/features/auth/state/AuthContext';
+import { useTheme } from '@/shared/state/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import styles from './ProductReviews.module.css';
 
@@ -77,6 +78,7 @@ const RatingSelector: React.FC<{ value: number; onChange: (rating: number) => vo
 const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId, reviews: initialReviews, variant = 'default' }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { tokens } = useTheme();
   
   const [reviews, setReviews] = useState<ProductReview[]>(initialReviews);
   const [loading, setLoading] = useState(false);
@@ -97,6 +99,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
   const [title, setTitle] = useState('');
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hoveredStar, setHoveredStar] = useState<number | null>(null);
 
   // Load reviews and review eligibility
   useEffect(() => {
@@ -297,36 +300,120 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
 
         {/* Simple inline form */}
         {showReviewForm && (
-          <div className={styles['review-form-container']}>
+          <div 
+            className={styles['review-form-container']}
+            style={{ 
+              background: tokens.surface,
+              borderColor: tokens.border,
+              boxShadow: tokens.shadow 
+            }}
+          >
             <div className={styles['form-header']}>
-              <h4 className={styles['form-title']}>{t('reviews.form_extras.share_title')}</h4>
-              <p className={styles['form-subtitle']}>{t('reviews.form_extras.share_subtitle')}</p>
+              <h4 
+                className={styles['form-title']}
+                style={{ color: tokens.textPrimary }}
+              >
+                {t('reviews.form_extras.share_title')}
+              </h4>
+              <p 
+                className={styles['form-subtitle']}
+                style={{ color: tokens.textMuted }}
+              >
+                {t('reviews.form_extras.share_subtitle')}
+              </p>
             </div>
             <form className={styles['review-form']} onSubmit={handleSubmit}>
-              <RatingSelector value={rating} onChange={setRating} />
               <div className={styles['form-group']}>
-                <label htmlFor="review-title" className={styles['form-label']}>{t('reviews.form.title')}</label>
+                <label 
+                  className={styles['form-label']} 
+                  style={{ color: tokens.textSecondary }}
+                >
+                  {t('reviews.form.rating')}
+                </label>
+                <div className={styles['starRating']}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={`${styles['rating-star-button']} ${star <= (hoveredStar || rating) ? styles['selected'] : ''}`}
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setHoveredStar(star)}
+                      onMouseLeave={() => setHoveredStar(null)}
+                      style={{
+                        color: star <= (hoveredStar || rating) ? tokens.warning : tokens.textMuted
+                      }}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+                <div className={styles['rating-display']}>
+                  <span className={styles['rating-stars']}>
+                    {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
+                  </span>
+                  <span style={{ color: tokens.textSecondary, fontSize: '0.875rem' }}>
+                    {rating === 5 ? 'Excellent' : 
+                     rating === 4 ? 'Very Good' : 
+                     rating === 3 ? 'Good' : 
+                     rating === 2 ? 'Fair' : 'Poor'}
+                  </span>
+                </div>
+              </div>
+              <div className={styles['form-group']}>
+                <label 
+                  htmlFor="review-title" 
+                  className={styles['form-label']}
+                  style={{ color: tokens.textSecondary }}
+                >
+                  {t('reviews.form.title')}
+                </label>
                 <input
                   id="review-title"
                   type="text"
                   className={styles['form-input']}
                   placeholder={t('reviews.form_extras.title_placeholder')}
                   value={title}
+                  maxLength={100}
                   onChange={(e) => setTitle(e.target.value)}
                   required
+                  style={{ 
+                    background: tokens.surfaceAlt,
+                    color: tokens.textPrimary,
+                    borderColor: tokens.border 
+                  }}
                 />
+                <div className={`${styles['char-counter']} ${title.length > 80 ? styles['warning'] : ''}`}
+                     style={{ color: title.length > 80 ? tokens.warning : tokens.textMuted }}>
+                  {title.length}/100
+                </div>
               </div>
               <div className={styles['form-group']}>
-                <label htmlFor="review-comment" className={styles['form-label']}>{t('reviews.form.comment')}</label>
+                <label 
+                  htmlFor="review-comment" 
+                  className={styles['form-label']}
+                  style={{ color: tokens.textSecondary }}
+                >
+                  {t('reviews.form.comment')}
+                </label>
                 <textarea
                   id="review-comment"
                   rows={4}
                   className={styles['form-textarea']}
                   placeholder={t('reviews.form_extras.comment_placeholder')}
                   value={comment}
+                  maxLength={1000}
                   onChange={(e) => setComment(e.target.value)}
                   required
+                  style={{ 
+                    background: tokens.surfaceAlt,
+                    color: tokens.textPrimary,
+                    borderColor: tokens.border 
+                  }}
                 />
+                <div className={`${styles['char-counter']} ${comment.length > 800 ? styles['warning'] : ''}`}
+                     style={{ color: comment.length > 800 ? tokens.warning : tokens.textMuted }}>
+                  {comment.length}/1000
+                </div>
               </div>
               <div className={styles['form-actions']}>
                 <button
@@ -340,6 +427,11 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                     setComment('');
                   }}
                   disabled={isSubmitting}
+                  style={{ 
+                    background: tokens.backgroundAccent,
+                    color: tokens.textSecondary,
+                    borderColor: tokens.border 
+                  }}
                 >
                   {t('reviews.actions.cancel')}
                 </button>
@@ -347,6 +439,10 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                   type="submit" 
                   className={`${styles['submit-button']} ${isSubmitting ? styles['loading'] : ''}`}
                   disabled={isSubmitting}
+                  style={{ 
+                    background: tokens.buttonGradient,
+                    color: tokens.accentContrast 
+                  }}
                 >
                   {isSubmitting ? t('reviews.actions.submitting') : t('reviews.actions.submit_review')}
                 </button>
@@ -354,47 +450,88 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
             </form>
           </div>
         )}
-        <div className="reviews-list">
+        <div className={styles['reviews-list']}>
           {reviews.length === 0 ? (
-            <div className="no-reviews">
-              <h4>{t('reviews.empty_title')}</h4>
-              <p>{t('reviews.empty_message')}</p>
+            <div className={styles['no-reviews']}>
+              <h4 style={{ color: tokens.textPrimary }}>{t('reviews.empty_title')}</h4>
+              <p style={{ color: tokens.textMuted }}>{t('reviews.empty_message')}</p>
             </div>
           ) : (
             reviews.map((review) => (
-              <div key={review.id} className="review-card">
-                <div className="review-header">
-                  <div className="reviewer-info">
-                    <div className="reviewer-avatar">
+              <div 
+                key={review.id} 
+                className={styles['review-card']}
+                style={{ 
+                  background: tokens.surface,
+                  borderColor: tokens.border,
+                  boxShadow: tokens.shadow 
+                }}
+              >
+                <div className={styles['review-header']}>
+                  <div className={styles['reviewer-info']}>
+                    <div 
+                      className={styles['reviewer-avatar']}
+                      style={{ 
+                        background: tokens.buttonGradient,
+                        color: tokens.accentContrast 
+                      }}
+                    >
                       {review.reviewer_name.charAt(0).toUpperCase()}
                     </div>
-                    <div className="reviewer-details">
-                      <span className="reviewer-name">{review.reviewer_name}</span>
+                    <div className={styles['reviewer-details']}>
+                      <span 
+                        className={styles['reviewer-name']}
+                        style={{ color: tokens.textPrimary }}
+                      >
+                        {review.reviewer_name}
+                      </span>
                       <StarRating rating={review.rating} size="sm" />
                     </div>
                   </div>
-                  <div className="review-meta">
+                  <div className={styles['review-meta']}>
                     {review.is_verified_purchase && (
-                      <div className="verified-badge">{t('reviews.verified_purchase')}</div>
+                      <div 
+                        className={styles['verified-badge']}
+                        style={{ 
+                          background: `${tokens.success}1A`,
+                          color: tokens.success,
+                          borderColor: `${tokens.success}4D`
+                        }}
+                      >
+                        {t('reviews.verified_purchase')}
+                      </div>
                     )}
-                    <div className="review-date">
+                    <div 
+                      className={styles['review-date']}
+                      style={{ color: tokens.textMuted }}
+                    >
                       {new Date(review.created_at).toLocaleDateString()}
                     </div>
                     {user && review.reviewer.id === user.id && (
-                      <div className="review-actions" style={{ display: 'flex', gap: 8 }}>
+                      <div className={styles['review-actions']}>
                       <button
                         type="button"
-                        className="action-btn edit-btn"
+                        className={`${styles['action-btn']} ${styles['edit-btn']}`}
                         aria-label={t('reviews.actions.edit')}
                         onClick={() => handleEditReview(review)}
+                        style={{ 
+                          background: tokens.surface,
+                          borderColor: tokens.border,
+                          color: tokens.textMuted
+                        }}
                       >
                         {t('reviews.actions.edit')}
                       </button>
                       <button
                         type="button"
-                        className="action-btn delete-btn"
+                        className={`${styles['action-btn']} ${styles['delete-btn']}`}
                         aria-label={t('reviews.actions.delete')}
                         onClick={() => handleDeleteReview(review.id)}
+                        style={{ 
+                          background: tokens.surface,
+                          borderColor: tokens.border,
+                          color: tokens.textMuted
+                        }}
                       >
                         {t('reviews.actions.delete')}
                       </button>
@@ -402,9 +539,19 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                     )}
                   </div>
                 </div>
-                <div className="review-content">
-                  <h5 className="review-title">{review.title}</h5>
-                  <p className="review-comment">{review.comment}</p>
+                <div className={styles['review-content']}>
+                  <h5 
+                    className={styles['review-title']}
+                    style={{ color: tokens.textPrimary }}
+                  >
+                    {review.title}
+                  </h5>
+                  <p 
+                    className={styles['review-comment']}
+                    style={{ color: tokens.textSecondary }}
+                  >
+                    {review.comment}
+                  </p>
                 </div>
               </div>
             ))
@@ -415,17 +562,30 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
   }
 
   return (
-    <div className="product-reviews">
+    <div className={styles['product-reviews']}>
       {/* Reviews Summary */}
       
 
       {/* Error Message */}
       {error && (
-        <div className="error-message">
+        <div 
+          className={styles['error-message']}
+          style={{ 
+            color: tokens.error, 
+            background: `${tokens.error}1A`, 
+            padding: '0.75rem', 
+            borderRadius: '8px', 
+            border: `1px solid ${tokens.error}4D` 
+          }}
+        >
           <p>{error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="retry-btn"
+            className={styles['retry-btn']}
+            style={{ 
+              background: tokens.error,
+              color: tokens.accentContrast 
+            }}
           >
             {t('reviews.actions.retry')}
           </button>
@@ -437,44 +597,126 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
 
       {/* Review Form */}
       {showReviewForm && (
-        <div className="review-form-container">
-          <div className="form-header">
-            <h4 className="form-title">
+        <div 
+          className={styles['review-form-container']}
+          style={{ 
+            background: tokens.surface,
+            borderColor: tokens.border,
+            boxShadow: tokens.shadow 
+          }}
+        >
+          <div className={styles['form-header']}>
+            <h4 
+              className={styles['form-title']}
+              style={{ color: tokens.textPrimary }}
+            >
               {editingReview ? t('reviews.actions.edit_review') : t('reviews.form_extras.share_title')}
             </h4>
-            <p className="form-subtitle">{t('reviews.form_extras.share_subtitle')}</p>
+            <p 
+              className={styles['form-subtitle']}
+              style={{ color: tokens.textMuted }}
+            >
+              {t('reviews.form_extras.share_subtitle')}
+            </p>
           </div>
           
-          <form className="review-form" onSubmit={handleSubmit}>
-            <RatingSelector value={rating} onChange={setRating} />
+          <form className={styles['review-form']} onSubmit={handleSubmit}>
+            <div className={styles['form-group']}>
+              <label 
+                className={styles['form-label']} 
+                style={{ color: tokens.textSecondary }}
+              >
+                {t('reviews.form.rating')}
+              </label>
+              <div className={styles['starRating']}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    className={`${styles['rating-star-button']} ${star <= (hoveredStar || rating) ? styles['selected'] : ''}`}
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHoveredStar(star)}
+                    onMouseLeave={() => setHoveredStar(null)}
+                    style={{
+                      color: star <= (hoveredStar || rating) ? tokens.warning : tokens.textMuted
+                    }}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+              <div className={styles['rating-display']}>
+                <span className={styles['rating-stars']}>
+                  {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
+                </span>
+                <span style={{ color: tokens.textSecondary, fontSize: '0.875rem' }}>
+                  {rating === 5 ? 'Excellent' : 
+                   rating === 4 ? 'Very Good' : 
+                   rating === 3 ? 'Good' : 
+                   rating === 2 ? 'Fair' : 'Poor'}
+                </span>
+              </div>
+            </div>
             
-            <div className="form-group">
-              <label htmlFor="review-title" className="form-label">Review Title</label>
+            <div className={styles['form-group']}>
+              <label 
+                htmlFor="review-title" 
+                className={styles['form-label']}
+                style={{ color: tokens.textSecondary }}
+              >
+                {t('reviews.form.title')}
+              </label>
               <input
                 id="review-title"
                 type="text"
-                className="form-input"
-                placeholder="Summarize your experience..."
+                className={styles['form-input']}
+                placeholder={t('reviews.form_extras.title_placeholder')}
                 value={title}
+                maxLength={100}
                 onChange={(e) => setTitle(e.target.value)}
                 required
+                style={{ 
+                  background: tokens.surfaceAlt,
+                  color: tokens.textPrimary,
+                  borderColor: tokens.border 
+                }}
               />
+              <div className={`${styles['char-counter']} ${title.length > 80 ? styles['warning'] : ''}`}
+                   style={{ color: title.length > 80 ? tokens.warning : tokens.textMuted }}>
+                {title.length}/100
+              </div>
             </div>
             
-            <div className="form-group">
-              <label htmlFor="review-comment" className="form-label">Your Review</label>
+            <div className={styles['form-group']}>
+              <label 
+                htmlFor="review-comment" 
+                className={styles['form-label']}
+                style={{ color: tokens.textSecondary }}
+              >
+                {t('reviews.form.comment')}
+              </label>
               <textarea
                 id="review-comment"
                 rows={4}
-                className="form-textarea"
-                placeholder="Tell us about your experience with this product..."
+                className={styles['form-textarea']}
+                placeholder={t('reviews.form_extras.comment_placeholder')}
                 value={comment}
+                maxLength={1000}
                 onChange={(e) => setComment(e.target.value)}
                 required
+                style={{ 
+                  background: tokens.surfaceAlt,
+                  color: tokens.textPrimary,
+                  borderColor: tokens.border 
+                }}
               />
+              <div className={`${styles['char-counter']} ${comment.length > 800 ? styles['warning'] : ''}`}
+                   style={{ color: comment.length > 800 ? tokens.warning : tokens.textMuted }}>
+                {comment.length}/1000
+              </div>
             </div>
             
-            <div className="form-actions">
+            <div className={styles['form-actions']}>
               <button 
                 type="button"
                 onClick={() => {
@@ -484,18 +726,27 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                   setTitle('');
                   setComment('');
                 }}
-                className="cancel-btn"
+                className={styles['cancel-btn']}
+                style={{ 
+                  background: tokens.backgroundAccent,
+                  color: tokens.textSecondary,
+                  borderColor: tokens.border 
+                }}
               >
                 {t('reviews.actions.cancel')}
               </button>
               <button 
                 type="submit" 
-                className={`submit-button ${isSubmitting ? 'loading' : ''}`}
+                className={`${styles['submit-button']} ${isSubmitting ? styles['loading'] : ''}`}
                 disabled={isSubmitting}
+                style={{ 
+                  background: tokens.buttonGradient,
+                  color: tokens.accentContrast 
+                }}
               >
                 {isSubmitting ? (
                   <>
-                    <div className="spinner"></div>
+                    <div className={styles['spinner']}></div>
                     {editingReview ? t('reviews.actions_extra.updating') : t('reviews.actions.submitting')}
                   </>
                 ) : (
@@ -508,40 +759,77 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
       )}
 
       {/* Reviews List */}
-      <div className="reviews-list">
+      <div className={styles['reviews-list']}>
         {reviews.length === 0 ? (
-          <div className="no-reviews">
-            <h4>{t('reviews.empty_title')}</h4>
-            <p>{t('reviews.empty_message')}</p>
+          <div className={styles['no-reviews']}>
+            <h4 style={{ color: tokens.textPrimary }}>{t('reviews.empty_title')}</h4>
+            <p style={{ color: tokens.textMuted }}>{t('reviews.empty_message')}</p>
           </div>
         ) : (
           reviews.map((review) => (
-            <div key={review.id} className="review-card">
-              <div className="review-header">
-                <div className="reviewer-info">
-                  <div className="reviewer-avatar">
+            <div 
+              key={review.id} 
+              className={styles['review-card']}
+              style={{ 
+                background: tokens.surface,
+                borderColor: tokens.border,
+                boxShadow: tokens.shadow 
+              }}
+            >
+              <div className={styles['review-header']}>
+                <div className={styles['reviewer-info']}>
+                  <div 
+                    className={styles['reviewer-avatar']}
+                    style={{ 
+                      background: tokens.buttonGradient,
+                      color: tokens.accentContrast 
+                    }}
+                  >
                     {review.reviewer_name.charAt(0).toUpperCase()}
                   </div>
-                  <div className="reviewer-details">
-                    <span className="reviewer-name">{review.reviewer_name}</span>
+                  <div className={styles['reviewer-details']}>
+                    <span 
+                      className={styles['reviewer-name']}
+                      style={{ color: tokens.textPrimary }}
+                    >
+                      {review.reviewer_name}
+                    </span>
                     <StarRating rating={review.rating} size="sm" />
                   </div>
                 </div>
-                <div className="review-meta">
+                <div className={styles['review-meta']}>
                   {review.is_verified_purchase && (
-                    <div className="verified-badge">
+                    <div 
+                      className={styles['verified-badge']}
+                      style={{ 
+                        background: `${tokens.success}1A`,
+                        color: tokens.success,
+                        borderColor: `${tokens.success}4D`
+                      }}
+                    >
                       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
-                      Verified Purchase
+                      {t('reviews.verified_purchase')}
                     </div>
                   )}
+                  <div 
+                    className={styles['review-date']}
+                    style={{ color: tokens.textMuted }}
+                  >
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </div>
                   {user && review.reviewer.id === user.id && (
-                    <div className="review-actions">
+                    <div className={styles['review-actions']}>
                       <button
                         onClick={() => handleEditReview(review)}
-                        className="action-btn edit-btn"
+                        className={`${styles['action-btn']} ${styles['edit-btn']}`}
                         aria-label="Edit review"
+                        style={{ 
+                          background: tokens.surface,
+                          borderColor: tokens.border,
+                          color: tokens.textMuted
+                        }}
                       >
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -550,8 +838,13 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                       </button>
                       <button
                         onClick={() => handleDeleteReview(review.id)}
-                        className="action-btn delete-btn"
+                        className={`${styles['action-btn']} ${styles['delete-btn']}`}
                         aria-label="Delete review"
+                        style={{ 
+                          background: tokens.surface,
+                          borderColor: tokens.border,
+                          color: tokens.textMuted
+                        }}
                       >
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M3 6H5H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -562,12 +855,19 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productSlug, productId,
                   )}
                 </div>
               </div>
-              <div className="review-content">
-                <h5 className="review-title">{review.title}</h5>
-                <p className="review-comment">{review.comment}</p>
-                <div className="review-date">
-                  {new Date(review.created_at).toLocaleDateString()}
-                </div>
+              <div className={styles['review-content']}>
+                <h5 
+                  className={styles['review-title']}
+                  style={{ color: tokens.textPrimary }}
+                >
+                  {review.title}
+                </h5>
+                <p 
+                  className={styles['review-comment']}
+                  style={{ color: tokens.textSecondary }}
+                >
+                  {review.comment}
+                </p>
               </div>
             </div>
           ))

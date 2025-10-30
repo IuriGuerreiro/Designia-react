@@ -64,27 +64,37 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
 
 
-  // Save cart to localStorage
-  const saveCartToLocalStorage = (items: Product[]) => {
+  // Hydrate cart from backend on mount (authenticated-only app)
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return; // No guest carts supported
+    (async () => {
+      setIsLoading(true);
+      try {
+        const serverCart = await cartService.getCart();
+        const items = convertServerCartToLocal(serverCart);
+        setCartItems(items);
+        setError(null);
+      } catch (error) {
+        console.error('Failed to load server cart:', error);
+        setError('Failed to load your cart.');
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, []);
+
+  // Helper: refresh local state from server
+  const reloadCartFromServer = async () => {
     try {
-      localStorage.setItem('cart_items', JSON.stringify(items));
+      const serverCart = await cartService.getCart();
+      const items = convertServerCartToLocal(serverCart);
+      setCartItems(items);
     } catch (error) {
-      console.error('Failed to save cart to localStorage:', error);
+      console.error('Failed to refresh cart:', error);
     }
   };
 
-  // Load cart from localStorage
-  const loadCartFromLocalStorage = () => {
-    try {
-      const savedCart = localStorage.getItem('cart_items');
-      if (savedCart) {
-        const items = JSON.parse(savedCart);
-        setCartItems(items);
-      }
-    } catch (error) {
-      console.error('Failed to load cart from localStorage:', error);
-    }
-  };
 
   // Convert server cart to local format with stock validation
   const convertServerCartToLocal = (serverCart: Cart): Product[] => {
@@ -147,256 +157,129 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = async (product: Product) => {
     const newQuantity = product.quantity || 1;
-    console.log('=== CART CONTEXT - ADD TO CART ===');
-    console.log('Product:', {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: newQuantity
-    });
-    
-    // Check if cart is locked
+    // Prevent modifications when cart is locked
     if (isCartLocked || !canModifyCart) {
-      const error = 'Cart is locked for payment processing. Please wait or refresh the page.';
-      setError(error);
-      throw new Error(error);
+      const errMsg = 'Cart is locked for payment processing. Please wait or refresh the page.';
+      setError(errMsg);
+      throw new Error(errMsg);
     }
-    
-    // Check if product has stock information and validate
-    if (product.availableStock !== undefined && product.availableStock <= 0) {
-      const error = 'This product is currently out of stock.';
-      setError(error);
-      throw new Error(error);
-    }
-    
-    const existingItem = cartItems.find(item => item.id.toString() === product.id.toString());
-    const currentQuantityInCart = existingItem ? existingItem.quantity : 0;
-    const totalQuantityAfterAdd = currentQuantityInCart + newQuantity;
-    
-    // Check if adding this quantity would exceed available stock
-    if (product.availableStock !== undefined && totalQuantityAfterAdd > product.availableStock) {
-      const error = `Only ${product.availableStock} items available in stock. You already have ${currentQuantityInCart} in your cart.`;
-      setError(error);
-      throw new Error(error);
-    }
-    
-    // Optimistic update
-    const updatedItems = cartItems.map(item => {
-      if (item.id.toString() === product.id.toString()) {
-        return { ...item, quantity: item.quantity + newQuantity, stockError: undefined, isActive: true };
-      }
-      return item;
-    });
-    
-    if (!existingItem) {
-      updatedItems.push({ 
-        ...product, 
-        quantity: newQuantity,
-        image: product.image || product.imageUrl || '/placeholder-product.png',
-        isActive: true,
-        stockError: undefined
-      });
-    }
-    
-    setCartItems(updatedItems);
-    saveCartToLocalStorage(updatedItems);
 
-    // Sync with server if authenticated
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      try {
-        console.log('Syncing with server - adding item...');
-        const created = await cartService.addItem(product.id.toString(), newQuantity);
-        console.log('Item added to server cart successfully');
-        if (created && typeof created.id === 'number') {
-          // Persist server cart item ID for future updates/removals
-          setCartItems(prev => prev.map(it =>
-            it.id.toString() === product.id.toString() ? { ...it, cartItemId: created.id } : it
-          ));
-        }
-      } catch (err) {
-        console.error('Failed to add to server cart:', err);
-        
-        // Handle stock-related errors by updating item status instead of global error
-        if (err instanceof Error && (err.message.includes('stock') || err.message.includes('available'))) {
-          console.log('Stock error detected, updating item status');
-          const updatedItemsWithError = cartItems.map(item => {
-            if (item.id.toString() === product.id.toString()) {
-              return { 
-                ...item, 
-                isActive: false, 
-                stockError: err.message,
-                availableStock: extractAvailableStock(err.message)
-              };
-            }
-            return item;
-          });
-          setCartItems(updatedItemsWithError);
-          saveCartToLocalStorage(updatedItemsWithError);
-        } else {
-          // Set global error for non-stock related issues
-          if (err instanceof Error) {
-            setError(err.message);
-          } else {
-            setError('Failed to add item to cart. Please try again.');
-          }
-          
-          // Revert the optimistic update for non-stock errors
-          console.log('Reverting optimistic update due to server error');
-          setCartItems(cartItems);
-          saveCartToLocalStorage(cartItems);
-        }
-        throw err; // Re-throw to let UI handle it
-      }
+    // Client-side guard when stock info is known
+    if (product.availableStock !== undefined && product.availableStock <= 0) {
+      const errMsg = 'This product is currently out of stock.';
+      setError(errMsg);
+      throw new Error(errMsg);
+    }
+
+    try {
+      // Always mutate server; app requires authentication
+      await cartService.addItem(product.id.toString(), newQuantity);
+      await reloadCartFromServer();
+      setError(null);
+    } catch (err) {
+      console.error('Failed to add to server cart:', err);
+      if (err instanceof Error) setError(err.message);
+      throw err;
     }
   };
+
 
   const removeFromCart = async (productId: number | string) => {
-    // Check if cart is locked
     if (isCartLocked || !canModifyCart) {
-      const error = 'Cart is locked for payment processing. Please wait or refresh the page.';
-      setError(error);
-      throw new Error(error);
+      const errMsg = 'Cart is locked for payment processing. Please wait or refresh the page.';
+      setError(errMsg);
+      throw new Error(errMsg);
     }
 
-    // Optimistic update
-    const updatedItems = cartItems.filter(item => item.id !== productId);
-    setCartItems(updatedItems);
-    saveCartToLocalStorage(updatedItems);
+    // Resolve server cart item id (cartItemId)
+    const localItem = cartItems.find(i => i.id.toString() === productId.toString());
+    const serverItemId = localItem?.cartItemId;
 
-    // Sync with server if authenticated
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      try {
-        // Prefer using known server cart item ID when available
-        const localItem = cartItems.find(i => i.id === productId);
-        const serverItemId = localItem?.cartItemId;
-
-        if (serverItemId !== undefined) {
-          await cartService.removeItem(serverItemId);
-        } else {
-          // Fallback: fetch server cart to resolve item ID
-          const serverCart = await cartService.getCart();
-          const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
-          if (cartItem) {
-            await cartService.removeItem(cartItem.id);
-          }
+    try {
+      if (serverItemId !== undefined) {
+        await cartService.removeItem(serverItemId);
+      } else {
+        // Fallback: fetch server cart to resolve item ID
+        const serverCart = await cartService.getCart();
+        const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
+        if (cartItem) {
+          await cartService.removeItem(cartItem.id);
         }
-      } catch (err) {
-        console.error('Failed to remove from server cart:', err);
-        setError('Failed to sync with server');
       }
+      await reloadCartFromServer();
+      setError(null);
+    } catch (err) {
+      console.error('Failed to remove from server cart:', err);
+      setError('Failed to sync with server');
+      throw err;
     }
   };
+
 
   const updateQuantity = async (productId: number | string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      await removeFromCart(productId);
       return;
     }
 
-    // Check if cart is locked
     if (isCartLocked || !canModifyCart) {
-      const error = 'Cart is locked for payment processing. Please wait or refresh the page.';
-      setError(error);
-      throw new Error(error);
+      const errMsg = 'Cart is locked for payment processing. Please wait or refresh the page.';
+      setError(errMsg);
+      throw new Error(errMsg);
     }
 
-    // Local stock guard: prevent exceeding available stock when known (helps guest carts too)
-    const targetItem = cartItems.find(item => item.id === productId);
+    // Local guard when available stock is known
+    const targetItem = cartItems.find(item => item.id.toString() === productId.toString());
     if (targetItem && targetItem.availableStock !== undefined && quantity > targetItem.availableStock) {
       const stockErr = `Only ${targetItem.availableStock} items available in stock.`;
-      const guardedItems = cartItems.map(item =>
-        item.id === productId
-          ? { ...item, stockError: stockErr, isActive: false, quantity: Math.min(quantity, targetItem.availableStock) }
-          : item
-      );
-      setCartItems(guardedItems);
-      saveCartToLocalStorage(guardedItems);
+      // Reflect constraint locally for UX
+      setCartItems(cartItems.map(item => item.id.toString() === productId.toString()
+        ? { ...item, stockError: stockErr, isActive: false }
+        : item
+      ));
       setError(stockErr);
       throw new Error(stockErr);
     }
 
-    setError(null); // Clear any previous errors
-
-    // Optimistic update - clear any previous item errors
-    const updatedItems = cartItems.map(item =>
-      item.id === productId ? { ...item, quantity, stockError: undefined, isActive: true } : item
-    );
-    setCartItems(updatedItems);
-    saveCartToLocalStorage(updatedItems);
-
-    // Sync with server if authenticated
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      try {
-        // Prefer using known server cart item ID when available
-        const localItem = cartItems.find(i => i.id === productId);
-        const serverItemId = localItem?.cartItemId;
-
-        if (serverItemId !== undefined) {
-          await cartService.updateItem(serverItemId, quantity);
-        } else {
-          // Fallback: resolve via server cart
-          const serverCart = await cartService.getCart();
-          const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
-          if (cartItem) {
-            await cartService.updateItem(cartItem.id, quantity);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to update server cart:', err);
-        
-        // Handle stock-related errors by updating item status
-        if (err instanceof Error && (err.message.includes('stock') || err.message.includes('available'))) {
-          console.log('Stock error detected during update, marking item as inactive');
-          const updatedItemsWithError = cartItems.map(item => {
-            if (item.id === productId) {
-              return { 
-                ...item, 
-                isActive: false, 
-                stockError: err.message,
-                availableStock: extractAvailableStock(err.message)
-              };
-            }
-            return item;
-          });
-          setCartItems(updatedItemsWithError);
-          saveCartToLocalStorage(updatedItemsWithError);
-        } else {
-          // Set global error for non-stock related issues
-          if (err instanceof Error) {
-            setError(err.message);
-          } else {
-            setError('Failed to update cart. Please try again.');
-          }
+    try {
+      // Prefer known server item id
+      const serverItemId = targetItem?.cartItemId;
+      if (serverItemId !== undefined) {
+        await cartService.updateItem(serverItemId, quantity);
+      } else {
+        const serverCart = await cartService.getCart();
+        const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
+        if (cartItem) {
+          await cartService.updateItem(cartItem.id, quantity);
         }
       }
+      await reloadCartFromServer();
+      setError(null);
+    } catch (err) {
+      console.error('Failed to update server cart:', err);
+      if (err instanceof Error) setError(err.message); else setError('Failed to update cart. Please try again.');
+      throw err;
     }
   };
+
 
   const clearCart = async () => {
-    // Check if cart is locked
     if (isCartLocked || !canModifyCart) {
-      const error = 'Cart is locked for payment processing. Please wait or refresh the page.';
-      setError(error);
-      throw new Error(error);
+      const errMsg = 'Cart is locked for payment processing. Please wait or refresh the page.';
+      setError(errMsg);
+      throw new Error(errMsg);
     }
-
-    // Optimistic update
-    setCartItems([]);
-    saveCartToLocalStorage([]);
-
-    // Sync with server if authenticated
-    if (isAuthenticated) {
-      try {
-        await cartService.clearCart();
-      } catch (err) {
-        console.error('Failed to clear server cart:', err);
-        setError('Failed to sync with server');
-      }
+    try {
+      await cartService.clearCart();
+      setCartItems([]);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to clear server cart:', err);
+      setError('Failed to sync with server');
+      throw err;
     }
   };
+
 
   const clearError = () => {
     setError(null);
@@ -448,7 +331,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           cartItem.id === productId ? { ...cartItem, stockError: undefined, isActive: true } : cartItem
         );
         setCartItems(updatedItems);
-        saveCartToLocalStorage(updatedItems);
+        // Persist handled by server on next mutation
         
         console.log('Error cleared successfully');
       }

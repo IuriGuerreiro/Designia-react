@@ -4,6 +4,35 @@
       "refresh": "Atualizar",
       "error": "Erro"
     },
+    "forms": {
+      "select_option": "Selecione uma opção",
+      "required_field": "Campo obrigatório",
+      "optional": "Opcional",
+      "loading": "Carregando...",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "submit": "Enviar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "confirm": "Confirmar",
+      "back": "Voltar",
+      "next": "Próximo",
+      "previous": "Anterior",
+      "finish": "Finalizar",
+      "close": "Fechar",
+      "search": "Pesquisar",
+      "clear": "Limpar",
+      "upload": "Carregar",
+      "download": "Baixar",
+      "browse": "Navegar",
+      "choose_file": "Escolher Arquivo",
+      "drag_drop": "Arraste e solte arquivos aqui",
+      "processing": "Processando...",
+      "success": "Sucesso",
+      "error": "Erro",
+      "warning": "Aviso",
+      "info": "Informação"
+    },
     "seller_page": {
       "verified_seller_badge": "Vendedor Verificado",
       "professional_info": "Informações Profissionais",
@@ -474,6 +503,15 @@
       "ctr_short": "CTR",
       "no_orders_for_product": "Nenhum pedido encontrado para este produto.",
       "no_recent_orders": "Nenhum pedido recente encontrado."
+    },
+    "account": {
+      "seller_types": {
+        "manufacturer": "Fabricante",
+        "designer": "Designer de Móveis",
+        "restorer": "Restaurador/Reparador de Móveis",
+        "retailer": "Varejista/Curador",
+        "artisan": "Artesão/Artesão"
+      }
     },
     "settings": {
       "title": "Configurações",
