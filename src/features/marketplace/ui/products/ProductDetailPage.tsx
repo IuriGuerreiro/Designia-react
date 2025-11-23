@@ -8,7 +8,11 @@ import { useTranslation } from 'react-i18next';
 import { productService } from '@/features/marketplace/api';
 import { type Product } from '@/features/marketplace/model';
 import ViewSellerAccount from '@/features/marketplace/ui/seller/ViewSellerAccount';
+import { apiRequest } from '@/shared/api/httpClient';
+import { API_ENDPOINTS } from '@/shared/api/endpoints';
 import styles from './ProductDetailPage.module.css';
+
+const SPACING = { md: '16px' };
 
 const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -24,21 +28,43 @@ const ProductDetailPage: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'specifications' | 'seller'>('details');
+  const [isDownloadingModel, setIsDownloadingModel] = useState(false);
+  const [downloadMessage, setDownloadMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  useEffect(() => {
-    const loadProduct = async () => {
-      if (!slug) return;
-      try {
-        const data = await productService.getProduct(slug);
-        setProduct(data);
-      } catch (err) {
-        setError(t('products.detail.not_found_message'));
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProduct();
-  }, [slug]);
+   useEffect(() => {
+      const loadProduct = async () => {
+         if (!slug) return;
+         try {
+           const data = await productService.getProduct(slug);
+           console.log('🔍 Product loaded:', {
+             name: data.name,
+             has_ar_model: data.has_ar_model,
+             type: typeof data.has_ar_model,
+             keys: Object.keys(data).filter(k => k.includes('ar') || k.includes('model'))
+           });
+           setProduct(data);
+         } catch {
+           setError(t('products.detail.not_found_message'));
+         } finally {
+           setLoading(false);
+         }
+       };
+      loadProduct();
+    }, [slug, t]);
+
+   // Debug logging - will appear in browser console
+   useEffect(() => {
+     if (product) {
+       console.log('=== ProductDetailPage Debug ===');
+       console.log('Product name:', product.name);
+       console.log('has_ar_model:', product.has_ar_model);
+       console.log('Type of has_ar_model:', typeof product.has_ar_model);
+       console.log('Truthy?', !!product.has_ar_model);
+       console.log('Product keys containing "ar":', Object.keys(product).filter(k => k.toLowerCase().includes('ar')));
+       console.log('Rendering button?', product.has_ar_model === true);
+       console.log('=====================================');
+     }
+   }, [product]);
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -61,6 +87,93 @@ const ProductDetailPage: React.FC = () => {
       });
     } finally {
       setIsAddingToCart(false);
+    }
+  };
+
+  const handleDownloadModel = async () => {
+    if (!product) return;
+
+    setIsDownloadingModel(true);
+    setDownloadMessage(null);
+
+    try {
+       // Get download link for the model
+       const downloadLinkResponse = await apiRequest<{ download_url: string }>(
+         API_ENDPOINTS.AR_MODEL_DOWNLOAD(product.id),
+         { method: 'GET' }
+       );
+
+       if (!downloadLinkResponse?.download_url) {
+         throw new Error('Download URL not available for this product');
+       }
+
+        // Check if a download record already exists for this product
+        const existingRecordsResponse = await apiRequest<any[]>(
+          API_ENDPOINTS.AR_MODEL_DOWNLOAD_RECORDS,
+          { method: 'GET' }
+        );
+
+        const existingRecord = existingRecordsResponse?.find((r: any) => 
+          (r.product?.id || r.product_id) === product.id
+        );
+
+        const downloadData = {
+          product_id: product.id,
+          local_path: '', // Will be filled by the app when downloading
+          file_name: `${product.slug || product.name.replace(/\s+/g, '_')}.glb`,
+          platform: 'web',
+          app_version: 'web-app',
+          device_info: navigator.userAgent,
+        };
+
+        if (existingRecord) {
+          // Update existing record
+          console.log(`[ProductDetailPage] Updating existing download record for product ${product.id}`);
+          await apiRequest(
+            `${API_ENDPOINTS.AR_MODEL_DOWNLOAD_RECORDS}${existingRecord.id}/`,
+            {
+              method: 'PATCH',
+              body: JSON.stringify(downloadData),
+            }
+          );
+        } else {
+          // Create new record
+          console.log(`[ProductDetailPage] Creating new download record for product ${product.id}`);
+          await apiRequest(
+            API_ENDPOINTS.AR_MODEL_DOWNLOAD_RECORDS,
+            {
+              method: 'POST',
+              body: JSON.stringify(downloadData),
+            }
+          );
+        }
+
+       setDownloadMessage({
+         type: 'success',
+         text: `Model download registered! Open the app to download and view "${product.name}" in AR.`,
+       });
+
+       // Clear message after 5 seconds
+       setTimeout(() => setDownloadMessage(null), 5000);
+       } catch (error: any) {
+        console.error('Failed to register model download:', error);
+        console.error('Error details:', {
+          status: error?.status,
+          message: error?.message,
+          data: error?.data,
+        });
+        const errorMessage = 
+          error?.data?.product_id?.[0] ||
+          error?.data?.detail ||
+          error?.data?.message ||
+          error?.message ||
+          'Failed to register model download';
+        setDownloadMessage({
+          type: 'error',
+          text: errorMessage,
+        });
+     } finally {
+      setIsDownloadingModel(false);
     }
   };
 
@@ -169,9 +282,9 @@ const ProductDetailPage: React.FC = () => {
     );
   }
 
-  const selectedImage = product.images?.[selectedImageIndex]?.presigned_url || '/placeholder-product.png';
+   const selectedImage = product.images?.[selectedImageIndex]?.presigned_url || '/placeholder-product.png';
 
-  return (
+   return (
     <Layout>
       <div 
         className={styles['product-detail-page']}
@@ -467,32 +580,89 @@ const ProductDetailPage: React.FC = () => {
                 </div>
               </div>
 
-              <button 
-                className={`${styles['add-to-cart-btn']} ${isAddingToCart ? styles.loading : ''} ${!product.is_in_stock ? styles.disabled : ''}`}
-                onClick={handleAddToCart}
-                disabled={!product.is_in_stock || isAddingToCart}
-                style={{ 
-                  background: tokens.buttonGradient,
-                  color: tokens.accentContrast 
-                }}
-              >
-                {isAddingToCart ? (
-                  <>
-                    <div className={styles.spinner}></div>
-                    {t('products.detail.adding_to_cart')}
-                  </>
-                ) : product.is_in_stock ? (
-                  <>
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17C17 18.1 16.1 19 15 19H9C7.9 19 7 18.1 7 17V13H17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    {t('products.add_to_cart_button')}
-                  </>
-                ) : (
-                  t('products.out_of_stock')
-                )}
-              </button>
-            </div>
+                <div style={{ display: 'flex', gap: SPACING.md }}>
+                  <button 
+                    className={`${styles['add-to-cart-btn']} ${isAddingToCart ? styles.loading : ''} ${!product.is_in_stock ? styles.disabled : ''}`}
+                    onClick={handleAddToCart}
+                    disabled={!product.is_in_stock || isAddingToCart}
+                    style={{ 
+                      background: tokens.buttonGradient,
+                      color: tokens.accentContrast,
+                      flex: 1
+                    }}
+                  >
+                    {isAddingToCart ? (
+                      <>
+                        <div className={styles.spinner}></div>
+                        {t('products.detail.adding_to_cart')}
+                      </>
+                    ) : product.is_in_stock ? (
+                      <>
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17C17 18.1 16.1 19 15 19H9C7.9 19 7 18.1 7 17V13H17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        {t('products.add_to_cart_button')}
+                      </>
+                    ) : (
+                      t('products.out_of_stock')
+                    )}
+                  </button>
+
+                   {product.has_ar_model && (
+                    <button
+                      className={`${styles['download-model-btn']} ${isDownloadingModel ? styles.loading : ''}`}
+                      onClick={handleDownloadModel}
+                      disabled={isDownloadingModel}
+                      style={{
+                        background: tokens.accent,
+                        color: tokens.accentContrast,
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '12px 16px',
+                        fontWeight: '600',
+                        cursor: isDownloadingModel ? 'not-allowed' : 'pointer',
+                        opacity: isDownloadingModel ? 0.7 : 1,
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                      }}
+                      title="Register this model for download in the AR app"
+                    >
+                      {isDownloadingModel ? (
+                        <>
+                          <div className={styles.spinner}></div>
+                          Registering...
+                        </>
+                      ) : (
+                        <>
+                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                            <path d="M12 2V12M12 12L7 7M12 12L17 7M3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          Download for AR
+                        </>
+                      )}
+                    </button>
+                  )}
+               </div>
+
+               {downloadMessage && (
+                 <div
+                   style={{
+                     marginTop: '12px',
+                     padding: '12px',
+                     borderRadius: '8px',
+                     background: downloadMessage.type === 'success' ? `${tokens.success}1A` : `${tokens.error}1A`,
+                     color: downloadMessage.type === 'success' ? tokens.success : tokens.error,
+                     fontSize: '14px',
+                     border: `1px solid ${downloadMessage.type === 'success' ? tokens.success : tokens.error}`,
+                   }}
+                 >
+                   {downloadMessage.text}
+                 </div>
+               )}
+             </div>
 
             {/* Quick Product Stats */}
             <div 

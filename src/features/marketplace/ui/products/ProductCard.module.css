@@ -122,7 +122,8 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  z-index: 2;
+  left: auto;
+  z-index: 4;
   background: color-mix(in srgb, var(--color-surface) 80%, transparent);
   backdrop-filter: blur(14px);
   border: 1px solid var(--color-border);
@@ -135,6 +136,7 @@
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   padding: 0;
+  outline: none;
 }
 
 .favoriteBtn:hover,
@@ -252,37 +254,15 @@
 
 .addToCartBtn {
   width: 100%;
-  background: var(--gradient-button);
-  color: var(--color-accent-contrast);
-  border: none;
-  border-radius: 14px;
   padding: 0.75rem 1rem;
   font-size: 0.8rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.addToCartBtn:hover:not(:disabled),
-.addToCartBtn:focus-visible:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
-}
-
-.addToCartBtn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.addToCartBtn svg {
-  width: 18px;
-  height: 18px;
 }
 
 .stockWarning {
@@ -299,23 +279,13 @@
 }
 
 .ownerBtn {
-  background: color-mix(in srgb, var(--color-accent) 92%, transparent);
-  color: var(--color-accent-contrast);
-  border: 1px solid transparent;
-}
-
-.ownerBtn:hover,
-.ownerBtn:focus-visible {
-  background: var(--color-accent);
+  flex: 1;
+  min-width: 140px;
 }
 
 .deleteBtn {
-  background: color-mix(in srgb, var(--color-error) 85%, transparent);
-}
-
-.deleteBtn:hover,
-.deleteBtn:focus-visible {
-  background: var(--color-error);
+  flex: 1;
+  min-width: 140px;
 }
 
 .favoriteBtn.loading .favoriteIcon {

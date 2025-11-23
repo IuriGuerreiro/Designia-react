@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/app/layout';
 import ImageUpload from '@/shared/ui/image-upload/ImageUpload';
-import Select from '@/shared/ui/select/Select';
 import { useTranslation } from 'react-i18next';
 import { categoryService, productService } from '@/features/marketplace/api';
+import { arModelService } from '@/features/marketplace/api/arModelService';
 import { type Category } from '@/features/marketplace/model';
 import { processImagesForUpload, type ImageInfo } from '@/utils/imageUtils';
 import {
@@ -15,21 +15,21 @@ import {
   FormLabel,
   FormInput,
   FormTextarea,
-  FormSelect,
   InputGroup,
   Checkbox,
-  HelpText,
   FormActions,
   Button,
   Loading,
   type FormTranslations
 } from '@/shared/ui/forms';
+import SelectRS from '@/shared/ui/SelectRS';
 
 const ProductForm: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const isEditing = Boolean(slug);
+  const modelInputId = 'product-model-upload';
   
   // Form translations
   const formTranslations: FormTranslations = {
@@ -75,7 +75,7 @@ const ProductForm: React.FC = () => {
     price: '',
     original_price: '',
     stock_quantity: 0,
-    category: '',
+    category: [] as string[],
     condition: 'new',
     brand: '',
     model: '',
@@ -91,10 +91,32 @@ const ProductForm: React.FC = () => {
   
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [modelFile, setModelFile] = useState<File | null>(null);
+  const [modelUploadStatus, setModelUploadStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [modelUploadError, setModelUploadError] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState('');
   const [isProcessingImages, setIsProcessingImages] = useState(false);
 
   const availableColors = ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Gray', 'Brown', 'Orange', 'Purple'];
+  const allowedModelExtensions = ['.glb', '.gltf', '.usdz', '.usd', '.fbx', '.obj', '.zip'];
+  const maxModelSizeMb = 150;
+  const maxModelSizeBytes = maxModelSizeMb * 1024 * 1024;
+  const modelAccept = allowedModelExtensions.join(',');
+
+  const normalizeColorName = (value: unknown): string => {
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    if (value && typeof value === 'object') {
+      const maybeLabel = (value as any).label ?? (value as any).name ?? (value as any).value;
+      if (typeof maybeLabel === 'string') {
+        return maybeLabel;
+      }
+    }
+
+    return '';
+  };
   
   const conditionOptions = [
     { value: 'new', label: t('products.form.conditions.new') },
@@ -128,13 +150,15 @@ const ProductForm: React.FC = () => {
       try {
         const product = await productService.getProduct(slug);
 
-        // Safely determine category id from various backend shapes
+        // Safely determine category ids from various backend shapes
         const rawCategory: any = (product as any).category;
-        const categoryId = rawCategory && typeof rawCategory === 'object'
-          ? String(rawCategory.id ?? '')
-          : rawCategory != null
-            ? String(rawCategory)
-            : '';
+        const categories = Array.isArray((product as any).categories) 
+          ? (product as any).categories.map((cat: any) => typeof cat === 'object' ? String(cat.id ?? '') : String(cat))
+          : rawCategory && typeof rawCategory === 'object'
+            ? [String(rawCategory.id ?? '')]
+            : rawCategory != null
+              ? [String(rawCategory)]
+              : [];
 
         setFormData({
           name: product.name,
@@ -143,7 +167,7 @@ const ProductForm: React.FC = () => {
           price: product.price?.toString?.() ?? String(product.price ?? ''),
           original_price: product.original_price != null ? String(product.original_price) : '',
           stock_quantity: Number(product.stock_quantity ?? 0),
-          category: categoryId,
+          category: categories,
           condition: (product as any).condition ?? 'new',
           brand: (product as any).brand ?? '',
           model: (product as any).model ?? '',
@@ -157,7 +181,10 @@ const ProductForm: React.FC = () => {
           is_digital: Boolean((product as any).is_digital),
         });
 
-        setSelectedColors(Array.isArray((product as any).colors) ? (product as any).colors : []);
+        const productColors = Array.isArray((product as any).colors)
+          ? (product as any).colors.map(normalizeColorName).filter(Boolean)
+          : [];
+        setSelectedColors(productColors);
       } catch (err) {
         console.error('Failed to load product for editing:', err);
         setError(t('products.form.errors.load_product'));
@@ -196,10 +223,67 @@ const ProductForm: React.FC = () => {
     });
   };
 
+  const formatFileSize = (size?: number | null) => {
+    if (typeof size !== 'number') return '';
+    if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+    if (size >= 1024) return `${(size / 1024).toFixed(2)} KB`;
+    return `${size} B`;
+  };
+
+  const handleModelFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const extension = `.${file.name.split('.').pop()?.toLowerCase() ?? ''}`;
+    if (!allowedModelExtensions.includes(extension)) {
+      setModelUploadError(`Unsupported file format. Allowed: ${allowedModelExtensions.join(', ')}`);
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > maxModelSizeBytes) {
+      setModelUploadError(`3D model must be smaller than ${maxModelSizeMb}MB.`);
+      event.target.value = '';
+      return;
+    }
+
+    setModelUploadError(null);
+    setModelUploadStatus('idle');
+    setModelFile(file);
+  };
+
+  const handleRemoveModelFile = () => {
+    setModelFile(null);
+    setModelUploadError(null);
+    setModelUploadStatus('idle');
+    const inputEl = document.getElementById(modelInputId) as HTMLInputElement | null;
+    if (inputEl) {
+      inputEl.value = '';
+    }
+  };
+
+  const extractApiErrorMessage = (err: unknown, fallback: string) => {
+    if (err && typeof err === 'object') {
+      const anyErr = err as any;
+      if (anyErr.data) {
+        const data = anyErr.data;
+        if (typeof data === 'string') return data;
+        if (data.detail) return String(data.detail);
+        if (Array.isArray(data)) return String(data[0]);
+      }
+      if (anyErr.message) {
+        return String(anyErr.message);
+      }
+    }
+    return fallback;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
+    setModelUploadError(null);
+    setModelUploadStatus('idle');
 
     // Client-side validation: original_price must be greater than price if provided
     const priceNum = parseFloat(formData.price);
@@ -281,7 +365,7 @@ const ProductForm: React.FC = () => {
         formDataToSend.append('original_price', formData.original_price);
       }
       formDataToSend.append('stock_quantity', formData.stock_quantity.toString());
-      formDataToSend.append('category', formData.category);
+      formDataToSend.append('categories', JSON.stringify(formData.category));
       formDataToSend.append('condition', formData.condition);
       formDataToSend.append('brand', formData.brand);
       formDataToSend.append('model', formData.model);
@@ -461,12 +545,32 @@ const ProductForm: React.FC = () => {
       
       console.log('=== SENDING REQUEST TO BACKEND ===');
 
+      let savedProduct;
       if (isEditing && slug) {
         console.log(`🔄 Sending UPDATE request to backend for product: ${slug}`);
-        await productService.updateProduct(slug, formDataToSend);
+        savedProduct = await productService.updateProduct(slug, formDataToSend);
       } else {
         console.log('🔄 Sending CREATE request to backend for new product');
-        await productService.createProduct(formDataToSend);
+        savedProduct = await productService.createProduct(formDataToSend);
+      }
+
+      if (modelFile) {
+        if (!savedProduct?.id) {
+          console.warn('Product saved but missing id; skipping 3D model upload.');
+        } else {
+          setModelUploadStatus('pending');
+          try {
+            await arModelService.uploadProductModel(savedProduct.id, modelFile);
+            setModelUploadStatus('success');
+            setModelFile(null);
+          } catch (modelErr) {
+            const message = extractApiErrorMessage(modelErr, 'Failed to upload 3D model.');
+            console.error('3D model upload failed:', modelErr);
+            setModelUploadStatus('error');
+            setModelUploadError(message);
+            return;
+          }
+        }
       }
 
       navigate('/my-products');
@@ -635,6 +739,115 @@ const ProductForm: React.FC = () => {
               </FormGroup>
             </FormSection>
 
+            {/* 3D Model Upload */}
+            <FormSection
+              title="3D Model (optional)"
+              description="Attach a single 3D asset to unlock AR previews. Supported formats: GLB, GLTF, USDZ, OBJ, FBX, ZIP (max 150MB)."
+              icon={
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2L3 7l9 5 9-5-9-5z" />
+                  <path d="M3 17l9 5 9-5" />
+                  <path d="M3 12l9 5 9-5" />
+                </svg>
+              }
+            >
+              <FormGroup>
+                <input
+                  id={modelInputId}
+                  type="file"
+                  accept={modelAccept}
+                  onChange={handleModelFileChange}
+                  style={{ display: 'none' }}
+                  disabled={loading}
+                />
+                <div
+                  style={{
+                    border: '1px dashed var(--color-border, #E5E7EB)',
+                    borderRadius: '16px',
+                    padding: 'var(--space-lg, 24px)',
+                    background: 'var(--surface-subtle, rgba(241, 243, 244, 0.35))',
+                  }}
+                >
+                  {modelFile ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                        <div>
+                          <p style={{ margin: 0, fontWeight: 600 }}>{modelFile.name}</p>
+                          <p style={{ margin: '4px 0 0', color: 'var(--color-text-secondary, #6B7280)', fontSize: '14px' }}>
+                            {formatFileSize(modelFile.size)}
+                          </p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <Button type="button" variant="secondary" onClick={() => document.getElementById(modelInputId)?.click()}>
+                            Replace file
+                          </Button>
+                          <Button type="button" variant="ghost" onClick={handleRemoveModelFile}>
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+                      <p style={{ margin: 0, color: 'var(--color-text-secondary, #6B7280)', fontSize: '14px' }}>
+                        The current file will replace any existing 3D model once you save.
+                      </p>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor={modelInputId}
+                      style={{
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: '140px',
+                        color: loading ? 'var(--color-text-muted, #9CA3AF)' : 'var(--color-text-secondary, #6B7280)',
+                        gap: '8px',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '56px',
+                          height: '56px',
+                          borderRadius: '50%',
+                          border: '1px solid var(--color-border, #E5E7EB)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 5v14" />
+                          <path d="M5 12h14" />
+                        </svg>
+                      </div>
+                      <div>
+                        <strong style={{ display: 'block', color: 'var(--color-text-primary, #1A1A1A)' }}>
+                          Click to upload a 3D model
+                        </strong>
+                        <span style={{ fontSize: '14px', display: 'block', marginTop: '4px' }}>
+                          {allowedModelExtensions.join(', ')} · up to {maxModelSizeMb}MB
+                        </span>
+                      </div>
+                    </label>
+                  )}
+                </div>
+                {modelUploadError && (
+                  <p style={{ color: 'var(--color-error, #EF4444)', marginTop: '8px', fontSize: '14px' }}>{modelUploadError}</p>
+                )}
+                {modelUploadStatus === 'pending' && (
+                  <p style={{ color: 'var(--color-text-secondary, #6B7280)', marginTop: '8px', fontSize: '14px' }}>
+                    Uploading 3D model…
+                  </p>
+                )}
+                {modelUploadStatus === 'success' && (
+                  <p style={{ color: 'var(--color-success, #16A34A)', marginTop: '8px', fontSize: '14px' }}>
+                    3D model uploaded successfully.
+                  </p>
+                )}
+              </FormGroup>
+            </FormSection>
+
             {/* Basic Information */}
             <FormSection 
               title={t('products.form.basic_info_title')}
@@ -745,13 +958,12 @@ const ProductForm: React.FC = () => {
 
                 <FormGroup>
                   <FormLabel required htmlFor="condition">{t('products.form.condition_label')}</FormLabel>
-                  <FormSelect
+                  <SelectRS
                     id="condition"
                     value={formData.condition}
                     onChange={value => setFormData({...formData, condition: value})}
                     options={conditionOptions}
                     placeholder={t('products.form.condition_placeholder')}
-                    translations={formTranslations}
                   />
                 </FormGroup>
               </FormGrid>
@@ -772,12 +984,13 @@ const ProductForm: React.FC = () => {
               <FormGrid>
                 <FormGroup>
                   <FormLabel required htmlFor="category">{t('products.form.category_label')}</FormLabel>
-                  <FormSelect
+                  <SelectRS
                     id="category"
                     value={formData.category}
                     onChange={value => setFormData({...formData, category: value})}
                     options={categoryOptions}
                     placeholder={t('products.form.category_placeholder')}
+                    isMulti={true}
                   />
                 </FormGroup>
 
@@ -895,7 +1108,7 @@ const ProductForm: React.FC = () => {
               }
             >
               <FormGroup>
-                <FormSelect
+                <SelectRS
                   value=""
                   onChange={handleAddColor}
                   options={colorOptions}
@@ -907,61 +1120,65 @@ const ProductForm: React.FC = () => {
                   gap: 'var(--space-sm, 8px)', 
                   marginTop: 'var(--space-md, 16px)' 
                 }}>
-                  {selectedColors.map(color => (
-                    <div key={color} style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--space-sm, 8px)',
-                      padding: 'var(--space-sm, 8px) var(--space-md, 16px)',
-                      background: 'var(--surface-subtle, rgba(241, 243, 244, 0.5))',
-                      borderRadius: '20px',
-                      fontSize: '14px',
-                      color: 'var(--color-text-primary, #1A1A1A)',
-                      fontWeight: 500,
-                      transition: 'all 0.3s ease'
-                    }}>
-                      <span 
-                        style={{ 
-                          width: '16px', 
-                          height: '16px', 
-                          borderRadius: '50%', 
-                          border: '2px solid var(--color-surface, #FFFFFF)', 
-                          boxShadow: '0 2px 4px rgba(0,0,0,.1)',
-                          backgroundColor: color.toLowerCase() 
-                        }} 
-                      />
-                      <span>{color}</span>
-                      <button 
-                        type="button" 
-                        onClick={() => handleRemoveColor(color)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--color-text-secondary, #6B7280)',
-                          cursor: 'pointer',
-                          padding: '2px',
-                          borderRadius: '50%',
-                          transition: 'all 0.3s ease',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'var(--color-error, #EF4444)';
-                          e.currentTarget.style.color = 'var(--color-surface, #FFFFFF)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'none';
-                          e.currentTarget.style.color = 'var(--color-text-secondary, #6B7280)';
-                        }}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <line x1="18" y1="6" x2="6" y2="18"/>
-                          <line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
+                  {selectedColors.map(color => {
+                    const swatchColor = typeof color === 'string' ? color.toLowerCase() : 'transparent';
+
+                    return (
+                      <div key={color} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-sm, 8px)',
+                        padding: 'var(--space-sm, 8px) var(--space-md, 16px)',
+                        background: 'var(--surface-subtle, rgba(241, 243, 244, 0.5))',
+                        borderRadius: '20px',
+                        fontSize: '14px',
+                        color: 'var(--color-text-primary, #1A1A1A)',
+                        fontWeight: 500,
+                        transition: 'all 0.3s ease'
+                      }}>
+                        <span 
+                          style={{ 
+                            width: '16px', 
+                            height: '16px', 
+                            borderRadius: '50%', 
+                            border: '2px solid var(--color-surface, #FFFFFF)', 
+                            boxShadow: '0 2px 4px rgba(0,0,0,.1)',
+                            backgroundColor: swatchColor
+                          }} 
+                        />
+                        <span>{color}</span>
+                        <button 
+                          type="button" 
+                          onClick={() => handleRemoveColor(color)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--color-text-secondary, #6B7280)',
+                            cursor: 'pointer',
+                            padding: '2px',
+                            borderRadius: '50%',
+                            transition: 'all 0.3s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'var(--color-error, #EF4444)';
+                            e.currentTarget.style.color = 'var(--color-surface, #FFFFFF)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'none';
+                            e.currentTarget.style.color = 'var(--color-text-secondary, #6B7280)';
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                          </svg>
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </FormGroup>
             </FormSection>

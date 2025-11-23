@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { useCart } from '@/shared/state/CartContext';
 import { categoryService, productService } from '@/features/marketplace/api';
 import { type ProductListItem, type ProductFilters } from '@/features/marketplace/model';
+import Button from '@/shared/ui/Button';
+import SelectRS from '@/shared/ui/SelectRS';
 
 // Skeleton Loading Component
 const ProductCardSkeleton: React.FC = () => {
@@ -54,14 +56,24 @@ const ProductFilters: React.FC<{
         </div>
         <div className={styles['filters-actions']}>
           <span className={styles['filters-count']}>{t('products.filters.active_count', { count: activeFiltersCount })}</span>
-          <button onClick={clearFilters} className={styles['clear-filters-btn']} type="button">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={clearFilters}
+          >
             {t('products.filters.clear')}
-          </button>
-          <button className={styles['filters-close']} onClick={onClose} type="button" aria-label={t('products.filters.close_aria')}>
-            <span className="material-symbols-outlined" aria-hidden="true">
-              close
-            </span>
-          </button>
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-label={t('products.filters.close_aria')}
+            onClick={onClose}
+            leftIcon={<span className="material-symbols-outlined" aria-hidden="true">close</span>}
+          >
+            {t('orders.actions.close')}
+          </Button>
         </div>
       </div>
       
@@ -112,18 +124,13 @@ const ProductFilters: React.FC<{
 
   <div className={styles['filter-section']}>
         <label>{t('products.filters.category')}</label>
-        <select
+        <SelectRS
+          options={[{ value: '', label: t('products.filters.all_categories') }, ...categories.map((c:any) => ({ value: c.slug, label: c.name }))]}
           value={filters.category_slug || ''}
-          onChange={(e) => handleFilterChange('category_slug', e.target.value || undefined)}
-          className={styles['filter-select']}
-        >
-          <option value="">{t('products.filters.all_categories')}</option>
-          {categories.map(category => (
-            <option key={category.slug} value={category.slug}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+          onChange={(val: string) => handleFilterChange('category_slug', val || undefined)}
+          placeholder={t('products.filters.all_categories')}
+          fullWidth
+        />
       </div>
 
   <div className={styles['filter-section']}>
@@ -180,16 +187,18 @@ const ProductFilters: React.FC<{
 
       <div className="filter-section">
         <label>{t('products.filters.rating')}</label>
-        <select
-          value={filters.min_rating || ''}
-          onChange={(e) => handleFilterChange('min_rating', e.target.value ? Number(e.target.value) : undefined)}
-          className={styles['filter-select']}
-        >
-          <option value="">{t('products.filters.any_rating')}</option>
-          <option value="4">{t('products.filters.rating_4')}</option>
-          <option value="3">{t('products.filters.rating_3')}</option>
-          <option value="2">{t('products.filters.rating_2')}</option>
-        </select>
+        <SelectRS
+          options={[
+            { value: '', label: t('products.filters.any_rating') },
+            { value: '4', label: t('products.filters.rating_4') },
+            { value: '3', label: t('products.filters.rating_3') },
+            { value: '2', label: t('products.filters.rating_2') },
+          ]}
+          value={String(filters.min_rating ?? '')}
+          onChange={(val: string) => handleFilterChange('min_rating', val ? Number(val) : undefined)}
+          placeholder={t('products.filters.any_rating')}
+          fullWidth
+        />
       </div>
     </aside>
   );
@@ -205,21 +214,21 @@ const ProductSort: React.FC<{
   return (
     <div className={styles['product-sort']}>
       <label htmlFor="marketplace-sort">{t('products.sort.label')}</label>
-      <select
-        id="marketplace-sort"
+      <SelectRS
+        options={[
+          { value: 'newest', label: t('products.sort.newest') },
+          { value: 'oldest', label: t('products.sort.oldest') },
+          { value: 'price_low', label: t('products.sort.price_low') },
+          { value: 'price_high', label: t('products.sort.price_high') },
+          { value: 'rating', label: t('products.sort.rating') },
+          { value: 'popular', label: t('products.sort.popular') },
+          { value: 'name', label: t('products.sort.name') },
+        ]}
         value={sortBy}
-        onChange={(e) => onSortChange(e.target.value)}
-        className={styles['sort-select']}
-        disabled={disabled}
-      >
-        <option value="newest">{t('products.sort.newest')}</option>
-        <option value="oldest">{t('products.sort.oldest')}</option>
-        <option value="price_low">{t('products.sort.price_low')}</option>
-        <option value="price_high">{t('products.sort.price_high')}</option>
-        <option value="rating">{t('products.sort.rating')}</option>
-        <option value="popular">{t('products.sort.popular')}</option>
-        <option value="name">{t('products.sort.name')}</option>
-      </select>
+        onChange={onSortChange}
+        placeholder={t('products.sort.label')}
+        isDisabled={disabled}
+      />
     </div>
   );
 };
@@ -538,32 +547,27 @@ const ProductList: React.FC = () => {
                 />
               </div>
               <div className={styles['hero-actions']}>
-                <button
+                <Button
                   type="button"
-                  className={`${styles['filter-toggle-btn']} ${showFilters ? styles['active'] : ''}`}
+                  variant={showFilters ? 'secondary' : 'outline'}
                   onClick={() => setShowFilters((prev) => !prev)}
                   disabled={loading}
                   aria-controls="marketplace-filters"
                   aria-expanded={showFilters}
                   aria-label={showFilters ? t('products.filters.close_aria') : t('products.filters.open_aria')}
+                  leftIcon={
+                    showFilters ? (
+                      <span className="material-symbols-outlined" aria-hidden="true">close</span>
+                    ) : (
+                      <span className="material-symbols-outlined" aria-hidden="true">tune</span>
+                    )
+                  }
                 >
-                  {showFilters ? (
-                    <>
-                      <span className="material-symbols-outlined" aria-hidden="true">
-                        close
-                      </span>
-                      {t('orders.actions.close')}
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined" aria-hidden="true">
-                        tune
-                      </span>
-                      {t('products.filters.title')}
-                    </>
+                  {showFilters ? t('orders.actions.close') : t('products.filters.title')}
+                  {activeFiltersCount > 0 && (
+                    <span className={styles['filters-badge']}>{activeFiltersCount}</span>
                   )}
-                  {activeFiltersCount > 0 && <span className={styles['filters-badge']}>{activeFiltersCount}</span>}
-                </button>
+                </Button>
                 <ProductSort sortBy={sortBy} onSortChange={setSortBy} disabled={loading} />
               </div>
             </div>
@@ -590,12 +594,9 @@ const ProductList: React.FC = () => {
         {error && (
           <div className={styles['error-message']}>
             <p>{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className={styles['retry-btn']}
-            >
+            <Button variant="secondary" onClick={() => window.location.reload()}>
               {t('orders.actions.try_again')}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -653,15 +654,15 @@ const ProductList: React.FC = () => {
                   {hasNext && (
                     <>
                       <div ref={sentinelRef} style={{ height: 1, width: '100%' }} />
-                      <button
+                      <Button
                         type="button"
-                        className={styles['load-more-btn']}
+                        variant="primary"
                         onClick={loadMore}
-                        disabled={loadingMore}
+                        loading={loadingMore}
                         style={{ marginTop: '12px' }}
                       >
                         {loadingMore ? t('products.loading_more') : t('products.load_more', { count: pageSize })}
-                      </button>
+                      </Button>
                     </>
                   )}
                   {!hasNext && (

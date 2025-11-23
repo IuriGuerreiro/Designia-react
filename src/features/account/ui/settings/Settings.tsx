@@ -12,7 +12,7 @@ import styles from './Settings.module.css';
 const cx = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ');
 
-type SettingsTab = 'account' | 'security' | 'privacy' | 'legal' | 'preferences';
+type SettingsTab = 'account' | 'security' | 'privacy' | 'legal' | 'preferences' | 'developer';
 
 const Settings: React.FC = () => {
   const { t } = useTranslation();

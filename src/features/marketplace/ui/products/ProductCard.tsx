@@ -4,6 +4,7 @@ import styles from './ProductCard.module.css';
 import { useTranslation } from 'react-i18next';
 import { favoriteService, productService } from '@/features/marketplace/api';
 import { type ProductListItem } from '@/features/marketplace/model';
+import Button from '@/shared/ui/Button';
 
 interface ProductCardProps {
   product: ProductListItem;
@@ -65,6 +66,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
               <span>{t('products.out_of_stock')}</span>
             </div>
           )}
+          <button
+            className={`${styles.favoriteBtn} ${isFavorited ? styles.favorited : ''} ${isLoading ? styles.loading : ''}`}
+            onClick={handleFavoriteClick}
+            disabled={isLoading}
+            aria-label={t(isFavorited ? 'products.remove_from_favorites' : 'products.add_to_favorites')}
+            type="button"
+          >
+            <FavoriteIcon isFavorited={isFavorited} />
+          </button>
         </div>
         
         <div className={styles.badges}>
@@ -100,15 +110,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
             </div>
           )}
         </div>
-        
-        <button 
-          className={`${styles.favoriteBtn} ${isFavorited ? styles.favorited : ''} ${isLoading ? styles.loading : ''}`}
-          onClick={handleFavoriteClick}
-          disabled={isLoading}
-          aria-label={t(isFavorited ? 'products.remove_from_favorites' : 'products.add_to_favorites')}
-        >
-          <FavoriteIcon isFavorited={isFavorited} />
-        </button>
       </Link>
       
       <div className={styles.info}>
@@ -155,27 +156,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
         <div className={styles.cardActions}>
           {displayMode === 'customer' ? (
             <>
-              <button 
+              <Button
+                variant={product.is_in_stock ? 'primary' : 'secondary'}
                 className={`${styles.addToCartBtn} ${!product.is_in_stock ? styles.disabled : ''}`}
                 onClick={onAddToCart}
                 disabled={!product.is_in_stock}
-              >
-                {product.is_in_stock ? (
-                  <>
+                leftIcon={
+                  product.is_in_stock ? (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17C17 18.1 16.1 19 7 17V13H17Z"/>
                     </svg>
-                    {t('products.add_to_cart_button')}
-                  </>
-                ) : (
-                  <>
+                  ) : (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M18.364 18.364A9 9 0 1 1 5.636 5.636a9 9 0 0 1 12.728 12.728zM12 8v4m0 4h.01"/>
                     </svg>
-                    {t('products.out_of_stock')}
-                  </>
-                )}
-              </button>
+                  )
+                }
+              >
+                {product.is_in_stock
+                  ? t('products.add_to_cart_button')
+                  : t('products.out_of_stock')}
+              </Button>
               
               {product.is_in_stock && product.stock_quantity <= 5 && (
                 <div className={styles.stockWarning}>
@@ -188,36 +189,45 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onFavor
             </>
           ) : (
             <>
-              <button 
+              <Button
+                variant="secondary"
                 className={`${styles.addToCartBtn} ${styles.ownerBtn}`}
-                onClick={() => window.location.href = `/metrics/product/${product.slug}`}
+                leftIcon={
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 3V21H21"/>
+                    <path d="M9 9L12 6L16 10L20 6"/>
+                  </svg>
+                }
+                onClick={() => (window.location.href = `/metrics/product/${product.slug}`)}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 3V21H21"/>
-                  <path d="M9 9L12 6L16 10L20 6"/>
-                </svg>
                 {t('products.metrics')}
-              </button>
-              <button 
+              </Button>
+              <Button
+                variant="secondary"
                 className={`${styles.addToCartBtn} ${styles.ownerBtn}`}
-                onClick={() => window.location.href = `/products/${product.slug}/edit`}
+                leftIcon={
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"/>
+                    <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z"/>
+                  </svg>
+                }
+                onClick={() => (window.location.href = `/products/${product.slug}/edit`)}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"/>
-                  <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z"/>
-                </svg>
                 {t('products.edit')}
-              </button>
-              <button 
+              </Button>
+              <Button
+                variant="danger"
                 className={`${styles.addToCartBtn} ${styles.ownerBtn} ${styles.deleteBtn}`}
+                leftIcon={
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 6H5H21"/>
+                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"/>
+                  </svg>
+                }
                 onClick={() => onDelete && onDelete(product.id, product.slug)}
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M3 6H5H21"/>
-                  <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"/>
-                </svg>
                 {t('products.delete')}
-              </button>
+              </Button>
             </>
           )}
         </div>

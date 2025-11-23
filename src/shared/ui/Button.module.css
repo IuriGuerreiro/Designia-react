@@ -1,0 +1,133 @@
+.btn {
+  --_bg: var(--color-surface);
+  --_fg: var(--color-text-primary);
+  --_border: var(--color-border);
+  --_shadow: var(--shadow-sm, 0 6px 20px rgba(0,0,0,0.12));
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--_border);
+  background: var(--_bg);
+  color: var(--_fg);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease, color 0.3s ease, opacity 0.2s ease;
+  outline: none;
+  position: relative;
+  user-select: none;
+}
+
+.sm { padding: 0.55rem 0.9rem; font-size: 0.85rem; border-radius: 10px; }
+.md { padding: 0.75rem 1.25rem; font-size: 0.95rem; }
+.lg { padding: 0.95rem 1.5rem; font-size: 1.05rem; border-radius: 14px; }
+
+.block { width: 100%; }
+
+.elevated { box-shadow: var(--_shadow); }
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(0); }
+
+.content { display: inline-flex; align-items: center; gap: 0.5rem; }
+.leftIcon, .rightIcon { display: inline-flex; align-items: center; }
+
+/* Loading */
+.loadingSpinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: var(--color-accent-contrast, #fff);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { 0% { transform: rotate(0) } 100% { transform: rotate(360deg) } }
+
+/* Variants */
+.primary {
+  --_bg: var(--gradient-button);
+  --_fg: var(--color-accent-contrast);
+  --_border: transparent;
+}
+
+.secondary {
+  --_bg: color-mix(in srgb, var(--color-accent) 92%, transparent);
+  --_fg: var(--color-accent-contrast);
+  --_border: transparent;
+}
+
+.outline {
+  --_bg: transparent;
+  --_fg: var(--color-text-primary);
+  --_border: var(--color-border-strong);
+}
+
+.ghost {
+  --_bg: transparent;
+  --_fg: var(--color-text-secondary);
+  --_border: transparent;
+}
+.ghost:hover { background: color-mix(in srgb, var(--surface) 10%, transparent); }
+.ghostOverlay {
+  --_bg: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  --_fg: var(--color-text-primary);
+  --_border: var(--color-border);
+  border-radius: 999px;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  box-shadow: var(--shadow-sm);
+}
+
+.link {
+  --_bg: transparent;
+  --_fg: color-mix(in srgb, var(--color-accent) 88%, var(--color-text-secondary) 12%);
+  --_border: transparent;
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+}
+.link:hover { background: color-mix(in srgb, var(--surface) 14%, transparent); }
+
+.success {
+  --_bg: color-mix(in srgb, var(--color-success) 85%, transparent);
+  --_fg: var(--color-accent-contrast);
+  --_border: transparent;
+}
+
+.danger {
+  --_bg: color-mix(in srgb, var(--color-error) 85%, transparent);
+  --_fg: var(--color-accent-contrast);
+  --_border: transparent;
+}
+
+.warning {
+  --_bg: color-mix(in srgb, var(--color-warning) 85%, transparent);
+  --_fg: var(--color-accent-contrast);
+  --_border: transparent;
+}
+
+/* Card Button: looks like an interactive card */
+.card {
+  --_bg: color-mix(in srgb, var(--surface-alt, rgba(255,255,255,0.8)) 96%, transparent);
+  --_fg: var(--color-text-primary);
+  --_border: color-mix(in srgb, var(--border) 85%, transparent);
+  border-radius: 18px;
+  padding: 1.1rem 1.2rem;
+  text-align: left;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+.card:hover:not(:disabled) { box-shadow: var(--shadow-elevated); transform: translateY(-2px); }
+.cardContent { display: grid; gap: 0.25rem; }
+.cardTitle { font-weight: 700; }
+.cardSubtitle { color: var(--color-text-secondary); font-weight: 500; font-size: 0.92rem; }
+
+/* Disabled */
+.btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; box-shadow: none; }

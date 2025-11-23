@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Form.module.css';
+import SelectRS, { type Option } from '@/shared/ui/SelectRS';
 
 // Translation interface for form components
 export interface FormTranslations {
@@ -265,40 +266,82 @@ export const FormTextarea: React.FC<FormTextareaProps> = ({
 };
 
 // Form Select Component
-export interface FormSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface FormSelectProps
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
   error?: string;
-  options?: { value: string; label: string }[];
+  options?: Option[];
   className?: string;
   name?: string;
+  id?: string;
   translations?: FormTranslations;
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>;
+  onValueChange?: (value: string) => void;
 }
 
-export const FormSelect: React.FC<FormSelectProps> = ({ 
+const getOptionsFromChildren = (children: React.ReactNode): Option[] => {
+  return React.Children.toArray(children)
+    .filter(React.isValidElement)
+    .map((child) => {
+      const props = child.props as React.SelectHTMLAttributes<HTMLOptionElement>;
+      const value = props.value ?? '';
+      const label =
+        typeof props.children === 'string'
+          ? props.children
+          : props.label ?? value;
+
+      return {
+        value: String(value),
+        label: label ?? String(value),
+      };
+    })
+    .filter((option) => option.value !== '');
+};
+
+export const FormSelect: React.FC<FormSelectProps> = ({
   error,
   options = [],
   children,
   className,
   translations = defaultTranslations,
-  ...props 
+  onChange,
+  onValueChange,
+  placeholder,
+  name,
+  id,
+  disabled,
+  value,
 }) => {
+  const placeholderLabel = placeholder || translations.selectOption;
+  const childOptions = getOptionsFromChildren(children);
+  const resolvedOptions = options.length > 0 ? options : childOptions;
+
+  const handleValueChange = (newValue: string) => {
+    const syntheticEvent = {
+      target: { value: newValue, name },
+      currentTarget: { value: newValue, name },
+    } as React.ChangeEvent<HTMLSelectElement>;
+
+    if (onChange) {
+      onChange(syntheticEvent);
+    }
+
+    onValueChange?.(newValue);
+  };
+
   return (
-    <select 
-      className={`${styles.formSelect} ${error ? styles.error : ''} ${className || ''}`}
-      {...props}
-    >
-      {options.length > 0 ? (
-        <>
-          <option value="">{props.placeholder || translations.selectOption}</option>
-          {options.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </>
-      ) : (
-        children
-      )}
-    </select>
+    <div className={`${styles.formSelectWrapper} ${error ? styles.error : ''} ${className || ''}`}>
+      <SelectRS
+        options={resolvedOptions}
+        value={typeof value === 'string' ? value : String(value ?? '')}
+        onChange={handleValueChange}
+        placeholder={placeholderLabel}
+        name={name}
+        id={id}
+        isDisabled={disabled}
+        fullWidth
+        isClearable
+      />
+    </div>
   );
 };
 
@@ -429,41 +472,6 @@ export const FormActions: React.FC<FormActionsProps> = ({ children, className })
   );
 };
 
-// Button Component
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary';
-  loading?: boolean;
-  icon?: React.ReactNode;
-  className?: string;
-}
-
-export const Button: React.FC<ButtonProps> = ({ 
-  variant = 'primary', 
-  loading = false,
-  icon,
-  children,
-  disabled,
-  className,
-  ...props 
-}) => {
-  return (
-    <button 
-      className={`
-        ${styles.button} 
-        ${styles[`button${variant.charAt(0).toUpperCase() + variant.slice(1)}`]} 
-        ${loading ? 'loading' : ''} 
-        ${className || ''}
-      `}
-      disabled={disabled || loading}
-      {...props}
-    >
-      {loading && <span className={styles.buttonSpinner}></span>}
-      {!loading && icon && <span>{icon}</span>}
-      {children}
-    </button>
-  );
-};
-
 // Loading Component
 export interface LoadingProps {
   text?: string;
@@ -490,3 +498,6 @@ export const Loading: React.FC<LoadingProps> = ({
 export {
   styles as formStyles,
 };
+
+export { Button } from '@/shared/ui/Button';
+export type { ButtonProps } from '@/shared/ui/Button';

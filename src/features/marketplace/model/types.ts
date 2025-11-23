@@ -88,9 +88,10 @@ export interface Product {
   is_in_stock: boolean;
   is_on_sale: boolean;
   discount_percentage: number;
-  is_favorited: boolean;
-  seller_product_count?: number;
-  created_at: string;
+   is_favorited: boolean;
+   seller_product_count?: number;
+   has_ar_model?: boolean;
+   created_at: string;
   updated_at: string;
   view_count: number;
   click_count: number;

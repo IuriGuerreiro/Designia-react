@@ -203,10 +203,6 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.65rem 1rem;
-  border-radius: 16px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
   color: var(--color-text-primary);
 }
 
@@ -216,25 +212,6 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-
-.sort-select {
-  border: none;
-  background: transparent;
-  color: inherit;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.sort-select:focus {
-  outline: none;
-}
-
-.sort-select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .tabs {
   display: inline-flex;
   border-radius: 999px;

@@ -1,0 +1,102 @@
+.root {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 640px;
+  gap: 0.35rem;
+  padding: 0.2rem;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+.withButton {
+  gap: 0.45rem;
+  padding-right: 0.35rem;
+  padding-left: 0.35rem;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.8rem 0.75rem;
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 40%, transparent);
+  border-radius: 12px;
+}
+
+.button {
+  border: none;
+  border-radius: 12px;
+  padding: 0 1rem;
+  background: var(--gradient-button);
+  color: var(--color-accent-contrast);
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
+  outline-offset: 2px;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm, 0 4px 12px rgba(0, 0, 0, 0.2));
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.root.primary {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-sm, 0 8px 24px rgba(0, 0, 0, 0.12));
+  background: color-mix(in srgb, var(--gradient-button) 60%, var(--surface) 30%);
+}
+
+.root.primary .button {
+  background: var(--gradient-button);
+  color: var(--color-accent-contrast);
+  border: none;
+}
+
+.root.primary .input {
+  color: #fff;
+}
+
+.root.outline {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.root.outline .button {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border-strong) 50%, transparent);
+}
+
+.root.outline .input {
+  color: var(--color-text-primary);
+}
+
+.root:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent);
+}

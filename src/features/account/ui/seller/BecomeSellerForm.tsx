@@ -5,8 +5,7 @@ import { Layout } from '@/app/layout';
 import { useAuth } from '@/features/auth/state/AuthContext';
 // Use AuthContext for 2FA and seller status checks
 import ImageUpload from '@/shared/ui/image-upload/ImageUpload';
-import Select from '@/shared/ui/select/Select';
-import type { Option } from '@/shared/ui/select/Select';
+import SelectRS, { type Option } from '@/shared/ui/SelectRS';
 import {
   FormContainer,
   FormSection,
@@ -613,12 +612,14 @@ const BecomeSellerForm: React.FC = () => {
 
                 <FormGroup fullWidth>
                   <FormLabel required htmlFor="sellerType">{t('account.seller.form.seller_type_label')}</FormLabel>
-                  <Select
+                  <SelectRS
                     name="sellerType"
                     options={sellerTypeOptions}
                     value={sellerType}
                     onChange={setSellerType}
                     placeholder={t('account.seller.form.seller_type_placeholder')}
+                    fullWidth
+                    isClearable
                   />
                 </FormGroup>
 

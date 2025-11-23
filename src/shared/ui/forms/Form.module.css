@@ -132,8 +132,7 @@
 
 /* Form Inputs */
 .formInput,
-.formTextarea,
-.formSelect {
+.formTextarea {
   width: 100%;
   padding: 12px 16px;
   border: 2px solid var(--color-border, #E5E7EB);
@@ -148,8 +147,7 @@
 }
 
 .formInput:focus,
-.formTextarea:focus,
-.formSelect:focus {
+.formTextarea:focus {
   border-color: var(--color-accent, #1A1A1A);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent);
   transform: translateY(-1px);
@@ -168,20 +166,13 @@
 }
 
 /* Select Styling */
-.formSelect {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 12px center;
-  background-repeat: no-repeat;
-  background-size: 16px;
-  padding-right: 44px;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  cursor: pointer;
+.formSelectWrapper {
+  width: 100%;
 }
 
-.formSelect:focus {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%231a1a1a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+.formGroup.error .formSelectWrapper {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  border-radius: 16px;
 }
 
 /* Input with Icon */
@@ -383,90 +374,6 @@
   margin-top: var(--space-lg, 24px);
 }
 
-/* Buttons */
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm, 8px);
-  padding: 12px 24px;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  min-width: 120px;
-  outline: none;
-  position: relative;
-  overflow: hidden;
-}
-
-.button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.button:hover::before {
-  left: 100%;
-}
-
-.buttonPrimary {
-  background: var(--gradient-button);
-  color: var(--color-accent-contrast);
-  border: none;
-  box-shadow: var(--shadow-elevated);
-}
-
-.buttonPrimary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-elevated);
-}
-
-.buttonPrimary:active {
-  transform: translateY(0);
-}
-
-.buttonSecondary {
-  background: color-mix(in srgb, var(--color-accent) 92%, transparent);
-  color: var(--color-accent-contrast);
-  border: 1px solid transparent;
-}
-
-.buttonSecondary:hover {
-  background: var(--color-accent);
-  transform: translateY(-1px);
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-.buttonSpinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid var(--color-surface, #FFFFFF);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.buttonSecondary .buttonSpinner {
-  border-color: rgba(26, 26, 26, 0.3);
-  border-top-color: var(--color-text-primary, #1A1A1A);
-}
-
 /* Loading State */
 .loadingContainer {
   display: flex;
@@ -520,9 +427,6 @@
     gap: var(--space-sm, 8px);
   }
 
-  .button {
-    width: 100%;
-  }
 }
 
 @media (max-width: 480px) {
@@ -538,11 +442,6 @@
   .formTextarea,
   .formSelect {
     padding: 10px 12px;
-    font-size: 13px;
-  }
-
-  .button {
-    padding: 10px 16px;
     font-size: 13px;
   }
 }

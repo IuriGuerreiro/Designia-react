@@ -27,6 +27,15 @@ const AdminIcon = () => (
   </svg>
 );
 
+const CubeIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" />
+    <path d="M12 22V12" />
+    <path d="M12 12L2 7" />
+    <path d="M12 12l10-5" />
+  </svg>
+);
+
 const Navbar = () => {
   const { t } = useTranslation();
   const { user, logout, isAdmin, isSeller, canSellProducts } = useAuth();

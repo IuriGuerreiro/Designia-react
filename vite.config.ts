@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => {
           "frame-src 'self' https://js.stripe.com https://connect-js.stripe.com https://hooks.stripe.com https://accounts.google.com; " +
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; " +
           "font-src 'self' https://fonts.gstatic.com; " +
-          "img-src 'self' data: blob: https:;",
+           "img-src 'self' data: blob: https: http://localhost:9100 http://127.0.0.1:9100;",
       },
       proxy: {
         // Use Vite-loaded env vars (not process.env)

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdminTransactions } from '@/features/admin/hooks';
 import styles from './AdminTransactions.module.css';
+import SelectRS from '@/shared/ui/SelectRS';
+import Navbar from '@/app/layout/Navbar';
 
 const DEFAULT_PAGE_SIZE = 50;
 
@@ -92,7 +94,9 @@ const AdminTransactions = () => {
   }
 
   return (
-    <div className={styles.container}>
+    <>
+      <Navbar />
+      <div className={styles.container}>
       <div className={styles.header}>
         <h1>{t('admin.transactions.title')}</h1>
         <p>{t('admin.transactions.subtitle')}</p>
@@ -139,18 +143,14 @@ const AdminTransactions = () => {
             className={styles.searchInput}
           />
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">{t('admin.transactions.filters.status_all')}</option>
-            <option value="held">{t('admin.transactions.filters.status_options.held')}</option>
-            <option value="completed">{t('admin.transactions.filters.status_options.completed')}</option>
-            <option value="released">{t('admin.transactions.filters.status_options.released')}</option>
-            <option value="failed">{t('admin.transactions.filters.status_options.failed')}</option>
-            <option value="refunded">{t('admin.transactions.filters.status_options.refunded')}</option>
-          </select>
+                <SelectRS
+                  options={statusOptions}
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  placeholder="Filter by status"
+                  fullWidth
+                  isClearable
+                />
 
           <input
             type="date"
@@ -280,6 +280,7 @@ const AdminTransactions = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

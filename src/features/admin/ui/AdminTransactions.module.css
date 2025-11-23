@@ -152,6 +152,7 @@
   box-shadow: var(--shadow-elevated);
   overflow-x: auto;
   backdrop-filter: blur(18px);
+  z-index: 0;
 }
 
 .table {

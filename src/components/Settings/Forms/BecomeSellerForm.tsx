@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../features/auth/state/AuthContext';
 import Layout from '@/app/layout/Layout';
 import ImageUpload from '@/components/Common/ImageUpload';
-import Select from '@/shared/ui/select/Select';
-import type { Option } from '@/shared/ui/select/Select';
+import SelectRS, { type Option } from '@/shared/ui/SelectRS';
 import {
   FormContainer,
   FormSection,
@@ -274,12 +273,14 @@ const BecomeSellerForm: React.FC = () => {
 
                 <FormGroup fullWidth>
                   <FormLabel required htmlFor="sellerType">What best describes you?</FormLabel>
-                  <Select
+                  <SelectRS
                     name="sellerType"
                     options={getSellerTypeOptions(t)}
                     value={sellerType}
                     onChange={setSellerType}
                     placeholder="Select a type..."
+                    fullWidth
+                    isClearable
                   />
                 </FormGroup>
 

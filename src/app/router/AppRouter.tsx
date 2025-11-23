@@ -9,6 +9,7 @@ import { chatRoutes } from '@/features/chat/routes';
 import { adminRoutes } from '@/features/admin/routes';
 import { accountRoutes } from '@/features/account/routes';
 import TestForms from '@/test-forms';
+import TestButtons from '@/test-buttons';
 import NotFound from '@/app/error/NotFound';
 import type { AppRoute } from './types';
 
@@ -28,6 +29,7 @@ const protectedRoutes: AppRoute[] = [
   ...chatRoutes,
   ...adminRoutes,
   { path: '/test-forms', element: <TestForms /> },
+  { path: '/test-buttons', element: <TestButtons /> },
   { path: '*', element: <NotFound /> },
 ];
 

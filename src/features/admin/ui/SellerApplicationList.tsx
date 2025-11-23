@@ -4,6 +4,8 @@ import { useAuth } from '@/features/auth/state/AuthContext';
 import { useSellerApplications } from '@/features/admin/hooks';
 import type { SellerApplicationStatus } from '@/features/admin/model';
 import styles from './SellerApplicationList.module.css';
+import SelectRS from '@/shared/ui/SelectRS';
+import Navbar from '@/app/layout/Navbar';
 
 const SellerApplicationList = () => {
   const { t } = useTranslation();
@@ -112,7 +114,9 @@ const SellerApplicationList = () => {
   }
 
   return (
-    <div className={styles.sellerApplicationsAdmin}>
+    <>
+      <Navbar />
+      <div className={styles.sellerApplicationsAdmin}>
       <div className={styles.adminHeader}>
         <h1>{t('admin.seller_applications.title')}</h1>
         <div className={styles.adminStats}>
@@ -137,19 +141,14 @@ const SellerApplicationList = () => {
 
       <div className={styles.adminFilters}>
         <label htmlFor="status-filter">{t('admin.seller_applications.filters.label')}</label>
-        <select
-          id="status-filter"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as SellerApplicationStatus | 'all')}
-          className={styles.filterSelect}
-        >
-          <option value="all">{t('admin.seller_applications.filters.all')}</option>
-          <option value="pending">{t('admin.seller_applications.status.pending')}</option>
-          <option value="under_review">{t('admin.seller_applications.status.under_review')}</option>
-          <option value="approved">{t('admin.seller_applications.status.approved')}</option>
-          <option value="rejected">{t('admin.seller_applications.status.rejected')}</option>
-          <option value="revision_requested">{t('admin.seller_applications.status.revision_requested')}</option>
-        </select>
+            <SelectRS
+              options={statusOptions}
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value as SellerApplicationStatus)}
+              placeholder="Filter by status"
+              fullWidth
+              isClearable
+            />
       </div>
 
       <div className={styles.applicationsGrid}>
@@ -275,6 +274,7 @@ const SellerApplicationList = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

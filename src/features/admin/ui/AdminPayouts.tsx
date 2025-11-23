@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdminPayouts } from '@/features/admin/hooks';
 import styles from './AdminPayouts.module.css';
+import SelectRS from '@/shared/ui/SelectRS';
+import Navbar from '@/app/layout/Navbar';
 
 const DEFAULT_PAGE_SIZE = 50;
 
@@ -89,7 +91,9 @@ const AdminPayouts = () => {
   }
 
   return (
-    <div className={styles.container}>
+    <>
+      <Navbar />
+      <div className={styles.container}>
       <div className={styles.header}>
         <h1>{t('admin.payouts.title')}</h1>
         <p>{t('admin.payouts.subtitle')}</p>
@@ -128,17 +132,14 @@ const AdminPayouts = () => {
             className={styles.searchInput}
           />
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">{t('admin.payouts.filters.status_all')}</option>
-            <option value="pending">{t('admin.payouts.filters.status_options.pending')}</option>
-            <option value="paid">{t('admin.payouts.filters.status_options.paid')}</option>
-            <option value="failed">{t('admin.payouts.filters.status_options.failed')}</option>
-            <option value="in_transit">{t('admin.payouts.filters.status_options.in_transit')}</option>
-          </select>
+                <SelectRS
+                  options={statusOptions}
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  placeholder="Filter by status"
+                  fullWidth
+                  isClearable
+                />
 
           <input
             type="date"
@@ -243,6 +244,7 @@ const AdminPayouts = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 
