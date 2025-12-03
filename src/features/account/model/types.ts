@@ -11,7 +11,7 @@ export interface SellerApplicationStatus {
   has_application: boolean;
   is_seller: boolean;
   status?: 'pending' | 'under_review' | 'approved' | 'rejected' | 'revision_requested';
-  application_id?: number;
+  application_id?: string | number;
   submitted_at?: string;
   admin_notes?: string;
   rejection_reason?: string;

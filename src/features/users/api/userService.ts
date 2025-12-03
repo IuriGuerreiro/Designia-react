@@ -1,7 +1,7 @@
 import { apiRequest, API_ENDPOINTS } from '../../../shared/api';
 
 export interface SellerProfile {
-  id: number;
+  id: string | number;
   username: string;
   first_name?: string;
   last_name?: string;
@@ -21,7 +21,7 @@ export interface SellerProfile {
 }
 
 export interface SellerApplicationImage {
-  id: number;
+  id: string | number;
   image: string;
   image_type: string;
   description: string;
@@ -30,7 +30,7 @@ export interface SellerApplicationImage {
 }
 
 export interface SellerApplication {
-  id: number;
+  id: string | number;
   business_name: string;
   seller_type: string;
   motivation: string;
@@ -41,8 +41,8 @@ export interface SellerApplication {
   rejection_reason?: string;
   submitted_at: string;
   reviewed_at?: string;
-  approved_by?: number;
-  rejected_by?: number;
+  approved_by?: string | number;
+  rejected_by?: string | number;
   approved_by_name?: string;
   rejected_by_name?: string;
   user_email: string;
@@ -51,7 +51,7 @@ export interface SellerApplication {
 }
 
 export interface UserRole {
-  id: number;
+  id: string | number;
   email: string;
   first_name: string;
   last_name: string;
@@ -74,7 +74,7 @@ export class UserService {
   /**
    * Get user profile by ID
    */
-  async getSellerProfile(sellerId: number): Promise<SellerProfile> {
+  async getSellerProfile(sellerId: string | number): Promise<SellerProfile> {
     try {
       // Use auth public user profile; backend restricts to sellers/admin accounts
       const response = await apiRequest(API_ENDPOINTS.PUBLIC_USER_PROFILE(sellerId));
@@ -91,7 +91,7 @@ export class UserService {
   /**
    * Get public user profile by ID
    */
-  async getPublicProfile(userId: number): Promise<any> {
+  async getPublicProfile(userId: string | number): Promise<any> {
     try {
       const response = await apiRequest(API_ENDPOINTS.PUBLIC_USER_PROFILE(userId));
       return response as any;

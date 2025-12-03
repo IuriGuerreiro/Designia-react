@@ -52,7 +52,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
   // Chat state
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
-  const [messages, setMessages] = useState<{ [chatId: number]: Message[] }>({});
+  const [messages, setMessages] = useState<{ [chatId: string | number]: Message[] }>({});
 
   // API base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -191,7 +191,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     
     // Add message to the appropriate chat, avoiding duplicates
     setMessages(prev => {
-      const existingMessages = prev[message.chat] || [];
+      const existingMessages = prev[message.chat as string | number] || [];
       
       // For own messages, try to find and update temp message first
       if (isOwnMessage) {
@@ -208,7 +208,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
           console.log('Chat: Updated temp message with delivered status');
           return {
             ...prev,
-            [message.chat]: updatedMessages
+            [message.chat as string | number]: updatedMessages
           };
         }
       }
@@ -222,7 +222,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
       // Add new message (for other users' messages)
       return {
         ...prev,
-        [message.chat]: [...existingMessages, message].sort((a, b) => 
+        [message.chat as string | number]: [...existingMessages, message].sort((a, b) => 
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         )
       };
@@ -256,7 +256,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     setChats(prev => [chat, ...prev]);
   };
 
-  const handleMessageRead = (chatId: number) => {
+  const handleMessageRead = (chatId: string | number) => {
     console.log('Chat: Messages marked as read for chat:', chatId);
     // Update local message state to mark our own messages as read (blue checkmarks)
     setMessages(prev => ({
@@ -386,7 +386,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     // Messages should only be marked as read when user actually views them
   };
 
-  const createChat = async (userId: number): Promise<Chat> => {
+  const createChat = async (userId: string | number): Promise<Chat> => {
     try {
       console.log('Chat: Creating chat with user:', userId);
       const data = await apiRequest('/api/chat/', {
@@ -412,7 +412,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     }
   };
 
-  const loadMessages = async (chatId: number, page: number = 1) => {
+  const loadMessages = async (chatId: string | number, page: number = 1) => {
     try {
       console.log('Chat: Loading messages for chat:', chatId, 'page:', page);
       const data = await apiRequest(`/api/chat/${chatId}/messages/?page=${page}`);
@@ -438,7 +438,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     }
   };
 
-  const sendMessage = async (chatId: number, content: string, messageType: 'text' | 'image' = 'text') => {
+  const sendMessage = async (chatId: string | number, content: string, messageType: 'text' | 'image' = 'text') => {
     // Generate temporary ID for instant display
     const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
@@ -530,7 +530,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     }
   };
 
-  const markMessagesAsRead = async (chatId: number) => {
+  const markMessagesAsRead = async (chatId: string | number) => {
     try {
       await apiRequest(`/api/chat/${chatId}/messages/mark-read/`, {
         method: 'POST',
@@ -556,7 +556,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     }
   };
 
-  const markChatAsViewed = async (chatId: number) => {
+  const markChatAsViewed = async (chatId: string | number) => {
     // Only mark as read if there are unread messages
     if (getUnreadCount(chatId) > 0) {
       console.log('Chat: Marking chat as viewed:', chatId);
@@ -574,7 +574,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
     }
   };
 
-  const clearMessages = (chatId: number) => {
+  const clearMessages = (chatId: string | number) => {
     setMessages(prev => ({
       ...prev,
       [chatId]: []
@@ -582,7 +582,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
   };
 
   // Unread message count functions
-  const getUnreadCount = (chatId: number): number => {
+  const getUnreadCount = (chatId: string | number): number => {
     if (!user) return 0;
     
     const chatMessages = messages[chatId] || [];

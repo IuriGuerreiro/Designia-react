@@ -76,24 +76,24 @@ export class CartService {
     return result?.item ?? result;
   }
 
-  async updateItem(itemId: number, quantity: number): Promise<CartItem> {
+  async updateItem(productId: string, quantity: number): Promise<CartItem> {
     const result = await this.mutateCart<any>(
       API_ENDPOINTS.CART_UPDATE_ITEM,
       {
         method: 'PATCH',
-        body: JSON.stringify({ item_id: itemId, quantity }),
+        body: JSON.stringify({ product_id: productId, quantity }),
       },
       'Failed to update the selected cart item.',
     );
     return result?.item ?? result;
   }
 
-  async removeItem(itemId: number): Promise<void> {
+  async removeItem(productId: string): Promise<void> {
     await this.mutateCart(
       API_ENDPOINTS.CART_REMOVE_ITEM,
       {
         method: 'DELETE',
-        body: JSON.stringify({ item_id: itemId }),
+        body: JSON.stringify({ product_id: productId }),
       },
       'Failed to remove the item from your cart.',
     );
@@ -135,11 +135,11 @@ export class CartService {
     }
   }
 
-  async updateItemStatus(itemId: number, isActive: boolean): Promise<void> {
+  async updateItemStatus(productId: string, isActive: boolean): Promise<void> {
     try {
       await apiRequest(API_ENDPOINTS.CART_UPDATE_ITEM_STATUS, {
         method: 'PATCH',
-        body: JSON.stringify({ item_id: itemId, is_active: isActive }),
+        body: JSON.stringify({ product_id: productId, is_active: isActive }),
       });
     } catch (error) {
       this.handleError(error, 'Failed to update cart item status.');

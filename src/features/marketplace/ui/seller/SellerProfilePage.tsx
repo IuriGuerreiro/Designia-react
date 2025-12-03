@@ -11,7 +11,7 @@ import styles from './SellerProfilePage.module.css';
 import '@/features/marketplace/ui/products/ProductList.module.css';
 
 interface SellerProfile {
-  id: number;
+  id: string | number;
   username: string;
   first_name?: string;
   last_name?: string;
@@ -72,13 +72,15 @@ const SellerProfilePage: React.FC = () => {
       return;
     }
 
-    const sellerIdNum = parseInt(sellerId, 10);
+    // Allow string ID for UUID compatibility, fallback to parsed int if it's numeric
+    const id = /^\d+$/.test(sellerId) ? parseInt(sellerId, 10) : sellerId;
+    
     setLoading(true);
     setError(null);
 
     Promise.allSettled([
-      userService.getSellerProfile(sellerIdNum),
-      productService.getProducts({ seller_id: sellerIdNum }),
+      userService.getSellerProfile(id),
+      productService.getProducts({ seller_id: id }),
     ])
       .then(([profileRes, productsRes]) => {
         // Profile

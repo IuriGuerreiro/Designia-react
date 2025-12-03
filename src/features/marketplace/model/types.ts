@@ -1,7 +1,7 @@
 // Marketplace Types for all services
 
 export interface User {
-  id: number;
+  id: string | number;
   username: string;
   first_name: string;
   last_name: string;
@@ -9,7 +9,7 @@ export interface User {
 }
 
 export interface Category {
-  id: number;
+  id: string | number;
   name: string;
   slug: string;
   description: string;
@@ -21,7 +21,7 @@ export interface Category {
 }
 
 export interface ProductImage {
-  id: number;
+  id: string | number;
   image: string;
   alt_text: string;
   is_primary: boolean;
@@ -39,13 +39,13 @@ export interface ProductImage {
 }
 
 export interface ReviewImage {
-  id: number;
+  id: string | number;
   image: string;
   alt_text?: string;
 }
 
 export interface ProductReview {
-  id: number;
+  id: string | number;
   reviewer: User;
   reviewer_name: string;
   rating: number;
@@ -138,7 +138,7 @@ export interface ProductFilters {
   is_on_sale?: boolean;
   in_stock?: boolean;
   seller?: string;
-  seller_id?: number;
+  seller_id?: string | number;
   min_rating?: number;
   search?: string;
   tags?: string;
@@ -152,14 +152,14 @@ export interface ProductFilters {
 }
 
 export interface ProductFavorite {
-  id: number;
+  id: string | number;
   user: User;
   product: ProductListItem;
   created_at: string;
 }
 
 export interface CartItem {
-  id: number;
+  id: string | number;
   product: ProductListItem;
   product_id: string;
   quantity: number;
@@ -168,7 +168,7 @@ export interface CartItem {
 }
 
 export interface Cart {
-  id: number;
+  id: string | number;
   items: CartItem[];
   total_items: number;
   total_amount: number;
@@ -177,7 +177,7 @@ export interface Cart {
 }
 
 export interface OrderItem {
-  id: number;
+  id: string | number;
   product: string;
   seller: string;
   quantity: number;
@@ -190,7 +190,7 @@ export interface OrderItem {
 }
 
 export interface OrderShipping {
-  id: number;
+  id: string | number;
   seller: User;
   tracking_number: string;
   shipping_carrier: string;

@@ -8,6 +8,7 @@ import { categoryService, productService } from '@/features/marketplace/api';
 import { type ProductListItem, type ProductFilters } from '@/features/marketplace/model';
 import Button from '@/shared/ui/Button';
 import SelectRS from '@/shared/ui/SelectRS';
+import Checklist from '@/shared/ui/Checklist';
 
 // Skeleton Loading Component
 const ProductCardSkeleton: React.FC = () => {
@@ -58,7 +59,7 @@ const ProductFilters: React.FC<{
           <span className={styles['filters-count']}>{t('products.filters.active_count', { count: activeFiltersCount })}</span>
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={clearFilters}
           >
@@ -129,60 +130,53 @@ const ProductFilters: React.FC<{
           value={filters.category_slug || ''}
           onChange={(val: string) => handleFilterChange('category_slug', val || undefined)}
           placeholder={t('products.filters.all_categories')}
+          variant="secondary"
           fullWidth
         />
       </div>
 
   <div className={styles['filter-section']}>
-        <label>Condition</label>
-        <div className={styles['checkbox-group']}>
-          {['new', 'like_new', 'good', 'fair', 'poor'].map(condition => (
-            <label key={condition} className={styles['checkbox-label']}>
-              <input
-                type="checkbox"
-                checked={filters.condition?.includes(condition) || false}
-                onChange={(e) => {
-                  const currentConditions = filters.condition || [];
-                  const newConditions = e.target.checked
-                    ? [...currentConditions, condition]
-                    : currentConditions.filter(c => c !== condition);
-                  handleFilterChange('condition', newConditions.length > 0 ? newConditions : undefined);
-                }}
-              />
-              <span>{condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-            </label>
-          ))}
-        </div>
+        <Checklist
+          title="Condition"
+          items={['new', 'like_new', 'good', 'fair', 'poor'].map(condition => ({
+            id: condition,
+            label: condition.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            checked: filters.condition?.includes(condition) || false
+          }))}
+          onChange={(id, checked) => {
+            const currentConditions = filters.condition || [];
+            const newConditions = checked
+              ? [...currentConditions, id]
+              : currentConditions.filter(c => c !== id);
+            handleFilterChange('condition', newConditions.length > 0 ? newConditions : undefined);
+          }}
+        />
       </div>
 
   <div className={styles['filter-section']}>
-        <label>{t('products.filters.availability')}</label>
-        <div className={styles['checkbox-group']}>
-          <label className={styles['checkbox-label']}>
-            <input
-              type="checkbox"
-              checked={filters.in_stock || false}
-              onChange={(e) => handleFilterChange('in_stock', e.target.checked || undefined)}
-            />
-            <span>{t('products.filters.in_stock_only')}</span>
-          </label>
-          <label className={styles['checkbox-label']}>
-            <input
-              type="checkbox"
-              checked={filters.is_featured || false}
-              onChange={(e) => handleFilterChange('is_featured', e.target.checked || undefined)}
-            />
-            <span>{t('products.filters.featured_products')}</span>
-          </label>
-          <label className={styles['checkbox-label']}>
-            <input
-              type="checkbox"
-              checked={filters.is_on_sale || false}
-              onChange={(e) => handleFilterChange('is_on_sale', e.target.checked || undefined)}
-            />
-            <span>{t('products.filters.on_sale')}</span>
-          </label>
-        </div>
+        <Checklist
+          title={t('products.filters.availability')}
+          items={[
+            {
+              id: 'in_stock',
+              label: t('products.filters.in_stock_only'),
+              checked: filters.in_stock || false
+            },
+            {
+              id: 'is_featured',
+              label: t('products.filters.featured_products'),
+              checked: filters.is_featured || false
+            },
+            {
+              id: 'is_on_sale',
+              label: t('products.filters.on_sale'),
+              checked: filters.is_on_sale || false
+            }
+          ]}
+          onChange={(id, checked) => {
+            handleFilterChange(id as keyof ProductFilters, checked || undefined);
+          }}
+        />
       </div>
 
       <div className="filter-section">
@@ -197,6 +191,7 @@ const ProductFilters: React.FC<{
           value={String(filters.min_rating ?? '')}
           onChange={(val: string) => handleFilterChange('min_rating', val ? Number(val) : undefined)}
           placeholder={t('products.filters.any_rating')}
+          variant="secondary"
           fullWidth
         />
       </div>
@@ -227,6 +222,7 @@ const ProductSort: React.FC<{
         value={sortBy}
         onChange={onSortChange}
         placeholder={t('products.sort.label')}
+        variant="secondary"
         isDisabled={disabled}
       />
     </div>
@@ -549,7 +545,8 @@ const ProductList: React.FC = () => {
               <div className={styles['hero-actions']}>
                 <Button
                   type="button"
-                  variant={showFilters ? 'secondary' : 'outline'}
+                  variant={showFilters ? 'primary' : 'secondary'}
+                  size="md"
                   onClick={() => setShowFilters((prev) => !prev)}
                   disabled={loading}
                   aria-controls="marketplace-filters"

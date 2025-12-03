@@ -4,7 +4,7 @@ import { cartService } from '@/features/marketplace/api';
 import { type Cart } from '@/features/marketplace/model';
 
 interface Product {
-  id: number | string;
+  id: string | number;
   name: string;
   price: number | string;
   quantity: number;
@@ -14,7 +14,7 @@ interface Product {
   isActive?: boolean;
   stockError?: string;
   availableStock?: number;
-  cartItemId?: number; // Server-side cart item ID for database updates
+  cartItemId?: string | number; // Server-side cart item ID for database updates
 }
 
 interface CartContextType {
@@ -191,21 +191,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       throw new Error(errMsg);
     }
 
-    // Resolve server cart item id (cartItemId)
-    const localItem = cartItems.find(i => i.id.toString() === productId.toString());
-    const serverItemId = localItem?.cartItemId;
-
     try {
-      if (serverItemId !== undefined) {
-        await cartService.removeItem(serverItemId);
-      } else {
-        // Fallback: fetch server cart to resolve item ID
-        const serverCart = await cartService.getCart();
-        const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
-        if (cartItem) {
-          await cartService.removeItem(cartItem.id);
-        }
-      }
+      // Always use product ID string for API calls
+      await cartService.removeItem(productId.toString());
       await reloadCartFromServer();
       setError(null);
     } catch (err) {
@@ -242,17 +230,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
 
     try {
-      // Prefer known server item id
-      const serverItemId = targetItem?.cartItemId;
-      if (serverItemId !== undefined) {
-        await cartService.updateItem(serverItemId, quantity);
-      } else {
-        const serverCart = await cartService.getCart();
-        const cartItem = serverCart.items.find(item => item.product.id === productId.toString());
-        if (cartItem) {
-          await cartService.updateItem(cartItem.id, quantity);
-        }
-      }
+      // Always use product ID string for API calls
+      await cartService.updateItem(productId.toString(), quantity);
       await reloadCartFromServer();
       setError(null);
     } catch (err) {

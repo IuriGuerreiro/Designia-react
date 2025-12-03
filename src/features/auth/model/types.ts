@@ -37,7 +37,7 @@ export interface UserProfile {
 }
 
 export interface AuthUser {
-  id: number;
+  id: string | number;
   username: string;
   email: string;
   first_name?: string;

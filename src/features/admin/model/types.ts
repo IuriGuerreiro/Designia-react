@@ -100,14 +100,14 @@ export type SellerApplicationStatus =
   | 'revision_requested';
 
 export interface SellerApplicationImage {
-  id: number;
+  id: string | number;
   image: string;
   image_type: string;
   description: string;
 }
 
 export interface SellerApplication {
-  id: number;
+  id: string | number;
   business_name: string;
   seller_type: string;
   motivation: string;

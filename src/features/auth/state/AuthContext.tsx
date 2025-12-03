@@ -25,9 +25,9 @@ interface AuthContextType {
   isLoading: boolean;
   isBootstrapping: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{requires2FA?: boolean, userId?: number, message?: string, codeAlreadySent?: boolean, emailNotVerified?: boolean, email?: string, warningType?: string, actionRequired?: string}>;
-  loginVerify2FA: (userId: number, code: string) => Promise<void>;
-  resend2FACode: (userId: number, purpose?: string) => Promise<{success: boolean, message: string}>;
+  login: (email: string, password: string) => Promise<{requires2FA?: boolean, userId?: number | string, message?: string, codeAlreadySent?: boolean, emailNotVerified?: boolean, email?: string, warningType?: string, actionRequired?: string}>;
+  loginVerify2FA: (userId: number | string, code: string) => Promise<void>;
+  resend2FACode: (userId: number | string, purpose?: string) => Promise<{success: boolean, message: string}>;
   register: (userData: RegisterData) => Promise<{success: boolean, message: string, email?: string}>;
   verifyEmail: (token: string) => Promise<{success: boolean, message: string}>;
   resendVerification: (email: string) => Promise<{success: boolean, message: string}>;
@@ -39,7 +39,7 @@ interface AuthContextType {
   logout: () => void;
 
   // Seller application methods
-  submitSellerApplication: (applicationData: SellerApplicationRequest) => Promise<{success: boolean, message: string, application_id?: number}>;
+  submitSellerApplication: (applicationData: SellerApplicationRequest) => Promise<{success: boolean, message: string, application_id?: number | string}>;
   getSellerApplicationStatus: () => Promise<SellerApplicationStatus>;
 
   // 2FA helpers
@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const login = async (email: string, password: string): Promise<{requires2FA?: boolean, userId?: number, message?: string, codeAlreadySent?: boolean, emailNotVerified?: boolean, email?: string, warningType?: string, actionRequired?: string}> => {
+  const login = async (email: string, password: string): Promise<{requires2FA?: boolean, userId?: number | string, message?: string, codeAlreadySent?: boolean, emailNotVerified?: boolean, email?: string, warningType?: string, actionRequired?: string}> => {
     try {
       setIsLoading(true);
 
@@ -166,7 +166,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const loginVerify2FA = async (userId: number, code: string): Promise<void> => {
+  const loginVerify2FA = async (userId: number | string, code: string): Promise<void> => {
     try {
       setIsLoading(true);
 
@@ -201,7 +201,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const resend2FACode = async (userId: number, purpose: string = 'login'): Promise<{success: boolean, message: string}> => {
+  const resend2FACode = async (userId: number | string, purpose: string = 'login'): Promise<{success: boolean, message: string}> => {
     try {
       const response = await resendTwoFactorCode(userId, purpose);
       return {
@@ -489,7 +489,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Seller application methods
-  const submitSellerApplication = async (applicationData: SellerApplicationRequest): Promise<{success: boolean, message: string, application_id?: number}> => {
+  const submitSellerApplication = async (applicationData: SellerApplicationRequest): Promise<{success: boolean, message: string, application_id?: number | string}> => {
     try {
       const response = await submitSellerApplicationRequest(applicationData);
 
