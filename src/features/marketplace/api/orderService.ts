@@ -14,12 +14,20 @@ export class OrderService {
   }
 
   async getOrders(): Promise<Order[]> {
-    return apiRequest<Order[]>(API_ENDPOINTS.ORDERS);
+    const response = await apiRequest<{ results: Order[] } | Order[]>(API_ENDPOINTS.ORDERS);
+    if (response && 'results' in response && Array.isArray(response.results)) {
+        return response.results;
+    }
+    return response as Order[];
   }
 
   async getSellerOrders(): Promise<Order[]> {
     // Returns orders filtered to the current seller's items
-    return apiRequest<Order[]>(API_ENDPOINTS.SELLER_ORDERS);
+    const response = await apiRequest<{ results: Order[] } | Order[]>(API_ENDPOINTS.SELLER_ORDERS);
+    if (response && 'results' in response && Array.isArray(response.results)) {
+        return response.results;
+    }
+    return response as Order[];
   }
 
   async getOrder(orderId: string): Promise<Order> {

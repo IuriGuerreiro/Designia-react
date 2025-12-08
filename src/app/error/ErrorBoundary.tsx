@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import styles from './ErrorFallback.module.css';
 
@@ -49,9 +48,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               <button type="button" onClick={this.handleReload} className="btn btn-primary">
                 Reload page
               </button>
-              <Link to="/" className="btn btn-secondary">
+              <a href="/" className="btn btn-secondary">
                 Go to homepage
-              </Link>
+              </a>
             </div>
 
             {this.state.error && (
