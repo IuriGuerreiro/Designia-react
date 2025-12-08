@@ -98,10 +98,19 @@ export class ActivityWebSocketService {
       }
 
       // Construct WebSocket URL for activity
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001';
-      const wsHost = new URL(apiBaseUrl).host;
-      const wsUrl = `${protocol}//${wsHost}/ws/activity/?token=${encodeURIComponent(token)}`;
+      let wsBaseUrl = import.meta.env.VITE_WS_BASE_URL;
+
+      if (!wsBaseUrl) {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001';
+        const wsHost = new URL(apiBaseUrl).host;
+        wsBaseUrl = `${protocol}//${wsHost}`;
+      }
+
+      // Ensure no trailing slash
+      wsBaseUrl = wsBaseUrl.replace(/\/$/, '');
+
+      const wsUrl = `${wsBaseUrl}/ws/activity/?token=${encodeURIComponent(token)}`;
 
       try {
         this.socket = new WebSocket(wsUrl);
