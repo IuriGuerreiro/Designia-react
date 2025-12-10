@@ -71,7 +71,6 @@ export function ChangePasswordForm() {
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="newPassword"
@@ -85,7 +84,6 @@ export function ChangePasswordForm() {
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="confirmPassword"
@@ -99,7 +97,6 @@ export function ChangePasswordForm() {
             </FormItem>
           )}
         />
-
         <Button type="submit" disabled={isLoading} variant="outline">
           {isLoading ? (
             <>
@@ -109,7 +106,7 @@ export function ChangePasswordForm() {
           ) : (
             'Change Password'
           )}
-        </Button>
+        </Button>{' '}
       </form>
     </Form>
   )
