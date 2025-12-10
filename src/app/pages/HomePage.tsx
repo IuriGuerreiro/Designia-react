@@ -1,21 +1,7 @@
-import { useEffect, useState } from 'react'
-<<<<<<< HEAD
-import { Search, ShoppingCart } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Card, CardContent, CardFooter } from '@/shared/components/ui/card'
 import { Badge } from '@/shared/components/ui/badge'
-=======
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import { Search, ShoppingCart } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
-import { Input } from '@/shared/components/ui/input'
->>>>>>> master
-import { AuthDialog } from '@/features/auth/components/AuthDialog'
-import { UserMenu } from '@/features/auth/components/UserMenu'
-import { Toaster } from '@/shared/components/ui/sonner'
-import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
-<<<<<<< HEAD
 
 // Mock product data
 const products = [
@@ -24,86 +10,10 @@ const products = [
   { id: 3, title: 'Smart Watch Pro', price: 299.99, rating: 5, reviews: 203 },
   { id: 4, title: 'Laptop Backpack', price: 49.99, rating: 4, reviews: 89 },
 ]
-=======
-import { HomePage } from './pages/HomePage'
-import { SettingsPage } from '@/features/account/pages/SettingsPage'
->>>>>>> master
 
-export function App() {
-  const { checkAuth, isAuthenticated } = useAuthStore()
-  const [authDialogOpen, setAuthDialogOpen] = useState(false)
-  const [authView, setAuthView] = useState<'login' | 'register'>('login')
-
-  // Check authentication status on mount
-  useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
-
-  const handleOpenLogin = () => {
-    setAuthView('login')
-    setAuthDialogOpen(true)
-  }
-
-  const handleOpenRegister = () => {
-    setAuthView('register')
-    setAuthDialogOpen(true)
-  }
-
+export function HomePage() {
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-background">
-      {/* Header / Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div
-          className="container flex h-20 items-center justify-between px-6 mx-auto"
-          style={{ maxWidth: '1400px' }}
-        >
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-primary tracking-tight">DESGINIA</h1>
-            <Toaster />
-          </div>
-
-          {/* Search Bar */}
-          <div className="flex-1 max-w-2xl mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search for products..."
-                className="w-full pl-10 h-10 border-input focus-visible:ring-primary"
-              />
-              <Toaster />
-            </div>
-            <Toaster />
-          </div>
-
-          {/* Auth & Cart */}
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" className="gap-2">
-              <ShoppingCart className="h-5 w-5" />
-              <span>Cart (0)</span>
-            </Button>
-
-            {isAuthenticated ? (
-              <UserMenu />
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" onClick={handleOpenLogin}>
-                  Sign In
-                </Button>
-                <Button onClick={handleOpenRegister}>Sign Up</Button>
-                <Toaster />
-              </div>
-            )}
-            <Toaster />
-          </div>
-          <Toaster />
-        </div>
-      </header>
-
-      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} defaultView={authView} />
-
+    <main>
       {/* Hero Section */}
       <section className="bg-blue-50 border-b">
         <div className="container mx-auto px-6 py-24" style={{ maxWidth: '1400px' }}>
@@ -118,9 +28,7 @@ export function App() {
             <Button size="lg" className="h-12 px-8 text-base">
               Shop Now
             </Button>
-            <Toaster />
           </div>
-          <Toaster />
         </div>
       </section>
 
@@ -142,18 +50,14 @@ export function App() {
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                       <div className="text-muted-foreground/20 text-6xl font-bold">
                         {product.id}
-                        <Toaster />
                       </div>
-                      <Toaster />
                     </div>
                     {/* Verified Badge - Top Left */}
                     <div className="absolute top-3 left-3">
                       <Badge variant="secondary" className="bg-secondary/90 text-white">
                         Verified
                       </Badge>
-                      <Toaster />
                     </div>
-                    <Toaster />
                   </div>
 
                   {/* Product Info */}
@@ -167,15 +71,12 @@ export function App() {
                       <div className="flex text-yellow-500">
                         {'★'.repeat(product.rating)}
                         {'☆'.repeat(5 - product.rating)}
-                        <Toaster />
                       </div>
                       <span className="text-muted-foreground">({product.reviews})</span>
-                      <Toaster />
                     </div>
 
                     {/* Price */}
                     <p className="text-2xl font-bold text-primary">${product.price.toFixed(2)}</p>
-                    <Toaster />
                   </div>
                 </CardContent>
 
@@ -185,9 +86,7 @@ export function App() {
                 </CardFooter>
               </Card>
             ))}
-            <Toaster />
           </div>
-          <Toaster />
         </div>
       </section>
 
@@ -208,9 +107,7 @@ export function App() {
               <Button variant="outline">Secondary (Navy Border)</Button>
               <Button variant="ghost">Ghost (Transparent)</Button>
               <Button variant="destructive">Destructive (Red)</Button>
-              <Toaster />
             </div>
-            <Toaster />
           </div>
 
           {/* Input Fields */}
@@ -220,9 +117,7 @@ export function App() {
               <Input placeholder="Email address" type="email" />
               <Input placeholder="Password" type="password" />
               <Input placeholder="Disabled" disabled />
-              <Toaster />
             </div>
-            <Toaster />
           </div>
 
           {/* Color Palette */}
@@ -237,115 +132,29 @@ export function App() {
                 <p className="text-sm font-semibold">Primary</p>
                 <p className="text-xs text-muted-foreground font-mono">#0f172a</p>
                 <p className="text-xs text-muted-foreground">Navy Slate</p>
-                <Toaster />
               </div>
               <div className="space-y-2">
                 <div className="h-24 rounded-md bg-secondary border-2 border-secondary"></div>
                 <p className="text-sm font-semibold">Secondary</p>
                 <p className="text-xs text-muted-foreground font-mono">#475569</p>
                 <p className="text-xs text-muted-foreground">Slate Medium</p>
-                <Toaster />
               </div>
               <div className="space-y-2">
                 <div className="h-24 rounded-md bg-muted border-2 border-border"></div>
                 <p className="text-sm font-semibold">Muted</p>
                 <p className="text-xs text-muted-foreground font-mono">#f1f5f9</p>
                 <p className="text-xs text-muted-foreground">Light Slate</p>
-                <Toaster />
               </div>
               <div className="space-y-2">
                 <div className="h-24 rounded-md bg-background border-2 border-border"></div>
                 <p className="text-sm font-semibold">Background</p>
                 <p className="text-xs text-muted-foreground font-mono">#f8fafc</p>
                 <p className="text-xs text-muted-foreground">Off White</p>
-                <Toaster />
               </div>
-              <Toaster />
             </div>
-            <Toaster />
           </div>
-          <Toaster />
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t py-12 bg-muted/20">
-        <div className="container mx-auto px-6 text-center" style={{ maxWidth: '1400px' }}>
-          <p className="text-sm text-muted-foreground">
-            © 2025 Desginia Marketplace. Design System Foundation Complete.
-          </p>
-          <Toaster />
-        </div>
-      </footer>
-      <Toaster />
-    </div>
-=======
-    <Router>
-      <div className="min-h-screen bg-background">
-        {/* Header / Navbar */}
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div
-            className="container flex h-20 items-center justify-between px-6 mx-auto"
-            style={{ maxWidth: '1400px' }}
-          >
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <Link to="/" className="text-2xl font-bold text-primary tracking-tight">
-                DESGINIA
-              </Link>
-            </div>
-
-            {/* Search Bar */}
-            <div className="flex-1 max-w-2xl mx-8">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search for products..."
-                  className="w-full pl-10 h-10 border-input focus-visible:ring-primary"
-                />
-              </div>
-            </div>
-
-            {/* Auth & Cart */}
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" className="gap-2">
-                <ShoppingCart className="h-5 w-5" />
-                <span>Cart (0)</span>
-              </Button>
-
-              {isAuthenticated ? (
-                <UserMenu />
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" onClick={handleOpenLogin}>
-                    Sign In
-                  </Button>
-                  <Button onClick={handleOpenRegister}>Sign Up</Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} defaultView={authView} />
-
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
-
-        {/* Footer */}
-        <footer className="border-t py-12 bg-muted/20">
-          <div className="container mx-auto px-6 text-center" style={{ maxWidth: '1400px' }}>
-            <p className="text-sm text-muted-foreground">
-              © 2025 Desginia Marketplace. Design System Foundation Complete.
-            </p>
-          </div>
-        </footer>
-        <Toaster />
-      </div>
-    </Router>
->>>>>>> master
+    </main>
   )
 }
