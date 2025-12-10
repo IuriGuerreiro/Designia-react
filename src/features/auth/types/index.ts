@@ -28,11 +28,8 @@ export interface AuthState {
 export interface AuthResponse {
   user: User
   message: string
-<<<<<<< HEAD
-=======
   access: string
   refresh: string
->>>>>>> master
 }
 
 export interface AuthError {
