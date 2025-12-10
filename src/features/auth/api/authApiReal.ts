@@ -1,4 +1,5 @@
 import apiClient from '@/shared/api/axios'
+import { tokenStorage } from '@/shared/utils/tokenStorage'
 import type { User, LoginCredentials, RegisterCredentials, AuthResponse } from '../types'
 
 interface BackendUser {
@@ -8,7 +9,7 @@ interface BackendUser {
   first_name: string
   last_name: string
   avatar?: string
-  role: 'buyer' | 'seller' | 'admin'
+  role: 'customer' | 'seller' | 'admin'
   is_email_verified: boolean
   two_factor_enabled: boolean
   profile?: {
@@ -30,29 +31,37 @@ const transformUser = (backendUser: BackendUser): User => ({
 
 /**
  * Login with email/password
- * Backend endpoint: POST /api/authentication/login/
+ * Backend endpoint: POST /api/auth/login/
  */
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
-  const response = await apiClient.post('/authentication/login/', {
+  const response = await apiClient.post('/auth/login/', {
     email: credentials.email,
     password: credentials.password,
   })
 
+  // Store JWT tokens
+  if (response.data.access && response.data.refresh) {
+    tokenStorage.setTokens(response.data.access, response.data.refresh)
+  }
+
   return {
     user: transformUser(response.data.user),
-    message: 'Login successful',
+    message: response.data.message || 'Login successful',
+    access: response.data.access,
+    refresh: response.data.refresh,
   }
 }
 
 /**
  * Register new user
- * Backend endpoint: POST /api/authentication/register/
+ * Backend endpoint: POST /api/auth/register/
+ * NOTE: Registration does NOT return tokens. User must verify email first, then login.
  */
-export const register = async (credentials: RegisterCredentials): Promise<AuthResponse> => {
+export const register = async (credentials: RegisterCredentials): Promise<{ message: string; user: User }> => {
   const [firstName, ...lastNameParts] = credentials.name.split(' ')
   const lastName = lastNameParts.join(' ')
 
-  const response = await apiClient.post('/authentication/register/', {
+  const response = await apiClient.post('/auth/register/', {
     username: credentials.email.split('@')[0], // Use email prefix as username
     email: credentials.email,
     first_name: firstName,
@@ -61,35 +70,60 @@ export const register = async (credentials: RegisterCredentials): Promise<AuthRe
     password_confirm: credentials.confirmPassword,
   })
 
+  // Register does NOT return tokens - user must verify email first
   return {
     user: transformUser(response.data.user),
-    message: 'Registration successful',
+    message: response.data.message || 'Registration successful. Please check your email to verify your account.',
   }
 }
 
 /**
  * Logout user
- * Backend endpoint: POST /api/authentication/logout/ (if exists) or just client-side
+ * JWT tokens are stateless, so logout is handled client-side by clearing tokens
  */
 export const logout = async (): Promise<void> => {
-  // Django JWT uses HttpOnly cookies, so we just clear client state
-  // Backend will invalidate the token automatically on next request
+  // Clear tokens from storage
+  tokenStorage.clearTokens()
+}
+
+/**
+ * Refresh access token
+ * Backend endpoint: POST /api/auth/token/refresh/
+ */
+export const refreshToken = async (): Promise<{ access: string; refresh?: string }> => {
+  const refresh = tokenStorage.getRefreshToken()
+  if (!refresh) {
+    throw new Error('No refresh token available')
+  }
+
   try {
-    await apiClient.post('/authentication/logout/')
+    const response = await apiClient.post('/auth/token/refresh/', { refresh })
+
+    // Store new tokens
+    if (response.data.access) {
+      tokenStorage.setAccessToken(response.data.access)
+      if (response.data.refresh) {
+        tokenStorage.setTokens(response.data.access, response.data.refresh)
+      }
+    }
+
+    return response.data
   } catch (error) {
-    // Even if logout endpoint doesn't exist, clear client state
-    console.error('Logout error:', error)
+    // Clear tokens if refresh fails
+    tokenStorage.clearTokens()
+    throw error
   }
 }
 
 /**
  * Get current user profile
- * Backend endpoint: GET /api/authentication/profile/
+ * Backend endpoint: GET /api/auth/profile/
  */
 export const getUser = async (): Promise<User | null> => {
   try {
-    const response = await apiClient.get('/authentication/profile/')
-    return transformUser(response.data)
+    const response = await apiClient.get('/auth/profile/')
+    const user = transformUser(response.data)
+    return user
   } catch (error) {
     // If 401, user is not authenticated
     if (error && typeof error === 'object' && 'response' in error) {
@@ -104,12 +138,30 @@ export const getUser = async (): Promise<User | null> => {
 
 /**
  * Google OAuth login
- * Backend endpoint: POST /api/authentication/google/login/
+ * Backend endpoint: POST /api/auth/google/login/
+ *
+ * Flow:
+ * 1. Frontend uses Google Sign-In to get OAuth token
+ * 2. Send token to backend
+ * 3. Backend verifies with Google and returns JWT tokens
+ *
+ * NOTE: This requires implementing Google Sign-In button on frontend
+ * For now, this is a placeholder - full implementation requires @react-oauth/google
  */
-export const loginWithGoogle = async (): Promise<void> => {
-  // For Google OAuth, we redirect to backend which handles the OAuth flow
-  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-  const redirectUrl = `${backendUrl}/api/authentication/google/login/`
+export const loginWithGoogle = async (googleToken: string): Promise<AuthResponse> => {
+  const response = await apiClient.post('/auth/google/login/', {
+    token: googleToken,
+  })
 
-  window.location.href = redirectUrl
+  // Store JWT tokens
+  if (response.data.access && response.data.refresh) {
+    tokenStorage.setTokens(response.data.access, response.data.refresh)
+  }
+
+  return {
+    user: transformUser(response.data.user),
+    message: response.data.message || 'Google login successful',
+    access: response.data.access,
+    refresh: response.data.refresh,
+  }
 }

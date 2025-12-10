@@ -100,17 +100,16 @@ export function ChangePasswordForm() {
           )}
         />
 
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Changing Password...
-            </>
-          ) : (
-            'Change Password'
-          )}
-        </Button>
-      </form>
+                  <Button type="submit" disabled={isLoading} variant="outline">
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Changing Password...
+                      </>
+                    ) : (
+                      'Change Password'
+                    )}
+                  </Button>      </form>
     </Form>
   )
 }

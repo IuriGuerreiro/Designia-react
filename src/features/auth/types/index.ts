@@ -3,7 +3,7 @@ export interface User {
   email: string
   name: string
   avatar?: string
-  role: 'buyer' | 'seller' | 'admin'
+  role: 'customer' | 'seller' | 'admin'
 }
 
 export interface LoginCredentials {
@@ -28,6 +28,8 @@ export interface AuthState {
 export interface AuthResponse {
   user: User
   message: string
+  access: string
+  refresh: string
 }
 
 export interface AuthError {
