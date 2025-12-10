@@ -21,13 +21,50 @@ interface BackendUser {
 }
 
 // Transform backend user to frontend User type
-const transformUser = (backendUser: BackendUser): User => ({
-  id: backendUser.id,
-  email: backendUser.email,
-  name: `${backendUser.first_name} ${backendUser.last_name}`.trim() || backendUser.username,
-  avatar: backendUser.profile?.profile_picture_url || backendUser.avatar,
-  role: backendUser.role,
-})
+const transformUser = (backendUser: BackendUser): User => {
+  if (!backendUser) {
+    console.error('transformUser received undefined backendUser')
+    throw new Error('User data is missing from response')
+  }
+  return {
+    id: backendUser.id,
+    email: backendUser.email,
+    name:
+      `${backendUser.first_name || ''} ${backendUser.last_name || ''}`.trim() ||
+      backendUser.username,
+    avatar: backendUser.profile?.profile_picture_url || backendUser.avatar,
+    role: backendUser.role,
+    two_factor_enabled: backendUser.two_factor_enabled,
+  }
+}
+
+/**
+ * Get current user profile
+ * Backend endpoint: GET /api/auth/profile/
+ */
+export const getUser = async (): Promise<User | null> => {
+  try {
+    const response = await apiClient.get('/auth/profile/')
+    // If the response is the user object itself
+    if (response.data && response.data.id) {
+      return transformUser(response.data)
+    }
+    // If nested under 'user' key (unlikely for profile endpoint but good for safety)
+    if (response.data && response.data.user) {
+      return transformUser(response.data.user)
+    }
+    return null
+  } catch (error) {
+    // If 401, user is not authenticated
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { status?: number } }
+      if (axiosError.response?.status === 401) {
+        return null
+      }
+    }
+    throw error
+  }
+}
 
 /**
  * Login with email/password
@@ -39,13 +76,73 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     password: credentials.password,
   })
 
+  // Check if 2FA is required (Status 202)
+  if (response.status === 202) {
+    return {
+      requires_2fa: true,
+      message: response.data.message,
+      user_id: response.data.user_id,
+      // No tokens yet
+      access: '',
+      refresh: '',
+      user: { id: response.data.user_id || 'pending', email: '', name: '', role: 'customer' }, // Placeholder
+    }
+  }
+
   // Store JWT tokens
   if (response.data.access && response.data.refresh) {
     tokenStorage.setTokens(response.data.access, response.data.refresh)
   }
 
+  // Retrieve user data - handle case where 'user' is missing in response
+  let user: User | null = null
+  if (response.data.user) {
+    user = transformUser(response.data.user)
+  } else if (response.data.access) {
+    // If we have a token but no user data, fetch it
+    user = await getUser()
+  }
+
+  if (!user) {
+    throw new Error('Failed to retrieve user profile after login.')
+  }
+
   return {
-    user: transformUser(response.data.user),
+    user: user,
+    message: response.data.message || 'Login successful',
+    access: response.data.access,
+    refresh: response.data.refresh,
+  }
+}
+
+/**
+ * Verify 2FA code during login
+ * Backend endpoint: POST /api/auth/login/verify-2fa/
+ */
+export const verify2FALogin = async (userId: string, code: string): Promise<AuthResponse> => {
+  const response = await apiClient.post('/auth/login/verify-2fa/', {
+    user_id: userId,
+    code,
+  })
+
+  // Store JWT tokens
+  if (response.data.access && response.data.refresh) {
+    tokenStorage.setTokens(response.data.access, response.data.refresh)
+  }
+
+  let user: User | null = null
+  if (response.data.user) {
+    user = transformUser(response.data.user)
+  } else {
+    user = await getUser()
+  }
+
+  if (!user) {
+    throw new Error('Failed to retrieve user profile after 2FA verification.')
+  }
+
+  return {
+    user: user,
     message: response.data.message || 'Login successful',
     access: response.data.access,
     refresh: response.data.refresh,
@@ -57,7 +154,9 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
  * Backend endpoint: POST /api/auth/register/
  * NOTE: Registration does NOT return tokens. User must verify email first, then login.
  */
-export const register = async (credentials: RegisterCredentials): Promise<{ message: string; user: User }> => {
+export const register = async (
+  credentials: RegisterCredentials
+): Promise<{ message: string; user: User }> => {
   const [firstName, ...lastNameParts] = credentials.name.split(' ')
   const lastName = lastNameParts.join(' ')
 
@@ -73,7 +172,9 @@ export const register = async (credentials: RegisterCredentials): Promise<{ mess
   // Register does NOT return tokens - user must verify email first
   return {
     user: transformUser(response.data.user),
-    message: response.data.message || 'Registration successful. Please check your email to verify your account.',
+    message:
+      response.data.message ||
+      'Registration successful. Please check your email to verify your account.',
   }
 }
 
@@ -116,37 +217,8 @@ export const refreshToken = async (): Promise<{ access: string; refresh?: string
 }
 
 /**
- * Get current user profile
- * Backend endpoint: GET /api/auth/profile/
- */
-export const getUser = async (): Promise<User | null> => {
-  try {
-    const response = await apiClient.get('/auth/profile/')
-    const user = transformUser(response.data)
-    return user
-  } catch (error) {
-    // If 401, user is not authenticated
-    if (error && typeof error === 'object' && 'response' in error) {
-      const axiosError = error as { response?: { status?: number } }
-      if (axiosError.response?.status === 401) {
-        return null
-      }
-    }
-    throw error
-  }
-}
-
-/**
  * Google OAuth login
  * Backend endpoint: POST /api/auth/google/login/
- *
- * Flow:
- * 1. Frontend uses Google Sign-In to get OAuth token
- * 2. Send token to backend
- * 3. Backend verifies with Google and returns JWT tokens
- *
- * NOTE: This requires implementing Google Sign-In button on frontend
- * For now, this is a placeholder - full implementation requires @react-oauth/google
  */
 export const loginWithGoogle = async (googleToken: string): Promise<AuthResponse> => {
   const response = await apiClient.post('/auth/google/login/', {
@@ -158,10 +230,63 @@ export const loginWithGoogle = async (googleToken: string): Promise<AuthResponse
     tokenStorage.setTokens(response.data.access, response.data.refresh)
   }
 
+  let user: User | null = null
+  if (response.data.user) {
+    user = transformUser(response.data.user)
+  } else {
+    user = await getUser()
+  }
+
+  if (!user) throw new Error('Failed to retrieve user profile after Google login.')
+
   return {
-    user: transformUser(response.data.user),
+    user: user,
     message: response.data.message || 'Google login successful',
     access: response.data.access,
     refresh: response.data.refresh,
+  }
+}
+
+/**
+ * Get account status
+ * Backend endpoint: GET /api/auth/account/status/
+ */
+export const getAccountStatus = async (): Promise<{ two_factor_enabled: boolean }> => {
+  const response = await apiClient.get('/auth/account/status/')
+  return response.data
+}
+
+/**
+ * Send 2FA code
+ * Backend endpoint: POST /api/auth/2fa/send-code/
+ */
+export const send2FACode = async (purpose: 'enable_2fa' | 'disable_2fa'): Promise<void> => {
+  await apiClient.post('/auth/2fa/send-code/', { purpose })
+}
+
+/**
+ * Enable 2FA
+ * Backend endpoint: POST /api/auth/2fa/enable/
+ */
+export const enable2FA = async (code: string): Promise<void> => {
+  await apiClient.post('/auth/2fa/enable/', { code })
+}
+
+/**
+ * Disable 2FA
+ * Backend endpoint: POST /api/auth/2fa/disable/
+ */
+export const disable2FA = async (code: string): Promise<void> => {
+  await apiClient.post('/auth/2fa/disable/', { code })
+}
+
+/**
+ * Verify Email
+ * Backend endpoint: POST /api/auth/verify-email/
+ */
+export const verifyEmail = async (token: string): Promise<{ message: string }> => {
+  const response = await apiClient.post('/auth/verify-email/', { token })
+  return {
+    message: response.data.message || 'Email verified successfully',
   }
 }

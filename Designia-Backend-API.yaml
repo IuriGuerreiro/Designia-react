@@ -295,6 +295,111 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductARModel'
           description: ''
+  /api/auth/2fa/disable/:
+    post:
+      operationId: auth_disable_2fa
+      description: "\n        **Step 2 of Disable Flow:** Deactivate 2FA.\n      \
+        \  \n        Verifies the code received from `send-code` endpoint to ensure\
+        \ security.\n        If successful, **Two-Factor Authentication will be turned\
+        \ OFF**.\n        "
+      summary: Disable 2FA
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorConfirmRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TwoFactorConfirmRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TwoFactorConfirmRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '200':
+          description: 2FA disabled successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid code
+  /api/auth/2fa/enable/:
+    post:
+      operationId: auth_enable_2fa
+      description: "\n        **Step 2 of Enable Flow:** Finalize 2FA setup.\n   \
+        \     \n        Verifies the code received from `send-code` endpoint.\n  \
+        \      If successful, **Two-Factor Authentication will be activated** for\
+        \ this account.\n        Future logins will require a verification code.\n\
+        \        "
+      summary: Enable 2FA
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorConfirmRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TwoFactorConfirmRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TwoFactorConfirmRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '200':
+          description: 2FA enabled successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid code
+  /api/auth/2fa/send-code/:
+    post:
+      operationId: auth_send_2fa_code
+      description: "\n        **Step 1 of 2FA Workflow:** Initiate 2FA setup or removal.\n\
+        \        \n        Sends a 6-digit verification code to the user's email address.\n\
+        \        This code is required to confirm the subsequent 'enable' or 'disable'\
+        \ action.\n        \n        **Purposes:**\n        - `enable_2fa`: Request\
+        \ code to turn ON 2FA (verifies you can receive codes)\n        - `disable_2fa`:\
+        \ Request code to turn OFF 2FA (security check)\n        "
+      summary: Send 2FA code
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorCodeRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TwoFactorCodeRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TwoFactorCodeRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '200':
+          description: Code sent successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid purpose or rate limited
   /api/auth/account/status/:
     get:
       operationId: auth_account_status
@@ -579,10 +684,11 @@ paths:
   /api/auth/profile/:
     get:
       operationId: profile_get_own
-      description: "\n        Retrieve your own complete profile information.\n\n\
-        \        **Includes:**\n        - All profile fields\n        - Profile completion\
-        \ percentage\n        - Private fields (phone, email preferences, etc.)\n\
-        \        "
+      description: "\n        Retrieve your own complete user and profile information.\n\
+        \n        **Includes:**\n        - User fields (username, email, first_name,\
+        \ last_name, role, etc.)\n        - All profile fields\n        - Profile\
+        \ completion percentage\n        - Private fields (phone, email preferences,\
+        \ etc.)\n        "
       summary: Get own profile
       tags:
       - Profile
@@ -594,8 +700,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Profile'
-          description: Profile retrieved
+                $ref: '#/components/schemas/User'
+          description: User profile retrieved
     patch:
       operationId: profile_update
       description: "\n        Update your profile information.\n\n        **Restricted\
@@ -4633,6 +4739,14 @@ components:
       - twitter_url
       - username
       - website
+    PurposeEnum:
+      enum:
+      - enable_2fa
+      - disable_2fa
+      type: string
+      description: |-
+        * `enable_2fa` - Enable 2FA
+        * `disable_2fa` - Disable 2FA
     RegisterResponse:
       type: object
       description: Response for successful registration
@@ -4669,12 +4783,12 @@ components:
       - message
     RoleEnum:
       enum:
-      - user
+      - customer
       - seller
       - admin
       type: string
       description: |-
-        * `user` - User
+        * `customer` - Customer
         * `seller` - Seller
         * `admin` - Admin
     SellerApplicationAdminActionRequestRequest:
@@ -4880,6 +4994,24 @@ components:
           minLength: 1
       required:
       - refresh
+    TwoFactorCodeRequestRequest:
+      type: object
+      description: Serializer for requesting a 2FA code
+      properties:
+        purpose:
+          $ref: '#/components/schemas/PurposeEnum'
+      required:
+      - purpose
+    TwoFactorConfirmRequest:
+      type: object
+      description: Serializer for confirming 2FA action (enable/disable)
+      properties:
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+      required:
+      - code
     TwoFactorVerifyRequestRequest:
       type: object
       description: Request body for 2FA verification during login

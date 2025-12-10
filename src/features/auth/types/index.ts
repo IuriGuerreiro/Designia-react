@@ -4,6 +4,7 @@ export interface User {
   name: string
   avatar?: string
   role: 'customer' | 'seller' | 'admin'
+  two_factor_enabled?: boolean
 }
 
 export interface LoginCredentials {
@@ -30,6 +31,8 @@ export interface AuthResponse {
   message: string
   access: string
   refresh: string
+  requires_2fa?: boolean
+  user_id?: string
 }
 
 export interface AuthError {

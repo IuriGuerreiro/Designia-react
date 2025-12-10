@@ -9,6 +9,7 @@ import { Toaster } from '@/shared/components/ui/sonner'
 import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
 import { HomePage } from './pages/HomePage'
 import { SettingsPage } from '@/features/account/pages/SettingsPage'
+import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage'
 
 export function App() {
   const { checkAuth, isAuthenticated } = useAuthStore()
@@ -84,6 +85,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         </Routes>
 
         {/* Footer */}

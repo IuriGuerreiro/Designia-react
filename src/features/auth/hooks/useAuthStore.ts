@@ -8,9 +8,11 @@ interface AuthStore {
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
+  pending2FAUserId: string | null
 
   // Actions
-  login: (credentials: LoginCredentials) => Promise<void>
+  login: (credentials: LoginCredentials) => Promise<AuthResponse>
+  verify2FA: (code: string) => Promise<void>
   register: (credentials: RegisterCredentials) => Promise<{ message: string; user: User }>
   logout: () => Promise<void>
   checkAuth: () => Promise<void>
@@ -24,11 +26,24 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  pending2FAUserId: null,
 
   login: async credentials => {
-    set({ isLoading: true, error: null })
+    set({ isLoading: true, error: null, pending2FAUserId: null })
     try {
       const response = await authApi.login(credentials)
+
+      if (response.requires_2fa && response.user_id) {
+        set({
+          isLoading: false,
+          error: null,
+          pending2FAUserId: response.user_id,
+          isAuthenticated: false,
+          user: null,
+        })
+        return response
+      }
+
       // Save user data to localStorage
       tokenStorage.setUserData(response.user)
       set({
@@ -36,13 +51,42 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        pending2FAUserId: null,
       })
+      return response
     } catch (err) {
       set({
         user: null,
         isAuthenticated: false,
         isLoading: false,
         error: err instanceof Error ? err.message : 'Login failed',
+        pending2FAUserId: null,
+      })
+      throw err
+    }
+  },
+
+  verify2FA: async (code: string) => {
+    const { pending2FAUserId } = get()
+    if (!pending2FAUserId) {
+      throw new Error('No pending login found')
+    }
+
+    set({ isLoading: true, error: null })
+    try {
+      const response = await authApi.verify2FALogin(pending2FAUserId, code)
+      tokenStorage.setUserData(response.user)
+      set({
+        user: response.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+        pending2FAUserId: null,
+      })
+    } catch (err) {
+      set({
+        isLoading: false,
+        error: err instanceof Error ? err.message : 'Verification failed',
       })
       throw err
     }
@@ -110,7 +154,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (tokenStorage.isAccessTokenExpired()) {
         try {
           await authApi.refreshToken()
-        } catch (refreshError) {
+        } catch {
           // Refresh failed - clear tokens and user data
           tokenStorage.clearTokens()
           set({
@@ -145,12 +189,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           error: null,
         })
       }
-    } catch (error) {
+    } catch (err) {
       set({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: null,
+        error: err instanceof Error ? err.message : 'Authentication check failed',
       })
     }
   },
@@ -168,6 +212,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         error: null,
       })
     } catch (err) {
+      // Changed 'error' to 'err' here
       set({
         user: null,
         isAuthenticated: false,
@@ -185,8 +230,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         tokenStorage.setUserData(user)
         set({ user, isAuthenticated: true })
       }
-    } catch (error) {
-      console.error('[Auth] Failed to refresh user profile:', error)
+    } catch {
+      // Ignore error
     }
   },
 
