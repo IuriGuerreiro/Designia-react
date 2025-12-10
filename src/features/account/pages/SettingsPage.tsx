@@ -6,7 +6,7 @@ import { AvatarUpload } from '../components/AvatarUpload'
 import { TwoFactorAuth } from '../components/TwoFactorAuth'
 import { Separator } from '@/shared/components/ui/separator'
 
-export function ProfilePage() {
+export function SettingsPage() {
   return (
     <div className="container mx-auto px-6 py-8" style={{ maxWidth: '1400px' }}>
       <div className="space-y-6">

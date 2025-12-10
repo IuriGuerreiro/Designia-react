@@ -8,7 +8,7 @@ import { UserMenu } from '@/features/auth/components/UserMenu'
 import { Toaster } from '@/shared/components/ui/sonner'
 import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
 import { HomePage } from './pages/HomePage'
-import { ProfilePage } from '@/features/account/pages/ProfilePage'
+import { SettingsPage } from '@/features/account/pages/SettingsPage'
 
 export function App() {
   const { checkAuth, isAuthenticated } = useAuthStore()
@@ -83,7 +83,7 @@ export function App() {
 
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
 
         {/* Footer */}
