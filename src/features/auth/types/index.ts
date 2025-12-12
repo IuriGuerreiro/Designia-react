@@ -2,6 +2,11 @@ export interface User {
   id: string
   email: string
   name: string
+  first_name?: string
+  last_name?: string
+  profile?: {
+    phone_number?: string
+  }
   avatar?: string
   role: 'customer' | 'seller' | 'admin'
   two_factor_enabled?: boolean

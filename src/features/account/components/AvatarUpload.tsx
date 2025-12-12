@@ -1,98 +1,130 @@
 import { useRef, useState } from 'react'
-import { Camera, Loader2 } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar'
+import { Camera, Trash2, Loader2, XCircle } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar'
 import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
-import { uploadAvatar } from '../api/accountApi'
+import { uploadAvatar, deleteAvatar } from '../api/accountApi'
 import { toast } from 'sonner'
+import { AlertWithIcon } from '@/shared/components/ui/alert'
 
 export function AvatarUpload() {
-  const { user, checkAuth } = useAuthStore()
-  const [isLoading, setIsLoading] = useState(false)
+  const { user, refreshUserProfile } = useAuthStore()
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const initials =
-    user?.name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'U'
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null)
     const file = event.target.files?.[0]
-    if (!file) return
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file')
+    if (!file) {
       return
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB')
+    if (file.size > 10 * 1024 * 1024) {
+      // 10MB limit
+      setError('File size must be less than 10MB.')
+      toast.error('File too large.')
+      return
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      setError('Only JPG, PNG, or WebP images are allowed.')
+      toast.error('Invalid file type.')
       return
     }
 
     setIsLoading(true)
-
     try {
       const response = await uploadAvatar(file)
-      await checkAuth() // Refresh user data
-      toast.success(response.message)
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to upload avatar')
+      await refreshUserProfile() // Refresh user data to show new avatar
+      toast.success(response.message || 'Profile picture uploaded successfully!')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload profile picture.')
+      toast.error('Failed to upload profile picture.')
     } finally {
       setIsLoading(false)
-      // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''
+        fileInputRef.current.value = '' // Clear file input
       }
     }
   }
 
-  const handleClick = () => {
-    fileInputRef.current?.click()
+  const handleDeleteAvatar = async () => {
+    setError(null)
+    setIsLoading(true)
+    try {
+      const response = await deleteAvatar()
+      await refreshUserProfile() // Refresh user data to show default avatar
+      toast.success(response.message || 'Profile picture deleted successfully!')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete profile picture.')
+      toast.error('Failed to delete profile picture.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const getFallback = () => {
+    const initials = user?.name
+      ?.split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+    return initials || user?.email?.[0]?.toUpperCase() || '?'
   }
 
   return (
-    <div className="flex items-center gap-6">
-      <div className="relative">
-        <Avatar className="h-24 w-24">
-          <AvatarImage src={user?.avatar} alt={user?.name} />
-          <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-            {initials}
-          </AvatarFallback>
+    <div className="flex items-center space-x-4">
+      <div className="relative w-24 h-24 group">
+        <Avatar className="w-24 h-24">
+          <AvatarImage src={user?.avatar || undefined} alt={user?.name || user?.email} />
+          <AvatarFallback>{getFallback()}</AvatarFallback>
         </Avatar>
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="image/jpeg,image/png,image/webp"
+          className="absolute inset-0 opacity-0 cursor-pointer"
+          onChange={handleFileChange}
+          disabled={isLoading}
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {isLoading ? (
             <Loader2 className="h-6 w-6 text-white animate-spin" />
-          </div>
+          ) : (
+            <Camera className="h-6 w-6 text-white" />
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col space-y-2">
+        <Button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isLoading}
+          variant="outline"
+          className="max-w-max"
+        >
+          <Camera className="mr-2 h-4 w-4" /> Upload New Photo
+        </Button>
+        {user?.avatar && (
+          <Button
+            onClick={handleDeleteAvatar}
+            disabled={isLoading}
+            variant="ghost"
+            className="text-destructive hover:bg-destructive/10 max-w-max"
+          >
+            <Trash2 className="mr-2 h-4 w-4" /> Remove Photo
+          </Button>
         )}
       </div>
 
-      <div className="space-y-2">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-          disabled={isLoading}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleClick}
-          disabled={isLoading}
-          className="gap-2"
-        >
-          <Camera className="h-4 w-4" />
-          {isLoading ? 'Uploading...' : 'Change Photo'}
-        </Button>
-        <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max size 5MB.</p>
-      </div>
+      {error && (
+        <AlertWithIcon variant="destructive">
+          <XCircle className="h-4 w-4" />
+          <span className="ml-2">{error}</span>
+        </AlertWithIcon>
+      )}
     </div>
   )
 }

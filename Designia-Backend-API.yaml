@@ -298,10 +298,10 @@ paths:
   /api/auth/2fa/disable/:
     post:
       operationId: auth_disable_2fa
-      description: "\n        **Step 2 of Disable Flow:** Deactivate 2FA.\n      \
-        \  \n        Verifies the code received from `send-code` endpoint to ensure\
-        \ security.\n        If successful, **Two-Factor Authentication will be turned\
-        \ OFF**.\n        "
+      description: "\n        **Step 2 of Disable Flow:** Deactivate 2FA.\n\n    \
+        \    Verifies the code received from `send-code` endpoint to ensure security.\n\
+        \        If successful, **Two-Factor Authentication will be turned OFF**.\n\
+        \        "
       summary: Disable 2FA
       tags:
       - Authentication
@@ -332,11 +332,10 @@ paths:
   /api/auth/2fa/enable/:
     post:
       operationId: auth_enable_2fa
-      description: "\n        **Step 2 of Enable Flow:** Finalize 2FA setup.\n   \
-        \     \n        Verifies the code received from `send-code` endpoint.\n  \
-        \      If successful, **Two-Factor Authentication will be activated** for\
-        \ this account.\n        Future logins will require a verification code.\n\
-        \        "
+      description: "\n        **Step 2 of Enable Flow:** Finalize 2FA setup.\n\n \
+        \       Verifies the code received from `send-code` endpoint.\n        If\
+        \ successful, **Two-Factor Authentication will be activated** for this account.\n\
+        \        Future logins will require a verification code.\n        "
       summary: Enable 2FA
       tags:
       - Authentication
@@ -368,11 +367,11 @@ paths:
     post:
       operationId: auth_send_2fa_code
       description: "\n        **Step 1 of 2FA Workflow:** Initiate 2FA setup or removal.\n\
-        \        \n        Sends a 6-digit verification code to the user's email address.\n\
+        \n        Sends a 6-digit verification code to the user's email address.\n\
         \        This code is required to confirm the subsequent 'enable' or 'disable'\
-        \ action.\n        \n        **Purposes:**\n        - `enable_2fa`: Request\
-        \ code to turn ON 2FA (verifies you can receive codes)\n        - `disable_2fa`:\
-        \ Request code to turn OFF 2FA (security check)\n        "
+        \ action.\n\n        **Purposes:**\n        - `enable_2fa`: Request code to\
+        \ turn ON 2FA (verifies you can receive codes)\n        - `disable_2fa`: Request\
+        \ code to turn OFF 2FA (security check)\n        "
       summary: Send 2FA code
       tags:
       - Authentication
@@ -1451,9 +1450,14 @@ paths:
           description: No response body
   /api/marketplace/cart/:
     get:
-      operationId: marketplace_cart_list
+      operationId: cart_get
+      description: "\n        **What it receives:**\n        - Authentication token\
+        \ (header)\n\n        **What it returns:**\n        - Cart items with product\
+        \ details\n        - Totals (subtotal, shipping, tax, total)\n        - Item\
+        \ count\n        "
+      summary: Get user's shopping cart
       tags:
-      - marketplace
+      - Marketplace - Cart
       security:
       - jwtAuth: []
       - Bearer: []
@@ -1464,24 +1468,35 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CartItem'
-          description: ''
+                  $ref: '#/components/schemas/CartResponse'
+          description: Cart retrieved successfully
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/cart/add_item/:
     post:
-      operationId: marketplace_cart_add_item_create
+      operationId: cart_add_item
+      description: "\n        **What it receives:**\n        - `product_id` (UUID):\
+        \ Product to add\n        - `quantity` (integer, optional): Quantity to add\
+        \ (default: 1)\n\n        **What it returns:**\n        - Updated cart with\
+        \ all items\n        - Updated totals\n        "
+      summary: Add item to cart
       tags:
-      - marketplace
+      - Marketplace - Cart
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CartItemRequest'
+              $ref: '#/components/schemas/AddToCartRequestRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CartItemRequest'
+              $ref: '#/components/schemas/AddToCartRequestRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CartItemRequest'
+              $ref: '#/components/schemas/AddToCartRequestRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1491,61 +1506,127 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItem'
-          description: ''
+                $ref: '#/components/schemas/CartResponse'
+          description: Item added successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid data or insufficient stock
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Product not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/cart/clear/:
     delete:
-      operationId: marketplace_cart_clear_destroy
+      operationId: cart_clear
+      description: "\n        **What it receives:**\n        - Authentication token\
+        \ (header)\n\n        **What it returns:**\n        - Success message (204\
+        \ No Content)\n        "
+      summary: Clear all items from cart
       tags:
-      - marketplace
+      - Marketplace - Cart
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '204':
-          description: No response body
+          description: Cart cleared successfully
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/cart/remove_item/:
     delete:
-      operationId: marketplace_cart_remove_item_destroy
+      operationId: cart_remove_item
+      description: "\n        **What it receives:**\n        - `product_id` (UUID):\
+        \ Product to remove\n\n        **What it returns:**\n        - Updated cart\
+        \ without the removed item\n        - Updated totals\n        "
+      summary: Remove item from cart
       tags:
-      - marketplace
+      - Marketplace - Cart
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+          description: Item removed successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid product_id
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Item not in cart
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/cart/status/:
     get:
-      operationId: marketplace_cart_status_retrieve
+      operationId: cart_status
+      description: "\n        **What it receives:**\n        - Authentication token\
+        \ (header)\n\n        **What it returns:**\n        - Cart ID\n        - Total\
+        \ items count\n        - Total amount\n        - Modifiable status\n     \
+        \   - Last updated timestamp\n        "
+      summary: Get cart status summary
       tags:
-      - marketplace
+      - Marketplace - Cart
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '200':
+          description: Cart status retrieved successfully
+        '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItem'
-          description: ''
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/cart/update_item/:
     patch:
-      operationId: marketplace_cart_update_item_partial_update
+      operationId: cart_update_item
+      description: "\n        **What it receives:**\n        - `product_id` (UUID):\
+        \ Product to update\n        - `quantity` (integer): New quantity (0 to remove\
+        \ item)\n\n        **What it returns:**\n        - Updated cart with modified\
+        \ quantities\n        - Updated totals\n        "
+      summary: Update item quantity in cart
       tags:
-      - marketplace
+      - Marketplace - Cart
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCartItemRequest'
+              $ref: '#/components/schemas/PatchedUpdateCartRequestRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCartItemRequest'
+              $ref: '#/components/schemas/PatchedUpdateCartRequestRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCartItemRequest'
+              $ref: '#/components/schemas/PatchedUpdateCartRequestRequest'
       security:
       - jwtAuth: []
       - Bearer: []
@@ -1554,13 +1635,36 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItem'
-          description: ''
+                $ref: '#/components/schemas/CartResponse'
+          description: Item updated successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid data or insufficient stock
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Item not in cart
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/cart/validate_stock/:
     post:
-      operationId: marketplace_cart_validate_stock_create
+      operationId: cart_validate_stock
+      description: "\n        **What it receives:**\n        - Authentication token\
+        \ (header)\n\n        **What it returns:**\n        - Validation result (valid:\
+        \ boolean)\n        - List of issues (out_of_stock, inactive, price_changed)\n\
+        \        "
+      summary: Validate cart items stock availability
       tags:
-      - marketplace
+      - Marketplace - Cart
       requestBody:
         content:
           application/json:
@@ -1578,143 +1682,99 @@ paths:
       - Bearer: []
       responses:
         '200':
+          description: Validation completed
+        '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CartItem'
-          description: ''
-  /api/marketplace/categories/:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/marketplace/internal/orders/{order_id}/:
     get:
-      operationId: marketplace_categories_list
-      description: ViewSet for categories - read-only operations
-      parameters:
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      tags:
-      - marketplace
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Category'
-          description: ''
-  /api/marketplace/categories/{slug}/:
-    get:
-      operationId: marketplace_categories_retrieve
-      description: ViewSet for categories - read-only operations
+      operationId: internal_get_order
+      description: "\n    **Internal API for service-to-service communication.**\n\
+        \n    Returns order data needed by other services (e.g., Payment webhooks,\
+        \ Notification service).\n\n    **What it receives:**\n    - `order_id` (UUID\
+        \ in URL): The order to fetch\n\n    **What it returns:**\n    - Order ID,\
+        \ status, total amount, buyer ID, payment status, creation timestamp\n\n \
+        \   **Security:**\n    - Should only be accessible within internal network\n\
+        \    - NOT exposed through Kong Gateway to public\n    - Used by Payment service\
+        \ for webhook processing\n\n    **Use Cases:**\n    - Payment webhook confirming\
+        \ payment for an order\n    - Notification service sending order status updates\n\
+        \    - Analytics service tracking order metrics\n    "
+      summary: '[INTERNAL] Get order information'
       parameters:
       - in: path
-        name: slug
+        name: order_id
         schema:
           type: string
+          format: uuid
         required: true
       tags:
-      - marketplace
+      - Internal
       security:
       - jwtAuth: []
       - Bearer: []
+      - {}
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
-          description: ''
-  /api/marketplace/categories/{slug}/products/:
-    get:
-      operationId: marketplace_categories_products_retrieve
-      description: Get products in this category with view tracking
-      parameters:
-      - in: path
-        name: slug
-        schema:
-          type: string
-        required: true
-      tags:
-      - marketplace
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '200':
+                $ref: '#/components/schemas/InternalOrderInfo'
+              examples:
+                Success:
+                  value:
+                    id: 789e4567-e89b-12d3-a456-426614174999
+                    status: pending_payment
+                    total_amount: '1249.99'
+                    buyer_id: 123
+                    payment_status: pending
+                    created_at: '2025-12-11T18:30:00Z'
+          description: Order information retrieved successfully
+        '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
-          description: ''
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFound:
+                  value:
+                    error: order_not_found
+                    message: Order not found
+                  summary: Not Found
+          description: Order not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Error:
+                  value:
+                    error: internal_error
+                    message: Database connection failed
+          description: Internal error
   /api/marketplace/metrics/:
     get:
-      operationId: marketplace_metrics_list
-      description: ViewSet for product metrics - read-only for sellers
+      operationId: marketplace_metrics_retrieve
+      description: Exposes Prometheus metrics for the marketplace app.
       tags:
       - marketplace
       security:
       - jwtAuth: []
       - Bearer: []
+      - {}
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProductMetrics'
-          description: ''
+          description: No response body
   /api/marketplace/metrics/{id}/:
     get:
-      operationId: marketplace_metrics_retrieve
+      operationId: marketplace_metrics_retrieve_2
       description: ViewSet for product metrics - read-only for sellers
       parameters:
       - in: path
         name: id
-        schema:
-          type: string
-        required: true
-      tags:
-      - marketplace
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductMetrics'
-          description: ''
-  /api/marketplace/metrics/dashboard_metrics/:
-    get:
-      operationId: marketplace_metrics_dashboard_metrics_retrieve
-      description: Get comprehensive metrics for seller dashboard
-      tags:
-      - marketplace
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductMetrics'
-          description: ''
-  /api/marketplace/metrics/product_metrics/{product_slug}/:
-    get:
-      operationId: marketplace_metrics_product_metrics_retrieve
-      description: Get metrics for a specific product by slug
-      parameters:
-      - in: path
-        name: product_slug
         schema:
           type: string
         required: true
@@ -1732,28 +1792,109 @@ paths:
           description: ''
   /api/marketplace/orders/:
     get:
-      operationId: marketplace_orders_retrieve
+      operationId: orders_list
+      description: "\n        **What it receives:**\n        - Authentication token\n\
+        \        - Optional status filter (query param)\n        - Pagination parameters\
+        \ (page, page_size)\n\n        **What it returns:**\n        - Paginated list\
+        \ of orders where user is the buyer\n        - Total count and page information\n\
+        \        "
+      summary: List user's orders (as buyer)
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: 'Page number (default: 1)'
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Items per page (default: 20)'
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Filter by order status
       tags:
-      - marketplace
+      - Marketplace - Orders
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderListResponse'
+          description: Orders retrieved successfully
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
     post:
-      operationId: marketplace_orders_create
+      operationId: orders_create
+      description: "\n        **What it receives:**\n        - `shipping_address`\
+        \ (object): Delivery address (street, city, country required)\n        - `buyer_notes`\
+        \ (string, optional): Notes for seller\n        - `shipping_cost` (decimal,\
+        \ optional): Override shipping cost\n        - Authentication token\n\n  \
+        \      **What it returns:**\n        - Created order with pending payment\
+        \ status\n        - Cart is cleared after order creation\n        - Stock\
+        \ is reserved for order items\n        "
+      summary: Create order from cart
       tags:
-      - marketplace
+      - Marketplace - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequestRequest'
+        required: true
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '201':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetailResponse'
+          description: Order created successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Cart empty or validation error
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Insufficient stock or reservation failed
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/orders/{id}/:
     get:
-      operationId: marketplace_orders_retrieve_2
+      operationId: orders_retrieve
+      description: "\n        **What it receives:**\n        - `order_id` (UUID in\
+        \ URL): Order to retrieve\n        - Authentication token (must be order buyer\
+        \ or seller of items)\n\n        **What it returns:**\n        - Complete\
+        \ order details including items, shipping, payment status\n        "
+      summary: Get order details
       parameters:
       - in: path
         name: id
@@ -1761,16 +1902,44 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Orders
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetailResponse'
+          description: Order retrieved successfully
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not order owner
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Order not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/orders/{id}/cancel/:
     post:
-      operationId: marketplace_orders_cancel_create
+      operationId: orders_cancel
+      description: "\n        **What it receives:**\n        - `order_id` (UUID in\
+        \ URL): Order to cancel\n        - `reason` (string, optional): Cancellation\
+        \ reason\n        - Authentication token (must be order buyer)\n\n       \
+        \ **What it returns:**\n        - Updated order with cancelled status\n  \
+        \      - Reserved stock is released back to inventory\n        "
+      summary: Cancel order
       parameters:
       - in: path
         name: id
@@ -1778,16 +1947,63 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOrderRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancelOrderRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CancelOrderRequestRequest'
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetailResponse'
+          description: Order cancelled successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Order cannot be cancelled (already shipped/delivered)
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not order owner
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Order not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/orders/{id}/update_shipping/:
     patch:
-      operationId: marketplace_orders_update_shipping_partial_update
+      operationId: orders_update_shipping
+      description: "\n        **What it receives:**\n        - `order_id` (UUID in\
+        \ URL): Order to update\n        - `tracking_number` (string): Shipment tracking\
+        \ number\n        - `shipping_carrier` (string): Carrier name (e.g., \"UPS\"\
+        , \"FedEx\")\n        - `carrier_code` (string, optional): Carrier code\n\
+        \        - Authentication token (must be seller of items in order or admin)\n\
+        \n        **What it returns:**\n        - Updated order with shipping information\n\
+        \        - Order status transitions to \"shipped\"\n        "
+      summary: Update order shipping information (Seller/Admin only)
       parameters:
       - in: path
         name: id
@@ -1795,30 +2011,153 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Orders
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetailResponse'
+          description: Shipping updated successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid order state or missing fields
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Permission denied
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Order not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/orders/seller_orders/:
     get:
-      operationId: marketplace_orders_seller_orders_retrieve
+      operationId: orders_seller_orders
+      description: "\n        **What it receives:**\n        - Authentication token\
+        \ (user must have products as seller)\n        - Optional status filter (query\
+        \ param)\n        - Pagination parameters (page, page_size)\n\n        **What\
+        \ it returns:**\n        - Paginated list of orders containing items sold\
+        \ by current user\n        - Total count and page information\n        "
+      summary: List orders where user is the seller
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: 'Page number (default: 1)'
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Items per page (default: 20)'
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Filter by order status
       tags:
-      - marketplace
+      - Marketplace - Orders
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+          description: Orders retrieved successfully
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/products/:
     get:
-      operationId: marketplace_products_list
-      description: ViewSet for products with full CRUD operations using Service Layer.
+      operationId: products_list
+      description: "\n        **What it receives:**\n        - Query parameters for\
+        \ filtering (category, seller, price range, condition, brand, stock status)\n\
+        \        - Pagination parameters (page, page_size)\n        - Ordering parameter\n\
+        \n        **What it returns:**\n        - Paginated list of products\n   \
+        \     - Total count and page information\n        "
+      summary: List products with filters
+      parameters:
+      - in: query
+        name: brand
+        schema:
+          type: string
+        description: Filter by brand
+      - in: query
+        name: category
+        schema:
+          type: string
+        description: Filter by category slug
+      - in: query
+        name: condition
+        schema:
+          type: string
+        description: Product condition (new, used, etc.)
+      - in: query
+        name: in_stock
+        schema:
+          type: boolean
+        description: Only show in-stock products
+      - in: query
+        name: is_featured
+        schema:
+          type: boolean
+        description: Only show featured products
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: 'Order by field (default: -created_at)'
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: 'Page number (default: 1)'
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Items per page (default: 20)'
+      - in: query
+        name: price_max
+        schema:
+          type: number
+          format: double
+        description: Maximum price
+      - in: query
+        name: price_min
+        schema:
+          type: number
+          format: double
+        description: Minimum price
+      - in: query
+        name: seller
+        schema:
+          type: integer
+        description: Filter by seller ID
       tags:
-      - marketplace
+      - Marketplace - Products
       security:
       - jwtAuth: []
       - Bearer: []
@@ -1830,13 +2169,23 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ProductList'
-          description: ''
+                  $ref: '#/components/schemas/ProductListResponse'
+          description: Products retrieved successfully
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
     post:
-      operationId: marketplace_products_create
-      description: ViewSet for products with full CRUD operations using Service Layer.
+      operationId: products_create
+      description: "\n        **What it receives:**\n        - Product data (name,\
+        \ description, price, category, stock, etc.)\n        - Product images (multipart/form-data)\n\
+        \        - Authentication token (must be a seller)\n\n        **What it returns:**\n\
+        \        - Created product with generated ID and slug\n        "
+      summary: Create a new product (Seller only)
       tags:
-      - marketplace
+      - Marketplace - Products
       requestBody:
         content:
           application/json:
@@ -1857,8 +2206,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductCreateUpdate'
-          description: ''
+                $ref: '#/components/schemas/ProductDetail'
+          description: Product created successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid data
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Permission denied (not a seller)
   /api/marketplace/products/{product_slug}/images/:
     get:
       operationId: marketplace_products_images_list
@@ -2001,10 +2362,248 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/marketplace/products/{product_slug}/metrics/:
+    get:
+      operationId: marketplace_products_metrics_retrieve
+      description: ViewSet for product metrics - read-only for sellers
+      parameters:
+      - in: path
+        name: product_slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - marketplace
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductMetrics'
+          description: ''
+  /api/marketplace/products/{product_slug}/reviews/:
+    get:
+      operationId: reviews_list
+      description: "\n        **What it receives:**\n        - `product_slug` or `product_id`\
+        \ (query param): Product to get reviews for\n        - Pagination parameters\
+        \ (page, page_size)\n        - Ordering parameter\n\n        **What it returns:**\n\
+        \        - Paginated list of reviews for the product\n        "
+      summary: List product reviews
+      parameters:
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: 'Order by field (default: -created_at)'
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: 'Page number (default: 1)'
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Items per page (default: 20)'
+      - in: query
+        name: product_id
+        schema:
+          type: string
+        description: Product UUID
+      - in: path
+        name: product_slug
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: product_slug
+        schema:
+          type: string
+        description: Product slug
+      tags:
+      - Marketplace - Reviews
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      - {}
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Missing product identifier
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Product not found
+    post:
+      operationId: reviews_create
+      summary: Create product review
+      parameters:
+      - in: path
+        name: product_slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - Marketplace - Reviews
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/marketplace/products/{product_slug}/reviews/{id}/:
+    get:
+      operationId: reviews_retrieve
+      description: Get a specific review by ID.
+      summary: Get review details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: product_slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - Marketplace - Reviews
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    put:
+      operationId: reviews_update
+      summary: Update review
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: product_slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - Marketplace - Reviews
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    delete:
+      operationId: reviews_delete
+      summary: Delete review
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: product_slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - Marketplace - Reviews
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/marketplace/products/{slug}/:
     get:
-      operationId: marketplace_products_retrieve
-      description: ViewSet for products with full CRUD operations using Service Layer.
+      operationId: products_retrieve
+      description: "\n        **What it receives:**\n        - `slug` (string in URL):\
+        \ Product slug identifier\n\n        **What it returns:**\n        - Complete\
+        \ product details including images, reviews summary, seller info\n       \
+        \ - View count is automatically incremented\n        "
+      summary: Get product details
       parameters:
       - in: path
         name: slug
@@ -2012,7 +2611,7 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Products
       security:
       - jwtAuth: []
       - Bearer: []
@@ -2023,10 +2622,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductDetail'
-          description: ''
+          description: Product retrieved successfully
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Product not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
     put:
-      operationId: marketplace_products_update
-      description: ViewSet for products with full CRUD operations using Service Layer.
+      operationId: products_update
+      description: "\n        **What it receives:**\n        - `slug` (string in URL):\
+        \ Product to update\n        - Complete product data (all fields required)\n\
+        \        - Authentication token (must be product owner)\n\n        **What\
+        \ it returns:**\n        - Updated product details\n        "
+      summary: Update product (Owner only)
       parameters:
       - in: path
         name: slug
@@ -2034,7 +2649,7 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Products
       requestBody:
         content:
           application/json:
@@ -2055,11 +2670,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductCreateUpdate'
-          description: ''
+                $ref: '#/components/schemas/ProductDetail'
+          description: Product updated successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid data
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not product owner
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Product not found
     patch:
-      operationId: marketplace_products_partial_update
-      description: ViewSet for products with full CRUD operations using Service Layer.
+      operationId: products_partial_update
+      description: "\n        **What it receives:**\n        - `slug` (string in URL):\
+        \ Product to update\n        - Partial product data (only fields to update)\n\
+        \        - Authentication token (must be product owner)\n\n        **What\
+        \ it returns:**\n        - Updated product details\n        "
+      summary: Partially update product (Owner only)
       parameters:
       - in: path
         name: slug
@@ -2067,7 +2704,7 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Products
       requestBody:
         content:
           application/json:
@@ -2087,11 +2724,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductCreateUpdate'
-          description: ''
+                $ref: '#/components/schemas/ProductDetail'
+          description: Product updated successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid data
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not product owner
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Product not found
     delete:
-      operationId: marketplace_products_destroy
-      description: ViewSet for products with full CRUD operations using Service Layer.
+      operationId: products_delete
+      description: "\n        **What it receives:**\n        - `slug` (string in URL):\
+        \ Product to delete\n        - Authentication token (must be product owner)\n\
+        \n        **What it returns:**\n        - 204 No Content on success\n    \
+        \    "
+      summary: Delete product (Owner only)
       parameters:
       - in: path
         name: slug
@@ -2099,17 +2758,34 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Products
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '204':
-          description: No response body
+          description: Product deleted successfully
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not product owner
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Product not found
   /api/marketplace/products/{slug}/favorite/:
     post:
-      operationId: marketplace_products_favorite_create
-      description: Toggle favorite status
+      operationId: products_toggle_favorite
+      description: "\n        **What it receives:**\n        - `slug` (string in URL):\
+        \ Product to favorite/unfavorite\n        - Authentication token\n\n     \
+        \   **What it returns:**\n        - `{\"favorited\": true}` if product was\
+        \ added to favorites\n        - `{\"favorited\": false}` if product was removed\
+        \ from favorites\n        "
+      summary: Toggle product favorite status
       parameters:
       - in: path
         name: slug
@@ -2117,7 +2793,7 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Products
       requestBody:
         content:
           application/json:
@@ -2135,11 +2811,19 @@ paths:
       - Bearer: []
       responses:
         '200':
+          description: Favorite status toggled
+        '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductList'
-          description: ''
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Product not found
   /api/marketplace/products/autocomplete/:
     get:
       operationId: marketplace_products_autocomplete_retrieve
@@ -2155,12 +2839,62 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/marketplace/products/favorites/:
+  /api/marketplace/products/categories/:
     get:
-      operationId: marketplace_products_favorites_retrieve
-      description: Get user's favorite products
+      operationId: marketplace_products_categories_list
+      description: ViewSet for categories - read-only operations
+      parameters:
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
       tags:
       - marketplace
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+  /api/marketplace/products/categories/{slug}/:
+    get:
+      operationId: marketplace_products_categories_retrieve
+      description: ViewSet for categories - read-only operations
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - marketplace
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/marketplace/products/favorites/:
+    get:
+      operationId: products_favorites
+      description: "\n        **What it receives:**\n        - Authentication token\n\
+        \n        **What it returns:**\n        - List of products marked as favorites\
+        \ by current user\n        "
+      summary: Get user's favorite products
+      tags:
+      - Marketplace - Products
       security:
       - jwtAuth: []
       - Bearer: []
@@ -2170,8 +2904,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductList'
-          description: ''
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductFavorite'
+          description: Favorites retrieved successfully
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Authentication required
   /api/marketplace/products/filters/:
     get:
       operationId: marketplace_products_filters_retrieve
@@ -2187,10 +2929,10 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/marketplace/products/my_products/:
+  /api/marketplace/products/metrics/:
     get:
-      operationId: marketplace_products_my_products_retrieve
-      description: Get current user's products
+      operationId: marketplace_products_metrics_list
+      description: ViewSet for product metrics - read-only for sellers
       tags:
       - marketplace
       security:
@@ -2201,8 +2943,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductMetrics'
           description: ''
+  /api/marketplace/products/my_products/:
+    get:
+      operationId: products_my_products
+      description: "\n        **What it receives:**\n        - Authentication token\
+        \ (must be a seller)\n\n        **What it returns:**\n        - List of products\
+        \ owned by current user\n        "
+      summary: Get current user's products (Seller only)
+      tags:
+      - Marketplace - Products
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductList'
+          description: Products retrieved successfully
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/products/search/:
     get:
       operationId: marketplace_products_search_retrieve
@@ -2218,57 +2989,10 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/marketplace/profiles/delete_profile_picture/:
-    delete:
-      operationId: marketplace_profiles_delete_profile_picture_destroy
-      description: Delete user's profile picture from S3
-      tags:
-      - marketplace
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '204':
-          description: No response body
-  /api/marketplace/profiles/profile_picture/:
+  /api/marketplace/profiles/:
     get:
-      operationId: marketplace_profiles_profile_picture_retrieve
-      description: Get current user's profile picture from S3
-      tags:
-      - marketplace
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '200':
-          description: No response body
-  /api/marketplace/profiles/update_profile_picture/:
-    patch:
-      operationId: marketplace_profiles_update_profile_picture_partial_update
-      description: Update user's profile picture (alias for upload_profile_picture)
-      tags:
-      - marketplace
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '200':
-          description: No response body
-  /api/marketplace/profiles/upload_profile_picture/:
-    post:
-      operationId: marketplace_profiles_upload_profile_picture_create
-      description: Upload or update user's profile picture to S3
-      tags:
-      - marketplace
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '200':
-          description: No response body
-  /api/marketplace/reviews/:
-    get:
-      operationId: marketplace_reviews_retrieve
+      operationId: marketplace_profiles_list
+      description: ViewSet for user profiles
       tags:
       - marketplace
       security:
@@ -2277,20 +3001,165 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
-    post:
-      operationId: marketplace_reviews_create
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+  /api/marketplace/profiles/{id}/:
+    get:
+      operationId: marketplace_profiles_retrieve
+      description: ViewSet for user profiles
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this custom user.
+        required: true
       tags:
       - marketplace
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/marketplace/reviews/:
+    get:
+      operationId: reviews_list_2
+      description: "\n        **What it receives:**\n        - `product_slug` or `product_id`\
+        \ (query param): Product to get reviews for\n        - Pagination parameters\
+        \ (page, page_size)\n        - Ordering parameter\n\n        **What it returns:**\n\
+        \        - Paginated list of reviews for the product\n        "
+      summary: List product reviews
+      parameters:
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: 'Order by field (default: -created_at)'
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: 'Page number (default: 1)'
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Items per page (default: 20)'
+      - in: query
+        name: product_id
+        schema:
+          type: string
+        description: Product UUID
+      - in: query
+        name: product_slug
+        schema:
+          type: string
+        description: Product slug
+      tags:
+      - Marketplace - Reviews
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      - {}
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Missing product identifier
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Product not found
+    post:
+      operationId: reviews_create_2
+      summary: Create product review
+      tags:
+      - Marketplace - Reviews
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequestRequest'
+        required: true
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '201':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/marketplace/reviews/{id}/:
+    get:
+      operationId: reviews_retrieve_2
+      description: Get a specific review by ID.
+      summary: Get review details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Marketplace - Reviews
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
     put:
-      operationId: marketplace_reviews_update
+      operationId: reviews_update_2
+      summary: Update review
       parameters:
       - in: path
         name: id
@@ -2298,15 +3167,32 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Reviews
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
     patch:
-      operationId: marketplace_reviews_partial_update
+      operationId: reviews_partial_update
+      summary: Partially update review
       parameters:
       - in: path
         name: id
@@ -2314,15 +3200,32 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Reviews
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
     delete:
-      operationId: marketplace_reviews_destroy
+      operationId: reviews_delete_2
+      summary: Delete review
       parameters:
       - in: path
         name: id
@@ -2330,16 +3233,29 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Reviews
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '204':
           description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/marketplace/reviews/{id}/mark_helpful/:
     post:
-      operationId: marketplace_reviews_mark_helpful_create
+      operationId: reviews_mark_helpful
+      summary: Mark review as helpful
       parameters:
       - in: path
         name: id
@@ -2347,19 +3263,28 @@ paths:
           type: string
         required: true
       tags:
-      - marketplace
+      - Marketplace - Reviews
       security:
       - jwtAuth: []
       - Bearer: []
       responses:
         '200':
           description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/marketplace/sellers/{seller_id}/:
     get:
       operationId: marketplace_sellers_retrieve
-      description: |-
-        Get seller profile with their products and reviews.
-        Public endpoint - accessible to everyone.
       parameters:
       - in: path
         name: seller_id
@@ -2375,6 +3300,99 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/marketplace/sellers/{seller_id}/products/:
+    get:
+      operationId: products_list_2
+      description: "\n        **What it receives:**\n        - Query parameters for\
+        \ filtering (category, seller, price range, condition, brand, stock status)\n\
+        \        - Pagination parameters (page, page_size)\n        - Ordering parameter\n\
+        \n        **What it returns:**\n        - Paginated list of products\n   \
+        \     - Total count and page information\n        "
+      summary: List products with filters
+      parameters:
+      - in: query
+        name: brand
+        schema:
+          type: string
+        description: Filter by brand
+      - in: query
+        name: category
+        schema:
+          type: string
+        description: Filter by category slug
+      - in: query
+        name: condition
+        schema:
+          type: string
+        description: Product condition (new, used, etc.)
+      - in: query
+        name: in_stock
+        schema:
+          type: boolean
+        description: Only show in-stock products
+      - in: query
+        name: is_featured
+        schema:
+          type: boolean
+        description: Only show featured products
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: 'Order by field (default: -created_at)'
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: 'Page number (default: 1)'
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Items per page (default: 20)'
+      - in: query
+        name: price_max
+        schema:
+          type: number
+          format: double
+        description: Maximum price
+      - in: query
+        name: price_min
+        schema:
+          type: number
+          format: double
+        description: Minimum price
+      - in: query
+        name: seller
+        schema:
+          type: integer
+        description: Filter by seller ID
+      - in: path
+        name: seller_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Marketplace - Products
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductListResponse'
+          description: Products retrieved successfully
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/payments/admin/payouts/:
     get:
       operationId: payments_admin_payouts_retrieve
@@ -2834,6 +3852,121 @@ paths:
       responses:
         '200':
           description: No response body
+  /internal/marketplace/orders/{order_id}/:
+    get:
+      operationId: internal_get_order_2
+      description: "\n    **Internal API for service-to-service communication.**\n\
+        \n    Returns order data needed by other services (e.g., Payment webhooks,\
+        \ Notification service).\n\n    **What it receives:**\n    - `order_id` (UUID\
+        \ in URL): The order to fetch\n\n    **What it returns:**\n    - Order ID,\
+        \ status, total amount, buyer ID, payment status, creation timestamp\n\n \
+        \   **Security:**\n    - Should only be accessible within internal network\n\
+        \    - NOT exposed through Kong Gateway to public\n    - Used by Payment service\
+        \ for webhook processing\n\n    **Use Cases:**\n    - Payment webhook confirming\
+        \ payment for an order\n    - Notification service sending order status updates\n\
+        \    - Analytics service tracking order metrics\n    "
+      summary: '[INTERNAL] Get order information'
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Internal
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalOrderInfo'
+              examples:
+                Success:
+                  value:
+                    id: 789e4567-e89b-12d3-a456-426614174999
+                    status: pending_payment
+                    total_amount: '1249.99'
+                    buyer_id: 123
+                    payment_status: pending
+                    created_at: '2025-12-11T18:30:00Z'
+          description: Order information retrieved successfully
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                NotFound:
+                  value:
+                    error: order_not_found
+                    message: Order not found
+                  summary: Not Found
+          description: Order not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                Error:
+                  value:
+                    error: internal_error
+                    message: Database connection failed
+          description: Internal error
+  /internal/marketplace/products/{product_id}/:
+    get:
+      operationId: internal_get_product
+      description: "\n    **Internal API for service-to-service communication.**\n\
+        \n    Returns minimal product data needed by other services (e.g., Payment,\
+        \ Notifications).\n\n    **What it receives:**\n    - `product_id` (UUID in\
+        \ URL): The product to fetch\n\n    **What it returns:**\n    - Product ID,\
+        \ name, price, stock quantity, active status, seller ID\n\n    **Security:**\n\
+        \    - Should only be accessible within internal network\n    - NOT exposed\
+        \ through Kong Gateway to public\n    - Protected by network policies or firewall\
+        \ rules\n\n    **Use Cases:**\n    - Payment service checking product price\
+        \ before processing\n    - Notification service getting product details for\
+        \ emails\n    - Inventory service validating product exists\n    "
+      summary: '[INTERNAL] Get product information'
+      parameters:
+      - in: path
+        name: product_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Internal
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalProductInfo'
+              examples:
+                Success:
+                  value:
+                    id: 123e4567-e89b-12d3-a456-426614174000
+                    name: iPhone 15 Pro
+                    price: '999.00'
+                    stock_quantity: 10
+                    is_active: true
+                    seller_id: 42
+          description: Product information retrieved successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid product ID format
 components:
   schemas:
     AccountStatusResponse:
@@ -2889,38 +4022,54 @@ components:
       description: |-
         * `approve` - approve
         * `reject` - reject
+    AddToCartRequestRequest:
+      type: object
+      description: Request body for adding item to cart
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          description: Product UUID to add
+        quantity:
+          type: integer
+          minimum: 1
+          default: 1
+          description: 'Quantity to add (default: 1)'
+      required:
+      - product_id
     BlankEnum:
       enum:
       - ''
+    CancelOrderRequestRequest:
+      type: object
+      description: Request body for canceling an order
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          description: Reason for cancellation
     CartItem:
       type: object
-      description: Serializer for CartItem model - used for adding/updating items
-        via API.
+      description: Single cart item
       properties:
-        id:
-          type: integer
-          readOnly: true
         product:
-          allOf:
-          - $ref: '#/components/schemas/ProductList'
-          readOnly: true
+          type: object
+          additionalProperties: {}
+          description: Product details (see ProductListSerializer)
         quantity:
           type: integer
-          maximum: 4294967295
-          minimum: 0
-          format: int64
-        added_at:
+          description: Quantity in cart
+        subtotal:
           type: string
-          format: date-time
-          readOnly: true
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Item subtotal (price × quantity)
       required:
-      - added_at
-      - id
       - product
+      - quantity
+      - subtotal
     CartItemRequest:
       type: object
-      description: Serializer for CartItem model - used for adding/updating items
-        via API.
       properties:
         product_id:
           type: string
@@ -2933,9 +4082,57 @@ components:
           format: int64
       required:
       - product_id
+    CartResponse:
+      type: object
+      description: Complete cart response
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+          description: Cart items
+        totals:
+          allOf:
+          - $ref: '#/components/schemas/CartTotals'
+          description: Cart totals
+        item_count:
+          type: integer
+          description: Total number of items
+      required:
+      - item_count
+      - items
+      - totals
+    CartTotals:
+      type: object
+      description: Cart totals breakdown
+      properties:
+        subtotal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Sum of all items
+        shipping:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Estimated shipping cost
+        tax:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Estimated tax
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Final total amount
+      required:
+      - shipping
+      - subtotal
+      - tax
+      - total
     Category:
       type: object
-      description: Category serializer with subcategory support
       properties:
         id:
           type: integer
@@ -3078,6 +4275,45 @@ components:
         * `good` - Good
         * `fair` - Fair
         * `poor` - Poor
+    CreateOrderRequestRequest:
+      type: object
+      description: Request body for creating an order
+      properties:
+        shipping_address:
+          allOf:
+          - $ref: '#/components/schemas/ShippingAddressRequest'
+          description: Delivery address
+        buyer_notes:
+          type: string
+          minLength: 1
+          description: Optional notes for seller (e.g., delivery instructions)
+      required:
+      - shipping_address
+    CreateReviewRequestRequest:
+      type: object
+      description: Request body for creating a review
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          description: Product UUID to review
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+          description: Rating from 1 to 5 stars
+        title:
+          type: string
+          minLength: 1
+          description: Review title
+          maxLength: 200
+        comment:
+          type: string
+          minLength: 1
+          description: Review text
+      required:
+      - product_id
+      - rating
     ErrorResponse:
       type: object
       description: Standard error response
@@ -3148,6 +4384,71 @@ components:
         * `business_setup` - Business Setup
         * `tools_equipment` - Tools & Equipment
         * `other` - Other
+    InternalOrderInfo:
+      type: object
+      description: Internal API response for order info
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Order UUID
+        status:
+          type: string
+          description: Order status
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Order total
+        buyer_id:
+          type: integer
+          description: Buyer user ID
+        payment_status:
+          type: string
+          description: Payment status
+        created_at:
+          type: string
+          format: date-time
+          description: Order creation timestamp
+      required:
+      - buyer_id
+      - created_at
+      - id
+      - payment_status
+      - status
+      - total_amount
+    InternalProductInfo:
+      type: object
+      description: Internal API response for product info
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Product UUID
+        name:
+          type: string
+          description: Product name
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Current price
+        stock_quantity:
+          type: integer
+          description: Available stock
+        is_active:
+          type: boolean
+          description: Whether product is active
+        seller_id:
+          type: integer
+          description: Seller user ID
+      required:
+      - id
+      - is_active
+      - name
+      - price
+      - seller_id
+      - stock_quantity
     LanguageEnum:
       enum:
       - en
@@ -3366,8 +4667,6 @@ components:
         * `image` - Image
     MinimalCategory:
       type: object
-      description: Minimal category serializer for product list views - no subcategories
-        or counts
       properties:
         id:
           type: integer
@@ -3385,8 +4684,6 @@ components:
       - slug
     MinimalCategoryRequest:
       type: object
-      description: Minimal category serializer for product list views - no subcategories
-        or counts
       properties:
         name:
           type: string
@@ -3396,8 +4693,6 @@ components:
       - name
     MinimalSeller:
       type: object
-      description: Minimal seller serializer for product list views - only id and
-        username
       properties:
         id:
           type: string
@@ -3414,8 +4709,6 @@ components:
       - username
     MinimalSellerRequest:
       type: object
-      description: Minimal seller serializer for product list views - only id and
-        username
       properties:
         username:
           type: string
@@ -3429,6 +4722,229 @@ components:
     NullEnum:
       enum:
       - null
+    OrderDetailResponse:
+      type: object
+      description: Detailed order response
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Order UUID
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            Order status
+
+            * `pending_payment` - pending_payment
+            * `payment_confirmed` - payment_confirmed
+            * `awaiting_shipment` - awaiting_shipment
+            * `shipped` - shipped
+            * `delivered` - delivered
+            * `cancelled` - cancelled
+            * `refunded` - refunded
+        payment_status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          description: |-
+            Payment status
+
+            * `pending` - pending
+            * `paid` - paid
+            * `failed` - failed
+            * `refunded` - refunded
+        buyer:
+          type: object
+          additionalProperties: {}
+          description: Buyer information
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          description: Order items
+        subtotal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Items subtotal
+        shipping_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Shipping cost
+        tax_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Tax amount
+        discount_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Discount applied
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Final total
+        shipping_address:
+          allOf:
+          - $ref: '#/components/schemas/ShippingAddress'
+          description: Delivery address
+        buyer_notes:
+          type: string
+          description: Buyer notes
+        tracking_number:
+          type: string
+          nullable: true
+          description: Shipment tracking number
+        shipping_carrier:
+          type: string
+          nullable: true
+          description: Shipping carrier name
+        shipped_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Shipment timestamp
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Delivery timestamp
+        created_at:
+          type: string
+          format: date-time
+          description: Order creation timestamp
+      required:
+      - buyer
+      - created_at
+      - discount_amount
+      - id
+      - items
+      - payment_status
+      - shipping_address
+      - shipping_cost
+      - status
+      - subtotal
+      - tax_amount
+      - total_amount
+    OrderItem:
+      type: object
+      description: Single order item
+      properties:
+        id:
+          type: integer
+          description: Order item ID
+        product:
+          type: object
+          additionalProperties: {}
+          description: Product snapshot at time of order
+        quantity:
+          type: integer
+          description: Quantity ordered
+        unit_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Price per unit at time of order
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Total for this item
+        product_name:
+          type: string
+          description: Product name (snapshot)
+        product_image:
+          type: string
+          format: uri
+          description: Product image URL (snapshot)
+      required:
+      - id
+      - product
+      - product_image
+      - product_name
+      - quantity
+      - total_price
+      - unit_price
+    OrderListItem:
+      type: object
+      description: Order in list view (summary)
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Order UUID
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            Order status
+
+            * `pending_payment` - pending_payment
+            * `payment_confirmed` - payment_confirmed
+            * `awaiting_shipment` - awaiting_shipment
+            * `shipped` - shipped
+            * `delivered` - delivered
+            * `cancelled` - cancelled
+            * `refunded` - refunded
+        payment_status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          description: |-
+            Payment status
+
+            * `pending` - pending
+            * `paid` - paid
+            * `failed` - failed
+            * `refunded` - refunded
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          description: Order total
+        created_at:
+          type: string
+          format: date-time
+          description: Order creation timestamp
+        item_count:
+          type: integer
+          description: Number of items in order
+      required:
+      - created_at
+      - id
+      - item_count
+      - payment_status
+      - status
+      - total_amount
+    OrderListResponse:
+      type: object
+      description: Paginated order list response
+      properties:
+        count:
+          type: integer
+          description: Total number of orders
+        page:
+          type: integer
+          description: Current page
+        page_size:
+          type: integer
+          description: Items per page
+        num_pages:
+          type: integer
+          description: Total pages
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderListItem'
+          description: Order list
+      required:
+      - count
+      - num_pages
+      - page
+      - page_size
+      - results
     PaginatedMessageList:
       type: object
       required:
@@ -3452,20 +4968,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Message'
-    PatchedCartItemRequest:
-      type: object
-      description: Serializer for CartItem model - used for adding/updating items
-        via API.
-      properties:
-        product_id:
-          type: string
-          writeOnly: true
-          minLength: 1
-        quantity:
-          type: integer
-          maximum: 4294967295
-          minimum: 0
-          format: int64
     PatchedProductARModelDownloadRequest:
       type: object
       description: Serializer for tracking user downloads of AR models.
@@ -3497,7 +4999,6 @@ components:
           maxLength: 255
     PatchedProductCreateUpdateRequest:
       type: object
-      description: Serializer for creating and updating products
       properties:
         name:
           type: string
@@ -3682,6 +5183,30 @@ components:
           type: boolean
         notifications_enabled:
           type: boolean
+    PatchedUpdateCartRequestRequest:
+      type: object
+      description: Request body for updating cart item
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          description: Product UUID to update
+        quantity:
+          type: integer
+          minimum: 0
+          description: New quantity (0 to remove item)
+    PaymentStatusEnum:
+      enum:
+      - pending
+      - paid
+      - failed
+      - refunded
+      type: string
+      description: |-
+        * `pending` - pending
+        * `paid` - paid
+        * `failed` - failed
+        * `refunded` - refunded
     ProductARModel:
       type: object
       description: Read-only serializer exposing metadata about a product 3D model.
@@ -3820,96 +5345,8 @@ components:
         device_info:
           type: string
           maxLength: 255
-    ProductCreateUpdate:
-      type: object
-      description: Serializer for creating and updating products
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        name:
-          type: string
-          maxLength: 200
-        description:
-          type: string
-        short_description:
-          type: string
-          maxLength: 300
-        category:
-          type: integer
-          nullable: true
-        price:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-        original_price:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-          nullable: true
-        stock_quantity:
-          type: integer
-          maximum: 4294967295
-          minimum: 0
-          format: int64
-        condition:
-          $ref: '#/components/schemas/ConditionEnum'
-        brand:
-          type: string
-          maxLength: 100
-        model:
-          type: string
-          maxLength: 100
-        weight:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
-          nullable: true
-          description: Weight in kg
-        dimensions_length:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
-          nullable: true
-          description: Length in cm
-        dimensions_width:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
-          nullable: true
-          description: Width in cm
-        dimensions_height:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
-          nullable: true
-          description: Height in cm
-        colors:
-          type: string
-        materials:
-          type: string
-          description: Materials used
-        tags:
-          type: string
-        is_featured:
-          type: boolean
-        is_digital:
-          type: boolean
-        images:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductImage'
-          readOnly: true
-      required:
-      - description
-      - id
-      - images
-      - name
-      - price
     ProductCreateUpdateRequest:
       type: object
-      description: Serializer for creating and updating products
       properties:
         name:
           type: string
@@ -3987,7 +5424,6 @@ components:
       - price
     ProductDetail:
       type: object
-      description: Detailed product serializer
       properties:
         id:
           type: string
@@ -4078,9 +5514,7 @@ components:
             $ref: '#/components/schemas/ProductImage'
           readOnly: true
         reviews:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductReview'
+          type: string
           readOnly: true
         average_rating:
           type: string
@@ -4146,9 +5580,26 @@ components:
       - slug
       - updated_at
       - view_count
+    ProductFavorite:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          allOf:
+          - $ref: '#/components/schemas/ProductList'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - product
     ProductImage:
       type: object
-      description: Product image serializer with proxy URL support
       properties:
         id:
           type: integer
@@ -4203,7 +5654,6 @@ components:
       - s3_key
     ProductImageRequest:
       type: object
-      description: Product image serializer with proxy URL support
       properties:
         image:
           type: string
@@ -4356,9 +5806,44 @@ components:
       required:
       - name
       - price
+    ProductListResponse:
+      type: object
+      description: Paginated product list response
+      properties:
+        count:
+          type: integer
+          description: Total number of products
+        page:
+          type: integer
+          description: Current page number
+        page_size:
+          type: integer
+          description: Items per page
+        num_pages:
+          type: integer
+          description: Total number of pages
+        has_next:
+          type: boolean
+          description: Whether there is a next page
+        has_previous:
+          type: boolean
+          description: Whether there is a previous page
+        results:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          description: List of products (see ProductListSerializer schema)
+      required:
+      - count
+      - has_next
+      - has_previous
+      - num_pages
+      - page
+      - page_size
+      - results
     ProductMetrics:
       type: object
-      description: Product metrics serializer
       properties:
         total_views:
           type: integer
@@ -4404,48 +5889,6 @@ components:
       - total_sales
       - total_views
       - view_to_click_rate
-    ProductReview:
-      type: object
-      description: Product review serializer
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        reviewer:
-          allOf:
-          - $ref: '#/components/schemas/User'
-          readOnly: true
-        reviewer_name:
-          type: string
-          readOnly: true
-        rating:
-          type: integer
-          maximum: 5
-          minimum: 1
-        title:
-          type: string
-          maxLength: 200
-        comment:
-          type: string
-        is_verified_purchase:
-          type: boolean
-          readOnly: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - created_at
-      - id
-      - is_verified_purchase
-      - rating
-      - reviewer
-      - reviewer_name
-      - updated_at
     Profile:
       type: object
       properties:
@@ -4781,6 +6224,51 @@ components:
           description: Status message
       required:
       - message
+    ReviewResponse:
+      type: object
+      description: Review response
+      properties:
+        id:
+          type: integer
+          description: Review ID
+        product:
+          type: object
+          additionalProperties: {}
+          description: Product summary (id, name)
+        reviewer:
+          type: object
+          additionalProperties: {}
+          description: Reviewer info (id, username)
+        rating:
+          type: integer
+          description: Rating (1-5 stars)
+        title:
+          type: string
+          description: Review title
+        comment:
+          type: string
+          description: Review text
+        verified_purchase:
+          type: boolean
+          description: Whether reviewer purchased the product
+        created_at:
+          type: string
+          format: date-time
+          description: Review creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+      - comment
+      - created_at
+      - id
+      - product
+      - rating
+      - reviewer
+      - title
+      - updated_at
+      - verified_purchase
     RoleEnum:
       enum:
       - customer
@@ -4975,6 +6463,79 @@ components:
         * `restorer` - Furniture Restorer/Fixer
         * `retailer` - Retailer/Curator
         * `artisan` - Artisan/Craftsman
+    ShippingAddress:
+      type: object
+      description: Shipping address structure
+      properties:
+        street:
+          type: string
+          description: Street address
+        city:
+          type: string
+          description: City
+        state:
+          type: string
+          description: State/Province
+        postal_code:
+          type: string
+          description: Postal/ZIP code
+        country:
+          type: string
+          description: Country
+      required:
+      - city
+      - country
+      - postal_code
+      - state
+      - street
+    ShippingAddressRequest:
+      type: object
+      description: Shipping address structure
+      properties:
+        street:
+          type: string
+          minLength: 1
+          description: Street address
+        city:
+          type: string
+          minLength: 1
+          description: City
+        state:
+          type: string
+          minLength: 1
+          description: State/Province
+        postal_code:
+          type: string
+          minLength: 1
+          description: Postal/ZIP code
+        country:
+          type: string
+          minLength: 1
+          description: Country
+      required:
+      - city
+      - country
+      - postal_code
+      - state
+      - street
+    StatusEnum:
+      enum:
+      - pending_payment
+      - payment_confirmed
+      - awaiting_shipment
+      - shipped
+      - delivered
+      - cancelled
+      - refunded
+      type: string
+      description: |-
+        * `pending_payment` - pending_payment
+        * `payment_confirmed` - payment_confirmed
+        * `awaiting_shipment` - awaiting_shipment
+        * `shipped` - shipped
+        * `delivered` - delivered
+        * `cancelled` - cancelled
+        * `refunded` - refunded
     TokenRefresh:
       type: object
       properties:

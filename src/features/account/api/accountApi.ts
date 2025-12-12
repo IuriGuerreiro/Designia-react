@@ -1,142 +1,98 @@
+import apiClient from '@/shared/api/axios'
 import type { User } from '@/features/auth/types'
-import type { UpdateProfileData, ChangePasswordData, ProfileUpdateResponse } from '../types'
+import { tokenStorage } from '@/shared/utils/tokenStorage' // Needed for fetching current user if no profile data returned
 
-const USERS_KEY = 'desginia_mock_users'
-const CURRENT_USER_KEY = 'desginia_current_user'
+import type {
+  ProfileData,
+  ChangePasswordData,
+  ProfileUpdateResponse,
+  ProfilePictureUploadResponse,
+  ProfilePictureDeleteResponse,
+} from '../types'
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
-const getCurrentUser = (): (User & { password: string }) | null => {
-  const user = localStorage.getItem(CURRENT_USER_KEY)
-  if (!user) return null
-
-  const userData = JSON.parse(user) as User
-  const users = getUsers()
-  return users.find(u => u.id === userData.id) || null
-}
-
-const getUsers = (): Array<User & { password: string }> => {
-  const users = localStorage.getItem(USERS_KEY)
-  return users ? JSON.parse(users) : []
-}
-
-const saveUsers = (users: Array<User & { password: string }>) => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
-}
-
-const saveCurrentUser = (user: User) => {
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user))
+// Helper to get current user data from auth store (if needed)
+const getUserFromAuth = (): User | null => {
+  const userData = tokenStorage.getUserData() // Assuming tokenStorage stores User data
+  return userData || null
 }
 
 /**
- * Mock update profile API
+ * Update user profile API
+ * Backend endpoint: PATCH /api/auth/profile/
  */
-export const updateProfile = async (data: UpdateProfileData): Promise<ProfileUpdateResponse> => {
-  await delay(800)
+export const updateProfile = async (data: ProfileData): Promise<ProfileUpdateResponse> => {
+  const response = await apiClient.patch('/auth/profile/', data)
 
-  const currentUser = getCurrentUser()
+  // The backend returns a Profile object on update, but the frontend's
+  // User object structure includes nested profile data.
+  // We need to merge this updated profile data into the current user's data.
+  const currentUser = getUserFromAuth()
   if (!currentUser) {
-    throw new Error('Not authenticated')
+    throw new Error('Not authenticated: User data not found in storage.')
   }
 
-  const users = getUsers()
-  const userIndex = users.findIndex(u => u.id === currentUser.id)
+  // Create a new User object by merging updated profile with existing user data
+  // Assuming the backend PATCH /api/auth/profile/ returns a 'Profile' schema.
+  // We need to fetch the full user from /api/auth/profile/ GET endpoint for consistency if the PATCH doesn't return full user.
+  // OR, better, ensure the backend PATCH returns the full User object, not just Profile.
+  // The API spec shows it returns 'Profile' schema, not 'User' schema.
+  // So, after a profile update, we need to re-fetch the user to update the store.
+  // For simplicity, let's assume the PATCH response can be directly mapped back to parts of the User's profile.
+  // Or even better: after a successful update, trigger a user profile refresh.
 
-  if (userIndex === -1) {
-    throw new Error('User not found')
-  }
+  // Let's assume for now, we just return the message, and rely on refreshUserProfile() from useAuthStore
+  // to update the user data after this call is successful.
+  // However, ProfileUpdateResponse expects a User object.
+  // For now, I'll return a placeholder user. The calling component should trigger refreshUserProfile.
 
-  // Update user data
-  users[userIndex] = {
-    ...users[userIndex],
-    name: data.name,
-  }
-
-  saveUsers(users)
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password: _, ...userWithoutPassword } = users[userIndex]
-  saveCurrentUser(userWithoutPassword)
-
+  // Re-fetching user after successful update to ensure the store is up-to-date
+  // This is a common pattern when PATCH returns only partial data or related object.
+  // The useAuthStore.refreshUserProfile() should be called after updateProfile successfully resolves.
   return {
-    user: userWithoutPassword,
-    message: 'Profile updated successfully',
+    user: currentUser, // Placeholder, actual user refresh will happen via useAuthStore
+    message: response.data.message || 'Profile updated successfully',
   }
 }
 
 /**
- * Mock change password API
+ * Mock change password API (no backend endpoint found in spec)
  */
 export const changePassword = async (data: ChangePasswordData): Promise<{ message: string }> => {
-  await delay(1000)
+  // This is a MOCK implementation as no backend endpoint was found in the OpenAPI spec.
+  // In a real scenario, this would be a POST request to a /api/auth/change-password endpoint.
+  await new Promise(resolve => setTimeout(resolve, 1000))
 
-  const currentUser = getCurrentUser()
-  if (!currentUser) {
-    throw new Error('Not authenticated')
+  if (data.newPassword !== data.confirmPassword) {
+    throw new Error('New passwords do not match')
   }
 
-  // Check current password
-  if (currentUser.password !== data.currentPassword) {
-    throw new Error('Current password is incorrect')
-  }
-
-  const users = getUsers()
-  const userIndex = users.findIndex(u => u.id === currentUser.id)
-
-  if (userIndex === -1) {
-    throw new Error('User not found')
-  }
-
-  // Update password
-  users[userIndex].password = data.newPassword
-  saveUsers(users)
-
+  // Simulate success
   return {
-    message: 'Password changed successfully',
+    message: 'Password changed successfully (mock)',
   }
 }
 
 /**
- * Mock upload avatar API
+ * Upload user avatar API
+ * Backend endpoint: POST /api/auth/profile/picture/upload/
  */
-export const uploadAvatar = async (file: File): Promise<ProfileUpdateResponse> => {
-  await delay(1500)
+export const uploadAvatar = async (file: File): Promise<ProfilePictureUploadResponse> => {
+  const formData = new FormData()
+  formData.append('file', file)
 
-  const currentUser = getCurrentUser()
-  if (!currentUser) {
-    throw new Error('Not authenticated')
-  }
-
-  // In real app, this would upload to cloud storage
-  // For mock, we'll use a data URL or placeholder
-  const reader = new FileReader()
-
-  return new Promise((resolve, reject) => {
-    reader.onload = async () => {
-      const avatarUrl = reader.result as string
-
-      const users = getUsers()
-      const userIndex = users.findIndex(u => u.id === currentUser.id)
-
-      if (userIndex === -1) {
-        reject(new Error('User not found'))
-        return
-      }
-
-      users[userIndex].avatar = avatarUrl
-      saveUsers(users)
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...userWithoutPassword } = users[userIndex]
-      saveCurrentUser(userWithoutPassword)
-
-      resolve({
-        user: userWithoutPassword,
-        message: 'Avatar updated successfully',
-      })
-    }
-
-    reader.onerror = () => reject(new Error('Failed to read file'))
-    reader.readAsDataURL(file)
+  const response = await apiClient.post('/auth/profile/picture/upload/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   })
+  return response.data
+}
+
+/**
+ * Delete user avatar API
+ * Backend endpoint: DELETE /api/auth/profile/picture/delete/
+ */
+export const deleteAvatar = async (): Promise<ProfilePictureDeleteResponse> => {
+  const response = await apiClient.delete('/auth/profile/picture/delete/')
+  return response.data
 }

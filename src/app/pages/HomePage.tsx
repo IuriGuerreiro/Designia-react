@@ -1,15 +1,6 @@
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { Card, CardContent, CardFooter } from '@/shared/components/ui/card'
-import { Badge } from '@/shared/components/ui/badge'
-
-// Mock product data
-const products = [
-  { id: 1, title: 'Premium Running Shoes', price: 129.99, rating: 5, reviews: 128 },
-  { id: 2, title: 'Wireless Headphones', price: 89.99, rating: 4, reviews: 64 },
-  { id: 3, title: 'Smart Watch Pro', price: 299.99, rating: 5, reviews: 203 },
-  { id: 4, title: 'Laptop Backpack', price: 49.99, rating: 4, reviews: 89 },
-]
+import { ProductList } from '@/features/products/components/ProductList'
 
 export function HomePage() {
   return (
@@ -25,8 +16,8 @@ export function HomePage() {
               Discover unique items from trusted sellers. Fast search, secure checkout, exceptional
               quality.
             </p>
-            <Button size="lg" className="h-12 px-8 text-base">
-              Shop Now
+            <Button size="lg" className="h-12 px-8 text-base" asChild>
+              <a href="/products">Browse All Products</a>
             </Button>
           </div>
         </div>
@@ -37,56 +28,8 @@ export function HomePage() {
         <div className="container mx-auto px-6" style={{ maxWidth: '1400px' }}>
           <h2 className="text-3xl font-bold text-foreground mb-8">Featured Products</h2>
 
-          {/* Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map(product => (
-              <Card
-                key={product.id}
-                className="group overflow-hidden transition-shadow hover:shadow-lg"
-              >
-                <CardContent className="p-0">
-                  {/* Product Image Placeholder */}
-                  <div className="aspect-square bg-muted relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                      <div className="text-muted-foreground/20 text-6xl font-bold">
-                        {product.id}
-                      </div>
-                    </div>
-                    {/* Verified Badge - Top Left */}
-                    <div className="absolute top-3 left-3">
-                      <Badge variant="secondary" className="bg-secondary/90 text-white">
-                        Verified
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="p-4 space-y-2">
-                    <h3 className="font-semibold text-base text-foreground line-clamp-2 min-h-[3rem]">
-                      {product.title}
-                    </h3>
-
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 text-sm">
-                      <div className="flex text-yellow-500">
-                        {'★'.repeat(product.rating)}
-                        {'☆'.repeat(5 - product.rating)}
-                      </div>
-                      <span className="text-muted-foreground">({product.reviews})</span>
-                    </div>
-
-                    {/* Price */}
-                    <p className="text-2xl font-bold text-primary">${product.price.toFixed(2)}</p>
-                  </div>
-                </CardContent>
-
-                {/* Add to Cart Button */}
-                <CardFooter className="p-4 pt-0">
-                  <Button className="w-full h-11">Add to Cart</Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          {/* Integrate ProductList */}
+          <ProductList />
         </div>
       </section>
 

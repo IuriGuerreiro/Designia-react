@@ -1,4 +1,4 @@
-import { LogOut, User as UserIcon, Settings, ShoppingBag } from 'lucide-react'
+import { LogOut, Settings, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar'
 import {

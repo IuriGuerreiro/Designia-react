@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { User, LoginCredentials, RegisterCredentials } from '../types'
+import type { User, LoginCredentials, RegisterCredentials, AuthResponse } from '../types'
 import * as authApi from '../api'
 import { tokenStorage } from '@/shared/utils/tokenStorage'
 
