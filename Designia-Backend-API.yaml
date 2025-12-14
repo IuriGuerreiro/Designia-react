@@ -2169,7 +2169,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ProductListResponse'
+                  $ref: '#/components/schemas/ProductListPaginatedResponse'
           description: Products retrieved successfully
         '500':
           content:
@@ -2180,9 +2180,17 @@ paths:
     post:
       operationId: products_create
       description: "\n        **What it receives:**\n        - Product data (name,\
-        \ description, price, category, stock, etc.)\n        - Product images (multipart/form-data)\n\
-        \        - Authentication token (must be a seller)\n\n        **What it returns:**\n\
-        \        - Created product with generated ID and slug\n        "
+        \ description, price, category, stock, etc.)\n        - Product images via\
+        \ multipart/form-data (any field name, e.g., 'uploaded_images', 'images',\
+        \ etc.)\n        - Optional `image_metadata` (JSON string) with format:\n\
+        \          ```json\n          {\n            \"filename.jpg\": {\n       \
+        \       \"alt_text\": \"Image description\",\n              \"is_primary\"\
+        : true,\n              \"order\": 0\n            }\n          }\n        \
+        \  ```\n        - Authentication token (must be a seller)\n\n        **What\
+        \ it returns:**\n        - Created product with generated ID and slug\n  \
+        \      - All uploaded images with their metadata (alt_text, is_primary, order)\n\
+        \n        **Example:**\n        Upload images with metadata to control display\
+        \ order and primary image selection.\n        "
       summary: Create a new product (Seller only)
       tags:
       - Marketplace - Products
@@ -2601,8 +2609,11 @@ paths:
       operationId: products_retrieve
       description: "\n        **What it receives:**\n        - `slug` (string in URL):\
         \ Product slug identifier\n\n        **What it returns:**\n        - Complete\
-        \ product details including images, reviews summary, seller info\n       \
-        \ - View count is automatically incremented\n        "
+        \ product details including:\n          - Full product information\n     \
+        \     - Array of images with proxy URLs\n          - Array of reviews with\
+        \ reviewer info\n          - Seller info (id, username, rating)\n        \
+        \  - Category info\n        - View count is automatically incremented\n  \
+        \      "
       summary: Get product details
       parameters:
       - in: path
@@ -2622,7 +2633,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProductDetail'
-          description: Product retrieved successfully
+          description: ''
         '404':
           content:
             application/json:
@@ -2842,19 +2853,14 @@ paths:
   /api/marketplace/products/categories/:
     get:
       operationId: marketplace_products_categories_list
-      description: ViewSet for categories - read-only operations
-      parameters:
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
+      description: Retrieve a list of all active product categories.
+      summary: List all categories
       tags:
       - marketplace
       security:
       - jwtAuth: []
       - Bearer: []
+      - {}
       responses:
         '200':
           content:
@@ -2867,7 +2873,8 @@ paths:
   /api/marketplace/products/categories/{slug}/:
     get:
       operationId: marketplace_products_categories_retrieve
-      description: ViewSet for categories - read-only operations
+      description: Retrieve details of a specific category by slug.
+      summary: Get category details
       parameters:
       - in: path
         name: slug
@@ -2879,6 +2886,7 @@ paths:
       security:
       - jwtAuth: []
       - Bearer: []
+      - {}
       responses:
         '200':
           content:
@@ -2976,19 +2984,101 @@ paths:
           description: Internal server error
   /api/marketplace/products/search/:
     get:
-      operationId: marketplace_products_search_retrieve
-      description: |-
-        ViewSet for search, filter, and autocomplete operations.
-        Delegates logic to SearchService.
+      operationId: products_search
+      description: Search for products with filters and pagination
+      summary: Search products
+      parameters:
+      - in: query
+        name: brand
+        schema:
+          type: string
+        description: Filter by brand
+      - in: query
+        name: category
+        schema:
+          type: array
+          items:
+            type: string
+        description: Filter by category (can be multiple)
+      - in: query
+        name: condition
+        schema:
+          type: array
+          items:
+            type: string
+        description: Filter by condition (can be multiple)
+      - in: query
+        name: in_stock
+        schema:
+          type: boolean
+        description: Only show in-stock products
+      - in: query
+        name: is_featured
+        schema:
+          type: boolean
+        description: Only show featured products
+      - in: query
+        name: min_rating
+        schema:
+          type: number
+          format: double
+        description: Minimum rating
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: 'Page number (default: 1)'
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+        description: 'Items per page (default: 20)'
+      - in: query
+        name: price_max
+        schema:
+          type: number
+          format: double
+        description: Maximum price
+      - in: query
+        name: price_min
+        schema:
+          type: number
+          format: double
+        description: Minimum price
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search query
+      - in: query
+        name: seller
+        schema:
+          type: string
+        description: Filter by seller ID
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: Sort by (relevance, price, newest, popular)
       tags:
-      - marketplace
+      - Marketplace - Search
       security:
       - jwtAuth: []
       - Bearer: []
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductSearchPaginatedResponse'
+          description: Search results
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
   /api/marketplace/profiles/:
     get:
       operationId: marketplace_profiles_list
@@ -3385,7 +3475,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ProductListResponse'
+                  $ref: '#/components/schemas/ProductListPaginatedResponse'
           description: Products retrieved successfully
         '500':
           content:
@@ -4352,6 +4442,36 @@ components:
           description: Google OAuth token from frontend
       required:
       - token
+    ImageDataRequest:
+      type: object
+      description: Serializer for base64-encoded image uploads with metadata
+      properties:
+        image_content:
+          type: string
+          minLength: 1
+          description: Base64-encoded image data (e.g., 'data:image/png;base64,iVBORw0KGgo...')
+        filename:
+          type: string
+          minLength: 1
+          description: Image filename
+          maxLength: 255
+        alt_text:
+          type: string
+          minLength: 1
+          default: ''
+          description: Alt text for the image
+          maxLength: 200
+        is_primary:
+          type: boolean
+          default: false
+          description: Whether this is the primary image
+        order:
+          type: integer
+          default: 0
+          description: Display order of the image
+      required:
+      - filename
+      - image_content
     ImageTypeEnum:
       enum:
       - workshop
@@ -4665,32 +4785,39 @@ components:
       description: |-
         * `text` - Text
         * `image` - Image
-    MinimalCategory:
+    MinimalProductReview:
       type: object
+      description: Minimal review info for product detail - no sensitive user data
       properties:
         id:
           type: integer
           readOnly: true
-        name:
-          type: string
-          maxLength: 100
-        slug:
-          type: string
+        reviewer:
+          allOf:
+          - $ref: '#/components/schemas/MinimalSeller'
           readOnly: true
-          pattern: ^[-a-zA-Z0-9_]+$
-      required:
-      - id
-      - name
-      - slug
-    MinimalCategoryRequest:
-      type: object
-      properties:
-        name:
+        rating:
+          type: integer
+          maximum: 5
+          minimum: 1
+        title:
           type: string
-          minLength: 1
-          maxLength: 100
+          maxLength: 200
+        comment:
+          type: string
+        is_verified_purchase:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
       required:
-      - name
+      - created_at
+      - id
+      - is_verified_purchase
+      - rating
+      - reviewer
     MinimalSeller:
       type: object
       properties:
@@ -4706,18 +4833,6 @@ components:
           maxLength: 150
       required:
       - id
-      - username
-    MinimalSellerRequest:
-      type: object
-      properties:
-        username:
-          type: string
-          minLength: 1
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
-          maxLength: 150
-      required:
       - username
     NullEnum:
       enum:
@@ -5066,10 +5181,14 @@ components:
           description: Materials used
         tags:
           type: string
-        is_featured:
-          type: boolean
         is_digital:
           type: boolean
+        image_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageDataRequest'
+          writeOnly: true
+          description: Array of base64-encoded images with metadata
     PatchedProfileRequest:
       type: object
       properties:
@@ -5414,16 +5533,21 @@ components:
           description: Materials used
         tags:
           type: string
-        is_featured:
-          type: boolean
         is_digital:
           type: boolean
+        image_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageDataRequest'
+          writeOnly: true
+          description: Array of base64-encoded images with metadata
       required:
       - description
       - name
       - price
     ProductDetail:
       type: object
+      description: Simplified product detail serializer with minimal nested data
       properties:
         id:
           type: string
@@ -5443,11 +5567,11 @@ components:
           maxLength: 300
         seller:
           allOf:
-          - $ref: '#/components/schemas/User'
+          - $ref: '#/components/schemas/ProductDetailSeller'
           readOnly: true
         category:
           allOf:
-          - $ref: '#/components/schemas/Category'
+          - $ref: '#/components/schemas/ProductDetailCategory'
           readOnly: true
         price:
           type: string
@@ -5502,8 +5626,6 @@ components:
           description: Materials used
         tags:
           description: Product tags
-        is_active:
-          type: boolean
         is_featured:
           type: boolean
         is_digital:
@@ -5511,15 +5633,14 @@ components:
         images:
           type: array
           items:
-            $ref: '#/components/schemas/ProductImage'
+            $ref: '#/components/schemas/ProductDetailImage'
           readOnly: true
         reviews:
-          type: string
+          type: array
+          items:
+            $ref: '#/components/schemas/MinimalProductReview'
           readOnly: true
         average_rating:
-          type: string
-          readOnly: true
-        review_count:
           type: string
           readOnly: true
         is_in_stock:
@@ -5534,19 +5655,8 @@ components:
         is_favorited:
           type: string
           readOnly: true
-        seller_product_count:
-          type: string
-          readOnly: true
         has_ar_model:
           type: string
-          readOnly: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
           readOnly: true
         view_count:
           type: integer
@@ -5561,7 +5671,6 @@ components:
       - average_rating
       - category
       - click_count
-      - created_at
       - description
       - discount_percentage
       - favorite_count
@@ -5573,13 +5682,77 @@ components:
       - is_on_sale
       - name
       - price
-      - review_count
       - reviews
       - seller
-      - seller_product_count
       - slug
-      - updated_at
       - view_count
+    ProductDetailCategory:
+      type: object
+      description: Minimal category info for product detail endpoint
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+      required:
+      - id
+      - name
+      - slug
+    ProductDetailImage:
+      type: object
+      description: Minimal image info for product detail endpoint
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          readOnly: true
+        alt_text:
+          type: string
+          maxLength: 200
+        is_primary:
+          type: boolean
+        order:
+          type: integer
+          maximum: 4294967295
+          minimum: 0
+          format: int64
+        url:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - image
+      - url
+    ProductDetailSeller:
+      type: object
+      description: Minimal seller info for product detail endpoint
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        seller_rating:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - seller_rating
+      - username
     ProductFavorite:
       type: object
       properties:
@@ -5604,9 +5777,6 @@ components:
         id:
           type: integer
           readOnly: true
-        image:
-          type: string
-          format: uri
         alt_text:
           type: string
           maxLength: 200
@@ -5655,9 +5825,6 @@ components:
     ProductImageRequest:
       type: object
       properties:
-        image:
-          type: string
-          format: binary
         alt_text:
           type: string
           maxLength: 200
@@ -5670,7 +5837,8 @@ components:
           format: int64
     ProductList:
       type: object
-      description: Minimal product serializer for lists with query optimization
+      description: Minimal product serializer for list/search - just the essentials
+        for product cards
       properties:
         id:
           type: string
@@ -5686,14 +5854,6 @@ components:
         short_description:
           type: string
           maxLength: 300
-        seller:
-          allOf:
-          - $ref: '#/components/schemas/MinimalSeller'
-          readOnly: true
-        category:
-          allOf:
-          - $ref: '#/components/schemas/MinimalCategory'
-          readOnly: true
         price:
           type: string
           format: decimal
@@ -5716,12 +5876,6 @@ components:
         primary_image:
           type: string
           readOnly: true
-        is_featured:
-          type: boolean
-        is_digital:
-          type: boolean
-        is_active:
-          type: boolean
         average_rating:
           type: string
           readOnly: true
@@ -5740,22 +5894,9 @@ components:
         is_favorited:
           type: string
           readOnly: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        view_count:
-          type: integer
-          readOnly: true
-        favorite_count:
-          type: integer
-          readOnly: true
       required:
       - average_rating
-      - category
-      - created_at
       - discount_percentage
-      - favorite_count
       - id
       - is_favorited
       - is_in_stock
@@ -5764,12 +5905,38 @@ components:
       - price
       - primary_image
       - review_count
-      - seller
       - slug
-      - view_count
+    ProductListPaginatedResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+        num_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductList'
+      required:
+      - count
+      - has_next
+      - has_previous
+      - num_pages
+      - page
+      - page_size
+      - results
     ProductListRequest:
       type: object
-      description: Minimal product serializer for lists with query optimization
+      description: Minimal product serializer for list/search - just the essentials
+        for product cards
       properties:
         name:
           type: string
@@ -5797,51 +5964,9 @@ components:
         brand:
           type: string
           maxLength: 100
-        is_featured:
-          type: boolean
-        is_digital:
-          type: boolean
-        is_active:
-          type: boolean
       required:
       - name
       - price
-    ProductListResponse:
-      type: object
-      description: Paginated product list response
-      properties:
-        count:
-          type: integer
-          description: Total number of products
-        page:
-          type: integer
-          description: Current page number
-        page_size:
-          type: integer
-          description: Items per page
-        num_pages:
-          type: integer
-          description: Total number of pages
-        has_next:
-          type: boolean
-          description: Whether there is a next page
-        has_previous:
-          type: boolean
-          description: Whether there is a previous page
-        results:
-          type: array
-          items:
-            type: object
-            additionalProperties: {}
-          description: List of products (see ProductListSerializer schema)
-      required:
-      - count
-      - has_next
-      - has_previous
-      - num_pages
-      - page
-      - page_size
-      - results
     ProductMetrics:
       type: object
       properties:
@@ -5889,6 +6014,33 @@ components:
       - total_sales
       - total_views
       - view_to_click_rate
+    ProductSearchPaginatedResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+        num_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductList'
+      required:
+      - count
+      - has_next
+      - has_previous
+      - num_pages
+      - page
+      - page_size
+      - results
     Profile:
       type: object
       properties:

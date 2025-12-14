@@ -27,15 +27,25 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters }: Filt
     filters.price_max || 10000,
   ])
 
+  // Helper to ensure array
+  const toArray = (val: string | string[] | undefined): string[] => {
+    if (Array.isArray(val)) return val
+    if (val) return [val]
+    return []
+  }
+
   // Local state for optimistic updates
-  const [localCategory, setLocalCategory] = useState<string | undefined>(filters.category)
-  const [localCondition, setLocalCondition] = useState<string | undefined>(filters.condition)
+  const [localCategories, setLocalCategories] = useState<string[]>(toArray(filters.category))
+  const [localConditions, setLocalConditions] = useState<string[]>(toArray(filters.condition))
+  const [showAllCategories, setShowAllCategories] = useState(false)
 
   // Fetch categories from API
   const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
   })
+
+  const displayedCategories = showAllCategories ? categories : categories.slice(0, 3)
 
   // Sync local state with filter changes from URL
   useEffect(() => {
@@ -46,16 +56,19 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters }: Filt
   }, [filters.price_min, filters.price_max]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (filters.category !== localCategory) {
+    // Check if arrays are different
+    const newCats = toArray(filters.category)
+    if (JSON.stringify(newCats.sort()) !== JSON.stringify(localCategories.sort())) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLocalCategory(filters.category)
+      setLocalCategories(newCats)
     }
   }, [filters.category]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (filters.condition !== localCondition) {
+    const newConds = toArray(filters.condition)
+    if (JSON.stringify(newConds.sort()) !== JSON.stringify(localConditions.sort())) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLocalCondition(filters.condition)
+      setLocalConditions(newConds)
     }
   }, [filters.condition]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -80,22 +93,26 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters }: Filt
   }
 
   const handleCategoryChange = (categorySlug: string) => {
-    const newVal = localCategory === categorySlug ? undefined : categorySlug
-    setLocalCategory(newVal)
+    const newCategories = localCategories.includes(categorySlug)
+      ? localCategories.filter(c => c !== categorySlug)
+      : [...localCategories, categorySlug]
+
+    setLocalCategories(newCategories)
     onFiltersChange({
       ...filters,
-      category: newVal,
+      category: newCategories.length > 0 ? newCategories : undefined,
     })
   }
 
   const handleConditionChange = (condition: string) => {
-    // Cast strict condition type
-    const newVal =
-      localCondition === condition ? undefined : (condition as GetProductsParams['condition'])
-    setLocalCondition(newVal)
+    const newConditions = localConditions.includes(condition)
+      ? localConditions.filter(c => c !== condition)
+      : [...localConditions, condition]
+
+    setLocalConditions(newConditions)
     onFiltersChange({
       ...filters,
-      condition: newVal,
+      condition: newConditions.length > 0 ? newConditions : undefined,
     })
   }
 
@@ -171,21 +188,38 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters }: Filt
               ) : categories.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No categories available</p>
               ) : (
-                categories.map(category => (
-                  <div key={category.slug} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`category-${category.slug}`}
-                      checked={localCategory === category.slug}
-                      onCheckedChange={() => handleCategoryChange(category.slug)}
-                    />
-                    <Label
-                      htmlFor={`category-${category.slug}`}
-                      className="cursor-pointer text-sm font-normal"
+                <>
+                  {displayedCategories.map(category => (
+                    <div key={category.slug} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`category-${category.slug}`}
+                        checked={localCategories.includes(category.slug)}
+                        onCheckedChange={() => handleCategoryChange(category.slug)}
+                      />
+                      <Label
+                        htmlFor={`category-${category.slug}`}
+                        className="cursor-pointer text-sm font-normal"
+                      >
+                        {category.name}
+                        {category.product_count !== undefined && (
+                          <span className="ml-1 text-xs text-muted-foreground">
+                            ({category.product_count})
+                          </span>
+                        )}
+                      </Label>
+                    </div>
+                  ))}
+                  {categories.length > 3 && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="p-0 h-auto mt-2 text-muted-foreground"
+                      onClick={() => setShowAllCategories(!showAllCategories)}
                     >
-                      {category.name}
-                    </Label>
-                  </div>
-                ))
+                      {showAllCategories ? 'Show Less' : `Show ${categories.length - 3} More`}
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           </AccordionContent>
@@ -205,7 +239,7 @@ export function FilterSidebar({ filters, onFiltersChange, onClearFilters }: Filt
                 <div key={value} className="flex items-center space-x-2">
                   <Checkbox
                     id={`condition-${value}`}
-                    checked={localCondition === value}
+                    checked={localConditions.includes(value)}
                     onCheckedChange={() => handleConditionChange(value)}
                   />
                   <Label

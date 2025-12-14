@@ -10,6 +10,7 @@ import { Toaster } from '@/shared/components/ui/sonner'
 import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
 import { HomePage } from './pages/HomePage'
 import { ProductBrowsePage } from './pages/ProductBrowsePage'
+import { ProductDetailPage } from '@/features/products/pages/ProductDetailPage'
 import { SettingsPage } from '@/features/account/pages/SettingsPage'
 import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage'
 
@@ -80,6 +81,8 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/products" element={<ProductBrowsePage />} />
+        <Route path="/products/:slug" element={<ProductDetailPage />} />
+        <Route path="/product/:slug" element={<ProductDetailPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
       </Routes>

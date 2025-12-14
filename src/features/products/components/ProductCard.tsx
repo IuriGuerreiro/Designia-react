@@ -3,10 +3,10 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/c
 import { Button } from '@/shared/components/ui/button'
 import { Star } from 'lucide-react'
 import { toast } from 'sonner'
-import type { Product } from '../types'
+import type { ProductList } from '../types'
 
 interface ProductCardProps {
-  product: Product
+  product: ProductList
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -19,7 +19,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Card className="flex flex-col h-full overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-      <Link to={`/products/${product.slug}`} className="block relative h-48 overflow-hidden">
+      <Link to={`/product/${product.slug}`} className="block relative h-48 overflow-hidden">
         <img
           src={product.primary_image}
           alt={product.name}
@@ -28,7 +28,7 @@ export function ProductCard({ product }: ProductCardProps) {
         />
       </Link>
       <CardHeader className="p-4 pb-2 flex-grow">
-        <Link to={`/products/${product.slug}`}>
+        <Link to={`/product/${product.slug}`}>
           <CardTitle className="text-lg font-semibold line-clamp-2 leading-tight hover:text-primary transition-colors duration-200">
             {product.name}
           </CardTitle>

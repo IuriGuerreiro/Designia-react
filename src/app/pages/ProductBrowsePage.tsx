@@ -23,7 +23,7 @@ import { NoResults } from '@/features/products/components/filters/NoResults'
 import { ProductCard } from '@/features/products/components/ProductCard'
 import { ProductCardSkeleton } from '@/features/products/components/ProductCardSkeleton'
 import { searchProducts } from '@/features/products/api/productsApi'
-import type { GetProductsParams } from '@/features/products/types'
+import type { SearchProductsParams } from '@/features/products/types'
 import { Loader2 } from 'lucide-react'
 import { useInView } from 'react-intersection-observer'
 
@@ -32,30 +32,46 @@ export function ProductBrowsePage() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   // Parse filters from URL
-  const filters: GetProductsParams = useMemo(
-    () => ({
+
+  const filters: SearchProductsParams = useMemo(() => {
+    const categoryParams = searchParams.getAll('category')
+
+    const conditionParams = searchParams.getAll('condition')
+
+    return {
       q: searchParams.get('q') || undefined,
-      category: searchParams.get('category') || undefined,
+
+      category: categoryParams.length > 0 ? categoryParams : undefined,
+
       price_min: searchParams.get('price_min') ? Number(searchParams.get('price_min')) : undefined,
+
       price_max: searchParams.get('price_max') ? Number(searchParams.get('price_max')) : undefined,
-      condition: (searchParams.get('condition') as GetProductsParams['condition']) || undefined,
+
+      condition: conditionParams.length > 0 ? conditionParams : undefined,
+
       min_rating: searchParams.get('min_rating')
         ? Number(searchParams.get('min_rating'))
         : undefined,
+
       in_stock: searchParams.get('in_stock') === 'true' || undefined,
-      sort: (searchParams.get('sort') as GetProductsParams['sort']) || 'relevance',
-    }),
-    [searchParams]
-  )
+
+      ordering: (searchParams.get('ordering') as string) || '-created_at', // Default to newest
+    }
+  }, [searchParams])
 
   // Update URL when filters change
+
   const updateFilters = useCallback(
-    (newFilters: GetProductsParams) => {
+    (newFilters: SearchProductsParams) => {
       const params = new URLSearchParams()
 
       Object.entries(newFilters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
-          params.set(key, String(value))
+          if (Array.isArray(value)) {
+            value.forEach(v => params.append(key, String(v)))
+          } else {
+            params.set(key, String(value))
+          }
         }
       })
 
@@ -65,7 +81,7 @@ export function ProductBrowsePage() {
   )
 
   const handleFiltersChange = useCallback(
-    (newFilters: GetProductsParams) => {
+    (newFilters: SearchProductsParams) => {
       updateFilters({ ...newFilters, page: 1 })
     },
     [updateFilters]
@@ -77,7 +93,7 @@ export function ProductBrowsePage() {
 
   const handleSortChange = useCallback(
     (sort: string) => {
-      updateFilters({ ...filters, sort: sort as GetProductsParams['sort'] })
+      updateFilters({ ...filters, ordering: sort })
     },
     [filters, updateFilters]
   )
@@ -88,8 +104,8 @@ export function ProductBrowsePage() {
       queryKey: ['search-products', filters],
       queryFn: ({ pageParam = 1 }) =>
         searchProducts({ ...filters, page: pageParam, page_size: 12 }),
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.next ? allPages.length + 1 : undefined
+      getNextPageParam: lastPage => {
+        return lastPage.has_next ? lastPage.page + 1 : undefined
       },
       initialPageParam: 1,
     })
@@ -152,17 +168,17 @@ export function ProductBrowsePage() {
 
             <div className="flex items-center gap-2">
               {/* Sort Dropdown */}
-              <Select value={filters.sort || 'relevance'} onValueChange={handleSortChange}>
+              <Select value={filters.ordering || '-created_at'} onValueChange={handleSortChange}>
                 <SelectTrigger className="w-[180px]">
                   <SortAsc className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="relevance">Relevance</SelectItem>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="price_asc">Price: Low to High</SelectItem>
-                  <SelectItem value="price_desc">Price: High to Low</SelectItem>
-                  <SelectItem value="rating">Top Rated</SelectItem>
+                  <SelectItem value="-created_at">Newest First</SelectItem>
+                  <SelectItem value="price">Price: Low to High</SelectItem>
+                  <SelectItem value="-price">Price: High to Low</SelectItem>
+                  <SelectItem value="-average_rating">Top Rated</SelectItem>
                 </SelectContent>
               </Select>
 

@@ -1,12 +1,33 @@
 import apiClient from '@/shared/api/axios'
-import type { PaginatedProducts, GetProductsParams, AutocompleteResult, Category } from '../types'
+import type {
+  ProductListResponse,
+  GetProductsParams,
+  SearchProductsParams,
+  AutocompleteResult,
+  Category,
+  ProductDetail,
+} from '../types'
 
 /**
  * Fetch a paginated list of products from the API.
  * Backend endpoint: GET /api/marketplace/products/
  */
-export const getProducts = async (params?: GetProductsParams): Promise<PaginatedProducts> => {
-  const response = await apiClient.get('/marketplace/products/', { params })
+export const getProducts = async (params?: GetProductsParams): Promise<ProductListResponse> => {
+  const response = await apiClient.get('/marketplace/products/', {
+    params,
+    paramsSerializer: params => {
+      const searchParams = new URLSearchParams()
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null) return
+        if (Array.isArray(value)) {
+          value.forEach(v => searchParams.append(key, String(v)))
+        } else {
+          searchParams.append(key, String(value))
+        }
+      })
+      return searchParams.toString()
+    },
+  })
   return response.data
 }
 
@@ -15,9 +36,23 @@ export const getProducts = async (params?: GetProductsParams): Promise<Paginated
  * Backend endpoint: GET /api/marketplace/products/search/
  */
 export const searchProducts = async (
-  params: GetProductsParams & { q?: string }
-): Promise<PaginatedProducts> => {
-  const response = await apiClient.get('/marketplace/products/search/', { params })
+  params: SearchProductsParams
+): Promise<ProductListResponse> => {
+  const response = await apiClient.get('/marketplace/products/search/', {
+    params,
+    paramsSerializer: params => {
+      const searchParams = new URLSearchParams()
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null) return
+        if (Array.isArray(value)) {
+          value.forEach(v => searchParams.append(key, String(v)))
+        } else {
+          searchParams.append(key, String(value))
+        }
+      })
+      return searchParams.toString()
+    },
+  })
   return response.data
 }
 
@@ -41,5 +76,14 @@ export const getAutocomplete = async (
  */
 export const getCategories = async (): Promise<Category[]> => {
   const response = await apiClient.get('/marketplace/products/categories/')
+  return response.data
+}
+
+/**
+ * Fetch product details by Slug
+ * Backend endpoint: GET /api/marketplace/products/:slug/
+ */
+export const getProductBySlug = async (slug: string): Promise<ProductDetail> => {
+  const response = await apiClient.get(`/marketplace/products/${slug}/`)
   return response.data
 }
