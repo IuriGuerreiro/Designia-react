@@ -21,7 +21,7 @@ export function ProductList({ params = {}, title, description }: ProductListProp
       queryFn: ({ pageParam = 1 }) => getProducts({ ...params, page: pageParam, page_size: 12 }),
       getNextPageParam: (lastPage, allPages) => {
         const currentPage = (params.page || 1) + allPages.length - 1
-        return lastPage.next ? currentPage + 1 : undefined
+        return lastPage.has_next ? currentPage + 1 : undefined
       },
       initialPageParam: 1,
     })

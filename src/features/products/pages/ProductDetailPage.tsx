@@ -1,12 +1,12 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ShoppingCart, Heart, Share2, ChevronRight, Home } from 'lucide-react'
-import { toast } from 'sonner'
 
 import { getProductBySlug } from '../api/productsApi'
 import { ImageGallery } from '../components/detail/ImageGallery'
 import { ReviewList } from '../components/detail/ReviewList'
 import { SellerInfo } from '../components/detail/SellerInfo'
+import { useCartStore } from '@/features/cart/stores/cartStore'
 
 import { Button } from '@/shared/components/ui/button'
 import { Separator } from '@/shared/components/ui/separator'
@@ -15,6 +15,7 @@ import { Skeleton } from '@/shared/components/ui/skeleton'
 
 export function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>()
+  const addItem = useCartStore(state => state.addItem)
 
   const {
     data: product,
@@ -42,14 +43,21 @@ export function ProductDetailPage() {
   }
 
   const handleAddToCart = () => {
-    // Logic for adding to cart would go here
-    // const quantity = 1
-    toast.success(`Added ${product.name} to cart`)
+    const primaryImage =
+      product.images.find(img => img.is_primary)?.url || product.images[0]?.url || ''
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: primaryImage,
+      maxStock: product.stock_quantity,
+      quantity: 1,
+    })
   }
 
   // Handle potential string boolean from API
-  const isInStock =
-    String(product.is_in_stock).toLowerCase() === 'true' || product.is_in_stock === true
+
+  const isInStock = String(product.is_in_stock).toLowerCase() === 'true'
 
   return (
     <div className="min-h-screen bg-background pb-24">

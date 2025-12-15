@@ -171,7 +171,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const cachedUser = tokenStorage.getUserData()
       if (cachedUser) {
         set({
-          user: cachedUser,
+          user: cachedUser as User,
           isAuthenticated: true,
           isLoading: false,
           error: null,

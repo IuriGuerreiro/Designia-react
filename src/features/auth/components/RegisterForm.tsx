@@ -60,7 +60,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       setSuccessMessage(null)
       clearError()
     }
-  }, [])
+  }, [clearError])
 
   const onSubmit = async (values: RegisterFormValues) => {
     setServerError(null)
@@ -104,16 +104,10 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
 
   return (
     <div className="space-y-6">
-      {successMessage && (
-        <AlertWithIcon variant="success">
-          {successMessage}
-        </AlertWithIcon>
-      )}
+      {successMessage && <AlertWithIcon variant="success">{successMessage}</AlertWithIcon>}
 
       {(serverError || error) && (
-        <AlertWithIcon variant="destructive">
-          {serverError || error}
-        </AlertWithIcon>
+        <AlertWithIcon variant="destructive">{serverError || error}</AlertWithIcon>
       )}
 
       <Form {...form}>

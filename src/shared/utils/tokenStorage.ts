@@ -71,14 +71,14 @@ export const tokenStorage = {
   /**
    * Save user data
    */
-  setUserData(user: any): void {
+  setUserData(user: unknown): void {
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(user))
   },
 
   /**
    * Get cached user data
    */
-  getUserData(): any | null {
+  getUserData(): unknown | null {
     const data = localStorage.getItem(USER_DATA_KEY)
     if (!data) return null
     try {

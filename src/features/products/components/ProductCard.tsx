@@ -2,20 +2,34 @@ import { Link } from 'react-router-dom'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Button } from '@/shared/components/ui/button'
 import { Star } from 'lucide-react'
-import { toast } from 'sonner'
 import type { ProductList } from '../types'
+import { useCartStore } from '@/features/cart/stores/cartStore'
 
 interface ProductCardProps {
   product: ProductList
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const addItem = useCartStore(state => state.addItem)
+
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   }).format(parseFloat(product.price))
 
   const displayRating = parseFloat(product.average_rating).toFixed(1)
+  const isInStock = String(product.is_in_stock).toLowerCase() === 'true'
+
+  const handleAddToCart = () => {
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.primary_image,
+      quantity: 1,
+      maxStock: product.stock_quantity,
+    })
+  }
 
   return (
     <Card className="flex flex-col h-full overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -44,12 +58,8 @@ export function ProductCard({ product }: ProductCardProps) {
         <p className="text-xl font-bold text-primary">{formattedPrice}</p>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button
-          className="w-full"
-          size="sm"
-          onClick={() => toast.success(`Added ${product.name} to cart`)}
-        >
-          Add to Cart
+        <Button className="w-full" size="sm" onClick={handleAddToCart} disabled={!isInStock}>
+          {isInStock ? 'Add to Cart' : 'Out of Stock'}
         </Button>
       </CardFooter>
     </Card>

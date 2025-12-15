@@ -63,6 +63,7 @@ export interface GetProductsParams {
   price_max?: number
   brand?: string
   condition?: string | string[]
+  min_rating?: number
   in_stock?: boolean
   seller?: number
   ordering?: string
@@ -140,6 +141,7 @@ export interface ProductDetail {
   images: ProductDetailImage[]
   reviews: MinimalProductReview[]
   average_rating: string
+  review_count: string
   is_in_stock: string
   is_on_sale: string
   discount_percentage: string

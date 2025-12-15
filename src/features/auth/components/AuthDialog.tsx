@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -13,18 +13,12 @@ import { useAuthStore } from '../hooks/useAuthStore'
 interface AuthDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  defaultView?: 'login' | 'register'
+  view: 'login' | 'register'
+  onViewChange: (view: 'login' | 'register') => void
 }
 
-export function AuthDialog({ open, onOpenChange, defaultView = 'login' }: AuthDialogProps) {
-  const [view, setView] = useState<'login' | 'register'>(defaultView)
+export function AuthDialog({ open, onOpenChange, view, onViewChange }: AuthDialogProps) {
   const { clearError } = useAuthStore()
-
-  // Update view when defaultView prop changes
-  useEffect(() => {
-    setView(defaultView)
-    clearError()
-  }, [defaultView, clearError])
 
   // Clear errors when dialog closes
   useEffect(() => {
@@ -36,18 +30,16 @@ export function AuthDialog({ open, onOpenChange, defaultView = 'login' }: AuthDi
   const handleSuccess = () => {
     onOpenChange(false)
     clearError()
-    // Reset to login view for next time
-    setTimeout(() => setView('login'), 300)
   }
 
   const handleSwitchToRegister = () => {
     clearError()
-    setView('register')
+    onViewChange('register')
   }
 
   const handleSwitchToLogin = () => {
     clearError()
-    setView('login')
+    onViewChange('login')
   }
 
   const title = view === 'login' ? 'Welcome Back' : 'Create Account'

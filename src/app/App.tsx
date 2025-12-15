@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import { ShoppingCart } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { AuthDialog } from '@/features/auth/components/AuthDialog'
 import { UserMenu } from '@/features/auth/components/UserMenu'
 import { HeaderSearchBar } from '@/features/products/components/filters/HeaderSearchBar'
+import { CartIndicator } from '@/features/cart/components/CartIndicator'
+import { CartDrawer } from '@/features/cart/components/CartDrawer'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/shared/components/ui/sonner'
 import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
@@ -13,6 +14,8 @@ import { ProductBrowsePage } from './pages/ProductBrowsePage'
 import { ProductDetailPage } from '@/features/products/pages/ProductDetailPage'
 import { SettingsPage } from '@/features/account/pages/SettingsPage'
 import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage'
+import { CheckoutPage } from '@/features/checkout/pages/CheckoutPage'
+import { OrderConfirmationPage } from '@/features/checkout/pages/OrderConfirmationPage'
 
 // Create a client
 const queryClient = new QueryClient()
@@ -57,10 +60,7 @@ function AppContent() {
 
           {/* Auth & Cart */}
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="gap-2">
-              <ShoppingCart className="h-5 w-5" />
-              <span>Cart (0)</span>
-            </Button>
+            <CartIndicator />
 
             {isAuthenticated ? (
               <UserMenu />
@@ -76,13 +76,21 @@ function AppContent() {
         </div>
       </header>
 
-      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} defaultView={authView} />
+      <AuthDialog
+        open={authDialogOpen}
+        onOpenChange={setAuthDialogOpen}
+        view={authView}
+        onViewChange={setAuthView}
+      />
+      <CartDrawer />
 
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/products" element={<ProductBrowsePage />} />
         <Route path="/products/:slug" element={<ProductDetailPage />} />
         <Route path="/product/:slug" element={<ProductDetailPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout/confirmation" element={<OrderConfirmationPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
       </Routes>

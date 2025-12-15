@@ -1,0 +1,82 @@
+import { useEffect } from 'react'
+import { ShoppingCart } from 'lucide-react'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetDescription,
+} from '@/shared/components/ui/sheet'
+import { Button } from '@/shared/components/ui/button'
+import { Separator } from '@/shared/components/ui/separator'
+import { ScrollArea } from '@/shared/components/ui/scroll-area'
+import { useCartStore, useCartSubtotal, useCartCount } from '../stores/cartStore'
+import { CartItem } from './CartItem'
+import { Link } from 'react-router-dom'
+
+export function CartDrawer() {
+  const { isOpen, setIsOpen, items, fetchCart } = useCartStore()
+  const subtotal = useCartSubtotal()
+  const itemCount = useCartCount()
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchCart()
+    }
+  }, [isOpen, fetchCart])
+
+  return (
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetContent className="flex w-full flex-col sm:max-w-lg">
+        <SheetHeader>
+          <SheetTitle>Shopping Cart ({itemCount})</SheetTitle>
+          <SheetDescription className="hidden">Review your items</SheetDescription>
+        </SheetHeader>
+
+        {items.length > 0 ? (
+          <>
+            <ScrollArea className="flex-1 -mx-6 px-6">
+              <div className="divide-y">
+                {items.map(item => (
+                  <CartItem key={item.productId} item={item} />
+                ))}
+              </div>
+            </ScrollArea>
+
+            <div className="space-y-4 pt-6">
+              <Separator />
+              <div className="space-y-1.5">
+                <div className="flex text-base justify-between">
+                  <span className="font-medium">Subtotal</span>
+                  <span className="font-bold">${subtotal.toFixed(2)}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Shipping and taxes calculated at checkout.
+                </p>
+              </div>
+              <SheetFooter>
+                <Button className="w-full h-12 text-lg" onClick={() => setIsOpen(false)} asChild>
+                  <Link to="/checkout">Checkout</Link>
+                </Button>
+              </SheetFooter>
+            </div>
+          </>
+        ) : (
+          <div className="flex h-full flex-col items-center justify-center space-y-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="text-xl font-semibold">Your cart is empty</h3>
+              <p className="text-muted-foreground">Looks like you haven't added anything yet.</p>
+            </div>
+            <Button variant="outline" onClick={() => setIsOpen(false)} asChild>
+              <Link to="/products">Start Shopping</Link>
+            </Button>
+          </div>
+        )}
+      </SheetContent>
+    </Sheet>
+  )
+}

@@ -13,7 +13,7 @@ import type {
 // Helper to get current user data from auth store (if needed)
 const getUserFromAuth = (): User | null => {
   const userData = tokenStorage.getUserData() // Assuming tokenStorage stores User data
-  return userData || null
+  return (userData as User) || null
 }
 
 /**
