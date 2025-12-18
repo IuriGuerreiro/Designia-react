@@ -1,4 +1,4 @@
-import { LogOut, Settings, ShoppingBag } from 'lucide-react'
+import { LogOut, Settings, ShoppingBag, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar'
 import {
@@ -56,14 +56,23 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <ShoppingBag className="mr-2 h-4 w-4" />
-          <span>Orders</span>
+        <DropdownMenuItem asChild>
+          <Link to="/orders" className="cursor-pointer">
+            <ShoppingBag className="mr-2 h-4 w-4" />
+            <span>Orders</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/settings" className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/seller/onboarding" className="cursor-pointer font-semibold text-primary">
+            <ShieldCheck className="mr-2 h-4 w-4" />
+            <span>Become a Seller</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

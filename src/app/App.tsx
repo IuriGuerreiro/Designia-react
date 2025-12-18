@@ -16,6 +16,10 @@ import { SettingsPage } from '@/features/account/pages/SettingsPage'
 import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage'
 import { CheckoutPage } from '@/features/checkout/pages/CheckoutPage'
 import { OrderConfirmationPage } from '@/features/checkout/pages/OrderConfirmationPage'
+import { OrderHistoryPage } from '@/features/orders/pages/OrderHistoryPage'
+import { OrderDetailPage } from '@/features/orders/pages/OrderDetailPage'
+import { SellerOnboardingPage } from '@/features/seller/pages/SellerOnboardingPage'
+import { SellerOnboardingReturn } from '@/features/seller/components/onboarding/SellerOnboardingReturn'
 
 // Create a client
 const queryClient = new QueryClient()
@@ -90,7 +94,11 @@ function AppContent() {
         <Route path="/products/:slug" element={<ProductDetailPage />} />
         <Route path="/product/:slug" element={<ProductDetailPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/checkout/confirmation" element={<OrderConfirmationPage />} />
+        <Route path="/checkout/confirmation/:orderId" element={<OrderConfirmationPage />} />
+        <Route path="/orders" element={<OrderHistoryPage />} />
+        <Route path="/orders/:id" element={<OrderDetailPage />} />
+        <Route path="/seller/onboarding" element={<SellerOnboardingPage />} />
+        <Route path="/seller/onboarding/return" element={<SellerOnboardingReturn />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
       </Routes>

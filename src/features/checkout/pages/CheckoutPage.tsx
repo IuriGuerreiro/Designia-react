@@ -1,27 +1,54 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ChevronRight, Home, Loader2 } from 'lucide-react'
-import { Elements } from '@stripe/react-stripe-js'
-import { ShippingForm } from '../components/ShippingForm'
-import { OrderSummary } from '../components/OrderSummary'
-import { PaymentForm } from '../components/PaymentForm'
-import { useCartStore, useCartSubtotal } from '@/features/cart/stores/cartStore'
+import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js'
+import { useCartStore } from '@/features/cart/stores/cartStore'
 import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
 import { stripePromise } from '@/shared/lib/stripe'
-import { createPaymentIntent } from '../api/checkoutApi'
-import type { ShippingAddress } from '../types'
+import { createCheckoutSession } from '../api/checkoutApi'
 import { Button } from '@/shared/components/ui/button'
 
 export function CheckoutPage() {
   const { items } = useCartStore()
-  const subtotal = useCartSubtotal()
   const { isAuthenticated } = useAuthStore()
-  const navigate = useNavigate()
 
-  const [step, setStep] = useState<'shipping' | 'payment'>('shipping')
-  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null)
   const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [isLoadingPayment, setIsLoadingPayment] = useState(false)
+  const [isLoadingPayment, setIsLoadingPayment] = useState(true) // Set to true to start loading immediately
+
+  useEffect(() => {
+    // If cart is empty, we don't need to fetch secret, but we let the hook run.
+    if (items.length === 0) {
+      setIsLoadingPayment(false)
+      return
+    }
+
+    const fetchClientSecret = async () => {
+      setIsLoadingPayment(true)
+      try {
+        // Create Checkout Session
+        const response = await createCheckoutSession()
+        console.log('Checkout Session Response:', response)
+
+        // Cast to any to safely check for snake_case fallback without TS errors
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const responseAny = response as any
+        const secret = responseAny.clientSecret || responseAny.client_secret
+
+        if (secret) {
+          setClientSecret(secret)
+        } else {
+          throw new Error(`No client secret returned. Response: ${JSON.stringify(response)}`)
+        }
+      } catch (error) {
+        console.error('Failed to init payment:', error)
+        // alert('Payment initialization failed.')
+      } finally {
+        setIsLoadingPayment(false)
+      }
+    }
+
+    fetchClientSecret()
+  }, [items.length]) // Add items.length as dependency to re-evaluate if cart changes
 
   // Redirect if cart is empty
   if (items.length === 0) {
@@ -33,38 +60,6 @@ export function CheckoutPage() {
         </Button>
       </div>
     )
-  }
-
-  const handleShippingSubmit = async (data: ShippingAddress) => {
-    setShippingAddress(data)
-    setStep('payment')
-    setIsLoadingPayment(true)
-
-    try {
-      // Calculate total (mock tax/shipping logic from OrderSummary should be centralized ideally)
-      const taxRate = 0.08
-      const shippingCost = 0
-      const total = subtotal + shippingCost + subtotal * taxRate
-
-      // Amount in cents
-      const amountInCents = Math.round(total * 100)
-
-      // Fetch client secret from backend
-      const { clientSecret } = await createPaymentIntent(amountInCents)
-      setClientSecret(clientSecret)
-    } catch (error) {
-      console.error('Failed to init payment:', error)
-      // For Demo/Dev purposes without a real backend payment intent endpoint:
-      // We might mock it or show error.
-      // If VITE_STRIPE_PUBLISHABLE_KEY is valid but no backend intent, Elements won't load.
-      // alert('Backend payment intent creation failed. Check console.')
-    } finally {
-      setIsLoadingPayment(false)
-    }
-  }
-
-  const handlePaymentSuccess = () => {
-    navigate('/checkout/confirmation')
   }
 
   return (
@@ -99,76 +94,34 @@ export function CheckoutPage() {
 
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Main Content (Left) */}
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-12 space-y-8">
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold ${step === 'shipping' ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground'}`}
+                  className={
+                    'flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold bg-primary text-primary-foreground border-primary'
+                  }
                 >
                   1
-                </div>
-                <h2 className="text-xl font-semibold">Shipping Address</h2>
-              </div>
-
-              {step === 'shipping' ? (
-                <div className="pl-12">
-                  <ShippingForm onSubmit={handleShippingSubmit} />
-                </div>
-              ) : (
-                <div className="pl-12 p-4 bg-muted/20 rounded-lg border">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">{shippingAddress?.street}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {shippingAddress?.city}, {shippingAddress?.state}{' '}
-                        {shippingAddress?.postal_code}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{shippingAddress?.country}</p>
-                    </div>
-                    <Button variant="link" onClick={() => setStep('shipping')}>
-                      Edit
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div
-              className={`space-y-6 ${step === 'shipping' ? 'opacity-50 pointer-events-none' : ''}`}
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold ${step === 'payment' ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground'}`}
-                >
-                  2
                 </div>
                 <h2 className="text-xl font-semibold">Payment</h2>
               </div>
 
-              {step === 'payment' && (
-                <div className="pl-12">
-                  {isLoadingPayment ? (
-                    <div className="flex justify-center py-8">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                  ) : clientSecret ? (
-                    <Elements stripe={stripePromise} options={{ clientSecret }}>
-                      <PaymentForm onSuccess={handlePaymentSuccess} />
-                    </Elements>
-                  ) : (
-                    <div className="p-4 border border-destructive/20 bg-destructive/5 text-destructive rounded-md text-sm">
-                      Unable to initialize payment system. Please try again or contact support.
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Sidebar (Right) */}
-          <div className="lg:col-span-5">
-            <div className="sticky top-24">
-              <OrderSummary />
+              <div className="pl-12">
+                {isLoadingPayment ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : clientSecret ? (
+                  <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
+                    <EmbeddedCheckout />
+                  </EmbeddedCheckoutProvider>
+                ) : (
+                  <div className="p-4 border border-destructive/20 bg-destructive/5 text-destructive rounded-md text-sm">
+                    Unable to initialize payment system. Please try again or contact support.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -1,10 +1,11 @@
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { CheckCircle2, ShoppingBag, Home } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
-import { useState } from 'react'
 
 export function OrderConfirmationPage() {
-  const [orderId] = useState(() => Math.floor(Math.random() * 100000))
+  const [searchParams] = useSearchParams()
+  const orderId = searchParams.get('order_id')
+  const sessionId = searchParams.get('session_id')
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
@@ -23,10 +24,18 @@ export function OrderConfirmationPage() {
         </div>
 
         <div className="bg-muted/50 p-4 rounded-md text-sm text-left space-y-2">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Order ID</span>
-            <span className="font-medium font-mono">#ORD-{orderId}</span>
-          </div>
+          {orderId && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Order ID</span>
+              <span className="font-medium font-mono">#{orderId.slice(0, 8).toUpperCase()}</span>
+            </div>
+          )}
+          {sessionId && !orderId && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Session Ref</span>
+              <span className="font-medium font-mono">...{sessionId.slice(-8)}</span>
+            </div>
+          )}
           <div className="flex justify-between">
             <span className="text-muted-foreground">Estimated Delivery</span>
             <span className="font-medium">3-5 Business Days</span>
