@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { initiateOnboarding } from '../../api/sellerApi'
+import { ConnectComponentsProvider, ConnectAccountOnboarding } from '@stripe/react-connect-js'
+import { loadConnectAndInitialize } from '@stripe/connect-js'
+import { createStripeAccount, createAccountSession } from '../../api/sellerApi'
 import { Button } from '@/shared/components/ui/button'
 import {
   Card,
@@ -11,23 +12,39 @@ import {
 } from '@/shared/components/ui/card'
 import { CheckCircle2, Loader2, ShieldCheck, ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
+import { useNavigate } from 'react-router-dom'
 
-export function SellerOnboardingIntro() {
+// Ideally move this to a hook or context if used elsewhere
+const stripeConnectInstance = loadConnectAndInitialize({
+  publishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
+  fetchClientSecret: async () => {
+    const { client_secret } = await createAccountSession()
+    return client_secret
+  },
+  appearance: {
+    overlays: 'dialog',
+    variables: {
+      colorPrimary: '#0f172a',
+    },
+  },
+})
+
+export function SellerOnboardingEmbedded() {
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
+  const [isInitializing, setIsInitializing] = useState(false)
+  const [showEmbedded, setShowEmbedded] = useState(false)
 
   const handleStartOnboarding = async () => {
     try {
-      setIsLoading(true)
-      const response = await initiateOnboarding()
-      if (response.url) {
-        window.location.href = response.url // Redirect to Stripe
-      } else {
-        toast.error('Failed to start onboarding. No URL returned.')
-      }
+      setIsInitializing(true)
+      // 1. Ensure Account Exists
+      await createStripeAccount()
+
+      // 2. Show Embedded Component (which calls fetchClientSecret -> createAccountSession)
+      setShowEmbedded(true)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error('Onboarding error:', error)
+      console.error('Onboarding init error:', error)
       const details = error.response?.data?.details
       const errorMsg = Array.isArray(details) ? details.join(' ') : details || ''
 
@@ -41,11 +58,26 @@ export function SellerOnboardingIntro() {
           duration: 8000,
         })
       } else {
-        toast.error('Failed to initiate onboarding.')
+        toast.error('Failed to initiate onboarding. ' + errorMsg)
       }
     } finally {
-      setIsLoading(false)
+      setIsInitializing(false)
     }
+  }
+
+  const handleOnboardingExit = () => {
+    // Determine where to go - probably verify status or dashboard
+    navigate('/seller/onboarding/return')
+  }
+
+  if (showEmbedded) {
+    return (
+      <div className="container mx-auto py-12">
+        <ConnectComponentsProvider connectInstance={stripeConnectInstance}>
+          <ConnectAccountOnboarding onExit={handleOnboardingExit} />
+        </ConnectComponentsProvider>
+      </div>
+    )
   }
 
   return (
@@ -91,16 +123,16 @@ export function SellerOnboardingIntro() {
             size="lg"
             className="w-full text-lg"
             onClick={handleStartOnboarding}
-            disabled={isLoading}
+            disabled={isInitializing}
           >
-            {isLoading ? (
+            {isInitializing ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Connecting to Stripe...
+                Initializing...
               </>
             ) : (
               <>
-                Connect with Stripe <ArrowRight className="ml-2 h-5 w-5" />
+                Start Verification <ArrowRight className="ml-2 h-5 w-5" />
               </>
             )}
           </Button>

@@ -35,32 +35,39 @@ export const getSellerStatus = async (): Promise<SellerProfile> => {
 }
 
 /**
- * Initiate Stripe Connect onboarding.
+ * Create or get the Stripe Connect account.
+ */
+export const createStripeAccount = async (): Promise<{ account_id: string }> => {
+  const response = await apiClient.post('/payments/stripe/account/')
+  return response.data
+}
+
+/**
+ * Create an Account Session for Embedded Onboarding.
+ * Backend endpoint: POST /api/payments/stripe/create-session/
+ */
+export const createAccountSession = async (): Promise<{ client_secret: string }> => {
+  const response = await apiClient.post('/payments/stripe/create-session/')
+  return response.data
+}
+
+/**
+ * Initiate Stripe Connect onboarding (Hosted Flow).
  * 1. Create/Get Account: POST /api/payments/stripe/account/
- * 2. Create Account Link: POST /api/payments/stripe/account-link/ (Wait, code review said account-session? Let's verify)
- *
- * Review of payment_views.py from investigator:
- * - stripe_account (POST): Creates/Gets Stripe Account
- * - create_stripe_account_link (POST): Creates Account Link (URL for user to go to Stripe)
+ * 2. Create Account Link: POST /api/payments/stripe/account-link/
  */
 export const initiateOnboarding = async (): Promise<OnboardingInitResponse> => {
   // Step 1: Ensure account exists
   let accountId = ''
   try {
-    const accountRes = await apiClient.post('/payments/stripe/account/')
-    accountId = accountRes.data.id
+    const accountRes = await createStripeAccount()
+    accountId = accountRes.account_id
   } catch (error) {
     console.error('Failed to create/get stripe account', error)
     throw error
   }
 
   // Step 2: Get onboarding link
-  // Need to know the endpoint for "account link".
-  // Based on standard Stripe Connect patterns and previous turn:
-  // It's likely /api/payments/stripe/account-link/ or similar.
-  // Let's assume /api/payments/stripe/account-link/ based on standard naming,
-  // if fails I'll fix.
-
   const returnUrl = `${window.location.origin}/seller/onboarding/return`
   const refreshUrl = `${window.location.origin}/seller/onboarding`
 

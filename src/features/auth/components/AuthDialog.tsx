@@ -13,11 +13,12 @@ import { useAuthStore } from '../hooks/useAuthStore'
 interface AuthDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onSuccess?: () => void
   view: 'login' | 'register'
   onViewChange: (view: 'login' | 'register') => void
 }
 
-export function AuthDialog({ open, onOpenChange, view, onViewChange }: AuthDialogProps) {
+export function AuthDialog({ open, onOpenChange, onSuccess, view, onViewChange }: AuthDialogProps) {
   const { clearError } = useAuthStore()
 
   // Clear errors when dialog closes
@@ -28,8 +29,13 @@ export function AuthDialog({ open, onOpenChange, view, onViewChange }: AuthDialo
   }, [open, clearError])
 
   const handleSuccess = () => {
-    onOpenChange(false)
     clearError()
+    // Call parent's success handler if provided, otherwise close normally
+    if (onSuccess) {
+      onSuccess()
+    } else {
+      onOpenChange(false)
+    }
   }
 
   const handleSwitchToRegister = () => {

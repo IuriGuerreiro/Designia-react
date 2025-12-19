@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { AuthDialog } from '@/features/auth/components/AuthDialog'
 import { UserMenu } from '@/features/auth/components/UserMenu'
@@ -20,28 +20,65 @@ import { OrderHistoryPage } from '@/features/orders/pages/OrderHistoryPage'
 import { OrderDetailPage } from '@/features/orders/pages/OrderDetailPage'
 import { SellerOnboardingPage } from '@/features/seller/pages/SellerOnboardingPage'
 import { SellerOnboardingReturn } from '@/features/seller/components/onboarding/SellerOnboardingReturn'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 // Create a client
 const queryClient = new QueryClient()
 
 function AppContent() {
+  const navigate = useNavigate()
   const { checkAuth, isAuthenticated } = useAuthStore()
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [authView, setAuthView] = useState<'login' | 'register'>('login')
+  const [isProtectedRouteAuth, setIsProtectedRouteAuth] = useState(false)
+  const [loginWasSuccessful, setLoginWasSuccessful] = useState(false)
 
   // Check authentication status on mount
   useEffect(() => {
     checkAuth()
   }, [checkAuth])
 
-  const handleOpenLogin = () => {
+  const handleOpenLogin = (fromProtectedRoute = false) => {
     setAuthView('login')
     setAuthDialogOpen(true)
+    setIsProtectedRouteAuth(fromProtectedRoute)
+    setLoginWasSuccessful(false) // Reset on open
   }
 
   const handleOpenRegister = () => {
     setAuthView('register')
     setAuthDialogOpen(true)
+    setIsProtectedRouteAuth(false)
+    setLoginWasSuccessful(false)
+  }
+
+  const handleAuthSuccess = () => {
+    setLoginWasSuccessful(true)
+    setAuthDialogOpen(false)
+  }
+
+  const handleAuthDialogChange = (open: boolean) => {
+    // If dialog is closing
+    if (!open) {
+      // If login was successful, stay on current page
+      if (loginWasSuccessful) {
+        setAuthDialogOpen(false)
+        setIsProtectedRouteAuth(false)
+        setLoginWasSuccessful(false)
+      }
+      // If user manually closed without login and came from protected route, redirect to home
+      else if (isProtectedRouteAuth) {
+        setAuthDialogOpen(false)
+        navigate('/')
+        setIsProtectedRouteAuth(false)
+      }
+      // Normal close
+      else {
+        setAuthDialogOpen(false)
+      }
+    } else {
+      setAuthDialogOpen(open)
+    }
   }
 
   return (
@@ -82,7 +119,8 @@ function AppContent() {
 
       <AuthDialog
         open={authDialogOpen}
-        onOpenChange={setAuthDialogOpen}
+        onOpenChange={handleAuthDialogChange}
+        onSuccess={handleAuthSuccess}
         view={authView}
         onViewChange={setAuthView}
       />
@@ -93,13 +131,55 @@ function AppContent() {
         <Route path="/products" element={<ProductBrowsePage />} />
         <Route path="/products/:slug" element={<ProductDetailPage />} />
         <Route path="/product/:slug" element={<ProductDetailPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+              <CheckoutPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/checkout/confirmation/:orderId" element={<OrderConfirmationPage />} />
-        <Route path="/orders" element={<OrderHistoryPage />} />
-        <Route path="/orders/:id" element={<OrderDetailPage />} />
-        <Route path="/seller/onboarding" element={<SellerOnboardingPage />} />
-        <Route path="/seller/onboarding/return" element={<SellerOnboardingReturn />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+              <OrderHistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders/:id"
+          element={
+            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+              <OrderDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/seller/onboarding"
+          element={
+            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+              <SellerOnboardingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/seller/onboarding/return"
+          element={
+            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+              <SellerOnboardingReturn />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
       </Routes>
 

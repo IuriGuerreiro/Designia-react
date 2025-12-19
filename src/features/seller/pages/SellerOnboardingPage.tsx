@@ -1,5 +1,5 @@
-import { SellerOnboardingIntro } from '../components/onboarding/SellerOnboardingIntro'
+import { SellerOnboardingEmbedded } from '../components/onboarding/SellerOnboardingEmbedded'
 
 export function SellerOnboardingPage() {
-  return <SellerOnboardingIntro />
+  return <SellerOnboardingEmbedded />
 }

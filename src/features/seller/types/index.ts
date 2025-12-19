@@ -12,3 +12,5 @@ export interface SellerProfile {
 export interface OnboardingInitResponse {
   url: string
 }
+
+export * from './product'

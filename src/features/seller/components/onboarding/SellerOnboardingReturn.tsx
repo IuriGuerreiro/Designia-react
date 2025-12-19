@@ -4,10 +4,12 @@ import { getSellerStatus } from '../../api/sellerApi'
 import { Card, CardHeader, CardTitle, CardContent } from '@/shared/components/ui/card'
 import { Button } from '@/shared/components/ui/button'
 import { CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export function SellerOnboardingReturn() {
   const navigate = useNavigate()
   const [status, setStatus] = useState<'loading' | 'success' | 'pending' | 'error'>('loading')
+  const [errorDetails, setErrorDetails] = useState<string | null>(null)
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -18,21 +20,37 @@ export function SellerOnboardingReturn() {
         if (profile.payouts_enabled) {
           setStatus('success')
         } else if (profile.status === 'pending' || profile.status === 'verified') {
-          // 'verified' in our type map means payouts_enabled, but if charges_enabled is true and payouts pending?
-          // Actually, standard connect: 'details_submitted' means pending verification.
           setStatus('pending')
         } else {
-          // User might have bailed out
           setStatus('error')
+          setErrorDetails('Your account setup is incomplete.')
         }
-      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
         console.error('Failed to check status', error)
         setStatus('error')
+
+        const details = error.response?.data?.details
+        const errorMsg = Array.isArray(details)
+          ? details.join(' ')
+          : details || error.message || 'Unknown error'
+        setErrorDetails(errorMsg)
+
+        if (errorMsg.includes('Two-factor authentication') || errorMsg.includes('2FA')) {
+          toast.error('Security Requirement: 2FA Required', {
+            description: 'You must enable Two-Factor Authentication to manage your seller account.',
+            action: {
+              label: 'Enable 2FA',
+              onClick: () => navigate('/settings?tab=security'),
+            },
+            duration: 8000,
+          })
+        }
       }
     }
 
     checkStatus()
-  }, [])
+  }, [navigate])
 
   if (status === 'loading') {
     return (
@@ -59,17 +77,36 @@ export function SellerOnboardingReturn() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-6">
-            {status === 'success' &&
-              'Your seller account is active. You can now start listing products.'}
-            {status === 'pending' &&
-              "We've received your details. Stripe is currently verifying your information. This usually takes a few minutes."}
-            {status === 'error' &&
-              "We couldn't verify your account setup. Please try again or contact support."}
-          </p>
+          <div className="text-muted-foreground mb-6">
+            {status === 'success' && (
+              <p>Your seller account is active. You can now start listing products.</p>
+            )}
+            {status === 'pending' && (
+              <p>
+                We've received your details. Stripe is currently verifying your information. This
+                usually takes a few minutes.
+              </p>
+            )}
+            {status === 'error' && (
+              <div className="space-y-2">
+                <p>We couldn't verify your account setup.</p>
+                {errorDetails && (
+                  <p className="text-sm p-3 bg-destructive/10 text-destructive rounded-md font-mono break-words">
+                    {errorDetails}
+                  </p>
+                )}
+                <p className="text-sm">Please try again or contact support.</p>
+              </div>
+            )}
+          </div>
 
-          <Button onClick={() => navigate('/seller/dashboard')} className="w-full">
-            Go to Seller Dashboard
+          <Button
+            onClick={() =>
+              navigate(status === 'error' ? '/seller/onboarding' : '/seller/dashboard')
+            }
+            className="w-full"
+          >
+            {status === 'error' ? 'Back to Onboarding' : 'Go to Seller Dashboard'}
           </Button>
         </CardContent>
       </Card>
