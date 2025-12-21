@@ -1,5 +1,5 @@
-import { SellerOnboardingEmbedded } from '../components/onboarding/SellerOnboardingEmbedded'
+import { SellerApplicationFlow } from '../components/onboarding/SellerApplicationFlow'
 
 export function SellerOnboardingPage() {
-  return <SellerOnboardingEmbedded />
+  return <SellerApplicationFlow />
 }

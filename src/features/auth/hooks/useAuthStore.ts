@@ -24,7 +24,7 @@ interface AuthStore {
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true, // Start as true to prevent flash during initial auth check
   error: null,
   pending2FAUserId: null,
 

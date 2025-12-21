@@ -14,3 +14,4 @@ export interface OnboardingInitResponse {
 }
 
 export * from './product'
+export * from './application'

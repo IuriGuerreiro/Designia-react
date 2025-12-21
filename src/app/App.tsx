@@ -19,7 +19,14 @@ import { OrderConfirmationPage } from '@/features/checkout/pages/OrderConfirmati
 import { OrderHistoryPage } from '@/features/orders/pages/OrderHistoryPage'
 import { OrderDetailPage } from '@/features/orders/pages/OrderDetailPage'
 import { SellerOnboardingPage } from '@/features/seller/pages/SellerOnboardingPage'
+import { SellerOnboardingEmbedded } from '@/features/seller/components/onboarding/SellerOnboardingEmbedded'
 import { SellerOnboardingReturn } from '@/features/seller/components/onboarding/SellerOnboardingReturn'
+import { SellerDashboardPage } from '@/features/seller/pages/SellerDashboardPage'
+import { SellerProductsPage } from '@/features/seller/pages/SellerProductsPage'
+import { SellerProductCreatePage } from '@/features/seller/pages/SellerProductCreatePage'
+import { SellerProductEditPage } from '@/features/seller/pages/SellerProductEditPage'
+import { SellerOrdersPage } from '@/features/seller/pages/SellerOrdersPage'
+import { SellerLayout } from '@/features/seller/components/SellerLayout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 // Create a client
@@ -82,7 +89,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header / Navbar */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div
@@ -126,62 +133,90 @@ function AppContent() {
       />
       <CartDrawer />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/products" element={<ProductBrowsePage />} />
-        <Route path="/products/:slug" element={<ProductDetailPage />} />
-        <Route path="/product/:slug" element={<ProductDetailPage />} />
-        <Route
-          path="/checkout"
-          element={
-            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-              <CheckoutPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/checkout/confirmation/:orderId" element={<OrderConfirmationPage />} />
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-              <OrderHistoryPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/orders/:id"
-          element={
-            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-              <OrderDetailPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/seller/onboarding"
-          element={
-            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-              <SellerOnboardingPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/seller/onboarding/return"
-          element={
-            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-              <SellerOnboardingReturn />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-              <SettingsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
-      </Routes>
+      <main className="flex-1 flex flex-col w-full">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductBrowsePage />} />
+          <Route path="/products/:slug" element={<ProductDetailPage />} />
+          <Route path="/product/:slug" element={<ProductDetailPage />} />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/checkout/confirmation/:orderId" element={<OrderConfirmationPage />} />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                <OrderHistoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/:id"
+            element={
+              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                <OrderDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/seller/onboarding"
+            element={
+              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                <SellerOnboardingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/seller/onboarding/stripe"
+            element={
+              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                <SellerOnboardingEmbedded />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/seller/onboarding/return"
+            element={
+              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                <SellerOnboardingReturn />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Seller Section */}
+          <Route
+            path="/seller"
+            element={
+              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)} requiredRole="seller">
+                <SellerLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<SellerDashboardPage />} />
+            <Route path="dashboard" element={<SellerDashboardPage />} />
+            <Route path="products" element={<SellerProductsPage />} />
+            <Route path="products/new" element={<SellerProductCreatePage />} />
+            <Route path="products/:slug/edit" element={<SellerProductEditPage />} />
+            <Route path="orders" element={<SellerOrdersPage />} />
+          </Route>
+
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+        </Routes>
+      </main>
 
       {/* Footer */}
       <footer className="border-t py-12 bg-muted/20">

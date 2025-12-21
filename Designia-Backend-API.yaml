@@ -1042,109 +1042,9 @@ paths:
                     rejection_reason: Portfolio does not meet quality standards
                   summary: Rejected Application
           description: Application status
+  /api/auth/seller/apply/:
     post:
       operationId: seller_application_submit
-      description: "\n        Submit or resubmit application to become a seller.\n\
-        \n        **Requirements:**\n        - User must be authenticated\n      \
-        \  - User must have 2FA enabled\n        - User cannot already be a seller\n\
-        \        - Cannot have existing pending application\n\n        **Files:**\
-        \ Upload 1-5 workshop photos (max 10MB each, jpg/png/webp)\n\n        **Rate\
-        \ Limiting:** 2 applications per hour (if Kong Gateway enabled)\n        "
-      summary: Submit seller application
-      tags:
-      - Seller Applications
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/SellerApplicationRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/SellerApplicationRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SellerApplicationSubmitResponse'
-              examples:
-                SuccessfulSubmission:
-                  value:
-                    message: Seller application submitted successfully
-                    application_id: 42
-                    images_uploaded: 3
-                  summary: Successful Submission
-          description: Application submitted successfully
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Validation error or requirements not met
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: 2FA not enabled or already a seller
-  /api/auth/seller/apply/:
-    get:
-      operationId: seller_application_status_2
-      description: "\n        Check the status of your seller application.\n\n   \
-        \     **Possible Statuses:**\n        - `none` - No application submitted\n\
-        \        - `pending` - Application under review\n        - `approved` - Application\
-        \ approved (user is now seller)\n        - `rejected` - Application rejected\
-        \ (can resubmit)\n        "
-      summary: Get seller application status
-      tags:
-      - Seller Applications
-      security:
-      - jwtAuth: []
-      - Bearer: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SellerApplicationStatusResponse'
-              examples:
-                PendingApplication:
-                  value:
-                    has_application: true
-                    is_seller: false
-                    status: pending
-                    application_id: 42
-                    submitted_at: '2025-01-15T10:30:00Z'
-                    admin_notes: null
-                    rejection_reason: null
-                  summary: Pending Application
-                ApprovedApplication:
-                  value:
-                    has_application: true
-                    is_seller: true
-                    status: approved
-                    application_id: 42
-                    submitted_at: '2025-01-15T10:30:00Z'
-                    admin_notes: Great portfolio!
-                    rejection_reason: null
-                  summary: Approved Application
-                RejectedApplication:
-                  value:
-                    has_application: true
-                    is_seller: false
-                    status: rejected
-                    application_id: 42
-                    submitted_at: '2025-01-15T10:30:00Z'
-                    admin_notes: Please improve portfolio quality
-                    rejection_reason: Portfolio does not meet quality standards
-                  summary: Rejected Application
-          description: Application status
-    post:
-      operationId: seller_application_submit_2
       description: "\n        Submit or resubmit application to become a seller.\n\
         \n        **Requirements:**\n        - User must be authenticated\n      \
         \  - User must have 2FA enabled\n        - User cannot already be a seller\n\
@@ -1975,6 +1875,72 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: Order cannot be cancelled (already shipped/delivered)
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not order owner
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Order not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal server error
+  /api/marketplace/orders/{id}/return/:
+    post:
+      operationId: orders_return_request
+      description: "\n        **What it receives:**\n        - `order_id` (UUID in\
+        \ URL): Order for which to request return\n        - `items` (list of objects):\
+        \ Items to return with quantities (`itemId`, `quantity`)\n        - `reason`\
+        \ (string): Reason for return\n        - `comment` (string, optional): Additional\
+        \ comments\n        - `proof_image_urls` (list of strings, optional): URLs\
+        \ of proof images\n        - Authentication token (must be order buyer)\n\n\
+        \        **What it returns:**\n        - Created return request\n        -\
+        \ Order status transitions to \"return_requested\"\n        "
+      summary: Create return request for order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Marketplace - Orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - Bearer: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: Return request created successfully
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Invalid data or order state
         '403':
           content:
             application/json:
@@ -3746,7 +3712,8 @@ paths:
   /api/payments/payouts/:
     get:
       operationId: payout_list
-      description: List all payouts for the authenticated seller.
+      description: List all payouts for the authenticated seller. Requires 2FA to
+        be enabled.
       summary: List Payouts
       parameters:
       - in: query
@@ -3793,11 +3760,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-          description: Not authorized
+          description: Not authorized or 2FA not enabled
   /api/payments/payouts/{payout_id}/:
     get:
       operationId: payout_detail
-      description: Get detailed information for a specific payout.
+      description: Get detailed information for a specific payout. Requires 2FA to
+        be enabled.
       summary: Get Payout Detail
       parameters:
       - in: path
@@ -3818,6 +3786,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/PayoutDetailResponse'
           description: Payout detail
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not authorized or 2FA not enabled
         '404':
           content:
             application/json:
@@ -3948,7 +3922,8 @@ paths:
   /api/payments/stripe/holds/:
     get:
       operationId: payout_get_holds
-      description: Retrieve all held transactions for the authenticated seller.
+      description: Retrieve all held transactions for the authenticated seller. Requires
+        2FA to be enabled.
       summary: Get Payment Holds
       tags:
       - Payouts
@@ -3967,7 +3942,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-          description: Not authorized
+          description: Not authorized or 2FA not enabled
   /api/payments/transfer/:
     post:
       operationId: payment_transfer_to_seller
@@ -6993,6 +6968,22 @@ components:
       description: |-
         * `enable_2fa` - Enable 2FA
         * `disable_2fa` - Disable 2FA
+    ReasonEnum:
+      enum:
+      - defective
+      - wrong_item
+      - size_too_small
+      - size_too_large
+      - change_of_mind
+      - other
+      type: string
+      description: |-
+        * `defective` - defective
+        * `wrong_item` - wrong_item
+        * `size_too_small` - size_too_small
+        * `size_too_large` - size_too_large
+        * `change_of_mind` - change_of_mind
+        * `other` - other
     RegisterResponse:
       type: object
       description: Response for successful registration
@@ -7027,6 +7018,90 @@ components:
           description: Status message
       required:
       - message
+    ReturnRequest:
+      type: object
+      description: Serializer for the ReturnRequest model (output/read-only).
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Return Request UUID
+        order_id:
+          type: string
+          format: uuid
+          description: Associated Order UUID
+        requested_by_username:
+          type: string
+          description: Username of the requester
+        reason:
+          type: string
+          description: Reason for return
+        comment:
+          type: string
+          description: Additional comments
+        status:
+          type: string
+          description: Status of the return request
+        proof_image_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: List of URLs for proof images
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp of request creation
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp of last update
+        approved_by:
+          type: string
+          nullable: true
+          description: Username of approver
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp of approval
+        rejection_reason:
+          type: string
+          description: Reason for rejection
+      required:
+      - created_at
+      - id
+      - order_id
+      - reason
+      - requested_by_username
+      - status
+      - updated_at
+    ReturnRequestCreateRequest:
+      type: object
+      description: |-
+        Serializer for creating a return request.
+        Validates items to ensure they belong to the order and quantities are valid.
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: integer
+          minItems: 1
+        reason:
+          $ref: '#/components/schemas/ReasonEnum'
+        comment:
+          type: string
+        proof_image_urls:
+          type: array
+          items:
+            type: string
+            format: uri
+            minLength: 1
+      required:
+      - items
+      - reason
     ReviewResponse:
       type: object
       description: Review response
