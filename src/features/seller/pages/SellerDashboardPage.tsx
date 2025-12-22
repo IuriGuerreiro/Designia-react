@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Package, ShoppingBag, DollarSign, TrendingUp } from 'lucide-react'
+import { StripeAccountAlert } from '../components/stripe/StripeAccountAlert'
 
 export function SellerDashboardPage() {
   const stats = [
@@ -37,6 +38,8 @@ export function SellerDashboardPage() {
           Welcome back! Here's what's happening with your store today.
         </p>
       </div>
+
+      <StripeAccountAlert />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map(stat => (
