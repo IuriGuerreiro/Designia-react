@@ -6,9 +6,11 @@ import { Button } from '@/shared/components/ui/button'
 interface ProductImage {
   id?: number
   image?: string
+  url?: string
   image_content?: string
   preview?: string
   is_primary: boolean
+  filename?: string
 }
 
 interface ImageUploadProps {
@@ -94,7 +96,7 @@ export function ImageUpload({ images, onChange }: ImageUploadProps) {
               className="relative group border rounded-md overflow-hidden aspect-square bg-muted"
             >
               <img
-                src={img.preview || img.image}
+                src={img.preview || img.url || img.image}
                 alt="Product"
                 className="h-full w-full object-cover"
               />

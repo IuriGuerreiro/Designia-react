@@ -1,6 +1,7 @@
 export interface ProductImage {
   id?: number
-  image?: string // URL
+  image?: string // Filename or URL depending on context
+  url?: string // Signed URL from backend
   image_content?: string // Base64 for upload
   is_primary: boolean
   order: number
@@ -24,10 +25,14 @@ export interface Product {
   images: ProductImage[]
   created_at: string
   updated_at: string
-  condition: 'new' | 'used' | 'refurbished'
+  condition: 'new' | 'like_new' | 'good' | 'fair' | 'poor'
   brand?: string
   model?: string
   tags?: string[]
+  primary_image?: string // From list view
+  has_ar_model: boolean
+  ar_model_filename?: string
+  ar_model_url?: string // Signed URL if available
 }
 
 export interface ProductFormData {
@@ -38,11 +43,13 @@ export interface ProductFormData {
   original_price?: number
   stock_quantity: number
   category: string // Form usually handles string ID from select
-  condition: 'new' | 'used' | 'refurbished'
+  condition: 'new' | 'like_new' | 'good' | 'fair' | 'poor'
   brand?: string
   model?: string
   tags?: string[] // Comma separated in UI maybe?
   images: ProductImage[]
+  ar_model_file?: string
+  ar_model_filename?: string
 }
 
 export interface ProductListResponse {

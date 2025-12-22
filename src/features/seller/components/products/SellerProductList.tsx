@@ -124,10 +124,12 @@ export function SellerProductList() {
               <TableRow key={product.id}>
                 <TableCell>
                   <div className="h-12 w-12 rounded-md bg-muted overflow-hidden">
-                    {product.images && product.images.length > 0 ? (
+                    {product.primary_image || (product.images && product.images.length > 0) ? (
                       <img
                         src={
-                          product.images.find(i => i.is_primary)?.image || product.images[0].image
+                          product.primary_image ||
+                          product.images?.find(i => i.is_primary)?.image ||
+                          product.images?.[0]?.image
                         }
                         alt={product.name}
                         className="h-full w-full object-cover"

@@ -30,12 +30,14 @@ import { Card, CardContent } from '@/shared/components/ui/card'
 
 import { createProduct, updateProduct } from '../../api/productsApi'
 import { ImageUpload } from './ImageUpload'
+import { ARModelUpload } from './ARModelUpload'
 import type { Product } from '../../types'
 import apiClient from '@/shared/api/axios' // For category fetching
 
 interface ProductImage {
   id?: number
   image?: string
+  url?: string
   image_content?: string
   preview?: string
   filename?: string
@@ -55,10 +57,17 @@ const productSchema = z.object({
   price: z.coerce.number().min(0.01, 'Price must be greater than 0'),
   stock_quantity: z.coerce.number().int().min(0, 'Stock cannot be negative'),
   category: z.string().min(1, 'Category is required'), // Assuming ID as string
-  condition: z.enum(['new', 'used', 'refurbished']),
+  condition: z.enum(['new', 'like_new', 'good', 'fair', 'poor']),
   brand: z.string().optional(),
   tags: z.string().optional(), // Comma separated string
   images: z.array(z.custom<ProductImage>()).min(1, 'At least one image is required'),
+  ar_model: z
+    .object({
+      filename: z.string().optional(),
+      content: z.string().optional(),
+      url: z.string().optional(),
+    })
+    .optional(),
 })
 
 type ProductFormValues = z.infer<typeof productSchema>
@@ -77,7 +86,7 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const res = await apiClient.get('/marketplace/categories/')
+      const res = await apiClient.get('/marketplace/products/categories/')
       // Assuming response structure, flatten if needed
       return res.data.results || res.data
     },
@@ -95,6 +104,12 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
       brand: initialData?.brand || '',
       tags: initialData?.tags?.join(', ') || '',
       images: initialData?.images || [],
+      ar_model: initialData?.has_ar_model
+        ? {
+            filename: initialData.ar_model_filename,
+            url: initialData.ar_model_url,
+          }
+        : undefined,
     },
   })
 
@@ -104,15 +119,6 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
       const payload: Record<string, unknown> = {
         ...values,
         tags: values.tags ? values.tags.split(',').map(t => t.trim()) : [],
-        // Handle images: split into 'images' (existing) and 'image_data' (new uploads) if backend requires
-        // Or send all as image_data if simple, but 'ProductCreateUpdateSerializer' says:
-        // images = read_only, image_data = write_only.
-        // So for update, we can't delete images via 'images' field easily unless we use a separate endpoint or specific logic.
-        // For Create: map all to image_data.
-        // For Update: It's tricky. Usually we add new ones via image_data.
-        // Deleting old ones might need specific API call or sending IDs to keep?
-        // Serializer says `images` is read_only. So standard update doesn't delete images.
-        // For MVP, we'll just handle ADDING images via base64. Deletion logic might need separate implementation or is ignored for now.
       }
 
       // Filter out existing images from image_data
@@ -128,6 +134,19 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
 
       // Remove 'images' from payload as it's read-only
       delete payload.images
+
+      // Handle AR Model
+      if (values.ar_model === undefined && initialData?.has_ar_model) {
+        // User removed the existing model
+        payload.model_data = null
+      } else if (values.ar_model && values.ar_model.content) {
+        // User uploaded a new model
+        payload.model_data = {
+          model_content: values.ar_model.content,
+          filename: values.ar_model.filename || 'model.glb',
+        }
+      }
+      delete payload.ar_model
 
       if (isEdit && initialData) {
         return updateProduct(initialData.slug, payload)
@@ -175,6 +194,23 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
                     <FormControl>
                       <ImageUpload images={field.value} onChange={field.onChange} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="ar_model"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>AR Model (3D)</FormLabel>
+                    <FormControl>
+                      <ARModelUpload value={field.value} onChange={field.onChange} />
+                    </FormControl>
+                    <FormDescription>
+                      Upload a .glb or .gltf file for Augmented Reality features.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -260,8 +296,10 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="new">New</SelectItem>
-                          <SelectItem value="used">Used</SelectItem>
-                          <SelectItem value="refurbished">Refurbished</SelectItem>
+                          <SelectItem value="like_new">Like New</SelectItem>
+                          <SelectItem value="good">Good</SelectItem>
+                          <SelectItem value="fair">Fair</SelectItem>
+                          <SelectItem value="poor">Poor</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
