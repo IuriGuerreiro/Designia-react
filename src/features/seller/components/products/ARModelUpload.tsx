@@ -10,8 +10,8 @@ interface ARModelData {
 }
 
 interface ARModelUploadProps {
-  value?: ARModelData
-  onChange: (value: ARModelData | undefined) => void
+  value?: ARModelData | null
+  onChange: (value: ARModelData | null | undefined) => void
 }
 
 export function ARModelUpload({ value, onChange }: ARModelUploadProps) {
@@ -76,7 +76,11 @@ export function ARModelUpload({ value, onChange }: ARModelUploadProps) {
             variant="ghost"
             size="icon"
             className="text-muted-foreground hover:text-destructive"
-            onClick={() => onChange(undefined)}
+            onClick={e => {
+              e.preventDefault()
+              e.stopPropagation()
+              onChange(null)
+            }}
           >
             <X className="h-4 w-4" />
           </Button>

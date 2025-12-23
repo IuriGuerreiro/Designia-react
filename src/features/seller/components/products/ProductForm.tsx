@@ -99,7 +99,7 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
       description: initialData?.description || '',
       price: initialData ? parseFloat(initialData.price) : 0,
       stock_quantity: initialData?.stock_quantity || 0,
-      category: initialData?.category?.toString() || '',
+      category: initialData?.category?.id?.toString() || '',
       condition: initialData?.condition || 'new',
       brand: initialData?.brand || '',
       tags: initialData?.tags?.join(', ') || '',
@@ -118,6 +118,8 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
       // Transform form values to API payload
       const payload: Record<string, unknown> = {
         ...values,
+        category: parseInt(values.category),
+        price: values.price.toString(),
         tags: values.tags ? values.tags.split(',').map(t => t.trim()) : [],
       }
 
@@ -136,14 +138,19 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
       delete payload.images
 
       // Handle AR Model
-      if (values.ar_model === undefined && initialData?.has_ar_model) {
+      const hasOriginalModel = initialData?.has_ar_model
+      const currentModel = values.ar_model
+      // Check if model is effectively cleared (undefined, null, or empty object/filename)
+      const isModelCleared = !currentModel || (!currentModel.filename && !currentModel.content)
+
+      if (isModelCleared && hasOriginalModel) {
         // User removed the existing model
         payload.model_data = null
-      } else if (values.ar_model && values.ar_model.content) {
+      } else if (currentModel && currentModel.content) {
         // User uploaded a new model
         payload.model_data = {
-          model_content: values.ar_model.content,
-          filename: values.ar_model.filename || 'model.glb',
+          model_content: currentModel.content,
+          filename: currentModel.filename || 'model.glb',
         }
       }
       delete payload.ar_model
@@ -157,6 +164,10 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
     onSuccess: () => {
       toast.success(`Product ${isEdit ? 'updated' : 'created'} successfully`)
       queryClient.invalidateQueries({ queryKey: ['seller-products'] })
+      // If editing, invalidate the specific product query to refresh the form data immediately
+      if (isEdit && initialData) {
+        queryClient.invalidateQueries({ queryKey: ['product', initialData.slug] })
+      }
       navigate('/seller/products')
     },
     onError: (error: Error) => {

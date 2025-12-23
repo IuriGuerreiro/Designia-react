@@ -19,7 +19,7 @@ export interface Product {
   price: string // Decimal string from backend
   original_price?: string | null
   stock_quantity: number
-  category: number // ID
+  category: { id: number; name: string; slug: string } // Object from detail serializer
   category_name?: string // Read-only
   status: ProductStatus // Backend might calculate this or have a field. Assuming computed or mapping.
   images: ProductImage[]
