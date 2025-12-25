@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import {
   Table,
   TableBody,
@@ -108,7 +109,11 @@ export function SellerOrderList() {
           <TableBody>
             {data?.results.map(order => (
               <TableRow key={order.id}>
-                <TableCell className="font-mono text-xs">#{order.id.slice(0, 8)}</TableCell>
+                <TableCell className="font-mono text-xs">
+                  <Link to={`/seller/orders/${order.id}`} className="hover:underline text-primary">
+                    #{order.id.slice(0, 8)}
+                  </Link>
+                </TableCell>
                 <TableCell className="text-sm">
                   {new Date(order.created_at).toLocaleDateString()}
                 </TableCell>
@@ -134,16 +139,15 @@ export function SellerOrderList() {
                   )}
                 </TableCell>
                 <TableCell>{getStatusBadge(order.status)}</TableCell>
-                <TableCell className="text-right">
-                  {['payment_confirmed', 'awaiting_shipment'].includes(order.status) ? (
+                <TableCell className="text-right space-x-2">
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to={`/seller/orders/${order.id}`}>
+                      <ExternalLink className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  {['payment_confirmed', 'awaiting_shipment'].includes(order.status) && (
                     <Button size="sm" onClick={() => handleFulfill(order)}>
-                      <Truck className="mr-2 h-4 w-4" /> Ship
-                    </Button>
-                  ) : (
-                    <Button variant="ghost" size="sm" asChild>
-                      <a href={`/orders/${order.id}`} target="_blank" rel="noreferrer">
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
+                      <Truck className="h-4 w-4 mr-2" /> Ship
                     </Button>
                   )}
                 </TableCell>

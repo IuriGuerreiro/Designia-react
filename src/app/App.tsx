@@ -26,6 +26,8 @@ import { SellerProductsPage } from '@/features/seller/pages/SellerProductsPage'
 import { SellerProductCreatePage } from '@/features/seller/pages/SellerProductCreatePage'
 import { SellerProductEditPage } from '@/features/seller/pages/SellerProductEditPage'
 import { SellerOrdersPage } from '@/features/seller/pages/SellerOrdersPage'
+import { SellerOrderDetailPage } from '@/features/seller/pages/SellerOrderDetailPage'
+import { SellerAnalyticsPage } from '@/features/seller/pages/SellerAnalyticsPage'
 import { SellerLayout } from '@/features/seller/components/SellerLayout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
@@ -114,7 +116,7 @@ function AppContent() {
               <UserMenu />
             ) : (
               <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={handleOpenLogin}>
+                <Button variant="outline" onClick={() => handleOpenLogin()}>
                   Sign In
                 </Button>
                 <Button onClick={handleOpenRegister}>Sign Up</Button>
@@ -204,6 +206,8 @@ function AppContent() {
             <Route path="products/new" element={<SellerProductCreatePage />} />
             <Route path="products/:slug/edit" element={<SellerProductEditPage />} />
             <Route path="orders" element={<SellerOrdersPage />} />
+            <Route path="orders/:id" element={<SellerOrderDetailPage />} />
+            <Route path="analytics" element={<SellerAnalyticsPage />} />
           </Route>
 
           <Route

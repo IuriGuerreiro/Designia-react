@@ -16,3 +16,4 @@ export interface OnboardingInitResponse {
 export * from './product'
 export * from './application'
 export * from './stripe'
+export * from './analytics'
