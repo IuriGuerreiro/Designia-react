@@ -11,6 +11,7 @@ import { ProfileForm } from '../components/ProfileForm'
 import { ChangePasswordForm } from '../components/ChangePasswordForm'
 import { AvatarUpload } from '../components/AvatarUpload'
 import { TwoFactorAuth } from '../components/TwoFactorAuth'
+import { PrivacySettings } from '../components/privacy'
 import { Separator } from '@/shared/components/ui/separator'
 
 export function SettingsPage() {
@@ -34,6 +35,7 @@ export function SettingsPage() {
           <TabsList>
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="privacy">Privacy</TabsTrigger>
           </TabsList>
 
           <TabsContent value="general" className="space-y-4">
@@ -78,6 +80,10 @@ export function SettingsPage() {
                 <TwoFactorAuth />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="privacy" className="space-y-4">
+            <PrivacySettings />
           </TabsContent>
         </Tabs>
       </div>

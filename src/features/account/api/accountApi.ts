@@ -96,3 +96,39 @@ export const deleteAvatar = async (): Promise<ProfilePictureDeleteResponse> => {
   const response = await apiClient.delete('/auth/profile/picture/delete/')
   return response.data
 }
+
+// ============================================
+// GDPR Privacy Controls
+// ============================================
+
+export interface ExportDataResponse {
+  message: string
+  estimated_time: string
+}
+
+export interface DeleteAccountData {
+  confirmation: string
+  password: string
+}
+
+export interface DeleteAccountResponse {
+  message: string
+}
+
+/**
+ * Request data export (GDPR)
+ * Backend endpoint: GET /api/auth/profile/export/
+ */
+export const exportUserData = async (): Promise<ExportDataResponse> => {
+  const response = await apiClient.get('/auth/profile/export/')
+  return response.data
+}
+
+/**
+ * Delete user account (GDPR)
+ * Backend endpoint: POST /api/auth/profile/delete/
+ */
+export const deleteAccount = async (data: DeleteAccountData): Promise<DeleteAccountResponse> => {
+  const response = await apiClient.post('/auth/profile/delete/', data)
+  return response.data
+}
