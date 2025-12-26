@@ -50,5 +50,6 @@ export interface CartState {
   removeItem: (productId: string) => Promise<void>
   updateQuantity: (productId: string, quantity: number) => Promise<void>
   clearCart: () => Promise<void>
+  clearFrontendCart: () => void
   setIsOpen: (isOpen: boolean) => void
 }

@@ -69,7 +69,7 @@ export function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogP
       })
 
       toast.success('Account deleted successfully')
-      logout()
+      await logout()
       handleClose()
       navigate('/')
     } catch (err) {

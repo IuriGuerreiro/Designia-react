@@ -9,11 +9,12 @@ import { createCheckoutSession } from '../api/checkoutApi'
 import { Button } from '@/shared/components/ui/button'
 
 export function CheckoutPage() {
-  const { items } = useCartStore()
+  const { items, clearFrontendCart } = useCartStore()
   const { isAuthenticated } = useAuthStore()
 
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [isLoadingPayment, setIsLoadingPayment] = useState(true) // Set to true to start loading immediately
+  const [hadItemsOnLoad, setHadItemsOnLoad] = useState(false)
 
   useEffect(() => {
     // If cart is empty, we don't need to fetch secret, but we let the hook run.
@@ -21,6 +22,9 @@ export function CheckoutPage() {
       setIsLoadingPayment(false)
       return
     }
+
+    // Mark that we had items when checkout loaded
+    setHadItemsOnLoad(true)
 
     const fetchClientSecret = async () => {
       setIsLoadingPayment(true)
@@ -36,6 +40,8 @@ export function CheckoutPage() {
 
         if (secret) {
           setClientSecret(secret)
+          // Clear frontend cart only (backend cart needed for order processing)
+          clearFrontendCart()
         } else {
           throw new Error(`No client secret returned. Response: ${JSON.stringify(response)}`)
         }
@@ -48,10 +54,10 @@ export function CheckoutPage() {
     }
 
     fetchClientSecret()
-  }, [items.length]) // Add items.length as dependency to re-evaluate if cart changes
+  }, [items.length, clearFrontendCart]) // Add clearFrontendCart to dependencies
 
-  // Redirect if cart is empty
-  if (items.length === 0) {
+  // Only show empty cart message if cart was empty on load (not after clearing for checkout)
+  if (!hadItemsOnLoad && items.length === 0) {
     return (
       <div className="container mx-auto px-6 py-24 text-center">
         <h2 className="text-2xl font-bold">Your cart is empty</h2>

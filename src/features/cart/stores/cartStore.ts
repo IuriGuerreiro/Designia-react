@@ -156,13 +156,16 @@ export const useCartStore = create<CartState>()(
         if (isAuthenticated) {
           try {
             await cartApi.clearCart()
-            toast.info('Cart cleared')
+            console.log('Cart cleared from backend')
           } catch (error) {
-            console.error('Failed to clear cart:', error)
+            console.error('Failed to clear cart from backend:', error)
+            toast.error('Failed to clear cart from server')
           }
-        } else {
-          toast.info('Cart cleared')
         }
+      },
+
+      clearFrontendCart: () => {
+        set({ items: [] })
       },
 
       setIsOpen: isOpen => set({ isOpen }),
