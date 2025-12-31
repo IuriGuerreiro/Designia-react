@@ -9,9 +9,7 @@ export const cancelReasons = [
 ] as const
 
 export const cancelRequestSchema = z.object({
-  reason: z.enum(cancelReasons, {
-    errorMap: () => ({ message: 'Please select a cancellation reason.' }),
-  }),
+  reason: z.enum(cancelReasons),
   comment: z.string().optional(),
 })
 

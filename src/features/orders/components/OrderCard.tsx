@@ -6,6 +6,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/shared/components/ui/card'
 import { OrderStatusBadge } from './OrderStatusBadge'
 import type { OrderDetail } from '../types' // Changed from OrderListItem
+import { OptimizedImage } from '@/shared/components/OptimizedImage'
 
 interface OrderCardProps {
   order: OrderDetail // Changed from OrderListItem
@@ -64,13 +65,14 @@ export function OrderCard({ order }: OrderCardProps) {
               <div
                 key={item.id}
                 className="h-12 w-12 rounded-full border-2 border-background flex items-center justify-center overflow-hidden bg-slate-100"
+                style={{ zIndex: displayedItems.length - index }} // Layering for visual effect
               >
                 {item.product_image ? (
-                  <img
+                  <OptimizedImage
                     src={item.product_image}
                     alt={item.product_name}
-                    className="h-full w-full object-cover"
-                    style={{ zIndex: displayedItems.length - index }} // Layering for visual effect
+                    aspectRatio="square"
+                    containerClassName="h-full w-full"
                   />
                 ) : (
                   <Package className="h-6 w-6 text-slate-400" />

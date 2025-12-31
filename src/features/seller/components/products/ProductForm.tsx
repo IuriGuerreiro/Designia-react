@@ -54,8 +54,8 @@ interface Category {
 const productSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  price: z.coerce.number().min(0.01, 'Price must be greater than 0'),
-  stock_quantity: z.coerce.number().int().min(0, 'Stock cannot be negative'),
+  price: z.number().min(0.01, 'Price must be greater than 0'),
+  stock_quantity: z.number().int().min(0, 'Stock cannot be negative'),
   category: z.string().min(1, 'Category is required'), // Assuming ID as string
   condition: z.enum(['new', 'like_new', 'good', 'fair', 'poor']),
   brand: z.string().optional(),
@@ -76,6 +76,8 @@ interface ProductFormProps {
   initialData?: Product
   isEdit?: boolean
 }
+
+// Define a type for the API payload
 
 export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
   const navigate = useNavigate()
@@ -124,30 +126,25 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
       }
 
       // Filter out existing images from image_data
-      const newImages = values.images.filter((img: ProductImage) => img.image_content)
+      const newImages = values.images.filter(img => img.image_content)
       if (newImages.length > 0) {
-        payload.image_data = newImages.map((img: ProductImage) => ({
-          image_content: img.image_content,
+        payload.image_data = newImages.map(img => ({
+          image_content: img.image_content!,
           filename: img.filename || 'upload.png',
           is_primary: img.is_primary,
           order: 0,
         }))
       }
-
-      // Remove 'images' from payload as it's read-only
       delete payload.images
 
       // Handle AR Model
       const hasOriginalModel = initialData?.has_ar_model
       const currentModel = values.ar_model
-      // Check if model is effectively cleared (undefined, null, or empty object/filename)
       const isModelCleared = !currentModel || (!currentModel.filename && !currentModel.content)
 
       if (isModelCleared && hasOriginalModel) {
-        // User removed the existing model
         payload.model_data = null
       } else if (currentModel && currentModel.content) {
-        // User uploaded a new model
         payload.model_data = {
           model_content: currentModel.content,
           filename: currentModel.filename || 'model.glb',
@@ -156,9 +153,11 @@ export function ProductForm({ initialData, isEdit = false }: ProductFormProps) {
       delete payload.ar_model
 
       if (isEdit && initialData) {
-        return updateProduct(initialData.slug, payload)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return updateProduct(initialData.slug, payload as any)
       } else {
-        return createProduct(payload)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return createProduct(payload as any)
       }
     },
     onSuccess: () => {

@@ -38,9 +38,14 @@ type TwoFactorFormValues = z.infer<typeof twoFactorSchema>
 interface LoginFormProps {
   onSuccess?: () => void
   onSwitchToRegister?: () => void
+  onSwitchToForgotPassword?: () => void
 }
 
-export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
+export function LoginForm({
+  onSuccess,
+  onSwitchToRegister,
+  onSwitchToForgotPassword,
+}: LoginFormProps) {
   const { login, verify2FA, loginWithGoogle, isLoading, error, clearError, pending2FAUserId } =
     useAuthStore()
   const [serverError, setServerError] = useState<string | null>(null)
@@ -204,7 +209,18 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <div className="flex items-center justify-between">
+                  <FormLabel>Password</FormLabel>
+                  {onSwitchToForgotPassword && (
+                    <button
+                      type="button"
+                      onClick={onSwitchToForgotPassword}
+                      className="text-xs font-medium text-muted-foreground hover:text-primary hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
                 <FormControl>
                   <Input type="password" placeholder="••••••••" {...field} disabled={isLoading} />
                 </FormControl>

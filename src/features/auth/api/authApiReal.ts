@@ -9,6 +9,7 @@ interface BackendUser {
   first_name: string
   last_name: string
   avatar?: string
+  last_login?: string
   role: 'customer' | 'seller' | 'admin'
   is_email_verified: boolean
   two_factor_enabled: boolean
@@ -35,6 +36,7 @@ const transformUser = (backendUser: BackendUser): User => {
     avatar: backendUser.profile?.profile_picture_url || backendUser.avatar,
     role: backendUser.role,
     two_factor_enabled: backendUser.two_factor_enabled,
+    last_login: backendUser.last_login,
   }
 }
 

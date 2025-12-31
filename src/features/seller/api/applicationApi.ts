@@ -24,17 +24,13 @@ export const submitApplication = async (
   }
 
   if (data.shop_logo) {
-    // If it's a File object (standard input)
-    if (data.shop_logo instanceof File) {
-      formData.append('shop_logo', data.shop_logo)
-    }
+    formData.append('shop_logo', data.shop_logo)
   }
 
   if (data.uploaded_images && Array.isArray(data.uploaded_images)) {
-    data.uploaded_images.forEach((photo: File) => {
-      if (photo instanceof File) {
-        formData.append('uploaded_images', photo)
-      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data.uploaded_images.forEach((photo: any) => {
+      formData.append('uploaded_images', photo)
     })
   }
 

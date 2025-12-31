@@ -2,7 +2,8 @@ import axios from 'axios'
 import { tokenStorage } from '@/shared/utils/tokenStorage'
 
 // Get API base URL from environment variable or default to localhost
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 // Create axios instance with default config
 export const apiClient = axios.create({
@@ -11,6 +12,8 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
+  xsrfCookieName: 'csrftoken',
+  xsrfHeaderName: 'X-CSRFToken',
 })
 
 // Request interceptor to add JWT token if available
@@ -56,6 +59,7 @@ apiClient.interceptors.response.use(
         if (!refreshToken) {
           // No refresh token available - user must login again
           tokenStorage.clearTokens()
+          window.location.href = `${window.location.pathname}?session=expired`
           return Promise.reject(error)
         }
 
@@ -77,6 +81,7 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed - user session is invalid
         tokenStorage.clearTokens()
+        window.location.href = `${window.location.pathname}?session=expired`
         return Promise.reject(refreshError)
       }
     }

@@ -4,6 +4,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Star } from 'lucide-react'
 import type { ProductList } from '../types'
 import { useCartStore } from '@/features/cart/stores/cartStore'
+import { OptimizedImage } from '@/shared/components/OptimizedImage'
 
 interface ProductCardProps {
   product: ProductList
@@ -33,12 +34,13 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Card className="flex flex-col h-full overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-      <Link to={`/product/${product.slug}`} className="block relative h-48 overflow-hidden">
-        <img
+      <Link to={`/product/${product.slug}`} className="block">
+        <OptimizedImage
           src={product.primary_image}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
-          loading="lazy"
+          aspectRatio="square"
+          containerClassName="h-48 w-full"
+          className="transition-transform duration-200 hover:scale-105"
         />
       </Link>
       <CardHeader className="p-4 pb-2 flex-grow">

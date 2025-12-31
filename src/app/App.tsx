@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { AuthDialog } from '@/features/auth/components/AuthDialog'
@@ -8,27 +8,101 @@ import { CartIndicator } from '@/features/cart/components/CartIndicator'
 import { CartDrawer } from '@/features/cart/components/CartDrawer'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/shared/components/ui/sonner'
+import { toast } from 'sonner'
 import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
 import { HomePage } from './pages/HomePage'
-import { ProductBrowsePage } from './pages/ProductBrowsePage'
-import { ProductDetailPage } from '@/features/products/pages/ProductDetailPage'
-import { SettingsPage } from '@/features/account/pages/SettingsPage'
-import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage'
-import { CheckoutPage } from '@/features/checkout/pages/CheckoutPage'
-import { OrderConfirmationPage } from '@/features/checkout/pages/OrderConfirmationPage'
-import { OrderHistoryPage } from '@/features/orders/pages/OrderHistoryPage'
-import { OrderDetailPage } from '@/features/orders/pages/OrderDetailPage'
-import { SellerOnboardingPage } from '@/features/seller/pages/SellerOnboardingPage'
-import { SellerOnboardingEmbedded } from '@/features/seller/components/onboarding/SellerOnboardingEmbedded'
-import { SellerOnboardingReturn } from '@/features/seller/components/onboarding/SellerOnboardingReturn'
-import { SellerDashboardPage } from '@/features/seller/pages/SellerDashboardPage'
-import { SellerProductsPage } from '@/features/seller/pages/SellerProductsPage'
-import { SellerProductCreatePage } from '@/features/seller/pages/SellerProductCreatePage'
-import { SellerProductEditPage } from '@/features/seller/pages/SellerProductEditPage'
-import { SellerOrdersPage } from '@/features/seller/pages/SellerOrdersPage'
-import { SellerOrderDetailPage } from '@/features/seller/pages/SellerOrderDetailPage'
-import { SellerAnalyticsPage } from '@/features/seller/pages/SellerAnalyticsPage'
-import { SellerLayout } from '@/features/seller/components/SellerLayout'
+import { PageSkeleton } from '@/shared/components/skeletons/PageSkeleton'
+
+// Lazy loaded components
+const ProductBrowsePage = lazy(() =>
+  import('./pages/ProductBrowsePage').then(m => ({ default: m.ProductBrowsePage }))
+)
+const ProductDetailPage = lazy(() =>
+  import('@/features/products/pages/ProductDetailPage').then(m => ({
+    default: m.ProductDetailPage,
+  }))
+)
+const SettingsPage = lazy(() =>
+  import('@/features/account/pages/SettingsPage').then(m => ({ default: m.SettingsPage }))
+)
+const VerifyEmailPage = lazy(() =>
+  import('@/features/auth/pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage }))
+)
+const ResetPasswordPage = lazy(() =>
+  import('@/features/auth/pages/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage }))
+)
+const CheckoutPage = lazy(() =>
+  import('@/features/checkout/pages/CheckoutPage').then(m => ({ default: m.CheckoutPage }))
+)
+const OrderConfirmationPage = lazy(() =>
+  import('@/features/checkout/pages/OrderConfirmationPage').then(m => ({
+    default: m.OrderConfirmationPage,
+  }))
+)
+const OrderHistoryPage = lazy(() =>
+  import('@/features/orders/pages/OrderHistoryPage').then(m => ({ default: m.OrderHistoryPage }))
+)
+const OrderDetailPage = lazy(() =>
+  import('@/features/orders/pages/OrderDetailPage').then(m => ({ default: m.OrderDetailPage }))
+)
+const SellerOnboardingPage = lazy(() =>
+  import('@/features/seller/pages/SellerOnboardingPage').then(m => ({
+    default: m.SellerOnboardingPage,
+  }))
+)
+const SellerOnboardingEmbedded = lazy(() =>
+  import('@/features/seller/components/onboarding/SellerOnboardingEmbedded').then(m => ({
+    default: m.SellerOnboardingEmbedded,
+  }))
+)
+const SellerOnboardingReturn = lazy(() =>
+  import('@/features/seller/components/onboarding/SellerOnboardingReturn').then(m => ({
+    default: m.SellerOnboardingReturn,
+  }))
+)
+const SellerDashboardPage = lazy(() =>
+  import('@/features/seller/pages/SellerDashboardPage').then(m => ({
+    default: m.SellerDashboardPage,
+  }))
+)
+const SellerProductsPage = lazy(() =>
+  import('@/features/seller/pages/SellerProductsPage').then(m => ({
+    default: m.SellerProductsPage,
+  }))
+)
+const SellerProductCreatePage = lazy(() =>
+  import('@/features/seller/pages/SellerProductCreatePage').then(m => ({
+    default: m.SellerProductCreatePage,
+  }))
+)
+const SellerProductEditPage = lazy(() =>
+  import('@/features/seller/pages/SellerProductEditPage').then(m => ({
+    default: m.SellerProductEditPage,
+  }))
+)
+const SellerOrdersPage = lazy(() =>
+  import('@/features/seller/pages/SellerOrdersPage').then(m => ({ default: m.SellerOrdersPage }))
+)
+const SellerOrderDetailPage = lazy(() =>
+  import('@/features/seller/pages/SellerOrderDetailPage').then(m => ({
+    default: m.SellerOrderDetailPage,
+  }))
+)
+const SellerAnalyticsPage = lazy(() =>
+  import('@/features/seller/pages/SellerAnalyticsPage').then(m => ({
+    default: m.SellerAnalyticsPage,
+  }))
+)
+const SellerLayout = lazy(() =>
+  import('@/features/seller/components/SellerLayout').then(m => ({ default: m.SellerLayout }))
+)
+const NotFoundPage = lazy(() =>
+  import('@/pages/error/NotFoundPage').then(m => ({ default: m.NotFoundPage }))
+)
+const ServerErrorPage = lazy(() =>
+  import('@/pages/error/ServerErrorPage').then(m => ({ default: m.ServerErrorPage }))
+)
+
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 // Create a client
@@ -38,14 +112,9 @@ function AppContent() {
   const navigate = useNavigate()
   const { checkAuth, isAuthenticated } = useAuthStore()
   const [authDialogOpen, setAuthDialogOpen] = useState(false)
-  const [authView, setAuthView] = useState<'login' | 'register'>('login')
+  const [authView, setAuthView] = useState<'login' | 'register' | 'forgot-password'>('login')
   const [isProtectedRouteAuth, setIsProtectedRouteAuth] = useState(false)
   const [loginWasSuccessful, setLoginWasSuccessful] = useState(false)
-
-  // Check authentication status on mount
-  useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
 
   const handleOpenLogin = (fromProtectedRoute = false) => {
     setAuthView('login')
@@ -53,6 +122,24 @@ function AppContent() {
     setIsProtectedRouteAuth(fromProtectedRoute)
     setLoginWasSuccessful(false) // Reset on open
   }
+
+  // Check authentication status on mount
+  useEffect(() => {
+    checkAuth()
+
+    // Handle session expired redirect
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('session') === 'expired') {
+      toast.error('Session Expired', {
+        description: 'Please sign in again to continue.',
+        duration: 5000,
+      })
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      handleOpenLogin(false)
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [checkAuth])
 
   const handleOpenRegister = () => {
     setAuthView('register')
@@ -136,90 +223,97 @@ function AppContent() {
       <CartDrawer />
 
       <main className="flex-1 flex flex-col w-full">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/products" element={<ProductBrowsePage />} />
-          <Route path="/products/:slug" element={<ProductDetailPage />} />
-          <Route path="/product/:slug" element={<ProductDetailPage />} />
-          <Route
-            path="/checkout"
-            element={
-              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-                <CheckoutPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/checkout/confirmation/:orderId" element={<OrderConfirmationPage />} />
-          <Route
-            path="/orders"
-            element={
-              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-                <OrderHistoryPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/orders/:id"
-            element={
-              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-                <OrderDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/seller/onboarding"
-            element={
-              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-                <SellerOnboardingPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/seller/onboarding/stripe"
-            element={
-              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-                <SellerOnboardingEmbedded />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/seller/onboarding/return"
-            element={
-              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-                <SellerOnboardingReturn />
-              </ProtectedRoute>
-            }
-          />
+        <Suspense fallback={<PageSkeleton />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/products" element={<ProductBrowsePage />} />
+            <Route path="/products/:slug" element={<ProductDetailPage />} />
+            <Route path="/product/:slug" element={<ProductDetailPage />} />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/checkout/confirmation/:orderId" element={<OrderConfirmationPage />} />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                  <OrderHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders/:id"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                  <OrderDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/seller/onboarding"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                  <SellerOnboardingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/seller/onboarding/stripe"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                  <SellerOnboardingEmbedded />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/seller/onboarding/return"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                  <SellerOnboardingReturn />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Seller Section */}
-          <Route
-            path="/seller"
-            element={
-              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)} requiredRole="seller">
-                <SellerLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<SellerDashboardPage />} />
-            <Route path="dashboard" element={<SellerDashboardPage />} />
-            <Route path="products" element={<SellerProductsPage />} />
-            <Route path="products/new" element={<SellerProductCreatePage />} />
-            <Route path="products/:slug/edit" element={<SellerProductEditPage />} />
-            <Route path="orders" element={<SellerOrdersPage />} />
-            <Route path="orders/:id" element={<SellerOrderDetailPage />} />
-            <Route path="analytics" element={<SellerAnalyticsPage />} />
-          </Route>
+            {/* Seller Section */}
+            <Route
+              path="/seller"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)} requiredRole="seller">
+                  <SellerLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<SellerDashboardPage />} />
+              <Route path="dashboard" element={<SellerDashboardPage />} />
+              <Route path="products" element={<SellerProductsPage />} />
+              <Route path="products/new" element={<SellerProductCreatePage />} />
+              <Route path="products/:slug/edit" element={<SellerProductEditPage />} />
+              <Route path="orders" element={<SellerOrdersPage />} />
+              <Route path="orders/:id" element={<SellerOrderDetailPage />} />
+              <Route path="analytics" element={<SellerAnalyticsPage />} />
+            </Route>
 
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
-                <SettingsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
-        </Routes>
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+            {/* Error Pages */}
+            <Route path="/500" element={<ServerErrorPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </main>
 
       {/* Footer */}

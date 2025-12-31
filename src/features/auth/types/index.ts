@@ -10,6 +10,7 @@ export interface User {
   avatar?: string
   role: 'customer' | 'seller' | 'admin'
   two_factor_enabled?: boolean
+  last_login?: string
 }
 
 export interface LoginCredentials {

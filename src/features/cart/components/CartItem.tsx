@@ -2,6 +2,7 @@ import { Minus, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { useCartStore } from '../stores/cartStore'
 import type { CartStateItem as CartItemType } from '../types'
+import { OptimizedImage } from '@/shared/components/OptimizedImage'
 
 interface CartItemProps {
   item: CartItemType
@@ -12,9 +13,13 @@ export function CartItem({ item }: CartItemProps) {
 
   return (
     <div className="flex gap-4 py-4">
-      <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border bg-white">
-        <img src={item.image} alt={item.name} className="h-full w-full object-contain" />
-      </div>
+      <OptimizedImage
+        src={item.image}
+        alt={item.name}
+        aspectRatio="square"
+        containerClassName="h-20 w-20 flex-shrink-0 rounded-md border bg-white"
+        className="object-contain"
+      />
 
       <div className="flex flex-1 flex-col">
         <div>

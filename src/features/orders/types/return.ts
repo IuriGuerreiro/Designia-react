@@ -18,9 +18,7 @@ export const returnRequestSchema = z.object({
       })
     )
     .min(1, 'Please select at least one item to return.'),
-  reason: z.enum(returnReasons, {
-    errorMap: () => ({ message: 'Please select a return reason.' }),
-  }),
+  reason: z.enum(returnReasons),
   comment: z.string().optional(),
   proof_images: z.array(z.any()).optional(), // Handling files in form data is tricky with zod, simple array check
 })

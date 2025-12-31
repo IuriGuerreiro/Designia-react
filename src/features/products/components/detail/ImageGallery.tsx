@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { cn } from '@/shared/lib/utils'
 import type { ProductDetailImage } from '@/features/products/types'
+import { OptimizedImage } from '@/shared/components/OptimizedImage'
 
 interface ImageGalleryProps {
   images: ProductDetailImage[]
@@ -17,13 +18,13 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Main Image */}
-      <div className="relative overflow-hidden rounded-lg border bg-white aspect-square group">
-        <img
-          src={selectedImage.url}
-          alt={selectedImage.alt_text || productName}
-          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
+      <OptimizedImage
+        src={selectedImage.url}
+        alt={selectedImage.alt_text || productName}
+        aspectRatio="square"
+        containerClassName="rounded-lg border bg-white"
+        className="transition-transform duration-300 hover:scale-105"
+      />
 
       {/* Thumbnails */}
       {images.length > 1 && (
@@ -37,10 +38,11 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                 selectedImage.id === image.id ? 'ring-2 ring-primary' : 'hover:border-primary/50'
               )}
             >
-              <img
+              <OptimizedImage
                 src={image.url}
                 alt={image.alt_text || productName}
-                className="h-full w-full object-contain"
+                aspectRatio="square"
+                containerClassName="h-full w-full"
               />
             </button>
           ))}

@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Skeleton } from '@/shared/components/ui/skeleton'
 import { Button } from '@/shared/components/ui/button'
-import { Package, ShoppingBag, DollarSign, Eye, ArrowRight, AlertCircle } from 'lucide-react'
+import { Package, ShoppingBag, DollarSign, Eye, ArrowRight, AlertCircle, Clock } from 'lucide-react'
 import { StripeAccountAlert } from '../components/stripe/StripeAccountAlert'
 import { useSellerAnalytics } from '../hooks'
+import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -21,6 +22,7 @@ const formatNumber = (value: number) => {
 }
 
 export function SellerDashboardPage() {
+  const { user } = useAuthStore()
   const { data: analytics, isLoading, isError } = useSellerAnalytics('month')
 
   const stats = [
@@ -54,11 +56,22 @@ export function SellerDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Seller Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome back! Here's what's happening with your store this month.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Seller Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back! Here's what's happening with your store this month.
+          </p>
+        </div>
+        {user?.last_login && (
+          <div className="text-sm text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-md border border-border flex items-center gap-2 self-start md:self-auto">
+            <Clock className="h-4 w-4" />
+            <span>
+              Last login:{' '}
+              <span className="font-medium">{new Date(user.last_login).toLocaleString()}</span>
+            </span>
+          </div>
+        )}
       </div>
 
       <StripeAccountAlert />
