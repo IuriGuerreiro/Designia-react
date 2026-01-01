@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { getOrders } from '../api/ordersApi'
 import { OrderCard } from './OrderCard'
-import { Button } from '@/shared/components/ui/button'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Loader2, Package } from 'lucide-react'
+import { EmptyState } from '@/shared/components/ui/EmptyState'
 
 export function OrderList() {
+  const navigate = useNavigate()
   const { data, isLoading, error } = useQuery({
     queryKey: ['orders'],
     queryFn: () => getOrders(),
@@ -29,14 +30,16 @@ export function OrderList() {
 
   if (!data || data.results.length === 0) {
     return (
-      <div className="text-center py-12 border rounded-lg bg-muted/10">
-        <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium">No orders yet</h3>
-        <p className="text-muted-foreground mb-6">Looks like you haven't placed any orders yet.</p>
-        <Button asChild>
-          <Link to="/products">Start Shopping</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={Package}
+        title="No orders yet"
+        description="Looks like you haven't placed any orders yet."
+        action={{
+          label: 'Start Shopping',
+          onClick: () => navigate('/products'),
+        }}
+        className="py-12"
+      />
     )
   }
 

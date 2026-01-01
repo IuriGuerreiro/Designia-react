@@ -20,7 +20,7 @@ export default {
         foreground: '#1e293b',
         muted: {
           DEFAULT: '#f1f5f9',
-          foreground: '#64748b',
+          foreground: '#4b5563', // Darkened from #64748b for contrast
         },
         accent: {
           DEFAULT: '#f1f5f9',

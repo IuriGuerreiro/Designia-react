@@ -156,7 +156,11 @@ export function ProductBrowsePage() {
         <main className="lg:col-span-3">
           {/* Toolbar */}
           <div className="flex items-center justify-between mb-6 gap-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div
+              className="flex items-center gap-2 text-sm text-muted-foreground"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               {isLoading ? (
                 <span>Loading products...</span>
               ) : (

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ShoppingCart } from 'lucide-react'
 import {
   Sheet,
@@ -14,8 +15,10 @@ import { ScrollArea } from '@/shared/components/ui/scroll-area'
 import { useCartStore, useCartSubtotal, useCartCount } from '../stores/cartStore'
 import { CartItem } from './CartItem'
 import { Link } from 'react-router-dom'
+import { EmptyState } from '@/shared/components/ui/EmptyState'
 
 export function CartDrawer() {
+  const navigate = useNavigate()
   const { isOpen, setIsOpen, items, fetchCart } = useCartStore()
   const subtotal = useCartSubtotal()
   const itemCount = useCartCount()
@@ -63,17 +66,20 @@ export function CartDrawer() {
             </div>
           </>
         ) : (
-          <div className="flex h-full flex-col items-center justify-center space-y-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-              <ShoppingCart className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <div className="text-center space-y-1">
-              <h3 className="text-xl font-semibold">Your cart is empty</h3>
-              <p className="text-muted-foreground">Looks like you haven't added anything yet.</p>
-            </div>
-            <Button variant="outline" onClick={() => setIsOpen(false)} asChild>
-              <Link to="/products">Start Shopping</Link>
-            </Button>
+          <div className="flex h-full flex-col items-center justify-center">
+            <EmptyState
+              icon={ShoppingCart}
+              title="Your cart is empty"
+              description="Looks like you haven't added anything yet."
+              action={{
+                label: 'Start Shopping',
+                onClick: () => {
+                  setIsOpen(false)
+                  navigate('/products')
+                },
+              }}
+              className="border-none bg-transparent"
+            />
           </div>
         )}
       </SheetContent>

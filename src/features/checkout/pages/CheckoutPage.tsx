@@ -31,7 +31,6 @@ export function CheckoutPage() {
       try {
         // Create Checkout Session
         const response = await createCheckoutSession()
-        console.log('Checkout Session Response:', response)
 
         // Cast to any to safely check for snake_case fallback without TS errors
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,19 +70,30 @@ export function CheckoutPage() {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header / Breadcrumb */}
-      <div className="border-b bg-muted/20">
+      <nav className="border-b bg-muted/20" aria-label="Breadcrumb">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Link to="/" className="hover:text-foreground">
-              <Home className="h-4 w-4" />
-            </Link>
-            <ChevronRight className="h-4 w-4 mx-2" />
-            <Link to="/cart" className="hover:text-foreground">
-              Cart
-            </Link>
-            <ChevronRight className="h-4 w-4 mx-2" />
-            <span className="font-semibold text-foreground">Checkout</span>
-          </div>
+          <ol className="flex items-center text-sm text-muted-foreground list-none p-0 m-0">
+            <li>
+              <Link to="/" className="hover:text-foreground flex items-center">
+                <Home className="h-4 w-4" />
+                <span className="sr-only">Home</span>
+              </Link>
+            </li>
+            <li className="flex items-center" aria-hidden="true">
+              <ChevronRight className="h-4 w-4 mx-2" />
+            </li>
+            <li>
+              <Link to="/cart" className="hover:text-foreground">
+                Cart
+              </Link>
+            </li>
+            <li className="flex items-center" aria-hidden="true">
+              <ChevronRight className="h-4 w-4 mx-2" />
+            </li>
+            <li aria-current="page">
+              <span className="font-semibold text-foreground">Checkout</span>
+            </li>
+          </ol>
           {!isAuthenticated && (
             <div className="text-sm">
               Already have an account?{' '}
@@ -93,7 +103,7 @@ export function CheckoutPage() {
             </div>
           )}
         </div>
-      </div>
+      </nav>
 
       <div className="container mx-auto px-6 py-8" style={{ maxWidth: '1200px' }}>
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>

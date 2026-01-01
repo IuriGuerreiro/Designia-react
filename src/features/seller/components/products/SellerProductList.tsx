@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Table,
@@ -19,16 +19,18 @@ import {
 } from '@/shared/components/ui/dropdown-menu'
 import { Badge } from '@/shared/components/ui/badge'
 import { Input } from '@/shared/components/ui/input'
-import { MoreHorizontal, Plus, Search, Loader2, Edit, Trash2, Eye } from 'lucide-react'
+import { MoreHorizontal, Plus, Search, Loader2, Edit, Trash2, Eye, Package } from 'lucide-react'
 import { toast } from 'sonner'
 import { getSellerProducts, deleteProduct } from '../../api/productsApi'
-import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog' // Assuming we have this or I'll create a simple one
+import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
+import { EmptyState } from '@/shared/components/ui/EmptyState'
 import type { Product } from '../../types'
 
 export function SellerProductList() {
   const page = 1 // TODO: Implement pagination
   const [search, setSearch] = useState('')
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   const queryClient = useQueryClient()
 
@@ -59,7 +61,6 @@ export function SellerProductList() {
     if (product.stock_quantity <= 0) {
       return <Badge variant="destructive">Out of Stock</Badge>
     }
-    // Assuming we might have 'is_active' later, for now just Active
     return (
       <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
         Active
@@ -77,6 +78,33 @@ export function SellerProductList() {
 
   if (isError) {
     return <div className="text-center text-red-500 py-10">Failed to load products.</div>
+  }
+
+  // Zero State (No products at all, not just search)
+  // Assuming if count is 0 and no search filter (search is client side filtering or API param? Here it looks like API doesn't take search yet)
+  if (!data || data.results.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold tracking-tight">Products</h2>
+          <Button asChild>
+            <Link to="/seller/products/new">
+              <Plus className="mr-2 h-4 w-4" /> Add Product
+            </Link>
+          </Button>
+        </div>
+        <EmptyState
+          icon={Package}
+          title="No products yet"
+          description="Get started by adding your first product to the marketplace."
+          action={{
+            label: 'Add Product',
+            onClick: () => navigate('/seller/products/new'),
+          }}
+          className="border-dashed py-16"
+        />
+      </div>
+    )
   }
 
   return (
@@ -187,13 +215,9 @@ export function SellerProductList() {
                 </TableCell>
               </TableRow>
             ))}
-            {data?.results.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  No products found.
-                </TableCell>
-              </TableRow>
-            )}
+            {/* The filter logic for 'search' is missing client-side, assuming API handles it or TODO. 
+                If search filters results to 0, show different empty state? 
+                For now, if data.results is empty we return the big empty state above. */}
           </TableBody>
         </Table>
       </div>

@@ -23,6 +23,7 @@ export function HeaderSearchBar() {
         <Input
           type="search"
           placeholder="Search for products..."
+          aria-label="Search for products"
           value={query}
           onChange={e => setQuery(e.target.value)}
           className="w-full pl-10 h-10 border-input focus-visible:ring-primary"

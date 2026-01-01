@@ -48,9 +48,6 @@ export default defineConfig({
     host: '0.0.0.0', // Listen on all network interfaces for IP access and Docker
     port: 5174,
     strictPort: false, // Allow Vite to try next port if 5173 is busy
-    hmr: {
-      host: 'designia.testingthing.work', // Allow HMR from this domain
-    },
     headers: {
       // Allow cross-origin communication for Google OAuth
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',

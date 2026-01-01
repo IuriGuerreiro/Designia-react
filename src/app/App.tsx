@@ -103,6 +103,7 @@ const ServerErrorPage = lazy(() =>
   import('@/pages/error/ServerErrorPage').then(m => ({ default: m.ServerErrorPage }))
 )
 
+import { SkipToContent } from '@/shared/components/a11y/SkipToContent'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 // Create a client
@@ -179,6 +180,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SkipToContent />
       {/* Header / Navbar */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div
@@ -222,7 +224,7 @@ function AppContent() {
       />
       <CartDrawer />
 
-      <main className="flex-1 flex flex-col w-full">
+      <main id="main-content" className="flex-1 flex flex-col w-full">
         <Suspense fallback={<PageSkeleton />}>
           <Routes>
             <Route path="/" element={<HomePage />} />

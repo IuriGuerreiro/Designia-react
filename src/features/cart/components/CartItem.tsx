@@ -41,16 +41,20 @@ export function CartItem({ item }: CartItemProps) {
               className="h-8 w-8"
               onClick={() => updateQuantity(item.productId, item.quantity - 1)}
               disabled={item.quantity <= 1}
+              aria-label={`Decrease quantity of ${item.name}`}
             >
               <Minus className="h-3 w-3" />
             </Button>
-            <span className="w-4 text-center">{item.quantity}</span>
+            <span className="w-4 text-center" aria-label={`Quantity: ${item.quantity}`}>
+              {item.quantity}
+            </span>
             <Button
               variant="outline"
               size="icon"
               className="h-8 w-8"
               onClick={() => updateQuantity(item.productId, item.quantity + 1)}
               disabled={item.quantity >= item.maxStock}
+              aria-label={`Increase quantity of ${item.name}`}
             >
               <Plus className="h-3 w-3" />
             </Button>
@@ -62,6 +66,7 @@ export function CartItem({ item }: CartItemProps) {
             size="sm"
             className="text-muted-foreground hover:text-destructive"
             onClick={() => removeItem(item.productId)}
+            aria-label={`Remove ${item.name} from cart`}
           >
             <Trash2 className="h-4 w-4 mr-1" />
             Remove
