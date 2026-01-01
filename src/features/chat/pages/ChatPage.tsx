@@ -57,14 +57,18 @@ export const ChatPage = () => {
   }, [lastMessage, queryClient, threadId, navigate])
 
   const filteredThreads = useMemo(() => {
-    if (!searchQuery) return threads
-    return threads.filter(thread =>
+    // Ensure threads is always an array
+    const threadList = Array.isArray(threads) ? threads : []
+    if (!searchQuery) return threadList
+    return threadList.filter(thread =>
       thread.participants.some(p => p.username.toLowerCase().includes(searchQuery.toLowerCase()))
     )
   }, [threads, searchQuery])
 
   const sortedThreads = useMemo(() => {
-    return [...filteredThreads].sort((a, b) => {
+    // Ensure filteredThreads is always an array before spreading
+    const threadList = Array.isArray(filteredThreads) ? filteredThreads : []
+    return [...threadList].sort((a, b) => {
       const timeA = a.last_message ? new Date(a.last_message.created_at).getTime() : 0
       const timeB = b.last_message ? new Date(b.last_message.created_at).getTime() : 0
       return timeB - timeA

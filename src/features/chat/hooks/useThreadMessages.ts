@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import { getMessages, markThreadRead } from '../api/chatApi'
+import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query'
+import { getMessages, markThreadRead, type MessagePage } from '../api/chatApi'
 import type { ChatMessage } from '../api/chatApi'
 import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
 import { tokenStorage } from '@/shared/utils/tokenStorage'
@@ -20,9 +20,18 @@ export const useThreadMessages = (threadId?: string) => {
     getNextPageParam: lastPage => {
       if (!lastPage.next) return undefined
       try {
-        const url = new URL(lastPage.next)
-        return parseInt(url.searchParams.get('page') || '1')
-      } catch {
+        // Handle absolute or relative URLs
+        const urlString = lastPage.next
+        const pageMatch = urlString.match(/[?&]page=(\d+)/)
+        const page = pageMatch ? parseInt(pageMatch[1], 10) : undefined
+
+        if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+          console.log('[Pagination] Next page:', page)
+        }
+
+        return page
+      } catch (err) {
+        console.error('[Pagination] Error parsing next page URL:', err)
         return undefined
       }
     },
@@ -35,7 +44,16 @@ export const useThreadMessages = (threadId?: string) => {
     if (!data) return []
     const allMessages = data.pages.flatMap(page => page.results)
     // Reverse because API returns newest first, but we want to show oldest first in the list
-    return [...allMessages].reverse()
+    const reversed = [...allMessages].reverse()
+
+    if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+      console.log('[Messages] Total pages:', data.pages.length)
+      console.log('[Messages] Total messages:', reversed.length)
+      console.log('[Messages] First message ID:', reversed[0]?.id)
+      console.log('[Messages] Last message ID:', reversed[reversed.length - 1]?.id)
+    }
+
+    return reversed
   }, [data])
 
   const markRead = useCallback(async () => {
@@ -82,20 +100,15 @@ export const useThreadMessages = (threadId?: string) => {
       }
 
       if (payload.type === 'chat.read') {
-        // Update messages to be read
-        // Ideally we check payload.read_at but simpler to just mark all sent by current user as read
         const readerId = payload.data.reader_id
 
         if (String(readerId) !== String(user?.id)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          queryClient.setQueryData(['messages', threadId], (oldData: any) => {
+          queryClient.setQueryData<InfiniteData<MessagePage>>(['messages', threadId], oldData => {
             if (!oldData || !oldData.pages) return oldData
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const newPages = oldData.pages.map((page: any) => ({
+            const newPages = oldData.pages.map(page => ({
               ...page,
               results: page.results.map((msg: ChatMessage) => {
-                // If message was sent by me and is not read, mark it read
                 if (String(msg.sender) === String(user?.id) && !msg.is_read) {
                   return { ...msg, is_read: true }
                 }
@@ -122,34 +135,25 @@ export const useThreadMessages = (threadId?: string) => {
           is_read: false,
         }
 
-        // Update the query cache
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        queryClient.setQueryData(['messages', threadId], (oldData: any) => {
+        queryClient.setQueryData<InfiniteData<MessagePage>>(['messages', threadId], oldData => {
           if (!oldData || !oldData.pages)
             return {
               pages: [{ results: [newMessage], count: 1, next: null, previous: null }],
               pageParams: [1],
             }
 
-          // Avoid duplication (e.g. from optimistic update if we could track it better,
-          // or if the message was already added by another event)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const alreadyExists = oldData.pages.some(
-            (page: any) =>
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              Array.isArray(page?.results) && page.results.some((m: any) => m.id === newMessage.id)
+            page =>
+              Array.isArray(page?.results) &&
+              page.results.some((m: ChatMessage) => m.id === newMessage.id)
           )
           if (alreadyExists) return oldData
 
-          // Remove any optimistic message that matches this text and sender
-          // This is a bit fuzzy but works for basic cases
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const newPages = oldData.pages.map((page: any, idx: number) => {
+          const newPages = oldData.pages.map((page, idx: number) => {
             if (idx === 0) {
               const currentResults = Array.isArray(page.results) ? page.results : []
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const filteredResults = currentResults.filter(
-                (m: any) =>
+                (m: ChatMessage) =>
                   !(
                     m.id.startsWith('temp-') &&
                     m.text === newMessage.text &&
@@ -202,8 +206,7 @@ export const useThreadMessages = (threadId?: string) => {
           is_read: false,
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        queryClient.setQueryData(['messages', threadId], (oldData: any) => {
+        queryClient.setQueryData<InfiniteData<MessagePage>>(['messages', threadId], oldData => {
           if (!oldData)
             return {
               pages: [{ results: [optimisticMessage], count: 1, next: null, previous: null }],
@@ -236,6 +239,12 @@ export const useThreadMessages = (threadId?: string) => {
       )
     }
   }, [socket])
+
+  if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+    console.log('[useThreadMessages] hasNextPage:', hasNextPage)
+    console.log('[useThreadMessages] isFetchingNextPage:', isFetchingNextPage)
+    console.log('[useThreadMessages] total messages:', messages.length)
+  }
 
   return {
     messages,

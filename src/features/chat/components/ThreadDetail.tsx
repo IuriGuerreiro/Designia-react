@@ -57,7 +57,7 @@ export const ThreadDetail: React.FC<ThreadDetailProps> = ({ threadId }) => {
   return (
     <div className="flex-1 flex flex-col h-full bg-background overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b flex items-center gap-4 bg-background">
+      <div className="p-4 border-b flex items-center gap-4 bg-white shadow-sm z-10">
         <Button variant="ghost" size="icon" className="md:hidden" onClick={() => navigate('/chat')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>

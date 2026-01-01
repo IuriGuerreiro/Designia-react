@@ -49,8 +49,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   }
 
   return (
-    <div className="p-4 border-t bg-background">
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <div className="p-4 border-t bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 max-w-5xl mx-auto">
         <input
           type="file"
           accept="image/*"

@@ -57,8 +57,12 @@ export const getConversation = async (threadId: string): Promise<ChatThread> => 
 }
 
 export const getConversations = async (): Promise<ChatThread[]> => {
-  const { data } = await apiClient.get<ChatThread[]>('/chat/conversations/')
-  return data
+  const { data } = await apiClient.get('/chat/conversations/')
+  // Handle both paginated and direct array responses
+  if (data && typeof data === 'object' && 'results' in data) {
+    return data.results as ChatThread[]
+  }
+  return Array.isArray(data) ? data : []
 }
 
 export const getMessages = async (
@@ -73,4 +77,16 @@ export const getMessages = async (
 
 export const markThreadRead = async (threadId: string): Promise<void> => {
   await apiClient.post(`/chat/conversations/${threadId}/mark_read/`)
+}
+
+export const reportMessage = async (
+  messageId: string,
+  reason: string,
+  description?: string
+): Promise<void> => {
+  await apiClient.post('/chat/reports/', {
+    message: messageId,
+    reason,
+    description,
+  })
 }
