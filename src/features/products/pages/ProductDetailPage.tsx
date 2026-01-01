@@ -1,12 +1,15 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ShoppingCart, Heart, Share2, ChevronRight, Home } from 'lucide-react'
+import { ShoppingCart, Heart, Share2, ChevronRight, Home, MessageCircle } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { getProductBySlug } from '../api/productsApi'
 import { ImageGallery } from '../components/detail/ImageGallery'
 import { ReviewList } from '../components/detail/ReviewList'
 import { SellerInfo } from '../components/detail/SellerInfo'
 import { useCartStore } from '@/features/cart/stores/cartStore'
+import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
+import { startConversation } from '@/features/chat/api/chatApi'
 
 import { Button } from '@/shared/components/ui/button'
 import { Separator } from '@/shared/components/ui/separator'
@@ -15,7 +18,9 @@ import { Skeleton } from '@/shared/components/ui/skeleton'
 
 export function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
   const addItem = useCartStore(state => state.addItem)
+  const { isAuthenticated, user } = useAuthStore()
 
   const {
     data: product,
@@ -53,6 +58,27 @@ export function ProductDetailPage() {
       maxStock: product.stock_quantity,
       quantity: 1,
     })
+  }
+
+  const handleContactSeller = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to contact the seller')
+      // Optionally trigger auth modal here if exposed via context/store
+      return
+    }
+
+    if (user?.id === product.seller.id) {
+      toast.error('You cannot chat with yourself')
+      return
+    }
+
+    try {
+      const response = await startConversation(product.id)
+      navigate(`/chat/${response.thread_id}`)
+    } catch (error) {
+      console.error('Failed to start conversation:', error)
+      toast.error('Failed to start conversation with seller')
+    }
   }
 
   // Handle potential string boolean from API
@@ -145,25 +171,38 @@ export function ProductDetailPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-4 pt-4 sticky bottom-0 bg-background/95 backdrop-blur p-4 lg:p-0 lg:static border-t lg:border-0 z-10 lg:z-auto -mx-6 px-6 lg:mx-0 lg:px-0 shadow-lg lg:shadow-none">
+          <div className="flex flex-col gap-3 pt-4 sticky bottom-0 bg-background/95 backdrop-blur p-4 lg:p-0 lg:static border-t lg:border-0 z-10 lg:z-auto -mx-6 px-6 lg:mx-0 lg:px-0 shadow-lg lg:shadow-none">
+            <div className="flex gap-4">
+              <Button
+                size="lg"
+                className="flex-1 text-lg h-12 bg-[#0f172a] hover:bg-[#0f172a]/90 text-white"
+                onClick={handleAddToCart}
+                disabled={!isInStock}
+              >
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                {isInStock ? 'Add to Cart' : 'Out of Stock'}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-4 border-[#0f172a] text-[#0f172a] hover:bg-slate-50"
+              >
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Button size="lg" variant="ghost" className="px-4">
+                <Share2 className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Chat Button - Secondary Action */}
             <Button
-              size="lg"
-              className="flex-1 text-lg h-12 bg-[#0f172a] hover:bg-[#0f172a]/90 text-white"
-              onClick={handleAddToCart}
-              disabled={!isInStock}
-            >
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              {isInStock ? 'Add to Cart' : 'Out of Stock'}
-            </Button>
-            <Button
-              size="lg"
               variant="outline"
-              className="px-4 border-[#0f172a] text-[#0f172a] hover:bg-slate-50"
+              size="lg"
+              className="w-full border-slate-300 text-slate-700 hover:bg-slate-50"
+              onClick={handleContactSeller}
             >
-              <Heart className="h-5 w-5" />
-            </Button>
-            <Button size="lg" variant="ghost" className="px-4">
-              <Share2 className="h-5 w-5" />
+              <MessageCircle className="mr-2 h-5 w-5" />
+              Chat with Seller
             </Button>
           </div>
         </div>

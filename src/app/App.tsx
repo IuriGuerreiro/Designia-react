@@ -93,6 +93,9 @@ const SellerAnalyticsPage = lazy(() =>
     default: m.SellerAnalyticsPage,
   }))
 )
+const ChatPage = lazy(() =>
+  import('@/features/chat/pages/ChatPage').then(m => ({ default: m.ChatPage }))
+)
 const SellerLayout = lazy(() =>
   import('@/features/seller/components/SellerLayout').then(m => ({ default: m.SellerLayout }))
 )
@@ -105,6 +108,7 @@ const ServerErrorPage = lazy(() =>
 
 import { SkipToContent } from '@/shared/components/a11y/SkipToContent'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { WebSocketProvider } from '@/context/WebSocketContext'
 
 // Create a client
 const queryClient = new QueryClient()
@@ -308,6 +312,22 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                  <ChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat/:threadId"
+              element={
+                <ProtectedRoute onAuthRequired={() => handleOpenLogin(true)}>
+                  <ChatPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
 
@@ -335,7 +355,9 @@ export function App() {
   return (
     <Router>
       <QueryClientProvider client={queryClient}>
-        <AppContent />
+        <WebSocketProvider>
+          <AppContent />
+        </WebSocketProvider>
       </QueryClientProvider>
     </Router>
   )
