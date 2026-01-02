@@ -93,9 +93,14 @@ export interface Category {
   created_at: string
 }
 
+export interface ReviewUser {
+  id: string
+  username: string
+}
+
 export interface MinimalProductReview {
   id: number
-  reviewer: MinimalSeller
+  reviewer: ReviewUser
   rating: number
   title?: string
   comment: string
@@ -105,14 +110,31 @@ export interface MinimalProductReview {
 
 export interface Review {
   id: number
-  product: { id: string; name?: string }
-  reviewer: { id: string; username?: string }
+  product: { id: string; name: string }
+  reviewer: ReviewUser
   rating: number
   title?: string
   comment: string
-  verified_purchase: boolean
+  is_verified_purchase: boolean
   created_at: string
   updated_at: string
+}
+
+export interface ReviewListResponse {
+  count: number
+  page: number
+  page_size: number
+  num_pages: number
+  has_next: boolean
+  has_previous: boolean
+  results: Review[]
+}
+
+export interface CreateReviewPayload {
+  product_id: string
+  rating: number
+  title?: string
+  comment?: string
 }
 
 export interface ProductDetail {

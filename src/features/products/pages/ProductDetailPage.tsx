@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 
 import { getProductBySlug } from '../api/productsApi'
 import { ImageGallery } from '../components/detail/ImageGallery'
-import { ReviewList } from '../components/detail/ReviewList'
+import { ProductReviews } from '../components/ProductReviews'
 import { SellerInfo } from '../components/detail/SellerInfo'
 import { useCartStore } from '@/features/cart/stores/cartStore'
 import { useAuthStore } from '@/features/auth/hooks/useAuthStore'
@@ -15,6 +15,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Separator } from '@/shared/components/ui/separator'
 import { Badge } from '@/shared/components/ui/badge'
 import { Skeleton } from '@/shared/components/ui/skeleton'
+import { StarRating } from '@/shared/components/ui/star-rating'
 
 export function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -63,7 +64,6 @@ export function ProductDetailPage() {
   const handleContactSeller = async () => {
     if (!isAuthenticated) {
       toast.error('Please sign in to contact the seller')
-      // Optionally trigger auth modal here if exposed via context/store
       return
     }
 
@@ -80,8 +80,6 @@ export function ProductDetailPage() {
       toast.error('Failed to start conversation with seller')
     }
   }
-
-  // Handle potential string boolean from API
 
   const isInStock = String(product.is_in_stock).toLowerCase() === 'true'
 
@@ -131,13 +129,13 @@ export function ProductDetailPage() {
               )}
               {product.is_on_sale && <Badge variant="destructive">Sale</Badge>}
             </div>
-            {/* Rating Summary */}
+
+            {/* Rating Summary (Integrated StarRating) */}
             <div className="flex items-center gap-2 mt-4 text-sm">
-              <div className="flex text-amber-500">
-                {'★'.repeat(Math.round(parseFloat(product.average_rating)))}
-                {'☆'.repeat(5 - Math.round(parseFloat(product.average_rating)))}
-              </div>
-              <span className="text-muted-foreground">({product.review_count} reviews)</span>
+              <StarRating value={parseFloat(product.average_rating) || 0} readOnly size={18} />
+              <span className="text-muted-foreground font-medium">
+                {product.average_rating} ({product.review_count} reviews)
+              </span>
             </div>
           </div>
 
@@ -208,11 +206,11 @@ export function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Reviews Section */}
+      {/* Reviews Section (Integrated ProductReviews) */}
       <div className="container mx-auto px-6 py-16" style={{ maxWidth: '1400px' }}>
         <Separator className="mb-16" />
         <div className="max-w-4xl mx-auto">
-          <ReviewList reviews={product.reviews || []} />
+          <ProductReviews productId={product.id} productSlug={product.slug} />
         </div>
       </div>
     </div>
