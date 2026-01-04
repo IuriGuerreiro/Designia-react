@@ -44,6 +44,8 @@ export interface PaginatedResponse<T> {
   results: T[]
 }
 
+export type MessagePage = PaginatedResponse<ChatMessage>
+
 export const startConversation = async (productId: string): Promise<StartConversationResponse> => {
   const { data } = await apiClient.post<StartConversationResponse>('/chat/conversations/', {
     product_id: productId,
@@ -65,11 +67,8 @@ export const getConversations = async (): Promise<ChatThread[]> => {
   return Array.isArray(data) ? data : []
 }
 
-export const getMessages = async (
-  threadId: string,
-  page = 1
-): Promise<PaginatedResponse<ChatMessage>> => {
-  const { data } = await apiClient.get<PaginatedResponse<ChatMessage>>(
+export const getMessages = async (threadId: string, page = 1): Promise<MessagePage> => {
+  const { data } = await apiClient.get<MessagePage>(
     `/chat/conversations/${threadId}/messages/?page=${page}`
   )
   return data

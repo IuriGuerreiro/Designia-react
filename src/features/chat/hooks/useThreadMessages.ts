@@ -12,7 +12,7 @@ export const useThreadMessages = (threadId?: string) => {
   const { user } = useAuthStore()
   const [socket, setSocket] = useState<WebSocket | null>(null)
   const [typingUser, setTypingUser] = useState<string | null>(null)
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['messages', threadId],

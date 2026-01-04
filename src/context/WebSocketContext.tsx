@@ -18,7 +18,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [lastMessage, setLastMessage] = useState<MessageEvent | null>(null)
   const [readyState, setReadyState] = useState<number>(WebSocket.CLOSED)
   const socketRef = useRef<WebSocket | null>(null)
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const reconnectAttemptsRef = useRef(0)
 
   // Ref to hold the connect function to allow recursive calls

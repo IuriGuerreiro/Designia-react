@@ -105,7 +105,9 @@ export function SellerOrderDetailPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">Order #{order.id.slice(0, 8)}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Order #{order.id?.slice(0, 8) ?? 'N/A'}
+            </h1>
             {getStatusBadge(order.status)}
           </div>
           <p className="text-muted-foreground mt-1 flex items-center gap-2">
@@ -150,14 +152,14 @@ export function SellerOrderDetailPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <Link
-                          to={`/products/${item.product.slug || item.product.id}`}
+                          to={`/products/${item.product?.slug || item.product?.id}`}
                           target="_blank"
                           className="font-medium hover:underline text-base"
                         >
                           {item.product_name}
                         </Link>
                         <p className="text-sm text-muted-foreground mt-1">
-                          SKU: {item.product.id.slice(0, 8)}
+                          SKU: {item.product?.id?.slice(0, 8) ?? 'N/A'}
                         </p>
                       </div>
                       <div className="text-right">
