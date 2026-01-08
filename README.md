@@ -1,73 +1,154 @@
-# React + TypeScript + Vite
+# Designia Frontend - React Marketplace
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, high-performance marketplace frontend built with **React 19**, **TypeScript**, and **Vite**. This application features a modular architecture, real-time capabilities, and a comprehensive seller dashboard with Stripe Connect integration.
 
-Currently, two official plugins are available:
+## 🏗 Architecture
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The project follows a **Feature-Based Architecture** (inspired by Feature-Sliced Design) to ensure scalability and maintainability.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── app/                # App-wide setup (Router, Providers, Layouts)
+├── features/           # Business logic grouped by domain
+│   ├── auth/           # Authentication, User Profile, Security
+│   ├── cart/           # Shopping Cart logic & state
+│   ├── chat/           # Real-time messaging (WebSockets)
+│   ├── checkout/       # Stripe Checkout integration
+│   ├── orders/         # Order management & history
+│   ├── products/       # Product browsing, details, reviews
+│   └── seller/         # Seller dashboard, analytics, onboarding
+├── shared/             # Reusable UI components & utilities
+│   ├── api/            # Axios instance & interceptors
+│   ├── components/     # UI Kit (Shadcn/Radix), Layouts
+│   ├── hooks/          # Shared hooks (useDebounce, etc.)
+│   ├── lib/            # External library configs (Stripe, utils)
+│   └── utils/          # Helper functions
+└── test/               # Test setup & mocks
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Key Technologies
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Core**: React 19, TypeScript, Vite
+- **Styling**: Tailwind CSS 4, Radix UI, Shadcn UI, Lucide Icons
+- **State Management**: Zustand (Global state), TanStack Query (Server state)
+- **Forms**: React Hook Form + Zod
+- **Real-time**: Native WebSockets (Chat, Notifications)
+- **Payments**: Stripe Connect & Embedded Checkout
+- **Testing**: Vitest (Unit/Integration), Playwright (E2E)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 20+
+- Designia Backend running (default: `http://localhost:8000`)
+
+### 1. Installation
+
+```bash
+cd Desginia-frontend
+npm install
+```
+
+### 2. Environment Configuration
+
+Create a `.env` file based on `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+**Required Variables:**
+
+```env
+# Backend API
+VITE_API_BASE_URL=http://localhost:8000/api
+VITE_WS_BASE_URL=ws://localhost:8000
+
+# Third-Party Keys
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+```
+
+### 3. Development Server
+
+Start the Vite development server:
+
+```bash
+npm run dev
+```
+
+- **App**: http://localhost:5174 (Note: configured to 5174 to avoid conflict with backend)
+- **Bundle Visualizer**: Generates `bundle-report.html` on build
+
+## 💎 Key Features
+
+### 🛍️ Marketplace
+
+- **Smart Search**: Debounced search with autocomplete.
+- **Advanced Filtering**: Price, Category, Condition, Rating (URL-synced).
+- **Infinite Scroll**: High-performance product lists.
+- **AR Preview**: Support for 3D/AR model viewing (GLB/GLTF).
+
+### 🏪 Seller Dashboard
+
+- **Stripe Connect**: Automated onboarding and identity verification.
+- **Product Management**: CRUD operations with image & AR model uploads.
+- **Order Fulfillment**: Order tracking, shipping updates, and cancellation handling.
+- **Analytics**: Revenue charts, conversion rates, and sales metrics.
+
+### 💬 Real-time Chat
+
+- **WebSocket Integration**: Instant messaging between buyers and sellers.
+- **Features**: Typing indicators, read receipts, and image sharing.
+- **Inbox**: Organized thread list with unread counts.
+
+### 🔒 Security & Auth
+
+- **JWT Auth**: Access/Refresh token rotation with automatic interceptors.
+- **2FA**: Two-factor authentication support via email.
+- **Role-Based Access**: Protected routes for Sellers/Admins.
+
+## 🧪 Testing
+
+### Unit & Integration Tests (Vitest)
+
+```bash
+# Run tests
+npm run test
+
+# Run with UI
+npm run test:ui
+```
+
+### End-to-End Tests (Playwright)
+
+```bash
+# Run E2E tests (headless)
+npm run test:e2e
+
+# Run with UI mode
+npm run test:e2e:ui
+```
+
+## 🧹 Linting & Formatting
+
+The project uses ESLint and Prettier.
+
+```bash
+# Lint code
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+
+# Format code
+npm run format
+```
+
+## 📦 Build for Production
+
+```bash
+npm run build
+npm run preview
 ```
